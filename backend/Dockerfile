@@ -10,7 +10,7 @@ RUN npm ci
 COPY . .
 RUN npx prisma generate
 RUN npx nest build
-RUN ls dist/main.js
+RUN test -f dist/main.js && echo "Build OK"
 
 FROM node:20-alpine
 
