@@ -122,9 +122,9 @@ export default function DashboardPage() {
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
           {[
             { icon: Target, label: 'Score global', value: `${stats.globalScore ?? 0}%` },
-            { icon: BookOpen, label: 'Réponses', value: stats.totalQuestions ?? 0 },
-            { icon: Flame, label: 'Séries', value: stats.totalAttempts ?? 0 },
             { icon: Award, label: 'Meilleur score', value: `${stats.history?.length ? Math.max(...stats.history.map((h: any) => h.score)) : 0}%` },
+            { icon: Flame, label: 'Séries', value: stats.totalAttempts ?? 0 },
+            { icon: BookOpen, label: 'Correctes', value: `${stats.totalCorrect ?? 0}/${stats.totalQuestions ?? 0}` },
           ].map((s) => (
             <div key={s.label} className="bg-card border border-border rounded-xl p-4">
               <s.icon className="w-4 h-4 text-muted-foreground mb-3" />
