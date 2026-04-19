@@ -3,12 +3,14 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { attemptsApi, themesApi } from '@/lib/api';
+import { useAuthStore } from '@/lib/auth-store';
 import { QuestionCard } from '@/components/QuestionCard';
 import { BookOpen, Loader2, Play, ChevronDown, Crown, CheckCircle, XCircle } from 'lucide-react';
 import { sentenceCase } from '@/lib/utils';
 
 export default function PracticePage() {
   const router = useRouter();
+  const { user } = useAuthStore();
   const [themes, setThemes] = useState<any[]>([]);
   const [config, setConfig] = useState({ themeId: '', count: 10 });
   const [session, setSession] = useState<any>(null);
@@ -168,16 +170,18 @@ export default function PracticePage() {
               </div>
             </div>
 
-            <div className="border border-amber-500/20 bg-amber-500/5 rounded-xl p-4 flex items-start gap-3">
-              <Crown className="w-4 h-4 text-amber-500 flex-shrink-0 mt-0.5" />
-              <p className="text-xs text-muted-foreground leading-relaxed">
-                Plan gratuit : <strong className="text-foreground">3 questions/jour</strong>.{' '}
-                <Link href="/payment" className="text-amber-600 dark:text-amber-400 font-semibold">
-                  Passer Premium
-                </Link>{' '}
-                pour un accès illimité.
-              </p>
-            </div>
+            {user?.role !== 'PREMIUM' && (
+              <div className="border border-amber-500/20 bg-amber-500/5 rounded-xl p-4 flex items-start gap-3">
+                <Crown className="w-4 h-4 text-amber-500 flex-shrink-0 mt-0.5" />
+                <p className="text-xs text-muted-foreground leading-relaxed">
+                  Plan gratuit : <strong className="text-foreground">3 questions/jour</strong>.{' '}
+                  <Link href="/payment" className="text-amber-600 dark:text-amber-400 font-semibold">
+                    Passer Premium
+                  </Link>{' '}
+                  pour un accès illimité.
+                </p>
+              </div>
+            )}
           </div>
         </div>
       </div>
