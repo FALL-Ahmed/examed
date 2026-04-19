@@ -58,8 +58,9 @@ export default function StatsPage() {
     score: h.score,
   }));
 
-  const strengths = [...stats.themeStats].sort((a: any, b: any) => b.score - a.score).slice(0, 4);
-  const weaknesses = [...stats.themeStats].sort((a: any, b: any) => a.score - b.score).slice(0, 4);
+  const qualifiedThemes = stats.themeStats.filter((t: any) => t.total >= 3);
+  const strengths = qualifiedThemes.filter((t: any) => t.score >= 70).sort((a: any, b: any) => b.score - a.score).slice(0, 4);
+  const weaknesses = qualifiedThemes.filter((t: any) => t.score < 70).sort((a: any, b: any) => a.score - b.score).slice(0, 4);
 
   const kpis = [
     { label: 'Score global', value: `${stats.globalScore}%`, icon: Target, gradient: 'gradient-primary', shadow: 'shadow-violet-500/20' },
@@ -149,7 +150,7 @@ export default function StatsPage() {
       )}
 
       {/* Strengths & weaknesses */}
-      {stats.themeStats.length > 0 && (
+      {(strengths.length > 0 || weaknesses.length > 0) ? (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div className="bg-card border border-emerald-500/20 rounded-2xl p-5">
             <div className="flex items-center gap-2 mb-4">
@@ -158,16 +159,20 @@ export default function StatsPage() {
               </div>
               <h3 className="font-semibold text-sm">Points forts</h3>
             </div>
-            <div className="space-y-3.5">
-              {strengths.map((t: any) => (
-                <div key={t.name}>
-                  <div className="flex justify-between text-xs font-medium mb-1.5">
-                    <span className="truncate pr-2 text-foreground">{sentenceCase(t.name)}</span>
+            {strengths.length > 0 ? (
+              <div className="space-y-3.5">
+                {strengths.map((t: any) => (
+                  <div key={t.name}>
+                    <div className="flex justify-between text-xs font-medium mb-1.5">
+                      <span className="truncate pr-2 text-foreground">{sentenceCase(t.name)}</span>
+                    </div>
+                    <ScoreBar score={t.score} />
                   </div>
-                  <ScoreBar score={t.score} />
-                </div>
-              ))}
-            </div>
+                ))}
+              </div>
+            ) : (
+              <p className="text-xs text-muted-foreground">Continuez à pratiquer pour voir vos points forts (score ≥ 70%).</p>
+            )}
           </div>
 
           <div className="bg-card border border-red-500/20 rounded-2xl p-5">
@@ -177,19 +182,27 @@ export default function StatsPage() {
               </div>
               <h3 className="font-semibold text-sm">À améliorer</h3>
             </div>
-            <div className="space-y-3.5">
-              {weaknesses.map((t: any) => (
-                <div key={t.name}>
-                  <div className="flex justify-between text-xs font-medium mb-1.5">
-                    <span className="truncate pr-2 text-foreground">{sentenceCase(t.name)}</span>
+            {weaknesses.length > 0 ? (
+              <div className="space-y-3.5">
+                {weaknesses.map((t: any) => (
+                  <div key={t.name}>
+                    <div className="flex justify-between text-xs font-medium mb-1.5">
+                      <span className="truncate pr-2 text-foreground">{sentenceCase(t.name)}</span>
+                    </div>
+                    <ScoreBar score={t.score} />
                   </div>
-                  <ScoreBar score={t.score} />
-                </div>
-              ))}
-            </div>
+                ))}
+              </div>
+            ) : (
+              <p className="text-xs text-muted-foreground">Pas de thème en dessous de 70% — excellent travail !</p>
+            )}
           </div>
         </div>
-      )}
+      ) : qualifiedThemes.length === 0 && stats.themeStats.length > 0 ? (
+        <div className="bg-card border border-border rounded-2xl p-5 text-center text-sm text-muted-foreground">
+          Répondez à au moins 3 questions par thématique pour voir vos points forts et axes d'amélioration.
+        </div>
+      ) : null}
     </div>
   );
 }
