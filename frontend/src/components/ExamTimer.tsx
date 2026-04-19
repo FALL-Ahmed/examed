@@ -4,20 +4,30 @@ import { Timer, AlertTriangle } from 'lucide-react';
 
 interface Props {
   durationSeconds: number;
+  initialRemaining?: number;
+  paused?: boolean;
   onExpire: () => void;
+  onTick?: (remaining: number) => void;
 }
 
-export function ExamTimer({ durationSeconds, onExpire }: Props) {
-  const [remaining, setRemaining] = useState(durationSeconds);
+export function ExamTimer({ durationSeconds, initialRemaining, paused, onExpire, onTick }: Props) {
+  const [remaining, setRemaining] = useState(initialRemaining ?? durationSeconds);
   const pct = (remaining / durationSeconds) * 100;
   const isWarning = remaining < 300;
   const isCritical = remaining < 60;
 
   useEffect(() => {
+    if (paused) return;
     if (remaining <= 0) { onExpire(); return; }
-    const t = setInterval(() => setRemaining((r) => r - 1), 1000);
+    const t = setInterval(() => {
+      setRemaining((r) => {
+        const next = r - 1;
+        onTick?.(next);
+        return next;
+      });
+    }, 1000);
     return () => clearInterval(t);
-  }, [remaining]);
+  }, [remaining, paused]);
 
   const mins = Math.floor(remaining / 60).toString().padStart(2, '0');
   const secs = (remaining % 60).toString().padStart(2, '0');

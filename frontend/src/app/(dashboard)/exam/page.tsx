@@ -4,7 +4,7 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { attemptsApi, themesApi } from '@/lib/api';
 import { useAuthStore } from '@/lib/auth-store';
-import { Zap, Loader2, Crown, Lock, ChevronDown, Timer, Play } from 'lucide-react';
+import { Zap, Loader2, Crown, Lock, ChevronDown, Timer, Play, PlayCircle, Trash2 } from 'lucide-react';
 import { sentenceCase } from '@/lib/utils';
 
 export default function ExamConfigPage() {
@@ -14,9 +14,14 @@ export default function ExamConfigPage() {
   const [config, setConfig] = useState({ themeId: '', count: 20, durationMinutes: 30 });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [savedExam, setSavedExam] = useState<any>(null);
 
   useEffect(() => {
     themesApi.all().then((r) => setThemes(r.data)).catch(() => {});
+    try {
+      const saved = JSON.parse(localStorage.getItem('exam_state') || 'null');
+      if (saved?.attemptId) setSavedExam(saved);
+    } catch {}
   }, []);
 
   async function startExam() {
@@ -70,10 +75,49 @@ export default function ExamConfigPage() {
     );
   }
 
+  function resumeExam() {
+    router.push(`/exam/${savedExam.attemptId}`);
+  }
+
+  function discardExam() {
+    localStorage.removeItem('exam_state');
+    setSavedExam(null);
+  }
+
   const secPerQ = Math.round((config.durationMinutes * 60) / config.count);
 
   return (
     <div className="space-y-8">
+
+      {/* Resume banner */}
+      {savedExam && (
+        <div className="flex items-center justify-between gap-4 bg-violet-50 border border-violet-200 rounded-2xl px-5 py-4">
+          <div className="flex items-center gap-3">
+            <div className="w-9 h-9 rounded-xl bg-violet-600 flex items-center justify-center flex-shrink-0">
+              <PlayCircle className="w-5 h-5 text-white" />
+            </div>
+            <div>
+              <p className="font-semibold text-violet-900 text-sm">Examen en cours</p>
+              <p className="text-xs text-violet-600">
+                {Object.keys(savedExam.answers || {}).length} / {savedExam.session?.questions?.length || '?'} répondues
+                {savedExam.remainingSeconds ? ` · ${Math.ceil(savedExam.remainingSeconds / 60)} min restantes` : ''}
+              </p>
+            </div>
+          </div>
+          <div className="flex items-center gap-2">
+            <button onClick={discardExam}
+              className="p-2 rounded-lg text-violet-400 hover:text-red-500 hover:bg-red-50 transition"
+              title="Abandonner">
+              <Trash2 className="w-4 h-4" />
+            </button>
+            <button onClick={resumeExam}
+              className="flex items-center gap-1.5 bg-violet-600 text-white px-4 py-2 rounded-xl text-sm font-semibold hover:bg-violet-700 transition">
+              <Play className="w-3.5 h-3.5 fill-white" /> Reprendre
+            </button>
+          </div>
+        </div>
+      )}
+
       {/* Header */}
       <div className="rounded-2xl p-6 md:p-8 text-white"
         style={{ background: 'linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%)' }}>
