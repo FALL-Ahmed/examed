@@ -16,13 +16,6 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
   async validate(payload: any) {
     const user = await this.prisma.user.findUnique({ where: { id: payload.sub } });
     if (!user || !user.isActive) throw new UnauthorizedException();
-
-    // Vérifier que la session est toujours active
-    const session = await this.prisma.session.findFirst({
-      where: { userId: payload.sub, deviceId: payload.deviceId, isActive: true },
-    });
-    if (!session) throw new UnauthorizedException('Session révoquée');
-
     return { sub: payload.sub, role: payload.role, deviceId: payload.deviceId };
   }
 }

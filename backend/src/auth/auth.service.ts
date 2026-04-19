@@ -55,26 +55,26 @@ export class AuthService {
     // Gérer la limite de sessions (MAX 2 appareils)
     await this.enforceSessionLimit(user.id, deviceInfo.deviceId);
 
-    // Créer session
-    await this.prisma.session.upsert({
-      where: {
-        id: `${user.id}_${deviceInfo.deviceId}`.slice(0, 25),
-      },
-      update: {
-        isActive: true,
-        lastActive: new Date(),
-        ipAddress: deviceInfo.ip,
-        deviceInfo: deviceInfo.userAgent,
-      },
-      create: {
-        id: `${user.id}_${deviceInfo.deviceId}`.slice(0, 25),
-        userId: user.id,
-        deviceId: deviceInfo.deviceId,
-        deviceInfo: deviceInfo.userAgent,
-        ipAddress: deviceInfo.ip,
-        isActive: true,
-      },
+    // Créer ou mettre à jour la session pour ce device
+    const existingSession = await this.prisma.session.findFirst({
+      where: { userId: user.id, deviceId: deviceInfo.deviceId },
     });
+    if (existingSession) {
+      await this.prisma.session.update({
+        where: { id: existingSession.id },
+        data: { isActive: true, lastActive: new Date(), ipAddress: deviceInfo.ip, deviceInfo: deviceInfo.userAgent },
+      });
+    } else {
+      await this.prisma.session.create({
+        data: {
+          userId: user.id,
+          deviceId: deviceInfo.deviceId,
+          deviceInfo: deviceInfo.userAgent,
+          ipAddress: deviceInfo.ip,
+          isActive: true,
+        },
+      });
+    }
 
     const tokens = await this.generateTokens(user.id, user.role, deviceInfo.deviceId);
     return {
@@ -148,12 +148,13 @@ export class AuthService {
   }
 
   async logout(userId: string, deviceId: string) {
-    const sessionId = `${userId}_${deviceId}`.slice(0, 25);
-    const session = await this.prisma.session.findUnique({ where: { id: sessionId } });
+    const session = await this.prisma.session.findFirst({
+      where: { userId, deviceId },
+    });
     if (!session) throw new BadRequestException('Session introuvable');
 
     await this.prisma.session.update({
-      where: { id: sessionId },
+      where: { id: session.id },
       data: { isActive: false },
     });
 
