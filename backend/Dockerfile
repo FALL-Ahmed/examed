@@ -1,5 +1,7 @@
 FROM node:20-alpine AS builder
 
+RUN apk add --no-cache openssl
+
 WORKDIR /app
 COPY package*.json ./
 RUN npm ci
@@ -9,6 +11,8 @@ RUN npm run build
 
 FROM node:20-alpine
 
+RUN apk add --no-cache openssl
+
 WORKDIR /app
 COPY package*.json ./
 RUN npm ci --only=production
@@ -16,7 +20,6 @@ COPY --from=builder /app/dist ./dist
 COPY --from=builder /app/node_modules/.prisma ./node_modules/.prisma
 COPY --from=builder /app/node_modules/@prisma ./node_modules/@prisma
 COPY prisma ./prisma
-COPY --from=builder /app/node_modules/bcryptjs ./node_modules/bcryptjs
 
 EXPOSE 3001
-CMD ["sh", "-c", "npx prisma migrate deploy && node prisma/seed.js && node dist/main"]
+CMD ["sh", "-c", "npx prisma migrate deploy && node dist/main"]
