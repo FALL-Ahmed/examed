@@ -8,7 +8,7 @@ export class StorageService {
     process.env.SUPABASE_SERVICE_KEY!,
   );
 
-  async uploadReceipt(file: Express.Multer.File): Promise<string> {
+  async uploadReceipt(file: Express.Multer.File): Promise<string | undefined> {
     const ext = file.originalname.split('.').pop() || 'jpg';
     const filename = `${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;
 
@@ -16,7 +16,10 @@ export class StorageService {
       .from('receipts')
       .upload(filename, file.buffer, { contentType: file.mimetype, upsert: false });
 
-    if (error) throw new Error(`Storage upload failed: ${error.message}`);
+    if (error) {
+      console.error('Supabase Storage upload error:', error.message);
+      return undefined;
+    }
 
     const { data } = this.supabase.storage.from('receipts').getPublicUrl(filename);
     return data.publicUrl;
