@@ -13,6 +13,18 @@ export class RegisterDto {
 
   @IsOptional()
   @IsString()
+  pseudo?: string;
+
+  @IsOptional()
+  @IsString()
+  profession?: string;
+
+  @IsOptional()
+  @IsString()
+  wilaya?: string;
+
+  @IsOptional()
+  @IsString()
   phone?: string;
 }
 

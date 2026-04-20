@@ -23,10 +23,18 @@ export class AuthService {
     email: string;
     password: string;
     fullName: string;
+    pseudo?: string;
+    profession?: string;
+    wilaya?: string;
     phone?: string;
   }) {
     const existing = await this.prisma.user.findUnique({ where: { email: dto.email } });
     if (existing) throw new BadRequestException('Email déjà utilisé');
+
+    if (dto.pseudo) {
+      const pseudoTaken = await this.prisma.user.findFirst({ where: { pseudo: dto.pseudo } as any });
+      if (pseudoTaken) throw new BadRequestException('Ce pseudo est déjà utilisé');
+    }
 
     const hash = await bcrypt.hash(dto.password, 12);
     const user = await this.prisma.user.create({
@@ -34,7 +42,8 @@ export class AuthService {
         email: dto.email,
         passwordHash: hash,
         fullName: dto.fullName,
-        phone: dto.phone,
+        phone: dto.phone || null,
+        ...({ pseudo: dto.pseudo || null, profession: dto.profession || null, wilaya: dto.wilaya || null } as any),
       },
     });
 
