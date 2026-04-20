@@ -3,11 +3,9 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useAuthStore } from '@/lib/auth-store';
-import { settingsApi } from '@/lib/api';
 import {
   BookOpen, Zap, RefreshCw, TrendingUp, CheckCircle2,
-  ChevronRight, Star, Crown, GraduationCap, ArrowRight,
-  Target, BarChart3, Clock, ShieldCheck,
+  Star, GraduationCap, ArrowRight, Target, Shield, Clock,
 } from 'lucide-react';
 
 const FEATURES = [
@@ -34,10 +32,8 @@ export default function LandingPage() {
   const router = useRouter();
   const { loadUser } = useAuthStore();
   const [checked, setChecked] = useState(false);
-  const [price, setPrice] = useState<string | null>(null);
 
   useEffect(() => {
-    settingsApi.price().then((r) => setPrice(r.data.price)).catch(() => {});
     loadUser().then(() => {
       const u = useAuthStore.getState().user;
       if (u) router.replace(u.role === 'ADMIN' ? '/admin' : '/dashboard');
@@ -161,68 +157,6 @@ export default function LandingPage() {
                 </div>
               </div>
             ))}
-          </div>
-        </div>
-      </section>
-
-      {/* ── Pricing ── */}
-      <section className="py-28 px-6 lg:px-10" style={{ background: '#f8f7ff' }}>
-        <div className="max-w-5xl mx-auto">
-          <div className="text-center mb-16">
-            <p className="text-violet-600 text-xs font-bold uppercase tracking-widest mb-3">Tarifs</p>
-            <h2 className="text-3xl md:text-5xl font-extrabold text-gray-900">Simple et transparent</h2>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-3xl mx-auto">
-            {/* Free */}
-            <div className="bg-white rounded-3xl border border-gray-200 p-8 flex flex-col">
-              <div>
-                <p className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-4">Gratuit</p>
-                <p className="text-5xl font-extrabold text-gray-900 mb-1">0<span className="text-2xl text-gray-400 font-normal ml-1">MRU</span></p>
-                <p className="text-sm text-gray-400 mb-8">Pour découvrir la plateforme</p>
-                <div className="space-y-3.5 mb-8">
-                  {['3 questions par jour', 'Toutes les thématiques', 'Suivi de progression'].map((f) => (
-                    <div key={f} className="flex items-center gap-3 text-sm text-gray-600">
-                      <CheckCircle2 className="w-4 h-4 text-emerald-500 flex-shrink-0" /> {f}
-                    </div>
-                  ))}
-                </div>
-              </div>
-              <Link href="/register"
-                className="mt-auto block text-center text-sm font-bold text-violet-600 py-3.5 rounded-2xl border-2 border-violet-200 hover:bg-violet-50 transition">
-                Commencer gratuitement
-              </Link>
-            </div>
-
-            {/* Premium */}
-            <div className="rounded-3xl p-8 text-white flex flex-col relative overflow-hidden shadow-2xl shadow-violet-500/25"
-              style={{ background: 'linear-gradient(145deg,#5b21b6,#4338ca)' }}>
-              <div className="absolute top-0 right-0 w-48 h-48 rounded-full blur-3xl opacity-20"
-                style={{ background: 'radial-gradient(circle,#a78bfa,transparent)', transform: 'translate(30%,-30%)' }} />
-              <div className="relative">
-                <div className="flex items-center justify-between mb-4">
-                  <p className="text-xs font-bold text-white/50 uppercase tracking-widest">Premium</p>
-                  <span className="flex items-center gap-1 text-xs font-bold bg-white/15 px-2.5 py-1 rounded-full">
-                    <Crown className="w-3 h-3 text-amber-300" /> Recommandé
-                  </span>
-                </div>
-                <p className="text-5xl font-extrabold mb-1">
-                  {price ?? '…'}<span className="text-2xl text-white/50 font-normal ml-1">MRU</span>
-                </p>
-                <p className="text-sm text-white/50 mb-8">par mois · accès illimité</p>
-                <div className="space-y-3.5 mb-8">
-                  {['Questions illimitées', 'Mode examen chronométré', 'Révision des erreurs', 'Statistiques avancées', 'Support prioritaire'].map((f) => (
-                    <div key={f} className="flex items-center gap-3 text-sm text-white/85">
-                      <CheckCircle2 className="w-4 h-4 text-violet-300 flex-shrink-0" /> {f}
-                    </div>
-                  ))}
-                </div>
-              </div>
-              <Link href="/register"
-                className="mt-auto block text-center text-sm font-bold text-violet-800 bg-white py-3.5 rounded-2xl hover:bg-white/90 transition">
-                Activer Premium →
-              </Link>
-            </div>
           </div>
         </div>
       </section>
