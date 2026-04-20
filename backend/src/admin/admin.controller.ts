@@ -42,6 +42,16 @@ export class AdminController {
     );
   }
 
+  @Get('users/:id')
+  getUser(@Param('id') id: string) {
+    return this.adminService.getUserById(id);
+  }
+
+  @Delete('users/:id')
+  deleteUser(@Param('id') id: string) {
+    return this.adminService.deleteUser(id);
+  }
+
   @Put('users/:id/toggle')
   toggleUser(@Param('id') id: string) {
     return this.adminService.toggleUserActive(id);

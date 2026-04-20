@@ -49,6 +49,30 @@ export class AdminService {
     return { users, total, page, totalPages: Math.ceil(total / limit) };
   }
 
+  async getUserById(userId: string) {
+    return this.prisma.user.findUnique({
+      where: { id: userId },
+      select: {
+        id: true, email: true, fullName: true, phone: true,
+        role: true, subscriptionEnd: true, isActive: true, createdAt: true,
+        gender: true, profession: true, wilaya: true, pseudo: true,
+        _count: { select: { attempts: true } },
+        payments: {
+          orderBy: { createdAt: 'desc' },
+          select: {
+            id: true, amount: true, status: true, paymentMethod: true,
+            operator: true, receiptUrl: true, createdAt: true,
+            validatedAt: true, rejectionReason: true,
+          },
+        },
+      } as any,
+    });
+  }
+
+  async deleteUser(userId: string) {
+    return this.prisma.user.delete({ where: { id: userId } });
+  }
+
   async toggleUserActive(userId: string) {
     const user = await this.prisma.user.findUnique({ where: { id: userId } });
     return this.prisma.user.update({

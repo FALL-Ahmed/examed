@@ -1,9 +1,11 @@
 'use client';
 import { useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { adminApi } from '@/lib/api';
-import { CheckCircle, Shield, User, Search, ToggleLeft, ToggleRight, RotateCcw } from 'lucide-react';
+import { CheckCircle, Shield, User, Search, ToggleLeft, ToggleRight, RotateCcw, Trash2 } from 'lucide-react';
 
 export default function AdminUsersPage() {
+  const router = useRouter();
   const [data, setData] = useState<any>(null);
   const [search, setSearch] = useState('');
   const [page, setPage] = useState(1);
@@ -16,17 +18,28 @@ export default function AdminUsersPage() {
     setData(d);
   }
 
-  async function toggle(id: string) {
+  async function toggle(e: React.MouseEvent, id: string) {
+    e.stopPropagation();
     setProcessing(id + '_toggle');
     await adminApi.toggleUser(id).catch(() => {});
     await load();
     setProcessing(null);
   }
 
-  async function resetSub(id: string, name: string) {
+  async function resetSub(e: React.MouseEvent, id: string, name: string) {
+    e.stopPropagation();
     if (!confirm(`Remettre "${name}" en attente de renouvellement ?`)) return;
     setProcessing(id + '_reset');
     await adminApi.resetSubscription(id).catch(() => {});
+    await load();
+    setProcessing(null);
+  }
+
+  async function deleteUser(e: React.MouseEvent, id: string, name: string) {
+    e.stopPropagation();
+    if (!confirm(`Supprimer définitivement "${name}" ? Cette action est irréversible.`)) return;
+    setProcessing(id + '_delete');
+    await adminApi.deleteUser(id).catch(() => {});
     await load();
     setProcessing(null);
   }
@@ -76,7 +89,9 @@ export default function AdminUsersPage() {
               const subEnd = u.subscriptionEnd ? new Date(u.subscriptionEnd) : null;
               const daysLeft = subEnd ? Math.ceil((subEnd.getTime() - Date.now()) / 86400000) : null;
               return (
-                <tr key={u.id} className={`hover:bg-slate-50 ${!u.isActive ? 'opacity-50' : ''}`}>
+                <tr key={u.id}
+                  onClick={() => router.push(`/admin/users/${u.id}`)}
+                  className={`hover:bg-slate-50 cursor-pointer ${!u.isActive ? 'opacity-50' : ''}`}>
                   <td className="px-4 py-3">
                     <div className="flex items-center gap-2">
                       {roleIcon(u.role)}
@@ -101,9 +116,7 @@ export default function AdminUsersPage() {
                           </span>
                         )}
                       </span>
-                    ) : (
-                      <span className="text-slate-300">—</span>
-                    )}
+                    ) : <span className="text-slate-300">—</span>}
                   </td>
                   <td className="px-4 py-3 hidden md:table-cell text-muted-foreground text-xs">
                     {new Date(u.createdAt).toLocaleDateString('fr-FR')}
@@ -111,24 +124,26 @@ export default function AdminUsersPage() {
                   <td className="px-4 py-3 text-right">
                     <div className="flex items-center justify-end gap-2">
                       {u.role === 'PREMIUM' && (
-                        <button
-                          onClick={() => resetSub(u.id, u.fullName)}
+                        <button onClick={(e) => resetSub(e, u.id, u.fullName)}
                           disabled={!!processing}
-                          title="Remettre en attente (demander renouvellement)"
-                          className="text-amber-400 hover:text-amber-600 transition disabled:opacity-40"
-                        >
+                          title="Remettre en attente"
+                          className="text-amber-400 hover:text-amber-600 transition disabled:opacity-40">
                           <RotateCcw className="w-4 h-4" />
                         </button>
                       )}
-                      <button
-                        onClick={() => toggle(u.id)}
+                      <button onClick={(e) => toggle(e, u.id)}
                         disabled={!!processing}
-                        className="text-muted-foreground hover:text-foreground transition"
                         title={u.isActive ? 'Désactiver' : 'Activer'}
-                      >
+                        className="text-muted-foreground hover:text-foreground transition">
                         {u.isActive
                           ? <ToggleRight className="w-5 h-5 text-green-500" />
                           : <ToggleLeft className="w-5 h-5" />}
+                      </button>
+                      <button onClick={(e) => deleteUser(e, u.id, u.fullName)}
+                        disabled={!!processing}
+                        title="Supprimer"
+                        className="text-slate-300 hover:text-red-500 transition disabled:opacity-40">
+                        <Trash2 className="w-4 h-4" />
                       </button>
                     </div>
                   </td>
