@@ -1,7 +1,7 @@
 'use client';
 import { useEffect, useState } from 'react';
 import { adminApi } from '@/lib/api';
-import { CheckCircle, Shield, User, Search, ToggleLeft, ToggleRight } from 'lucide-react';
+import { CheckCircle, Shield, User, Search, ToggleLeft, ToggleRight, RotateCcw } from 'lucide-react';
 
 export default function AdminUsersPage() {
   const [data, setData] = useState<any>(null);
@@ -17,8 +17,16 @@ export default function AdminUsersPage() {
   }
 
   async function toggle(id: string) {
-    setProcessing(id);
+    setProcessing(id + '_toggle');
     await adminApi.toggleUser(id).catch(() => {});
+    await load();
+    setProcessing(null);
+  }
+
+  async function resetSub(id: string, name: string) {
+    if (!confirm(`Remettre "${name}" en attente de renouvellement ?`)) return;
+    setProcessing(id + '_reset');
+    await adminApi.resetSubscription(id).catch(() => {});
     await load();
     setProcessing(null);
   }
@@ -58,58 +66,85 @@ export default function AdminUsersPage() {
             <tr>
               <th className="text-left px-4 py-3 font-medium text-muted-foreground">Utilisateur</th>
               <th className="text-left px-4 py-3 font-medium text-muted-foreground hidden md:table-cell">Statut</th>
+              <th className="text-left px-4 py-3 font-medium text-muted-foreground hidden lg:table-cell">Expiration</th>
               <th className="text-left px-4 py-3 font-medium text-muted-foreground hidden md:table-cell">Inscription</th>
               <th className="text-right px-4 py-3 font-medium text-muted-foreground">Actions</th>
             </tr>
           </thead>
           <tbody className="divide-y">
-            {data?.users?.map((u: any) => (
-              <tr key={u.id} className={`hover:bg-slate-50 ${!u.isActive ? 'opacity-50' : ''}`}>
-                <td className="px-4 py-3">
-                  <div className="flex items-center gap-2">
-                    {roleIcon(u.role)}
-                    <div>
-                      <p className="font-medium">{u.fullName}</p>
-                      <p className="text-xs text-muted-foreground">{u.email}</p>
+            {data?.users?.map((u: any) => {
+              const subEnd = u.subscriptionEnd ? new Date(u.subscriptionEnd) : null;
+              const daysLeft = subEnd ? Math.ceil((subEnd.getTime() - Date.now()) / 86400000) : null;
+              return (
+                <tr key={u.id} className={`hover:bg-slate-50 ${!u.isActive ? 'opacity-50' : ''}`}>
+                  <td className="px-4 py-3">
+                    <div className="flex items-center gap-2">
+                      {roleIcon(u.role)}
+                      <div>
+                        <p className="font-medium">{u.fullName}</p>
+                        <p className="text-xs text-muted-foreground">{u.email}</p>
+                      </div>
                     </div>
-                  </div>
-                </td>
-                <td className="px-4 py-3 hidden md:table-cell">
-                  {(() => { const r = roleLabel(u.role); return (
-                    <span className={`px-2 py-1 rounded-full text-xs font-medium ${r.cls}`}>{r.label}</span>
-                  ); })()}
-                </td>
-                <td className="px-4 py-3 hidden md:table-cell text-muted-foreground text-xs">
-                  {new Date(u.createdAt).toLocaleDateString('fr-FR')}
-                </td>
-                <td className="px-4 py-3 text-right">
-                  <button
-                    onClick={() => toggle(u.id)}
-                    disabled={!!processing}
-                    className="text-muted-foreground hover:text-foreground transition"
-                    title={u.isActive ? 'Désactiver' : 'Activer'}
-                  >
-                    {u.isActive
-                      ? <ToggleRight className="w-5 h-5 text-green-500" />
-                      : <ToggleLeft className="w-5 h-5" />}
-                  </button>
-                </td>
-              </tr>
-            ))}
+                  </td>
+                  <td className="px-4 py-3 hidden md:table-cell">
+                    {(() => { const r = roleLabel(u.role); return (
+                      <span className={`px-2 py-1 rounded-full text-xs font-medium ${r.cls}`}>{r.label}</span>
+                    ); })()}
+                  </td>
+                  <td className="px-4 py-3 hidden lg:table-cell text-xs">
+                    {subEnd ? (
+                      <span className={daysLeft !== null && daysLeft <= 7 ? 'text-red-500 font-semibold' : 'text-slate-500'}>
+                        {subEnd.toLocaleDateString('fr-FR')}
+                        {daysLeft !== null && (
+                          <span className="ml-1 text-slate-400">
+                            ({daysLeft <= 0 ? 'expiré' : `${daysLeft}j`})
+                          </span>
+                        )}
+                      </span>
+                    ) : (
+                      <span className="text-slate-300">—</span>
+                    )}
+                  </td>
+                  <td className="px-4 py-3 hidden md:table-cell text-muted-foreground text-xs">
+                    {new Date(u.createdAt).toLocaleDateString('fr-FR')}
+                  </td>
+                  <td className="px-4 py-3 text-right">
+                    <div className="flex items-center justify-end gap-2">
+                      {u.role === 'PREMIUM' && (
+                        <button
+                          onClick={() => resetSub(u.id, u.fullName)}
+                          disabled={!!processing}
+                          title="Remettre en attente (demander renouvellement)"
+                          className="text-amber-400 hover:text-amber-600 transition disabled:opacity-40"
+                        >
+                          <RotateCcw className="w-4 h-4" />
+                        </button>
+                      )}
+                      <button
+                        onClick={() => toggle(u.id)}
+                        disabled={!!processing}
+                        className="text-muted-foreground hover:text-foreground transition"
+                        title={u.isActive ? 'Désactiver' : 'Activer'}
+                      >
+                        {u.isActive
+                          ? <ToggleRight className="w-5 h-5 text-green-500" />
+                          : <ToggleLeft className="w-5 h-5" />}
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              );
+            })}
           </tbody>
         </table>
       </div>
 
-      {/* Pagination */}
       {data && data.totalPages > 1 && (
         <div className="flex items-center justify-center gap-2">
           {Array.from({ length: data.totalPages }, (_, i) => i + 1).map((p) => (
-            <button
-              key={p}
-              onClick={() => setPage(p)}
+            <button key={p} onClick={() => setPage(p)}
               className={`w-9 h-9 rounded-xl text-sm font-medium transition
-                ${p === page ? 'bg-primary text-white' : 'border hover:bg-secondary'}`}
-            >
+                ${p === page ? 'bg-primary text-white' : 'border hover:bg-secondary'}`}>
               {p}
             </button>
           ))}

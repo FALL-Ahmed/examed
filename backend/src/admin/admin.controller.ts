@@ -47,6 +47,11 @@ export class AdminController {
     return this.adminService.toggleUserActive(id);
   }
 
+  @Put('users/:id/reset-subscription')
+  resetSubscription(@Param('id') id: string) {
+    return this.adminService.resetUserSubscription(id);
+  }
+
   @Get('questions')
   getQuestions(
     @Query('page') page?: string,

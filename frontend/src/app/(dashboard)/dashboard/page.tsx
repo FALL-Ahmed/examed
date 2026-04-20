@@ -5,7 +5,7 @@ import { useAuthStore } from '@/lib/auth-store';
 import { attemptsApi, userApi } from '@/lib/api';
 import {
   BookOpen, Zap, RefreshCw, TrendingUp,
-  Clock, ArrowRight, Target, Award, Flame, ChevronRight,
+  Clock, ArrowRight, Target, Award, Flame, ChevronRight, AlertTriangle, CalendarCheck,
 } from 'lucide-react';
 
 function ScoreRing({ value }: { value: number }) {
@@ -69,15 +69,20 @@ export default function DashboardPage() {
   const { user } = useAuthStore();
   const [stats, setStats] = useState<any>(null);
   const [history, setHistory] = useState<any[]>([]);
+  const [profile, setProfile] = useState<any>(null);
 
   useEffect(() => {
     userApi.stats().then((r) => setStats(r.data)).catch(() => {});
     attemptsApi.history().then((r) => setHistory(r.data.slice(0, 5))).catch(() => {});
+    userApi.me().then((r) => setProfile(r.data)).catch(() => {});
   }, []);
 
   const hour = new Date().getHours();
   const greeting = hour < 12 ? 'Bonjour' : hour < 18 ? 'Bon après-midi' : 'Bonsoir';
   const firstName = user?.fullName?.split(' ')[0];
+
+  const subEnd = profile?.subscriptionEnd ? new Date(profile.subscriptionEnd) : null;
+  const daysLeft = subEnd ? Math.ceil((subEnd.getTime() - Date.now()) / 86400000) : null;
 
   return (
     <div className="max-w-5xl mx-auto space-y-6">
@@ -102,6 +107,33 @@ export default function DashboardPage() {
         </div>
       </div>
 
+
+      {/* ── Subscription expiry banner ── */}
+      {subEnd && daysLeft !== null && daysLeft <= 7 && (
+        <div className={`flex items-center gap-3 rounded-2xl px-5 py-4 border ${
+          daysLeft <= 3
+            ? 'bg-red-500/10 border-red-500/30 text-red-400'
+            : 'bg-amber-500/10 border-amber-500/30 text-amber-400'
+        }`}>
+          <AlertTriangle className="w-5 h-5 flex-shrink-0" />
+          <div className="flex-1 text-sm">
+            <span className="font-semibold">
+              {daysLeft <= 0 ? 'Abonnement expiré' : `Abonnement expire dans ${daysLeft} jour${daysLeft > 1 ? 's' : ''}`}
+            </span>
+            <span className="opacity-70 ml-2">— Contactez l'admin pour renouveler.</span>
+          </div>
+        </div>
+      )}
+
+      {subEnd && daysLeft !== null && daysLeft > 7 && (
+        <div className="flex items-center gap-3 bg-emerald-500/10 border border-emerald-500/20 rounded-2xl px-5 py-3">
+          <CalendarCheck className="w-4 h-4 text-emerald-400 flex-shrink-0" />
+          <p className="text-sm text-emerald-400">
+            Abonnement valide jusqu'au <strong>{subEnd.toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' })}</strong>
+            <span className="opacity-70 ml-1">({daysLeft} jours restants)</span>
+          </p>
+        </div>
+      )}
 
       {/* ── Stats rapides ── */}
       {stats && (

@@ -1,7 +1,7 @@
 'use client';
 import { useEffect, useState } from 'react';
 import { adminApi, settingsApi } from '@/lib/api';
-import { Users, FileText, CreditCard, AlertCircle, Settings, Loader2, CheckCircle, Smartphone } from 'lucide-react';
+import { Users, FileText, CreditCard, AlertCircle, Settings, Loader2, CheckCircle, Smartphone, MessageCircle } from 'lucide-react';
 import Link from 'next/link';
 
 export default function AdminDashboard() {
@@ -19,12 +19,20 @@ export default function AdminDashboard() {
   const [phones, setPhones] = useState<Record<string, string>>({ BANKILY: '', MASRIVI: '', SEDAD: '' });
   const [savingPhone, setSavingPhone] = useState<string | null>(null);
   const [savedPhone, setSavedPhone] = useState<string | null>(null);
+  const [whatsapp, setWhatsapp] = useState('');
+  const [savingWa, setSavingWa] = useState(false);
+  const [savedWa, setSavedWa] = useState(false);
+  const [supportEmail, setSupportEmail] = useState('');
+  const [savingEmail, setSavingEmail] = useState(false);
+  const [savedEmail, setSavedEmail] = useState(false);
 
   useEffect(() => {
     adminApi.stats().then((r) => setStats(r.data)).catch(() => {});
     adminApi.getSettings().then((r) => {
       setSettings(r.data);
       setPriceInput(r.data.PREMIUM_PRICE ?? '500');
+      setWhatsapp(r.data.WHATSAPP_PHONE ?? '');
+      setSupportEmail(r.data.SUPPORT_EMAIL ?? '');
     }).catch(() => {});
     settingsApi.operators().then((r) => {
       const map: Record<string, string> = {};
@@ -41,6 +49,32 @@ export default function AdminDashboard() {
       setTimeout(() => setSavedPhone(null), 3000);
     } finally {
       setSavingPhone(null);
+    }
+  }
+
+  async function saveSupportEmail(e: React.FormEvent) {
+    e.preventDefault();
+    if (!supportEmail.trim()) return;
+    setSavingEmail(true);
+    try {
+      await adminApi.setSetting('SUPPORT_EMAIL', supportEmail.trim());
+      setSavedEmail(true);
+      setTimeout(() => setSavedEmail(false), 3000);
+    } finally {
+      setSavingEmail(false);
+    }
+  }
+
+  async function saveWhatsapp(e: React.FormEvent) {
+    e.preventDefault();
+    if (!whatsapp.trim()) return;
+    setSavingWa(true);
+    try {
+      await adminApi.setSetting('WHATSAPP_PHONE', whatsapp.trim());
+      setSavedWa(true);
+      setTimeout(() => setSavedWa(false), 3000);
+    } finally {
+      setSavingWa(false);
     }
   }
 
@@ -153,6 +187,64 @@ export default function AdminDashboard() {
               </p>
             </div>
           </form>
+
+          <div className="border-t border-border pt-4 mt-4">
+            <form onSubmit={saveWhatsapp}>
+              <label className="block text-sm font-semibold mb-2 flex items-center gap-1.5">
+                <MessageCircle className="w-3.5 h-3.5 text-green-500" />
+                Numéro WhatsApp support
+              </label>
+              <div className="flex gap-2">
+                <input
+                  type="text"
+                  value={whatsapp}
+                  onChange={(e) => setWhatsapp(e.target.value)}
+                  className="flex-1 px-4 py-2.5 bg-background border border-border rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary"
+                  placeholder="+222 XX XX XX XX"
+                />
+                <button
+                  type="submit"
+                  disabled={savingWa}
+                  className="px-4 py-2.5 bg-green-500 hover:bg-green-600 text-white rounded-xl text-sm font-semibold transition disabled:opacity-60 flex items-center gap-2"
+                >
+                  {savingWa ? <Loader2 className="w-4 h-4 animate-spin" /> : savedWa ? <CheckCircle className="w-4 h-4" /> : null}
+                  {savedWa ? 'Sauvegardé' : 'Enregistrer'}
+                </button>
+              </div>
+              <p className="text-xs text-muted-foreground mt-2">
+                S'affiche sur la page d'attente et la page support utilisateur.
+              </p>
+            </form>
+          </div>
+
+          <div className="border-t border-border pt-4 mt-2">
+            <form onSubmit={saveSupportEmail}>
+              <label className="block text-sm font-semibold mb-2 flex items-center gap-1.5">
+                <MessageCircle className="w-3.5 h-3.5 text-blue-500" />
+                Email support
+              </label>
+              <div className="flex gap-2">
+                <input
+                  type="email"
+                  value={supportEmail}
+                  onChange={(e) => setSupportEmail(e.target.value)}
+                  className="flex-1 px-4 py-2.5 bg-background border border-border rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary"
+                  placeholder="support@examed.mr"
+                />
+                <button
+                  type="submit"
+                  disabled={savingEmail}
+                  className="px-4 py-2.5 bg-blue-500 hover:bg-blue-600 text-white rounded-xl text-sm font-semibold transition disabled:opacity-60 flex items-center gap-2"
+                >
+                  {savingEmail ? <Loader2 className="w-4 h-4 animate-spin" /> : savedEmail ? <CheckCircle className="w-4 h-4" /> : null}
+                  {savedEmail ? 'Sauvegardé' : 'Enregistrer'}
+                </button>
+              </div>
+              <p className="text-xs text-muted-foreground mt-2">
+                Affiché aux utilisateurs dans la section support.
+              </p>
+            </form>
+          </div>
         </div>
       </div>
 

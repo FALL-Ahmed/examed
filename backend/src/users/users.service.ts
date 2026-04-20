@@ -6,21 +6,22 @@ export class UsersService {
   constructor(private prisma: PrismaService) {}
 
   async findById(id: string) {
-    const user = await this.prisma.user.findUnique({
+    let user = await this.prisma.user.findUnique({
       where: { id },
       select: {
-        id: true,
-        email: true,
-        fullName: true,
-        phone: true,
-        role: true,
-        subscriptionEnd: true,
-        createdAt: true,
-        dailyQuestionCount: true,
-        lastQuestionDate: true,
+        id: true, email: true, fullName: true, phone: true,
+        role: true, subscriptionEnd: true, createdAt: true,
+        dailyQuestionCount: true, lastQuestionDate: true,
       },
     });
     if (!user) throw new NotFoundException('Utilisateur introuvable');
+
+    // Auto-expiry: downgrade PREMIUM users whose subscription has ended
+    if (user.role === 'PREMIUM' && user.subscriptionEnd && user.subscriptionEnd < new Date()) {
+      await this.prisma.user.update({ where: { id }, data: { role: 'FREE' } });
+      user = { ...user, role: 'FREE' };
+    }
+
     return user;
   }
 

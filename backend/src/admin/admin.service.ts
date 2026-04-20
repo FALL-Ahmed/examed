@@ -38,14 +38,8 @@ export class AdminService {
         take: limit,
         orderBy: { createdAt: 'desc' },
         select: {
-          id: true,
-          email: true,
-          fullName: true,
-          phone: true,
-          role: true,
-          subscriptionEnd: true,
-          isActive: true,
-          createdAt: true,
+          id: true, email: true, fullName: true, phone: true,
+          role: true, subscriptionEnd: true, isActive: true, createdAt: true,
           _count: { select: { attempts: true } },
         },
       }),
@@ -60,6 +54,13 @@ export class AdminService {
     return this.prisma.user.update({
       where: { id: userId },
       data: { isActive: !user.isActive },
+    });
+  }
+
+  async resetUserSubscription(userId: string) {
+    return this.prisma.user.update({
+      where: { id: userId },
+      data: { role: 'FREE', subscriptionEnd: null },
     });
   }
 

@@ -69,6 +69,7 @@ export const authApi = {
 export const userApi = {
   me: () => api.get('/users/me'),
   stats: () => api.get('/users/me/stats'),
+  myPayments: () => api.get('/payments/me'),
 };
 
 // Themes
@@ -103,6 +104,8 @@ export const paymentsApi = {
 export const settingsApi = {
   price: () => api.get('/settings/price'),
   operators: () => api.get('/settings/operators'),
+  whatsapp: () => api.get('/settings/whatsapp'),
+  contact: () => api.get('/settings/contact'),
 };
 
 // Admin
@@ -110,6 +113,7 @@ export const adminApi = {
   stats: () => api.get('/admin/stats'),
   users: (params?: any) => api.get('/admin/users', { params }),
   toggleUser: (id: string) => api.put(`/admin/users/${id}/toggle`),
+  resetSubscription: (id: string) => api.put(`/admin/users/${id}/reset-subscription`),
   questions: (params?: any) => api.get('/admin/questions', { params }),
   updateQuestion: (id: string, data: any) => api.put(`/admin/questions/${id}`, data),
   deleteQuestion: (id: string) => api.delete(`/admin/questions/${id}`),

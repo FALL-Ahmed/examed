@@ -17,6 +17,21 @@ export class SettingsController {
     return { price: raw ? parseInt(raw) : 500 };
   }
 
+  @Get('whatsapp')
+  async getWhatsapp() {
+    const phone = await this.adminService.getSetting('WHATSAPP_PHONE');
+    return { phone: phone ?? null };
+  }
+
+  @Get('contact')
+  async getContact() {
+    const [whatsapp, email] = await Promise.all([
+      this.adminService.getSetting('WHATSAPP_PHONE'),
+      this.adminService.getSetting('SUPPORT_EMAIL'),
+    ]);
+    return { whatsapp: whatsapp ?? null, email: email ?? null };
+  }
+
   @Get('operators')
   async getOperators() {
     const keys = Object.keys(OPERATOR_DEFAULTS).map((id) => `${id}_PHONE`);
