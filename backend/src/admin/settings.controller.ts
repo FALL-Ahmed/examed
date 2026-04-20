@@ -23,6 +23,22 @@ export class SettingsController {
     return { phone: phone ?? null };
   }
 
+  @Get('pricing')
+  async getPricing() {
+    const [price1m, price3m, priceGroup, groupMin] = await Promise.all([
+      this.adminService.getSetting('PRICE_1M'),
+      this.adminService.getSetting('PRICE_3M'),
+      this.adminService.getSetting('PRICE_GROUP_PER_PERSON'),
+      this.adminService.getSetting('GROUP_MIN_MEMBERS'),
+    ]);
+    return {
+      solo1m:    { price: price1m    ? parseInt(price1m)    : 500,  duration: 30 },
+      solo3m:    { price: price3m    ? parseInt(price3m)    : 1200, duration: 90 },
+      groupPerP: { price: priceGroup ? parseInt(priceGroup) : 400  },
+      groupMin:  groupMin ? parseInt(groupMin) : 5,
+    };
+  }
+
   @Get('contact')
   async getContact() {
     const [whatsapp, email] = await Promise.all([

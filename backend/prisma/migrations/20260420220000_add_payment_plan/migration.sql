@@ -1,0 +1,2 @@
+ALTER TABLE "Payment" ADD COLUMN "planType" TEXT;
+ALTER TABLE "Payment" ADD COLUMN "groupSize" INTEGER;

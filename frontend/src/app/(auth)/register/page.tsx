@@ -43,7 +43,9 @@ export default function RegisterPage() {
 
   // Step 2 state
   const [operators, setOperators] = useState<Record<string, string>>({});
-  const [price, setPrice] = useState(500);
+  const [pricing, setPricing] = useState<any>({ solo1m: { price: 500 }, solo3m: { price: 1200 }, groupPerP: { price: 400 }, groupMin: 5 });
+  const [selectedPlan, setSelectedPlan] = useState<'SOLO_1M' | 'SOLO_3M' | 'GROUP'>('SOLO_1M');
+  const [groupSize, setGroupSize] = useState(5);
   const [selectedOp, setSelectedOp] = useState('');
   const [copied, setCopied] = useState(false);
   const [receipt, setReceipt] = useState<File | null>(null);
@@ -56,8 +58,19 @@ export default function RegisterPage() {
       r.data.forEach((op: any) => { map[op.id] = op.phone; });
       setOperators(map);
     }).catch(() => {});
-    settingsApi.price().then((r) => setPrice(r.data.price ?? 500)).catch(() => {});
+    settingsApi.pricing().then((r) => {
+      setPricing(r.data);
+      setGroupSize(r.data.groupMin ?? 5);
+    }).catch(() => {});
   }, []);
+
+  const computedAmount = selectedPlan === 'SOLO_1M'
+    ? pricing.solo1m?.price ?? 500
+    : selectedPlan === 'SOLO_3M'
+    ? pricing.solo3m?.price ?? 1200
+    : (pricing.groupPerP?.price ?? 400) * groupSize;
+
+  const computedDuration = selectedPlan === 'SOLO_3M' ? 90 : 30;
 
   function set(key: string, value: string) {
     setForm((p) => ({ ...p, [key]: value }));
@@ -107,8 +120,11 @@ export default function RegisterPage() {
       // 3. Submit payment
       const fd = new FormData();
       fd.append('operator', selectedOp);
-      fd.append('amount', String(price));
+      fd.append('amount', String(computedAmount));
       fd.append('paymentMethod', 'MOBILE_MONEY');
+      fd.append('planType', selectedPlan);
+      fd.append('durationDays', String(computedDuration));
+      if (selectedPlan === 'GROUP') fd.append('groupSize', String(groupSize));
       fd.append('receipt', receipt);
       await paymentsApi.submit(fd);
 
@@ -327,6 +343,82 @@ export default function RegisterPage() {
               {step2Error && (
                 <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-xl mb-5 text-sm">{step2Error}</div>
               )}
+
+              {/* Plan selection */}
+              <div className="mb-6">
+                <p className={labelClass}>Choisissez votre formule <span className="text-red-400">*</span></p>
+                <div className="grid grid-cols-1 gap-3">
+                  {/* Solo 1 mois */}
+                  <button type="button" onClick={() => setSelectedPlan('SOLO_1M')}
+                    className={`relative flex items-center justify-between p-4 rounded-2xl border-2 transition-all text-left
+                      ${selectedPlan === 'SOLO_1M' ? 'border-violet-500 bg-violet-50' : 'border-gray-200 bg-white hover:border-gray-300'}`}>
+                    <div>
+                      <p className="font-bold text-gray-900 text-sm">Solo · 1 mois</p>
+                      <p className="text-xs text-gray-500 mt-0.5">Accès complet pendant 30 jours</p>
+                    </div>
+                    <div className="text-right flex-shrink-0 ml-4">
+                      <p className="font-extrabold text-violet-700 text-lg">{pricing.solo1m?.price ?? 500} <span className="text-sm font-semibold">MRU</span></p>
+                    </div>
+                    {selectedPlan === 'SOLO_1M' && (
+                      <div className="absolute top-3 right-3 w-4 h-4 rounded-full bg-violet-500 flex items-center justify-center">
+                        <svg className="w-2.5 h-2.5 text-white" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" /></svg>
+                      </div>
+                    )}
+                  </button>
+
+                  {/* Solo 3 mois */}
+                  <button type="button" onClick={() => setSelectedPlan('SOLO_3M')}
+                    className={`relative flex items-center justify-between p-4 rounded-2xl border-2 transition-all text-left
+                      ${selectedPlan === 'SOLO_3M' ? 'border-violet-500 bg-violet-50' : 'border-gray-200 bg-white hover:border-gray-300'}`}>
+                    <div>
+                      <p className="font-bold text-gray-900 text-sm flex items-center gap-2">
+                        Solo · 3 mois
+                        <span className="text-xs font-bold px-2 py-0.5 rounded-full bg-amber-100 text-amber-700">⭐ Populaire</span>
+                      </p>
+                      <p className="text-xs text-gray-500 mt-0.5">Accès complet pendant 90 jours</p>
+                    </div>
+                    <div className="text-right flex-shrink-0 ml-4">
+                      <p className="font-extrabold text-violet-700 text-lg">{pricing.solo3m?.price ?? 1200} <span className="text-sm font-semibold">MRU</span></p>
+                    </div>
+                    {selectedPlan === 'SOLO_3M' && (
+                      <div className="absolute top-3 right-3 w-4 h-4 rounded-full bg-violet-500 flex items-center justify-center">
+                        <svg className="w-2.5 h-2.5 text-white" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" /></svg>
+                      </div>
+                    )}
+                  </button>
+
+                  {/* Groupe */}
+                  <button type="button" onClick={() => setSelectedPlan('GROUP')}
+                    className={`relative flex flex-col p-4 rounded-2xl border-2 transition-all text-left
+                      ${selectedPlan === 'GROUP' ? 'border-violet-500 bg-violet-50' : 'border-gray-200 bg-white hover:border-gray-300'}`}>
+                    <div className="flex items-center justify-between w-full">
+                      <div>
+                        <p className="font-bold text-gray-900 text-sm">Groupe · 1 mois</p>
+                        <p className="text-xs text-gray-500 mt-0.5">Min. {pricing.groupMin ?? 5} membres · {pricing.groupPerP?.price ?? 400} MRU/personne</p>
+                      </div>
+                      <div className="text-right flex-shrink-0 ml-4">
+                        <p className="font-extrabold text-violet-700 text-lg">{computedAmount} <span className="text-sm font-semibold">MRU</span></p>
+                      </div>
+                      {selectedPlan === 'GROUP' && (
+                        <div className="absolute top-3 right-3 w-4 h-4 rounded-full bg-violet-500 flex items-center justify-center">
+                          <svg className="w-2.5 h-2.5 text-white" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" /></svg>
+                        </div>
+                      )}
+                    </div>
+                    {selectedPlan === 'GROUP' && (
+                      <div className="mt-3 flex items-center gap-3" onClick={(e) => e.stopPropagation()}>
+                        <span className="text-xs font-semibold text-gray-600">Membres :</span>
+                        <button type="button" onClick={() => setGroupSize(Math.max(pricing.groupMin ?? 5, groupSize - 1))}
+                          className="w-7 h-7 rounded-full bg-white border border-gray-300 text-gray-700 font-bold flex items-center justify-center hover:bg-gray-50">−</button>
+                        <span className="w-6 text-center font-bold text-gray-900">{groupSize}</span>
+                        <button type="button" onClick={() => setGroupSize(groupSize + 1)}
+                          className="w-7 h-7 rounded-full bg-white border border-gray-300 text-gray-700 font-bold flex items-center justify-center hover:bg-gray-50">+</button>
+                        <span className="text-xs text-gray-500 ml-1">= <strong>{computedAmount} MRU</strong> total</span>
+                      </div>
+                    )}
+                  </button>
+                </div>
+              </div>
 
               {/* Operators */}
               <div className="mb-6">

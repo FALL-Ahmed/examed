@@ -13,6 +13,8 @@ export class PaymentsService {
       durationDays?: number;
       paymentMethod: string;
       operator?: string;
+      planType?: string;
+      groupSize?: number;
       notes?: string;
     },
     receipt?: Express.Multer.File,
@@ -26,8 +28,10 @@ export class PaymentsService {
         durationDays: dto.durationDays || 30,
         paymentMethod: dto.paymentMethod,
         operator: dto.operator,
+        planType: dto.planType,
+        groupSize: dto.groupSize ? Number(dto.groupSize) : undefined,
         receiptUrl,
-      },
+      } as any,
     });
   }
 

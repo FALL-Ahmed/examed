@@ -106,6 +106,7 @@ export const settingsApi = {
   operators: () => api.get('/settings/operators'),
   whatsapp: () => api.get('/settings/whatsapp'),
   contact: () => api.get('/settings/contact'),
+  pricing: () => api.get('/settings/pricing'),
 };
 
 // Admin

@@ -5,8 +5,9 @@ import Link from 'next/link';
 import { useAuthStore } from '@/lib/auth-store';
 import {
   BookOpen, Zap, RefreshCw, TrendingUp, CheckCircle2,
-  Star, GraduationCap, ArrowRight, Target, Shield, Clock,
+  Star, GraduationCap, ArrowRight, Target, Shield, Clock, Users,
 } from 'lucide-react';
+import { settingsApi } from '@/lib/api';
 
 const FEATURES = [
   { icon: BookOpen,   title: 'QCM par thématique',         desc: 'Respiratoire, cardiovasculaire, pharmacologie… Entraînez-vous sur chaque spécialité médicale.', color: '#818cf8' },
@@ -32,8 +33,10 @@ export default function LandingPage() {
   const router = useRouter();
   const { loadUser } = useAuthStore();
   const [checked, setChecked] = useState(false);
+  const [pricing, setPricing] = useState<any>(null);
 
   useEffect(() => {
+    settingsApi.pricing().then((r) => setPricing(r.data)).catch(() => {});
     loadUser().then(() => {
       const u = useAuthStore.getState().user;
       if (u) router.replace(u.role === 'ADMIN' ? '/admin' : '/dashboard');
@@ -189,6 +192,86 @@ export default function LandingPage() {
                 </div>
               </div>
             ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ── Pricing ── */}
+      <section className="py-28 px-6 lg:px-10 bg-slate-50">
+        <div className="max-w-6xl mx-auto">
+          <div className="mb-16 text-center">
+            <p className="text-violet-600 text-xs font-bold uppercase tracking-widest mb-3">Tarifs</p>
+            <h2 className="text-3xl md:text-5xl font-extrabold text-gray-900">Simple et transparent</h2>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 items-start">
+
+            {/* Solo 1 mois */}
+            <div className="bg-white rounded-3xl border border-gray-200 p-8 shadow-sm">
+              <div className="w-10 h-10 rounded-2xl bg-indigo-50 flex items-center justify-center mb-5">
+                <Target className="w-5 h-5 text-indigo-600" />
+              </div>
+              <h3 className="font-extrabold text-xl text-gray-900 mb-1">Solo — 1 mois</h3>
+              <p className="text-gray-400 text-sm mb-6">Accès complet individuel</p>
+              <p className="text-4xl font-black text-gray-900 mb-6">
+                {pricing?.solo1m?.price ?? 500}
+                <span className="text-lg font-semibold text-gray-400 ml-1">MRU</span>
+              </p>
+              <Link href="/register"
+                className="block w-full text-center py-3 rounded-2xl font-bold text-sm border-2 border-gray-200 text-gray-700 hover:border-indigo-400 hover:text-indigo-600 transition">
+                Commencer
+              </Link>
+            </div>
+
+            {/* Solo 3 mois — populaire */}
+            <div className="relative bg-white rounded-3xl border-2 border-violet-500 p-8 shadow-xl shadow-violet-100">
+              <div className="absolute -top-3.5 left-1/2 -translate-x-1/2">
+                <span className="bg-violet-600 text-white text-xs font-bold px-4 py-1.5 rounded-full">⭐ Populaire</span>
+              </div>
+              <div className="w-10 h-10 rounded-2xl bg-violet-50 flex items-center justify-center mb-5">
+                <Zap className="w-5 h-5 text-violet-600" />
+              </div>
+              <h3 className="font-extrabold text-xl text-gray-900 mb-1">Solo — 3 mois</h3>
+              <p className="text-gray-400 text-sm mb-6">Meilleur rapport qualité/prix</p>
+              <p className="text-4xl font-black text-gray-900 mb-1">
+                {pricing?.solo3m?.price ?? 1200}
+                <span className="text-lg font-semibold text-gray-400 ml-1">MRU</span>
+              </p>
+              <p className="text-xs text-violet-500 font-semibold mb-6">
+                ≈ {pricing ? Math.round(pricing.solo3m.price / 3) : 400} MRU/mois
+              </p>
+              <Link href="/register"
+                className="block w-full text-center py-3 rounded-2xl font-bold text-sm text-white transition hover:opacity-90 shadow-md shadow-violet-200"
+                style={{ background: 'linear-gradient(135deg,#7c3aed,#6366f1)' }}>
+                Commencer
+              </Link>
+            </div>
+
+            {/* Groupe */}
+            <div className="bg-white rounded-3xl border border-gray-200 p-8 shadow-sm">
+              <div className="w-10 h-10 rounded-2xl bg-emerald-50 flex items-center justify-center mb-5">
+                <Users className="w-5 h-5 text-emerald-600" />
+              </div>
+              <h3 className="font-extrabold text-xl text-gray-900 mb-1">Groupe</h3>
+              <p className="text-gray-400 text-sm mb-6">Min. {pricing?.groupMin ?? 5} personnes</p>
+              <p className="text-4xl font-black text-gray-900 mb-1">
+                {pricing?.groupPerP?.price ?? 400}
+                <span className="text-lg font-semibold text-gray-400 ml-1">MRU</span>
+              </p>
+              <p className="text-xs text-emerald-600 font-semibold mb-6">par personne / mois</p>
+              <div className="space-y-1.5 mb-6">
+                {[5, 10, 20].map((n) => (
+                  <div key={n} className="flex justify-between text-sm">
+                    <span className="text-gray-500">{n} personnes</span>
+                    <span className="font-bold text-gray-800">{n * (pricing?.groupPerP?.price ?? 400)} MRU</span>
+                  </div>
+                ))}
+              </div>
+              <Link href="/register"
+                className="block w-full text-center py-3 rounded-2xl font-bold text-sm border-2 border-gray-200 text-gray-700 hover:border-emerald-400 hover:text-emerald-600 transition">
+                Créer un groupe
+              </Link>
+            </div>
           </div>
         </div>
       </section>

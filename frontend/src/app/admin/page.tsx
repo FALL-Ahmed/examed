@@ -10,6 +10,9 @@ export default function AdminDashboard() {
   const [priceInput, setPriceInput] = useState('');
   const [savingPrice, setSavingPrice] = useState(false);
   const [priceSaved, setPriceSaved] = useState(false);
+  const [prices, setPrices] = useState({ p1m: '', p3m: '', pGroup: '', groupMin: '' });
+  const [savingPlan, setSavingPlan] = useState<string | null>(null);
+  const [savedPlan, setSavedPlan] = useState<string | null>(null);
 
   const OPERATORS = [
     { id: 'BANKILY', name: 'Bankily', image: '/images/bankily.png' },
@@ -33,6 +36,12 @@ export default function AdminDashboard() {
       setPriceInput(r.data.PREMIUM_PRICE ?? '500');
       setWhatsapp(r.data.WHATSAPP_PHONE ?? '');
       setSupportEmail(r.data.SUPPORT_EMAIL ?? '');
+      setPrices({
+        p1m:      r.data.PRICE_1M ?? '500',
+        p3m:      r.data.PRICE_3M ?? '1200',
+        pGroup:   r.data.PRICE_GROUP_PER_PERSON ?? '400',
+        groupMin: r.data.GROUP_MIN_MEMBERS ?? '5',
+      });
     }).catch(() => {});
     settingsApi.operators().then((r) => {
       const map: Record<string, string> = {};
@@ -50,6 +59,13 @@ export default function AdminDashboard() {
     } finally {
       setSavingPhone(null);
     }
+  }
+
+  async function savePlan(key: string, value: string, id: string) {
+    setSavingPlan(id);
+    await adminApi.setSetting(key, value).catch(() => {});
+    setSavedPlan(id); setTimeout(() => setSavedPlan(null), 2500);
+    setSavingPlan(null);
   }
 
   async function saveSupportEmail(e: React.FormEvent) {
@@ -131,23 +147,7 @@ export default function AdminDashboard() {
         ))}
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Quick actions */}
-        <div className="bg-card border border-border rounded-2xl p-6">
-          <h2 className="font-semibold mb-4">Actions rapides</h2>
-          <div className="flex gap-3 flex-wrap">
-            <Link href="/admin/upload" className="px-4 py-2.5 gradient-primary text-white rounded-xl text-sm font-semibold hover:opacity-90 transition">
-              Importer des questions
-            </Link>
-            <Link href="/admin/payments" className="px-4 py-2.5 bg-secondary border border-border rounded-xl text-sm font-semibold hover:bg-border transition">
-              Valider paiements
-            </Link>
-            <Link href="/admin/questions" className="px-4 py-2.5 bg-secondary border border-border rounded-xl text-sm font-semibold hover:bg-border transition">
-              Gérer questions
-            </Link>
-          </div>
-        </div>
-
+      <div className="grid grid-cols-1 gap-6">
         {/* Settings */}
         <div className="bg-card border border-border rounded-2xl p-6">
           <div className="flex items-center gap-2 mb-5">
@@ -245,6 +245,41 @@ export default function AdminDashboard() {
               </p>
             </form>
           </div>
+        </div>
+      </div>
+
+      {/* Pricing plans */}
+      <div className="bg-card border border-border rounded-2xl p-6">
+        <div className="flex items-center gap-2 mb-5">
+          <Settings className="w-4 h-4 text-muted-foreground" />
+          <h2 className="font-semibold">Tarifs</h2>
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {[
+            { id: 'p1m',      key: 'PRICE_1M',               label: '🧑 Solo — 1 mois (MRU)',          field: 'p1m' },
+            { id: 'p3m',      key: 'PRICE_3M',               label: '🧑 Solo — 3 mois (MRU) ⭐',        field: 'p3m' },
+            { id: 'pGroup',   key: 'PRICE_GROUP_PER_PERSON', label: '👥 Groupe — prix/personne (MRU)',  field: 'pGroup' },
+            { id: 'groupMin', key: 'GROUP_MIN_MEMBERS',       label: '👥 Groupe — membres minimum',      field: 'groupMin' },
+          ].map((plan) => (
+            <div key={plan.id} className="border border-border rounded-xl p-4 space-y-2">
+              <label className="text-sm font-semibold">{plan.label}</label>
+              <div className="flex gap-2">
+                <input
+                  type="number" min={1}
+                  value={prices[plan.field as keyof typeof prices]}
+                  onChange={(e) => setPrices((p) => ({ ...p, [plan.field]: e.target.value }))}
+                  className="flex-1 px-3 py-2 bg-background border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/30"
+                />
+                <button
+                  onClick={() => savePlan(plan.key, prices[plan.field as keyof typeof prices], plan.id)}
+                  disabled={savingPlan === plan.id}
+                  className="px-3 py-2 gradient-primary text-white rounded-lg text-sm font-semibold hover:opacity-90 transition disabled:opacity-60 flex items-center gap-1.5">
+                  {savingPlan === plan.id ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : savedPlan === plan.id ? <CheckCircle className="w-3.5 h-3.5" /> : null}
+                  {savedPlan === plan.id ? 'OK' : 'Sauv.'}
+                </button>
+              </div>
+            </div>
+          ))}
         </div>
       </div>
 

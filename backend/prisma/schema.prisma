@@ -158,6 +158,8 @@ model Payment {
   durationDays    Int           @default(30)
   paymentMethod   String        @default("MOBILE_MONEY")
   operator        String?
+  planType        String?
+  groupSize       Int?
   receiptUrl      String?
   status          PaymentStatus @default(PENDING)
   validatedBy     String?

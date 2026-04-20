@@ -17,6 +17,8 @@ class SubmitPaymentDto {
   @IsString() @IsIn(['MOBILE_MONEY', 'BANK_TRANSFER', 'OTHER']) paymentMethod: string;
   @IsString() @IsOptional() operator?: string;
   @IsString() @IsOptional() notes?: string;
+  @IsString() @IsOptional() planType?: string;
+  @IsOptional() @Type(() => Number) @IsNumber() groupSize?: number;
   @IsOptional() @Type(() => Number) @IsNumber() durationDays?: number;
 }
 
