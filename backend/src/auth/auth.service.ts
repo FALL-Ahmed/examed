@@ -24,6 +24,7 @@ export class AuthService {
     password: string;
     fullName: string;
     pseudo?: string;
+    gender?: string;
     profession?: string;
     wilaya?: string;
     phone?: string;
@@ -43,7 +44,7 @@ export class AuthService {
         passwordHash: hash,
         fullName: dto.fullName,
         phone: dto.phone || null,
-        ...({ pseudo: dto.pseudo || null, profession: dto.profession || null, wilaya: dto.wilaya || null } as any),
+        ...({ pseudo: dto.pseudo || null, gender: dto.gender || null, profession: dto.profession || null, wilaya: dto.wilaya || null } as any),
       },
     });
 

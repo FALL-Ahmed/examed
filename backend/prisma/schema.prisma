@@ -58,6 +58,7 @@ model User {
   passwordResetTokenExpires DateTime?
   fullName        String
   pseudo          String?      @unique
+  gender          String?
   profession      String?
   wilaya          String?
   phone           String?

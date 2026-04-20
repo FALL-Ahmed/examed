@@ -36,7 +36,7 @@ export default function RegisterPage() {
   // Step 1 state
   const [form, setForm] = useState({
     firstName: '', lastName: '', pseudo: '', email: '',
-    phone: '', profession: '', wilaya: '', password: '',
+    phone: '', gender: '', profession: '', wilaya: '', password: '',
   });
   const [showPwd, setShowPwd] = useState(false);
   const [step1Error, setStep1Error] = useState('');
@@ -65,6 +65,7 @@ export default function RegisterPage() {
 
   function validateStep1() {
     if (!form.firstName.trim() || !form.lastName.trim()) return 'Prénom et nom requis';
+    if (!form.gender) return 'Veuillez sélectionner votre sexe';
     if (!form.email.trim()) return 'Email requis';
     if (!form.profession) return 'Veuillez sélectionner votre profession';
     if (!form.password || form.password.length < 8) return 'Mot de passe minimum 8 caractères';
@@ -89,6 +90,7 @@ export default function RegisterPage() {
       const { data: reg } = await authApi.register({
         fullName: `${form.firstName.trim()} ${form.lastName.trim()}`,
         pseudo: form.pseudo.trim() || undefined,
+        gender: form.gender || undefined,
         email: form.email.trim(),
         phone: form.phone.trim() || undefined,
         profession: form.profession || undefined,
@@ -239,6 +241,21 @@ export default function RegisterPage() {
                   <label className={labelClass}>Pseudo <span className="text-gray-400 font-normal">(optionnel)</span></label>
                   <input type="text" value={form.pseudo} onChange={(e) => set('pseudo', e.target.value)}
                     className={inputClass} placeholder="@monpseudo" />
+                </div>
+
+                <div>
+                  <label className={labelClass}>Sexe <span className="text-red-400">*</span></label>
+                  <div className="grid grid-cols-2 gap-3">
+                    {[{ value: 'masculin', label: 'Masculin' }, { value: 'feminin', label: 'Féminin' }].map((opt) => (
+                      <button key={opt.value} type="button" onClick={() => set('gender', opt.value)}
+                        className={`py-3 rounded-xl border-2 text-sm font-semibold transition-all
+                          ${form.gender === opt.value
+                            ? 'border-violet-500 bg-violet-50 text-violet-700'
+                            : 'border-gray-200 bg-white text-gray-600 hover:border-gray-300'}`}>
+                        {opt.label}
+                      </button>
+                    ))}
+                  </div>
                 </div>
 
                 <div>

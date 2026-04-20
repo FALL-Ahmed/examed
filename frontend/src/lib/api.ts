@@ -128,6 +128,7 @@ export const adminApi = {
   },
   previewText: (text: string) => api.post('/pdf/text-preview', { text }),
   importText: (text: string) => api.post('/pdf/text-import', { text }),
+  analytics: () => api.get('/admin/analytics'),
   getSettings: () => api.get('/admin/settings'),
   setSetting: (key: string, value: string) => api.put(`/admin/settings/${key}`, { value }),
 };

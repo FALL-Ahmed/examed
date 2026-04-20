@@ -4,10 +4,11 @@ import { useRouter, usePathname } from 'next/navigation';
 import Link from 'next/link';
 import { useAuthStore } from '@/lib/auth-store';
 import { adminApi } from '@/lib/api';
-import { BookOpen, Users, FileText, CreditCard, Upload, BarChart2, LogOut, Shield } from 'lucide-react';
+import { BookOpen, Users, FileText, CreditCard, Upload, BarChart2, LogOut, Shield, PieChart } from 'lucide-react';
 
 const navItems = [
   { href: '/admin', icon: BarChart2, label: 'Dashboard', badge: false },
+  { href: '/admin/analytics', icon: PieChart, label: 'Analytiques', badge: false },
   { href: '/admin/upload', icon: Upload, label: 'Importer PDF', badge: false },
   { href: '/admin/questions', icon: FileText, label: 'Questions', badge: false },
   { href: '/admin/users', icon: Users, label: 'Utilisateurs', badge: false },

@@ -17,6 +17,10 @@ export class RegisterDto {
 
   @IsOptional()
   @IsString()
+  gender?: string;
+
+  @IsOptional()
+  @IsString()
   profession?: string;
 
   @IsOptional()

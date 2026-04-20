@@ -108,6 +108,31 @@ export class AdminService {
     return Object.fromEntries(rows.map((r) => [r.key, r.value]));
   }
 
+  async getUserAnalytics() {
+    const where = { role: { not: 'ADMIN' } };
+
+    const [byGender, byWilaya, byProfession, byRole, recentRegistrations] = await Promise.all([
+      this.prisma.user.groupBy({ by: ['gender'] as any, where, _count: { _all: true } }),
+      this.prisma.user.groupBy({ by: ['wilaya'] as any, where, _count: { _all: true }, orderBy: { _count: { id: 'desc' } }, take: 10 }),
+      this.prisma.user.groupBy({ by: ['profession'] as any, where, _count: { _all: true }, orderBy: { _count: { id: 'desc' } }, take: 10 }),
+      this.prisma.user.groupBy({ by: ['role'], where, _count: { _all: true } }),
+      this.prisma.user.findMany({
+        where,
+        orderBy: { createdAt: 'desc' },
+        take: 7,
+        select: { createdAt: true },
+      }),
+    ]);
+
+    const dailyCounts: Record<string, number> = {};
+    recentRegistrations.forEach((u) => {
+      const day = u.createdAt.toISOString().slice(0, 10);
+      dailyCounts[day] = (dailyCounts[day] || 0) + 1;
+    });
+
+    return { byGender, byWilaya, byProfession, byRole, dailyCounts };
+  }
+
   async importFromParser(parserData: any) {
     let themesCreated = 0;
     let subThemesCreated = 0;
