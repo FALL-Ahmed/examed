@@ -1,7 +1,5 @@
 import 'multer';
-import * as path from 'path';
-import * as fs from 'fs';
-import { diskStorage } from 'multer';
+import { memoryStorage } from 'multer';
 import { Controller, Post, Get, Body, Req, UseGuards, UseInterceptors, UploadedFile } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { ApiTags, ApiBearerAuth, ApiConsumes, ApiBody } from '@nestjs/swagger';
@@ -9,8 +7,6 @@ import { IsString, IsNumber, IsOptional, IsIn } from 'class-validator';
 import { Type } from 'class-transformer';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { PaymentsService } from './payments.service';
-
-const UPLOAD_DIR = path.join(process.cwd(), 'uploads', 'receipts');
 
 class SubmitPaymentDto {
   @Type(() => Number) @IsNumber() amount: number;
@@ -31,16 +27,7 @@ export class PaymentsController {
 
   @Post()
   @UseInterceptors(FileInterceptor('receipt', {
-    storage: diskStorage({
-      destination: (_req, _file, cb) => {
-        fs.mkdirSync(UPLOAD_DIR, { recursive: true });
-        cb(null, UPLOAD_DIR);
-      },
-      filename: (_req, file, cb) => {
-        const ext = path.extname(file.originalname);
-        cb(null, `${Date.now()}-${Math.random().toString(36).slice(2)}${ext}`);
-      },
-    }),
+    storage: memoryStorage(),
     limits: { fileSize: 5 * 1024 * 1024 },
     fileFilter: (_req, file, cb) => {
       const allowed = ['image/jpeg', 'image/png', 'image/webp', 'application/pdf'];

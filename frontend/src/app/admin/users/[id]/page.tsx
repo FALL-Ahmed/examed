@@ -198,7 +198,9 @@ export default function UserDetailPage() {
         ) : (
           <div className="space-y-3">
             {user.payments.map((p: any) => {
-              const receiptUrl = p.receiptUrl ? `${API_URL}${p.receiptUrl}` : null;
+              const receiptUrl = p.receiptUrl
+                ? (p.receiptUrl.startsWith('http') ? p.receiptUrl : `${API_URL}${p.receiptUrl}`)
+                : null;
               const statusMap: Record<string, { label: string; cls: string; icon: any }> = {
                 PENDING:   { label: 'En attente', cls: 'bg-amber-100 text-amber-700', icon: Clock },
                 VALIDATED: { label: 'Validé',     cls: 'bg-emerald-100 text-emerald-700', icon: CheckCircle },

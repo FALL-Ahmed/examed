@@ -1,10 +1,14 @@
 import 'multer';
 import { Injectable, BadRequestException, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
+import { StorageService } from '../storage/storage.service';
 
 @Injectable()
 export class PaymentsService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private storage: StorageService,
+  ) {}
 
   async submitPayment(
     userId: string,
@@ -19,7 +23,10 @@ export class PaymentsService {
     },
     receipt?: Express.Multer.File,
   ) {
-    const receiptUrl = receipt ? `/uploads/receipts/${receipt.filename}` : undefined;
+    let receiptUrl: string | undefined;
+    if (receipt) {
+      receiptUrl = await this.storage.uploadReceipt(receipt);
+    }
 
     return this.prisma.payment.create({
       data: {

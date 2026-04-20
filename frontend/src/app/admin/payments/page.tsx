@@ -124,7 +124,9 @@ export default function AdminPaymentsPage() {
       ) : (
         <div className="space-y-4">
           {payments.map((p: any) => {
-            const receiptUrl = p.receiptUrl ? `${API_URL}${p.receiptUrl}` : null;
+            const receiptUrl = p.receiptUrl
+              ? (p.receiptUrl.startsWith('http') ? p.receiptUrl : `${API_URL}${p.receiptUrl}`)
+              : null;
             const isImage = receiptUrl && !receiptUrl.toLowerCase().endsWith('.pdf');
             const opColor = OPERATOR_COLORS[p.operator] ?? 'bg-slate-100 text-slate-600 border-slate-200';
 
