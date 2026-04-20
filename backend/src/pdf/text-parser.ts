@@ -7,10 +7,10 @@ const ANSWER_RE = /^[•\-\*]?\s*[Rr][eé]ponse[s]?\s*(?:[eé]xacte[s]?|correcte
 const QUESTION_NUM_RE = /^(\d{1,3})\s*[\.\)]\s*(.{3,})$/;
 const QUESTION_WORD_RE = /^[Qq]uestion\s+(\d{1,3})\s*[:\.]?\s*(.*)$/;
 const CHOICE_RE: Record<string, RegExp> = {};
-for (const l of ['A', 'B', 'C', 'D', 'E']) {
+for (const l of ['A', 'B', 'C', 'D', 'E', 'F']) {
   CHOICE_RE[l] = new RegExp(`^(?:[•z\\s]*)?[${l.toLowerCase()}${l}]\\s*[\\.):]\\s*(.+)$`);
 }
-const EXPL_RE = /^(?:explication|justification|note)\s*[:\-–]?\s*(.*)/i;
+const EXPL_RE = /^(?:commentaire[s]?|explication|justification|note)\s*[:\-–]?\s*(.*)/i;
 
 function parseCorrectAnswers(raw: string): string {
   const letters = [...raw.toUpperCase().matchAll(/[A-E]/g)].map(m => m[0]);
@@ -68,7 +68,7 @@ export function parseText(rawText: string): any {
   }
 
   function flushQuestion() {
-    if (curQuestion) {
+    if (curQuestion && curQuestion.correctAnswer) {
       if (explLines.length) curQuestion.explanation = explLines.join(' ').trim();
       ensureSubTheme();
       curSubTheme!.questions.push(curQuestion);
@@ -121,13 +121,16 @@ export function parseText(rawText: string): any {
       continue;
     }
 
-    // Choix A-E
+    // Choix A-E (F is mapped to E when E is empty)
     let matchedChoice = false;
     if (curQuestion && !curQuestion.correctAnswer) {
       for (const [ltr, re] of Object.entries(CHOICE_RE)) {
         const cm = line.match(re);
         if (cm) {
-          (curQuestion as any)[`choice${ltr}`] = cm[1].trim();
+          const key = ltr === 'F' ? 'E' : ltr;
+          if (ltr !== 'F' || !curQuestion.choiceE) {
+            (curQuestion as any)[`choice${key}`] = cm[1].trim();
+          }
           inExplanation = false;
           matchedChoice = true;
           break;
