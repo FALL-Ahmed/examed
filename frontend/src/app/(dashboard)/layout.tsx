@@ -22,16 +22,18 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   const { user, loadUser, logout } = useAuthStore();
   const { theme, toggle } = useTheme();
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [ready, setReady] = useState(false);
 
   useEffect(() => {
     loadUser().then(() => {
       const u = useAuthStore.getState().user;
       if (!u) router.push('/login');
       else if (u.role === 'FREE') router.push('/pending');
+      else setReady(true);
     });
   }, []);
 
-  if (!user) return (
+  if (!ready || !user) return (
     <div className="min-h-screen flex items-center justify-center bg-background">
       <div className="flex flex-col items-center gap-4">
         <div className="w-12 h-12 rounded-2xl gradient-primary flex items-center justify-center shadow-lg shadow-violet-500/30">
