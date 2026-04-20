@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { useAuthStore } from '@/lib/auth-store';
 import { attemptsApi, userApi } from '@/lib/api';
 import {
-  BookOpen, Zap, RefreshCw, TrendingUp, Crown,
+  BookOpen, Zap, RefreshCw, TrendingUp,
   Clock, ArrowRight, Target, Award, Flame, ChevronRight,
 } from 'lucide-react';
 
@@ -102,20 +102,6 @@ export default function DashboardPage() {
         </div>
       </div>
 
-      {/* ── Premium banner ── */}
-      {user?.role === 'FREE' && (
-        <div className="flex items-center gap-3 border border-amber-500/30 bg-amber-500/5 rounded-xl p-4">
-          <Crown className="w-4 h-4 text-amber-500 flex-shrink-0" />
-          <p className="text-sm flex-1">
-            <span className="font-semibold">Plan gratuit</span>
-            <span className="text-muted-foreground"> · 3 questions/jour</span>
-          </p>
-          <Link href="/payment"
-            className="flex-shrink-0 text-amber-600 dark:text-amber-400 text-sm font-semibold hover:underline">
-            Passer Premium →
-          </Link>
-        </div>
-      )}
 
       {/* ── Stats rapides ── */}
       {stats && (

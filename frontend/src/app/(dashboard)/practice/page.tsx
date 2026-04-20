@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { attemptsApi, themesApi } from '@/lib/api';
 import { useAuthStore } from '@/lib/auth-store';
 import { QuestionCard } from '@/components/QuestionCard';
-import { BookOpen, Loader2, Play, ChevronDown, Crown, CheckCircle, XCircle } from 'lucide-react';
+import { BookOpen, Loader2, Play, ChevronDown } from 'lucide-react';
 import { sentenceCase } from '@/lib/utils';
 
 export default function PracticePage() {
@@ -38,10 +38,7 @@ export default function PracticePage() {
       setAnswers(Array(data.questions.length).fill(null));
       setConfigured(true);
     } catch (err: any) {
-      const code = err.response?.data?.code;
-      setError(code === 'QUOTA_EXCEEDED'
-        ? 'Limite journalière atteinte (3 questions). Activez Premium pour un accès illimité.'
-        : err.response?.data?.message || 'Erreur lors du démarrage');
+      setError(err.response?.data?.message || 'Erreur lors du démarrage');
     } finally {
       setLoading(false);
     }
@@ -134,10 +131,7 @@ export default function PracticePage() {
 
             {error && (
               <div className="bg-destructive/10 border border-destructive/20 text-destructive px-4 py-3 rounded-xl text-sm">
-                {error}{' '}
-                {error.includes('Premium') && (
-                  <Link href="/payment" className="underline font-semibold">Activer →</Link>
-                )}
+                {error}
               </div>
             )}
 
@@ -170,18 +164,6 @@ export default function PracticePage() {
               </div>
             </div>
 
-            {user?.role !== 'PREMIUM' && (
-              <div className="border border-amber-500/20 bg-amber-500/5 rounded-xl p-4 flex items-start gap-3">
-                <Crown className="w-4 h-4 text-amber-500 flex-shrink-0 mt-0.5" />
-                <p className="text-xs text-muted-foreground leading-relaxed">
-                  Plan gratuit : <strong className="text-foreground">3 questions/jour</strong>.{' '}
-                  <Link href="/payment" className="text-amber-600 dark:text-amber-400 font-semibold">
-                    Passer Premium
-                  </Link>{' '}
-                  pour un accès illimité.
-                </p>
-              </div>
-            )}
           </div>
         </div>
       </div>

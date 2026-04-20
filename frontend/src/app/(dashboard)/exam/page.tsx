@@ -1,10 +1,9 @@
 'use client';
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import Link from 'next/link';
 import { attemptsApi, themesApi } from '@/lib/api';
 import { useAuthStore } from '@/lib/auth-store';
-import { Zap, Loader2, Crown, Lock, ChevronDown, Timer, Play, PlayCircle, Trash2 } from 'lucide-react';
+import { Zap, Loader2, ChevronDown, Timer, Play, PlayCircle, Trash2 } from 'lucide-react';
 import { sentenceCase } from '@/lib/utils';
 
 export default function ExamConfigPage() {
@@ -39,40 +38,6 @@ export default function ExamConfigPage() {
     } finally {
       setLoading(false);
     }
-  }
-
-  /* ── Paywall for FREE users ── */
-  if (user?.role === 'FREE') {
-    return (
-      <div className="flex flex-col items-center justify-center min-h-[70vh] text-center px-4">
-        <div className="max-w-md space-y-6">
-          <div className="w-20 h-20 mx-auto rounded-2xl gradient-warning flex items-center justify-center shadow-xl shadow-amber-500/25">
-            <Lock className="w-9 h-9 text-white" />
-          </div>
-          <div>
-            <h2 className="text-2xl font-bold mb-2">Mode Série · Premium</h2>
-            <p className="text-muted-foreground text-sm leading-relaxed">
-              Le mode série chronométré est réservé aux membres Premium.
-              Simulez les conditions réelles du concours avec un chronomètre et une correction complète.
-            </p>
-          </div>
-          <div className="bg-card border border-amber-500/20 rounded-2xl p-5 text-left space-y-3">
-            {['Questions illimitées', 'Chronomètre configurable', 'Correction complète en fin', 'Statistiques détaillées'].map((f) => (
-              <div key={f} className="flex items-center gap-2 text-sm">
-                <div className="w-4 h-4 rounded-full bg-amber-500/20 flex items-center justify-center flex-shrink-0">
-                  <div className="w-1.5 h-1.5 rounded-full bg-amber-500" />
-                </div>
-                {f}
-              </div>
-            ))}
-          </div>
-          <Link href="/payment"
-            className="inline-flex items-center gap-2 gradient-warning text-white px-6 py-3.5 rounded-xl font-semibold hover:opacity-90 transition shadow-lg shadow-amber-500/20">
-            <Crown className="w-4 h-4" /> Activer Premium →
-          </Link>
-        </div>
-      </div>
-    );
   }
 
   function resumeExam() {

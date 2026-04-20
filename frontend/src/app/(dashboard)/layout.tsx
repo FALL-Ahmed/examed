@@ -5,17 +5,15 @@ import Link from 'next/link';
 import { useAuthStore } from '@/lib/auth-store';
 import { useTheme } from '@/components/ThemeProvider';
 import {
-  BookOpen, BarChart2, RefreshCw, CreditCard, Home,
-  LogOut, Crown, Zap, Menu, X, TrendingUp, Sun, Moon,
+  BookOpen, RefreshCw, Home, LogOut, Zap, Menu, X, TrendingUp, Sun, Moon,
 } from 'lucide-react';
 
 const navItems = [
-  { href: '/dashboard', icon: Home, label: 'Tableau de bord', color: '#818cf8' },
-  { href: '/practice', icon: BookOpen, label: 'Pratique', color: '#0ea5e9' },
-  { href: '/exam', icon: Zap, label: 'Mode Série', color: '#a78bfa' },
-  { href: '/review', icon: RefreshCw, label: 'Révision', color: '#fbbf24' },
-  { href: '/stats', icon: TrendingUp, label: 'Statistiques', color: '#38bdf8' },
-  { href: '/payment', icon: CreditCard, label: 'Abonnement', color: '#fb7185' },
+  { href: '/dashboard', icon: Home,      label: 'Tableau de bord', color: '#818cf8' },
+  { href: '/practice',  icon: BookOpen,  label: 'Pratique',        color: '#0ea5e9' },
+  { href: '/exam',      icon: Zap,       label: 'Mode Série',      color: '#a78bfa' },
+  { href: '/review',    icon: RefreshCw, label: 'Révision',        color: '#fbbf24' },
+  { href: '/stats',     icon: TrendingUp,label: 'Statistiques',    color: '#38bdf8' },
 ];
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
@@ -29,6 +27,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     loadUser().then(() => {
       const u = useAuthStore.getState().user;
       if (!u) router.push('/login');
+      else if (u.role === 'FREE') router.push('/pending');
     });
   }, []);
 
@@ -68,13 +67,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           </div>
           <div className="flex-1 min-w-0">
             <p className="text-white text-xs font-semibold truncate">{user.fullName}</p>
-            {user.role === 'PREMIUM' ? (
-              <span className="inline-flex items-center gap-1 text-xs text-amber-400 font-medium">
-                <Crown className="w-3 h-3" /> Premium
-              </span>
-            ) : (
-              <span className="text-white/40 text-xs">Plan gratuit · 3 q/jour</span>
-            )}
+            <p className="text-white/40 text-xs">Membre actif</p>
           </div>
         </div>
       </div>
@@ -99,22 +92,6 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         })}
       </nav>
 
-
-      {/* Upgrade */}
-      {user.role === 'FREE' && (
-        <Link href="/payment" onClick={onNav}
-          className="mx-3 mb-2 flex items-center gap-2.5 px-3 py-2.5 rounded-xl border border-amber-400/25 hover:border-amber-400/50 transition-all"
-          style={{ background: 'rgba(245,158,11,0.08)' }}>
-          <div className="w-6 h-6 rounded-lg flex items-center justify-center flex-shrink-0"
-            style={{ background: 'linear-gradient(135deg,#f59e0b,#d97706)' }}>
-            <Crown className="w-3 h-3 text-white" />
-          </div>
-          <div className="flex-1 min-w-0">
-            <p className="text-white text-xs font-semibold leading-tight">Passer Premium</p>
-            <p className="text-white/40 text-[10px] leading-tight truncate">Accès illimité · Mode série</p>
-          </div>
-        </Link>
-      )}
 
       {/* Bottom actions */}
       <div className="px-3 pb-4 border-t border-white/10 pt-3 space-y-1">
