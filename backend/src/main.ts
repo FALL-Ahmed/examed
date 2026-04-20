@@ -27,6 +27,10 @@ async function bootstrap() {
 
   app.useGlobalPipes(new ValidationPipe({ whitelist: true, transform: true }));
 
+  // Augmenter la limite body pour les imports JSON/text
+  app.use(require('express').json({ limit: '50mb' }));
+  app.use(require('express').urlencoded({ limit: '50mb', extended: true }));
+
   // Servir les uploads statiquement
   app.useStaticAssets(join(process.cwd(), 'uploads'), {
     prefix: '/uploads',

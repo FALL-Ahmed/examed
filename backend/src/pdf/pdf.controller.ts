@@ -22,14 +22,14 @@ export class PdfController {
 
   @Post('preview')
   @ApiConsumes('multipart/form-data')
-  @UseInterceptors(FileInterceptor('file'))
+  @UseInterceptors(FileInterceptor('file', { limits: { fileSize: 50 * 1024 * 1024 } }))
   async preview(@UploadedFile() file: Express.Multer.File) {
     return this.pdfService.parseAndPreview(file.buffer, file.originalname);
   }
 
   @Post('import')
   @ApiConsumes('multipart/form-data')
-  @UseInterceptors(FileInterceptor('file'))
+  @UseInterceptors(FileInterceptor('file', { limits: { fileSize: 50 * 1024 * 1024 } }))
   async importPdf(@UploadedFile() file: Express.Multer.File) {
     const parsed = await this.pdfService.parseAndImport(file.buffer, file.originalname);
     const imported = await this.adminService.importFromParser(parsed);
