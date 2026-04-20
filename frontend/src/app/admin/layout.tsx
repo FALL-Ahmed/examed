@@ -1,22 +1,24 @@
 'use client';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
 import Link from 'next/link';
 import { useAuthStore } from '@/lib/auth-store';
+import { adminApi } from '@/lib/api';
 import { BookOpen, Users, FileText, CreditCard, Upload, BarChart2, LogOut, Shield } from 'lucide-react';
 
 const navItems = [
-  { href: '/admin', icon: BarChart2, label: 'Dashboard' },
-  { href: '/admin/upload', icon: Upload, label: 'Importer PDF' },
-  { href: '/admin/questions', icon: FileText, label: 'Questions' },
-  { href: '/admin/users', icon: Users, label: 'Utilisateurs' },
-  { href: '/admin/payments', icon: CreditCard, label: 'Paiements' },
+  { href: '/admin', icon: BarChart2, label: 'Dashboard', badge: false },
+  { href: '/admin/upload', icon: Upload, label: 'Importer PDF', badge: false },
+  { href: '/admin/questions', icon: FileText, label: 'Questions', badge: false },
+  { href: '/admin/users', icon: Users, label: 'Utilisateurs', badge: false },
+  { href: '/admin/payments', icon: CreditCard, label: 'Paiements', badge: true },
 ];
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
   const router = useRouter();
   const pathname = usePathname();
   const { user, loadUser, logout } = useAuthStore();
+  const [pendingCount, setPendingCount] = useState(0);
 
   useEffect(() => {
     loadUser().then(() => {
@@ -24,6 +26,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       if (!u) router.push('/login');
       else if (u.role !== 'ADMIN') router.push('/dashboard');
     });
+    adminApi.stats().then((r) => setPendingCount(r.data.pendingPayments ?? 0)).catch(() => {});
   }, []);
 
   if (!user) return (
@@ -48,6 +51,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         <nav className="flex-1 p-3 space-y-1">
           {navItems.map((item) => {
             const active = pathname === item.href;
+            const count = item.badge ? pendingCount : 0;
             return (
               <Link
                 key={item.href}
@@ -55,8 +59,13 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                 className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition
                   ${active ? 'bg-blue-600 text-white' : 'text-slate-400 hover:bg-slate-800 hover:text-white'}`}
               >
-                <item.icon className="w-4 h-4" />
-                {item.label}
+                <item.icon className="w-4 h-4 flex-shrink-0" />
+                <span className="flex-1">{item.label}</span>
+                {count > 0 && (
+                  <span className="bg-red-500 text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center flex-shrink-0">
+                    {count > 9 ? '9+' : count}
+                  </span>
+                )}
               </Link>
             );
           })}

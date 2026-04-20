@@ -1,7 +1,7 @@
 'use client';
 import { useEffect, useState } from 'react';
 import { adminApi, settingsApi } from '@/lib/api';
-import { Users, FileText, CreditCard, Crown, AlertCircle, Settings, Loader2, CheckCircle, Smartphone } from 'lucide-react';
+import { Users, FileText, CreditCard, AlertCircle, Settings, Loader2, CheckCircle, Smartphone } from 'lucide-react';
 import Link from 'next/link';
 
 export default function AdminDashboard() {
@@ -61,7 +61,7 @@ export default function AdminDashboard() {
 
   const kpis = stats ? [
     { label: 'Utilisateurs', value: stats.totalUsers, icon: Users, color: 'bg-blue-500', href: '/admin/users' },
-    { label: 'Premium', value: stats.premiumUsers, icon: Crown, color: 'bg-amber-500', href: '/admin/users' },
+    { label: 'Validés', value: stats.premiumUsers, icon: CheckCircle, color: 'bg-emerald-500', href: '/admin/users' },
     { label: 'Questions', value: stats.totalQuestions, icon: FileText, color: 'bg-emerald-500', href: '/admin/questions' },
     { label: 'Paiements en attente', value: stats.pendingPayments, icon: CreditCard, color: stats.pendingPayments > 0 ? 'bg-red-500' : 'bg-slate-400', href: '/admin/payments' },
   ] : [];
@@ -124,7 +124,7 @@ export default function AdminDashboard() {
           <form onSubmit={savePrice} className="space-y-4">
             <div>
               <label className="block text-sm font-semibold mb-2">
-                Prix Premium (MRU / mois)
+                Prix d'inscription (MRU)
               </label>
               <div className="flex gap-2">
                 <input
@@ -149,7 +149,7 @@ export default function AdminDashboard() {
                 </button>
               </div>
               <p className="text-xs text-muted-foreground mt-2">
-                Ce prix s'affiche sur la page d'abonnement de tous les utilisateurs.
+                Ce montant s'affiche sur la page d'inscription lors du paiement.
               </p>
             </div>
           </form>

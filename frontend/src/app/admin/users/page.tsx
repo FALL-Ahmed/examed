@@ -1,7 +1,7 @@
 'use client';
 import { useEffect, useState } from 'react';
 import { adminApi } from '@/lib/api';
-import { Crown, Shield, User, Search, ToggleLeft, ToggleRight } from 'lucide-react';
+import { CheckCircle, Shield, User, Search, ToggleLeft, ToggleRight } from 'lucide-react';
 
 export default function AdminUsersPage() {
   const [data, setData] = useState<any>(null);
@@ -25,8 +25,14 @@ export default function AdminUsersPage() {
 
   const roleIcon = (role: string) => {
     if (role === 'ADMIN') return <Shield className="w-4 h-4 text-blue-600" />;
-    if (role === 'PREMIUM') return <Crown className="w-4 h-4 text-amber-500" />;
+    if (role === 'PREMIUM') return <CheckCircle className="w-4 h-4 text-emerald-500" />;
     return <User className="w-4 h-4 text-slate-400" />;
+  };
+
+  const roleLabel = (role: string) => {
+    if (role === 'ADMIN') return { label: 'Admin', cls: 'bg-blue-100 text-blue-700' };
+    if (role === 'PREMIUM') return { label: 'Validé', cls: 'bg-emerald-100 text-emerald-700' };
+    return { label: 'En attente', cls: 'bg-amber-100 text-amber-700' };
   };
 
   return (
@@ -69,10 +75,9 @@ export default function AdminUsersPage() {
                   </div>
                 </td>
                 <td className="px-4 py-3 hidden md:table-cell">
-                  <span className={`px-2 py-1 rounded-full text-xs font-medium
-                    ${u.role === 'PREMIUM' ? 'bg-amber-100 text-amber-700' : 'bg-slate-100 text-slate-600'}`}>
-                    {u.role}
-                  </span>
+                  {(() => { const r = roleLabel(u.role); return (
+                    <span className={`px-2 py-1 rounded-full text-xs font-medium ${r.cls}`}>{r.label}</span>
+                  ); })()}
                 </td>
                 <td className="px-4 py-3 hidden md:table-cell text-muted-foreground text-xs">
                   {new Date(u.createdAt).toLocaleDateString('fr-FR')}
