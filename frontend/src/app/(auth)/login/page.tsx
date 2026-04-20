@@ -7,7 +7,7 @@ import { BookOpen, Eye, EyeOff, Loader2, Stethoscope, Heart, Activity, Shield } 
 
 const STATS = [
   { value: '500+', label: 'Questions validées' },
-  { value: '15',   label: 'Thématiques' },
+  { value: '50+',  label: 'Thématiques' },
   { value: '24/7', label: 'Accès illimité' },
 ];
 

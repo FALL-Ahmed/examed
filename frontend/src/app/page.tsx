@@ -3,49 +3,30 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useAuthStore } from '@/lib/auth-store';
+import { settingsApi } from '@/lib/api';
 import {
   BookOpen, Zap, RefreshCw, TrendingUp, CheckCircle2,
-  ChevronRight, Star, Shield, Clock, Target, Crown,
-  Stethoscope, GraduationCap, Users, Award,
+  ChevronRight, Star, Crown, GraduationCap, ArrowRight,
+  Target, BarChart3, Clock, ShieldCheck,
 } from 'lucide-react';
 
 const FEATURES = [
-  {
-    icon: BookOpen,
-    title: 'QCM par thématique',
-    desc: 'Respiratoire, cardiovasculaire, pharmacologie… Entraînez-vous sur chaque spécialité.',
-    color: '#6366f1',
-  },
-  {
-    icon: Zap,
-    title: 'Mode examen chronométré',
-    desc: 'Simulez les conditions réelles du concours avec un chronomètre et une correction complète.',
-    color: '#f59e0b',
-  },
-  {
-    icon: RefreshCw,
-    title: 'Révision des erreurs',
-    desc: 'Retravaillez automatiquement vos points faibles pour progresser efficacement.',
-    color: '#10b981',
-  },
-  {
-    icon: TrendingUp,
-    title: 'Suivi de progression',
-    desc: 'Tableaux de bord détaillés : score par thème, évolution dans le temps, points forts.',
-    color: '#3b82f6',
-  },
+  { icon: BookOpen,   title: 'QCM par thématique',         desc: 'Respiratoire, cardiovasculaire, pharmacologie… Entraînez-vous sur chaque spécialité médicale.', color: '#818cf8' },
+  { icon: Zap,        title: 'Mode examen chronométré',    desc: 'Simulez les conditions réelles du concours avec un chronomètre et une correction complète en fin.', color: '#fbbf24' },
+  { icon: RefreshCw,  title: 'Révision des erreurs',       desc: 'Retravaillez automatiquement vos points faibles pour combler vos lacunes rapidement.', color: '#34d399' },
+  { icon: TrendingUp, title: 'Suivi de progression',       desc: 'Score par thème, courbe d\'évolution, points forts et axes d\'amélioration personnalisés.', color: '#60a5fa' },
 ];
 
 const STATS = [
-  { value: '500+', label: 'Questions validées', icon: Target },
-  { value: '50+',  label: 'Thématiques médicales', icon: BookOpen },
-  { value: '100%', label: 'Adapté aux concours mauritaniens', icon: Shield },
-  { value: '24/7', label: 'Accès illimité Premium', icon: Clock },
+  { value: '500+', label: 'Questions validées' },
+  { value: '50+',  label: 'Thématiques médicales' },
+  { value: '100%', label: 'Adapté au programme mauritanien' },
+  { value: '24/7', label: 'Disponible en permanence' },
 ];
 
 const TESTIMONIALS = [
   { name: 'Fatimata B.', role: 'Étudiante en soins infirmiers', text: 'J\'ai réussi mon concours du premier coup grâce à ExaMed. Les QCM sont vraiment adaptés au programme mauritanien.', stars: 5 },
-  { name: 'Moussa D.', role: 'Technicien de laboratoire, Nouakchott', text: 'Excellent outil pour maintenir ses connaissances à jour. Le mode examen est très proche des conditions réelles.', stars: 5 },
+  { name: 'Moussa D.',   role: 'Technicien de laboratoire, Nouakchott', text: 'Excellent outil pour maintenir ses connaissances à jour. Le mode examen est très proche des conditions réelles.', stars: 5 },
   { name: 'Aïssata K.', role: 'Étudiante en médecine, 3e année', text: 'Le suivi de progression m\'aide à identifier mes lacunes et à me concentrer sur ce qui compte vraiment.', stars: 5 },
 ];
 
@@ -53,8 +34,10 @@ export default function LandingPage() {
   const router = useRouter();
   const { loadUser } = useAuthStore();
   const [checked, setChecked] = useState(false);
+  const [price, setPrice] = useState<string | null>(null);
 
   useEffect(() => {
+    settingsApi.price().then((r) => setPrice(r.data.price)).catch(() => {});
     loadUser().then(() => {
       const u = useAuthStore.getState().user;
       if (u) router.replace(u.role === 'ADMIN' ? '/admin' : '/dashboard');
@@ -63,98 +46,117 @@ export default function LandingPage() {
   }, []);
 
   if (!checked) return (
-    <div className="min-h-screen flex items-center justify-center bg-white">
-      <div className="w-8 h-8 border-4 border-violet-600 border-t-transparent rounded-full animate-spin" />
+    <div className="min-h-screen flex items-center justify-center" style={{ background: '#0a0a1a' }}>
+      <div className="w-8 h-8 border-4 border-violet-500 border-t-transparent rounded-full animate-spin" />
     </div>
   );
 
   return (
-    <div className="min-h-screen bg-white text-gray-900 font-sans">
+    <div className="min-h-screen bg-white text-gray-900 overflow-x-hidden">
 
       {/* ── Navbar ── */}
-      <nav className="sticky top-0 z-50 bg-white/90 backdrop-blur-md border-b border-gray-100">
-        <div className="max-w-6xl mx-auto px-5 h-16 flex items-center justify-between">
+      <nav className="sticky top-0 z-50 bg-white/95 backdrop-blur-md border-b border-gray-100/80 shadow-sm">
+        <div className="w-full px-6 lg:px-10 h-16 flex items-center justify-between">
           <div className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-lg flex items-center justify-center" style={{ background: 'linear-gradient(135deg,#7c3aed,#6366f1)' }}>
+            <div className="w-8 h-8 rounded-lg flex items-center justify-center shadow-md shadow-violet-200"
+              style={{ background: 'linear-gradient(135deg,#7c3aed,#6366f1)' }}>
               <BookOpen className="w-4 h-4 text-white" />
             </div>
-            <span className="font-bold text-lg tracking-tight">ExaMed</span>
+            <span className="font-extrabold text-lg tracking-tight text-gray-900">ExaMed</span>
           </div>
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2">
             <Link href="/login"
-              className="text-sm font-semibold text-gray-600 hover:text-gray-900 px-4 py-2 rounded-lg hover:bg-gray-100 transition">
+              className="text-sm font-semibold text-gray-500 hover:text-gray-900 px-4 py-2 rounded-lg hover:bg-gray-100 transition">
               Se connecter
             </Link>
             <Link href="/register"
-              className="text-sm font-semibold text-white px-4 py-2 rounded-lg transition hover:opacity-90"
+              className="text-sm font-semibold text-white px-4 py-2.5 rounded-xl transition hover:opacity-90 shadow-md shadow-violet-200"
               style={{ background: 'linear-gradient(135deg,#7c3aed,#6366f1)' }}>
-              S'inscrire gratuitement
+              S'inscrire →
             </Link>
           </div>
         </div>
       </nav>
 
       {/* ── Hero ── */}
-      <section className="relative overflow-hidden pt-20 pb-28 px-5">
-        <div className="absolute inset-0 pointer-events-none"
-          style={{ background: 'radial-gradient(ellipse 80% 50% at 50% -10%, rgba(124,58,237,0.08) 0%, transparent 70%)' }} />
-        <div className="max-w-4xl mx-auto text-center relative">
-          <div className="inline-flex items-center gap-2 bg-violet-50 border border-violet-200 text-violet-700 text-xs font-semibold px-3 py-1.5 rounded-full mb-6">
-            <GraduationCap className="w-3.5 h-3.5" />
-            Préparation aux Concours de Santé — Mauritanie
-          </div>
-          <h1 className="text-4xl md:text-6xl font-extrabold leading-[1.1] tracking-tight mb-6 text-gray-900">
-            Réussissez votre<br />
-            <span className="text-transparent bg-clip-text" style={{ backgroundImage: 'linear-gradient(135deg,#7c3aed,#6366f1)' }}>
-              concours de santé
-            </span>
-          </h1>
-          <p className="text-lg text-gray-500 max-w-2xl mx-auto mb-10 leading-relaxed">
-            500+ QCM validés par des professionnels de santé, pour infirmiers, médecins, techniciens et étudiants. Entraînez-vous par thématique et progressez à votre rythme.
-          </p>
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
-            <Link href="/register"
-              className="flex items-center gap-2 text-white font-semibold px-6 py-3.5 rounded-xl text-sm shadow-lg shadow-violet-200 transition hover:opacity-90 w-full sm:w-auto justify-center"
-              style={{ background: 'linear-gradient(135deg,#7c3aed,#6366f1)' }}>
-              Commencer gratuitement <ChevronRight className="w-4 h-4" />
-            </Link>
-            <Link href="/login"
-              className="flex items-center gap-2 text-gray-700 font-semibold px-6 py-3.5 rounded-xl text-sm border border-gray-200 hover:bg-gray-50 transition w-full sm:w-auto justify-center">
-              J'ai déjà un compte
-            </Link>
-          </div>
-          <p className="text-xs text-gray-400 mt-4">Gratuit · Sans carte bancaire · 3 questions/jour</p>
-        </div>
-      </section>
+      <section className="relative overflow-hidden"
+        style={{ background: 'linear-gradient(160deg,#0f0a2e 0%,#1a1040 40%,#0d1b3e 100%)' }}>
 
-      {/* ── Stats ── */}
-      <section className="border-y border-gray-100 py-10 px-5 bg-gray-50">
-        <div className="max-w-5xl mx-auto grid grid-cols-2 md:grid-cols-4 gap-6">
-          {STATS.map((s) => (
-            <div key={s.label} className="text-center">
-              <p className="text-3xl font-extrabold text-gray-900 mb-1">{s.value}</p>
-              <p className="text-sm text-gray-500">{s.label}</p>
+        {/* Blobs */}
+        <div className="absolute top-0 left-1/4 w-96 h-96 rounded-full blur-3xl opacity-20 pointer-events-none"
+          style={{ background: 'radial-gradient(circle,#7c3aed,transparent)' }} />
+        <div className="absolute bottom-0 right-1/4 w-72 h-72 rounded-full blur-3xl opacity-15 pointer-events-none"
+          style={{ background: 'radial-gradient(circle,#3b82f6,transparent)' }} />
+        <div className="absolute inset-0 opacity-[0.03] pointer-events-none"
+          style={{ backgroundImage: 'linear-gradient(rgba(255,255,255,.4) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.4) 1px,transparent 1px)', backgroundSize: '40px 40px' }} />
+
+        <div className="relative max-w-6xl mx-auto px-6 lg:px-10 pt-24 pb-32">
+          <div className="max-w-3xl">
+
+            <div className="inline-flex items-center gap-2 bg-white/10 border border-white/20 text-violet-300 text-xs font-semibold px-3 py-1.5 rounded-full mb-8 backdrop-blur-sm">
+              <GraduationCap className="w-3.5 h-3.5" />
+              Préparation aux concours de santé — Mauritanie
             </div>
-          ))}
+
+            <h1 className="text-5xl md:text-7xl font-extrabold leading-[1.05] tracking-tight text-white mb-6">
+              Réussissez<br />
+              votre{' '}
+              <span className="text-transparent bg-clip-text"
+                style={{ backgroundImage: 'linear-gradient(90deg,#a78bfa,#60a5fa)' }}>
+                concours
+              </span>
+            </h1>
+
+            <p className="text-lg text-white/55 max-w-xl mb-10 leading-relaxed">
+              500+ QCM validés par des professionnels de santé, organisés par thématique et adaptés aux concours mauritaniens. Infirmiers, médecins, techniciens — progressez à votre rythme.
+            </p>
+
+            <div className="flex flex-col sm:flex-row gap-3">
+              <Link href="/register"
+                className="inline-flex items-center justify-center gap-2 text-white font-bold px-7 py-4 rounded-2xl text-sm transition hover:opacity-90 shadow-xl shadow-violet-900/50"
+                style={{ background: 'linear-gradient(135deg,#7c3aed,#6366f1)' }}>
+                Commencer gratuitement <ArrowRight className="w-4 h-4" />
+              </Link>
+              <Link href="/login"
+                className="inline-flex items-center justify-center gap-2 text-white/70 font-semibold px-7 py-4 rounded-2xl text-sm border border-white/15 hover:bg-white/10 transition">
+                J'ai déjà un compte
+              </Link>
+            </div>
+
+            {/* Mini stats inline */}
+            <div className="flex flex-wrap gap-6 mt-12 pt-10 border-t border-white/10">
+              {STATS.map((s) => (
+                <div key={s.label}>
+                  <p className="text-2xl font-extrabold text-white">{s.value}</p>
+                  <p className="text-xs text-white/40 mt-0.5">{s.label}</p>
+                </div>
+              ))}
+            </div>
+          </div>
         </div>
       </section>
 
       {/* ── Features ── */}
-      <section className="py-24 px-5">
-        <div className="max-w-5xl mx-auto">
-          <div className="text-center mb-14">
-            <p className="text-violet-600 text-sm font-semibold uppercase tracking-widest mb-3">Fonctionnalités</p>
-            <h2 className="text-3xl md:text-4xl font-extrabold text-gray-900">Tout pour réussir votre concours</h2>
+      <section className="py-28 px-6 lg:px-10">
+        <div className="max-w-6xl mx-auto">
+          <div className="mb-16">
+            <p className="text-violet-600 text-xs font-bold uppercase tracking-widest mb-3">Fonctionnalités</p>
+            <h2 className="text-3xl md:text-5xl font-extrabold text-gray-900 leading-tight max-w-lg">
+              Tout ce qu'il faut pour réussir
+            </h2>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-            {FEATURES.map((f) => (
-              <div key={f.title} className="flex gap-4 p-6 rounded-2xl border border-gray-100 bg-white hover:shadow-md transition-shadow">
-                <div className="w-11 h-11 rounded-xl flex items-center justify-center flex-shrink-0"
-                  style={{ background: `${f.color}14`, border: `1px solid ${f.color}25` }}>
-                  <f.icon className="w-5 h-5" style={{ color: f.color }} />
-                </div>
-                <div>
-                  <h3 className="font-semibold text-gray-900 mb-1">{f.title}</h3>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {FEATURES.map((f, i) => (
+              <div key={f.title}
+                className="group relative p-7 rounded-3xl border border-gray-100 bg-white hover:border-transparent hover:shadow-xl transition-all duration-300 overflow-hidden">
+                <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-3xl"
+                  style={{ background: `linear-gradient(135deg,${f.color}08,${f.color}03)` }} />
+                <div className="relative">
+                  <div className="w-12 h-12 rounded-2xl flex items-center justify-center mb-5"
+                    style={{ background: `${f.color}15` }}>
+                    <f.icon className="w-6 h-6" style={{ color: f.color }} />
+                  </div>
+                  <h3 className="font-bold text-gray-900 text-lg mb-2">{f.title}</h3>
                   <p className="text-sm text-gray-500 leading-relaxed">{f.desc}</p>
                 </div>
               </div>
@@ -164,59 +166,60 @@ export default function LandingPage() {
       </section>
 
       {/* ── Pricing ── */}
-      <section className="py-24 px-5 bg-gray-50">
-        <div className="max-w-4xl mx-auto">
-          <div className="text-center mb-14">
-            <p className="text-violet-600 text-sm font-semibold uppercase tracking-widest mb-3">Tarifs</p>
-            <h2 className="text-3xl md:text-4xl font-extrabold text-gray-900">Simple et transparent</h2>
+      <section className="py-28 px-6 lg:px-10" style={{ background: '#f8f7ff' }}>
+        <div className="max-w-5xl mx-auto">
+          <div className="text-center mb-16">
+            <p className="text-violet-600 text-xs font-bold uppercase tracking-widest mb-3">Tarifs</p>
+            <h2 className="text-3xl md:text-5xl font-extrabold text-gray-900">Simple et transparent</h2>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-3xl mx-auto">
             {/* Free */}
-            <div className="bg-white rounded-2xl border border-gray-200 p-8">
-              <p className="font-bold text-lg mb-1">Gratuit</p>
-              <p className="text-3xl font-extrabold text-gray-900 mb-1">0 MRU<span className="text-base font-normal text-gray-400">/mois</span></p>
-              <p className="text-sm text-gray-400 mb-6">Pour commencer</p>
-              <div className="space-y-3 mb-8">
-                {['3 questions par jour', 'Accès à toutes les thématiques', 'Suivi de progression basique'].map((f) => (
-                  <div key={f} className="flex items-center gap-2.5 text-sm text-gray-600">
-                    <CheckCircle2 className="w-4 h-4 text-emerald-500 flex-shrink-0" />
-                    {f}
-                  </div>
-                ))}
+            <div className="bg-white rounded-3xl border border-gray-200 p-8 flex flex-col">
+              <div>
+                <p className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-4">Gratuit</p>
+                <p className="text-5xl font-extrabold text-gray-900 mb-1">0<span className="text-2xl text-gray-400 font-normal ml-1">MRU</span></p>
+                <p className="text-sm text-gray-400 mb-8">Pour découvrir la plateforme</p>
+                <div className="space-y-3.5 mb-8">
+                  {['3 questions par jour', 'Toutes les thématiques', 'Suivi de progression'].map((f) => (
+                    <div key={f} className="flex items-center gap-3 text-sm text-gray-600">
+                      <CheckCircle2 className="w-4 h-4 text-emerald-500 flex-shrink-0" /> {f}
+                    </div>
+                  ))}
+                </div>
               </div>
               <Link href="/register"
-                className="block text-center text-sm font-semibold text-violet-600 py-3 rounded-xl border border-violet-200 hover:bg-violet-50 transition">
+                className="mt-auto block text-center text-sm font-bold text-violet-600 py-3.5 rounded-2xl border-2 border-violet-200 hover:bg-violet-50 transition">
                 Commencer gratuitement
               </Link>
             </div>
 
             {/* Premium */}
-            <div className="rounded-2xl p-8 text-white relative overflow-hidden"
-              style={{ background: 'linear-gradient(135deg,#7c3aed,#4f46e5)' }}>
-              <div className="absolute top-4 right-4">
-                <span className="flex items-center gap-1 text-xs font-semibold bg-white/20 px-2.5 py-1 rounded-full">
-                  <Crown className="w-3 h-3" /> Recommandé
-                </span>
-              </div>
-              <p className="font-bold text-lg mb-1">Premium</p>
-              <p className="text-3xl font-extrabold mb-1">Sur demande<span className="text-base font-normal text-white/60 ml-1">/mois</span></p>
-              <p className="text-sm text-white/60 mb-6">Accès illimité complet</p>
-              <div className="space-y-3 mb-8">
-                {[
-                  'Questions illimitées',
-                  'Mode examen chronométré',
-                  'Révision des erreurs ciblée',
-                  'Statistiques avancées par thème',
-                  'Support prioritaire',
-                ].map((f) => (
-                  <div key={f} className="flex items-center gap-2.5 text-sm text-white/90">
-                    <CheckCircle2 className="w-4 h-4 text-white flex-shrink-0" />
-                    {f}
-                  </div>
-                ))}
+            <div className="rounded-3xl p-8 text-white flex flex-col relative overflow-hidden shadow-2xl shadow-violet-500/25"
+              style={{ background: 'linear-gradient(145deg,#5b21b6,#4338ca)' }}>
+              <div className="absolute top-0 right-0 w-48 h-48 rounded-full blur-3xl opacity-20"
+                style={{ background: 'radial-gradient(circle,#a78bfa,transparent)', transform: 'translate(30%,-30%)' }} />
+              <div className="relative">
+                <div className="flex items-center justify-between mb-4">
+                  <p className="text-xs font-bold text-white/50 uppercase tracking-widest">Premium</p>
+                  <span className="flex items-center gap-1 text-xs font-bold bg-white/15 px-2.5 py-1 rounded-full">
+                    <Crown className="w-3 h-3 text-amber-300" /> Recommandé
+                  </span>
+                </div>
+                <p className="text-5xl font-extrabold mb-1">
+                  {price ?? '…'}<span className="text-2xl text-white/50 font-normal ml-1">MRU</span>
+                </p>
+                <p className="text-sm text-white/50 mb-8">par mois · accès illimité</p>
+                <div className="space-y-3.5 mb-8">
+                  {['Questions illimitées', 'Mode examen chronométré', 'Révision des erreurs', 'Statistiques avancées', 'Support prioritaire'].map((f) => (
+                    <div key={f} className="flex items-center gap-3 text-sm text-white/85">
+                      <CheckCircle2 className="w-4 h-4 text-violet-300 flex-shrink-0" /> {f}
+                    </div>
+                  ))}
+                </div>
               </div>
               <Link href="/register"
-                className="block text-center text-sm font-semibold text-violet-700 bg-white py-3 rounded-xl hover:bg-white/90 transition">
+                className="mt-auto block text-center text-sm font-bold text-violet-800 bg-white py-3.5 rounded-2xl hover:bg-white/90 transition">
                 Activer Premium →
               </Link>
             </div>
@@ -225,24 +228,30 @@ export default function LandingPage() {
       </section>
 
       {/* ── Testimonials ── */}
-      <section className="py-24 px-5">
-        <div className="max-w-5xl mx-auto">
-          <div className="text-center mb-14">
-            <p className="text-violet-600 text-sm font-semibold uppercase tracking-widest mb-3">Témoignages</p>
-            <h2 className="text-3xl md:text-4xl font-extrabold text-gray-900">Ils ont réussi leur concours</h2>
+      <section className="py-28 px-6 lg:px-10">
+        <div className="max-w-6xl mx-auto">
+          <div className="mb-16">
+            <p className="text-violet-600 text-xs font-bold uppercase tracking-widest mb-3">Témoignages</p>
+            <h2 className="text-3xl md:text-5xl font-extrabold text-gray-900 max-w-lg">Ils ont réussi leur concours</h2>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
             {TESTIMONIALS.map((t) => (
-              <div key={t.name} className="bg-white rounded-2xl border border-gray-100 p-6 shadow-sm">
-                <div className="flex gap-0.5 mb-4">
+              <div key={t.name} className="bg-white rounded-3xl border border-gray-100 p-7 shadow-sm hover:shadow-md transition-shadow">
+                <div className="flex gap-1 mb-5">
                   {Array.from({ length: t.stars }).map((_, i) => (
                     <Star key={i} className="w-4 h-4 text-amber-400 fill-amber-400" />
                   ))}
                 </div>
-                <p className="text-sm text-gray-600 leading-relaxed mb-4">"{t.text}"</p>
-                <div>
-                  <p className="font-semibold text-sm text-gray-900">{t.name}</p>
-                  <p className="text-xs text-gray-400">{t.role}</p>
+                <p className="text-gray-600 leading-relaxed mb-6 text-sm">"{t.text}"</p>
+                <div className="flex items-center gap-3">
+                  <div className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold text-white flex-shrink-0"
+                    style={{ background: 'linear-gradient(135deg,#7c3aed,#6366f1)' }}>
+                    {t.name[0]}
+                  </div>
+                  <div>
+                    <p className="font-bold text-sm text-gray-900">{t.name}</p>
+                    <p className="text-xs text-gray-400">{t.role}</p>
+                  </div>
                 </div>
               </div>
             ))}
@@ -251,34 +260,43 @@ export default function LandingPage() {
       </section>
 
       {/* ── CTA final ── */}
-      <section className="py-20 px-5">
-        <div className="max-w-2xl mx-auto text-center rounded-3xl p-12 text-white relative overflow-hidden"
-          style={{ background: 'linear-gradient(135deg,#7c3aed,#4f46e5)' }}>
-          <div className="absolute -top-10 -right-10 w-48 h-48 rounded-full bg-white/5" />
-          <div className="absolute -bottom-10 -left-10 w-48 h-48 rounded-full bg-white/5" />
-          <GraduationCap className="w-10 h-10 text-white/50 mx-auto mb-4" />
-          <h2 className="text-2xl md:text-3xl font-extrabold mb-3">Prêt à commencer ?</h2>
-          <p className="text-white/70 text-sm mb-8 leading-relaxed">Rejoignez les professionnels et étudiants de santé qui se préparent sérieusement aux concours nationaux.</p>
-          <Link href="/register"
-            className="inline-flex items-center gap-2 bg-white text-violet-700 font-semibold px-6 py-3.5 rounded-xl text-sm hover:bg-white/90 transition shadow-lg">
-            Créer mon compte gratuitement <ChevronRight className="w-4 h-4" />
-          </Link>
+      <section className="px-6 lg:px-10 pb-28">
+        <div className="max-w-6xl mx-auto">
+          <div className="relative rounded-3xl overflow-hidden px-10 py-16 text-center text-white"
+            style={{ background: 'linear-gradient(145deg,#0f0a2e,#1a1040,#0d1b3e)' }}>
+            <div className="absolute top-0 left-1/2 -translate-x-1/2 w-96 h-48 rounded-full blur-3xl opacity-25"
+              style={{ background: 'radial-gradient(circle,#7c3aed,transparent)' }} />
+            <div className="relative">
+              <p className="text-violet-400 text-xs font-bold uppercase tracking-widest mb-4">Commencez aujourd'hui</p>
+              <h2 className="text-3xl md:text-5xl font-extrabold mb-4 leading-tight">Prêt à décrocher<br />votre concours ?</h2>
+              <p className="text-white/50 text-sm mb-8 max-w-md mx-auto leading-relaxed">
+                Rejoignez les professionnels et étudiants de santé qui se préparent sérieusement aux concours nationaux mauritaniens.
+              </p>
+              <Link href="/register"
+                className="inline-flex items-center gap-2 font-bold px-8 py-4 rounded-2xl text-sm transition hover:opacity-90 shadow-xl shadow-violet-900/50 text-white"
+                style={{ background: 'linear-gradient(135deg,#7c3aed,#6366f1)' }}>
+                Créer mon compte <ArrowRight className="w-4 h-4" />
+              </Link>
+            </div>
+          </div>
         </div>
       </section>
 
       {/* ── Footer ── */}
-      <footer className="border-t border-gray-100 py-8 px-5">
-        <div className="max-w-5xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4 text-sm text-gray-400">
+      <footer className="border-t border-gray-100 py-8 px-6 lg:px-10">
+        <div className="max-w-6xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4 text-sm text-gray-400">
           <div className="flex items-center gap-2">
-            <div className="w-6 h-6 rounded-md flex items-center justify-center" style={{ background: 'linear-gradient(135deg,#7c3aed,#6366f1)' }}>
+            <div className="w-6 h-6 rounded-md flex items-center justify-center"
+              style={{ background: 'linear-gradient(135deg,#7c3aed,#6366f1)' }}>
               <BookOpen className="w-3 h-3 text-white" />
             </div>
-            <span className="font-semibold text-gray-600">ExaMed</span>
-            <span>· Préparation aux concours de santé mauritaniens</span>
+            <span className="font-bold text-gray-600">ExaMed</span>
+            <span className="text-gray-300">·</span>
+            <span>Préparation aux concours de santé mauritaniens</span>
           </div>
-          <div className="flex items-center gap-4">
-            <Link href="/login" className="hover:text-gray-600 transition">Connexion</Link>
-            <Link href="/register" className="hover:text-gray-600 transition">Inscription</Link>
+          <div className="flex items-center gap-5">
+            <Link href="/login" className="hover:text-gray-700 transition">Connexion</Link>
+            <Link href="/register" className="hover:text-gray-700 transition">Inscription</Link>
           </div>
         </div>
       </footer>
