@@ -56,7 +56,7 @@ export class AttemptsService {
     const attempt = await this.prisma.attempt.create({
       data: {
         userId,
-        mode: dto.mode,
+        mode: (dto.mode === 'FAVORITES' ? 'PRACTICE' : dto.mode) as any,
         themeId: dto.themeId,
         totalQ: questions.length,
         timeLimit: dto.durationMinutes ? dto.durationMinutes * 60 : null,
