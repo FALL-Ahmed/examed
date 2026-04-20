@@ -45,7 +45,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
           <div className="flex items-center gap-2">
             <Shield className="w-6 h-6 text-blue-400" />
             <div>
-              <p className="font-bold text-sm">ExaMed</p>
+              <p className="font-bold text-sm">Bourour</p>
               <p className="text-xs text-slate-400">Administration</p>
             </div>
           </div>

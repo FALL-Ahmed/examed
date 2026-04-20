@@ -68,7 +68,7 @@ export default function LoginPage() {
             <div className="w-10 h-10 rounded-xl bg-white/15 border border-white/20 flex items-center justify-center backdrop-blur-sm">
               <BookOpen className="w-5 h-5 text-white" />
             </div>
-            <span className="text-white font-bold text-xl tracking-tight">ExaMed</span>
+            <span className="text-white font-bold text-xl tracking-tight">Bourour</span>
           </div>
 
           {/* Main copy */}
@@ -124,7 +124,7 @@ export default function LoginPage() {
             <div className="w-10 h-10 rounded-xl gradient-primary flex items-center justify-center shadow-lg shadow-violet-500/30">
               <BookOpen className="w-5 h-5 text-white" />
             </div>
-            <span className="font-bold text-xl">ExaMed</span>
+            <span className="font-bold text-xl">Bourour</span>
           </div>
 
           <div className="mb-8">

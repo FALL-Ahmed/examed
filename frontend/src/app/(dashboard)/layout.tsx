@@ -57,7 +57,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
             <BookOpen className="w-4 h-4 text-white" />
           </div>
           <div>
-            <p className="text-white font-bold text-sm">ExaMed</p>
+            <p className="text-white font-bold text-sm">Bourour</p>
             <p className="text-white/40 text-xs">Infirmier · Mauritanie</p>
           </div>
         </div>
@@ -150,7 +150,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
             <div className="w-7 h-7 rounded-lg gradient-primary flex items-center justify-center">
               <BookOpen className="w-3.5 h-3.5 text-white" />
             </div>
-            <span className="font-bold text-sm">ExaMed</span>
+            <span className="font-bold text-sm">Bourour</span>
           </div>
           <button onClick={toggle} className="text-muted-foreground hover:text-foreground">
             {theme === 'dark' ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}

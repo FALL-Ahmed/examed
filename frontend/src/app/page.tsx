@@ -24,7 +24,7 @@ const STATS = [
 ];
 
 const TESTIMONIALS = [
-  { name: 'Fatimata B.', role: 'Étudiante en soins infirmiers', text: 'J\'ai réussi mon concours du premier coup grâce à ExaMed. Les QCM sont vraiment adaptés au programme mauritanien.', stars: 5 },
+  { name: 'Fatimata B.', role: 'Étudiante en soins infirmiers', text: 'J\'ai réussi mon concours du premier coup grâce à Bourour. Les QCM sont vraiment adaptés au programme mauritanien.', stars: 5 },
   { name: 'Moussa D.',   role: 'Technicien de laboratoire, Nouakchott', text: 'Excellent outil pour maintenir ses connaissances à jour. Le mode examen est très proche des conditions réelles.', stars: 5 },
   { name: 'Aïssata K.', role: 'Étudiante en médecine, 3e année', text: 'Le suivi de progression m\'aide à identifier mes lacunes et à me concentrer sur ce qui compte vraiment.', stars: 5 },
 ];
@@ -61,7 +61,7 @@ export default function LandingPage() {
               style={{ background: 'linear-gradient(135deg,#7c3aed,#6366f1)' }}>
               <BookOpen className="w-4 h-4 text-white" />
             </div>
-            <span className="font-extrabold text-lg tracking-tight text-gray-900">ExaMed</span>
+            <span className="font-extrabold text-lg tracking-tight text-gray-900">Bourour</span>
           </div>
           <div className="flex items-center gap-2">
             <Link href="/login"
@@ -307,7 +307,7 @@ export default function LandingPage() {
               style={{ background: 'linear-gradient(135deg,#7c3aed,#6366f1)' }}>
               <BookOpen className="w-3 h-3 text-white" />
             </div>
-            <span className="font-bold text-gray-600">ExaMed</span>
+            <span className="font-bold text-gray-600">Bourour</span>
             <span className="text-gray-300">·</span>
             <span>Préparation aux concours de santé mauritaniens</span>
           </div>

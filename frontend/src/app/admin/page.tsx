@@ -120,7 +120,7 @@ export default function AdminDashboard() {
     <div className="space-y-8">
       <div>
         <h1 className="text-2xl font-bold">Tableau de bord</h1>
-        <p className="text-muted-foreground">Vue d'ensemble de ExaMed</p>
+        <p className="text-muted-foreground">Vue d'ensemble de Bourour</p>
       </div>
 
       {stats?.pendingPayments > 0 && (
@@ -229,7 +229,7 @@ export default function AdminDashboard() {
                   value={supportEmail}
                   onChange={(e) => setSupportEmail(e.target.value)}
                   className="flex-1 px-4 py-2.5 bg-background border border-border rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary"
-                  placeholder="support@examed.mr"
+                  placeholder="support@bourour.mr"
                 />
                 <button
                   type="submit"
