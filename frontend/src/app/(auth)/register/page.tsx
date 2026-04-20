@@ -43,6 +43,7 @@ export default function RegisterPage() {
 
   // Step 2 state
   const [operators, setOperators] = useState<Record<string, string>>({});
+  const [price, setPrice] = useState(500);
   const [selectedOp, setSelectedOp] = useState('');
   const [copied, setCopied] = useState(false);
   const [receipt, setReceipt] = useState<File | null>(null);
@@ -55,6 +56,7 @@ export default function RegisterPage() {
       r.data.forEach((op: any) => { map[op.id] = op.phone; });
       setOperators(map);
     }).catch(() => {});
+    settingsApi.price().then((r) => setPrice(r.data.price ?? 500)).catch(() => {});
   }, []);
 
   function set(key: string, value: string) {
@@ -103,7 +105,7 @@ export default function RegisterPage() {
       // 3. Submit payment
       const fd = new FormData();
       fd.append('operator', selectedOp);
-      fd.append('amount', '0');
+      fd.append('amount', String(price));
       fd.append('paymentMethod', 'MOBILE_MONEY');
       fd.append('receipt', receipt);
       await paymentsApi.submit(fd);

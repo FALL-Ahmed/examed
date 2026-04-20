@@ -25,6 +25,7 @@ export class PaymentsService {
         amount: dto.amount,
         durationDays: dto.durationDays || 30,
         paymentMethod: dto.paymentMethod,
+        operator: dto.operator,
         receiptUrl,
       },
     });

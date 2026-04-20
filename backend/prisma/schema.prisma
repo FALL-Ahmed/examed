@@ -156,6 +156,7 @@ model Payment {
   amount          Float
   durationDays    Int           @default(30)
   paymentMethod   String        @default("MOBILE_MONEY")
+  operator        String?
   receiptUrl      String?
   status          PaymentStatus @default(PENDING)
   validatedBy     String?

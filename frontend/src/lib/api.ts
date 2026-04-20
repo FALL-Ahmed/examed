@@ -93,12 +93,9 @@ export const attemptsApi = {
 
 // Payments
 export const paymentsApi = {
-  submit: (data: any) => {
-    const isFormData = data instanceof FormData;
-    return api.post('/payments', data, {
-      headers: isFormData ? {} : { 'Content-Type': 'application/json' }
-    });
-  },
+  submit: (data: FormData) => api.post('/payments', data, {
+    headers: { 'Content-Type': undefined },
+  }),
   myPayments: () => api.get('/payments/me'),
 };
 
