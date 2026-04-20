@@ -83,21 +83,21 @@ export default function RegisterPage() {
 
         <div className="relative space-y-6">
           <div>
-            <p className="text-indigo-300 text-xs font-semibold uppercase tracking-widest mb-3">Concours national infirmier</p>
+            <p className="text-indigo-300 text-xs font-semibold uppercase tracking-widest mb-3">Concours de santé — Mauritanie</p>
             <h1 className="text-4xl font-extrabold text-white leading-tight">
               Préparez-vous<br />à réussir
             </h1>
             <p className="text-white/55 text-sm mt-3 leading-relaxed max-w-xs">
-              Rejoignez la communauté des soignants mauritaniens qui préparent leur concours avec sérieux.
+              Rejoignez la communauté des professionnels et étudiants de santé mauritaniens qui préparent leurs concours.
             </p>
           </div>
 
           <div className="space-y-3">
             {[
               '500+ questions médicales validées',
-              'Suivi de progression par thématique',
+              'Pour infirmiers, médecins, techniciens…',
               'Mode examen chronométré (Premium)',
-              'Adapté au programme mauritanien',
+              'Adapté aux concours de santé mauritaniens',
             ].map((t) => (
               <div key={t} className="flex items-center gap-2.5">
                 <div className="w-4 h-4 rounded-full bg-indigo-400/30 border border-indigo-400/50 flex items-center justify-center flex-shrink-0">

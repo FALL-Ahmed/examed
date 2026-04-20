@@ -38,15 +38,15 @@ const FEATURES = [
 
 const STATS = [
   { value: '500+', label: 'Questions validées', icon: Target },
-  { value: '15',   label: 'Thématiques médicales', icon: BookOpen },
-  { value: '100%', label: 'Adapté au concours mauritanien', icon: Shield },
+  { value: '50+',  label: 'Thématiques médicales', icon: BookOpen },
+  { value: '100%', label: 'Adapté aux concours mauritaniens', icon: Shield },
   { value: '24/7', label: 'Accès illimité Premium', icon: Clock },
 ];
 
 const TESTIMONIALS = [
   { name: 'Fatimata B.', role: 'Étudiante en soins infirmiers', text: 'J\'ai réussi mon concours du premier coup grâce à ExaMed. Les QCM sont vraiment adaptés au programme mauritanien.', stars: 5 },
-  { name: 'Moussa D.', role: 'Infirmier diplômé, Nouakchott', text: 'Excellent outil pour maintenir ses connaissances à jour. Le mode examen est très proche des conditions réelles.', stars: 5 },
-  { name: 'Aïssata K.', role: 'Étudiante 3e année', text: 'Le suivi de progression m\'aide à identifier mes lacunes et à me concentrer sur ce qui compte vraiment.', stars: 5 },
+  { name: 'Moussa D.', role: 'Technicien de laboratoire, Nouakchott', text: 'Excellent outil pour maintenir ses connaissances à jour. Le mode examen est très proche des conditions réelles.', stars: 5 },
+  { name: 'Aïssata K.', role: 'Étudiante en médecine, 3e année', text: 'Le suivi de progression m\'aide à identifier mes lacunes et à me concentrer sur ce qui compte vraiment.', stars: 5 },
 ];
 
 export default function LandingPage() {
@@ -101,16 +101,16 @@ export default function LandingPage() {
         <div className="max-w-4xl mx-auto text-center relative">
           <div className="inline-flex items-center gap-2 bg-violet-50 border border-violet-200 text-violet-700 text-xs font-semibold px-3 py-1.5 rounded-full mb-6">
             <GraduationCap className="w-3.5 h-3.5" />
-            Préparation au Concours National Infirmier — Mauritanie
+            Préparation aux Concours de Santé — Mauritanie
           </div>
           <h1 className="text-4xl md:text-6xl font-extrabold leading-[1.1] tracking-tight mb-6 text-gray-900">
             Réussissez votre<br />
             <span className="text-transparent bg-clip-text" style={{ backgroundImage: 'linear-gradient(135deg,#7c3aed,#6366f1)' }}>
-              concours infirmier
+              concours de santé
             </span>
           </h1>
           <p className="text-lg text-gray-500 max-w-2xl mx-auto mb-10 leading-relaxed">
-            500+ QCM validés par des professionnels de santé, organisés par thématique et adaptés au programme mauritanien. Entraînez-vous, progressez et réussissez.
+            500+ QCM validés par des professionnels de santé, pour infirmiers, médecins, techniciens et étudiants. Entraînez-vous par thématique et progressez à votre rythme.
           </p>
           <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
             <Link href="/register"
@@ -258,7 +258,7 @@ export default function LandingPage() {
           <div className="absolute -bottom-10 -left-10 w-48 h-48 rounded-full bg-white/5" />
           <GraduationCap className="w-10 h-10 text-white/50 mx-auto mb-4" />
           <h2 className="text-2xl md:text-3xl font-extrabold mb-3">Prêt à commencer ?</h2>
-          <p className="text-white/70 text-sm mb-8 leading-relaxed">Rejoignez les étudiants infirmiers qui se préparent sérieusement au concours national.</p>
+          <p className="text-white/70 text-sm mb-8 leading-relaxed">Rejoignez les professionnels et étudiants de santé qui se préparent sérieusement aux concours nationaux.</p>
           <Link href="/register"
             className="inline-flex items-center gap-2 bg-white text-violet-700 font-semibold px-6 py-3.5 rounded-xl text-sm hover:bg-white/90 transition shadow-lg">
             Créer mon compte gratuitement <ChevronRight className="w-4 h-4" />
@@ -274,7 +274,7 @@ export default function LandingPage() {
               <BookOpen className="w-3 h-3 text-white" />
             </div>
             <span className="font-semibold text-gray-600">ExaMed</span>
-            <span>· Préparation au concours infirmier mauritanien</span>
+            <span>· Préparation aux concours de santé mauritaniens</span>
           </div>
           <div className="flex items-center gap-4">
             <Link href="/login" className="hover:text-gray-600 transition">Connexion</Link>
