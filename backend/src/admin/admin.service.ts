@@ -115,6 +115,12 @@ export class AdminService {
     return this.prisma.question.update({ where: { id }, data: { isActive: false } });
   }
 
+  async deleteAllQuestions() {
+    const { count } = await this.prisma.question.deleteMany({});
+    return { deleted: count };
+  }
+  }
+
   async getSetting(key: string): Promise<string | null> {
     const row = await this.prisma.setting.findUnique({ where: { key } });
     return row?.value ?? null;
@@ -162,6 +168,7 @@ export class AdminService {
     let themesCreated = 0;
     let subThemesCreated = 0;
     let questionsCreated = 0;
+    let questionsSkipped = 0;
 
     for (const themeData of parserData.themes) {
       const theme = await this.prisma.theme.upsert({
@@ -182,6 +189,11 @@ export class AdminService {
         for (const qData of subData.questions) {
           if (!qData.text || qData.text.trim().length < 5) continue;
 
+          const existing = await this.prisma.question.findFirst({
+            where: { text: qData.text.trim(), subThemeId: sub.id },
+          });
+          if (existing) { questionsSkipped++; continue; }
+
           await this.prisma.question.create({
             data: {
               text: qData.text,
@@ -190,7 +202,7 @@ export class AdminService {
               choiceC: qData.choiceC || '',
               choiceD: qData.choiceD || '',
               choiceE: qData.choiceE || '',
-              correctAnswer: qData.correctAnswer,     // ex: "A,B,C"
+              correctAnswer: qData.correctAnswer,
               explanation: qData.explanation || '',
               imageUrl: qData.imageUrl || null,
               subThemeId: sub.id,
@@ -201,6 +213,6 @@ export class AdminService {
       }
     }
 
-    return { themesCreated, subThemesCreated, questionsCreated };
+    return { themesCreated, subThemesCreated, questionsCreated, questionsSkipped };
   }
 }

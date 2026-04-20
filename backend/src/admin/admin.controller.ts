@@ -81,6 +81,11 @@ export class AdminController {
     return this.adminService.deleteQuestion(id);
   }
 
+  @Delete('questions')
+  deleteAllQuestions() {
+    return this.adminService.deleteAllQuestions();
+  }
+
   @Get('payments/pending')
   getPendingPayments() {
     return this.paymentsService.getPendingPayments();
