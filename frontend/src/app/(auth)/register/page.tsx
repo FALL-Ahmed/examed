@@ -50,7 +50,11 @@ export default function RegisterPage() {
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    settingsApi.operators().then((r) => setOperators(r.data)).catch(() => {});
+    settingsApi.operators().then((r) => {
+      const map: Record<string, string> = {};
+      r.data.forEach((op: any) => { map[op.id] = op.phone; });
+      setOperators(map);
+    }).catch(() => {});
   }, []);
 
   function set(key: string, value: string) {
@@ -115,14 +119,14 @@ export default function RegisterPage() {
   function copyPhone() {
     const op = OPERATORS.find((o) => o.id === selectedOp);
     if (!op) return;
-    const phone = operators[op.key];
+    const phone = operators[op.id];
     if (phone) { navigator.clipboard.writeText(phone); setCopied(true); setTimeout(() => setCopied(false), 2000); }
   }
 
   const inputClass = "w-full px-4 py-3 bg-white border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-violet-300 focus:border-violet-400 transition text-sm placeholder:text-gray-400 text-gray-800";
   const labelClass = "block text-sm font-semibold text-gray-700 mb-1.5";
   const selectedOpData = OPERATORS.find((o) => o.id === selectedOp);
-  const selectedPhone = selectedOpData ? operators[selectedOpData.key] : null;
+  const selectedPhone = selectedOpData ? operators[selectedOpData.id] : null;
 
   return (
     <div className="min-h-screen flex">
