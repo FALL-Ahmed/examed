@@ -109,28 +109,28 @@ export class AdminService {
   }
 
   async getUserAnalytics() {
-    const where = { role: { not: 'ADMIN' } };
-
-    const [byGender, byWilaya, byProfession, byRole, recentRegistrations] = await Promise.all([
-      this.prisma.user.groupBy({ by: ['gender'] as any, where, _count: { _all: true } }),
-      this.prisma.user.groupBy({ by: ['wilaya'] as any, where, _count: { _all: true }, orderBy: { _count: { id: 'desc' } }, take: 10 }),
-      this.prisma.user.groupBy({ by: ['profession'] as any, where, _count: { _all: true }, orderBy: { _count: { id: 'desc' } }, take: 10 }),
-      this.prisma.user.groupBy({ by: ['role'], where, _count: { _all: true } }),
-      this.prisma.user.findMany({
-        where,
-        orderBy: { createdAt: 'desc' },
-        take: 7,
-        select: { createdAt: true },
-      }),
-    ]);
-
-    const dailyCounts: Record<string, number> = {};
-    recentRegistrations.forEach((u) => {
-      const day = u.createdAt.toISOString().slice(0, 10);
-      dailyCounts[day] = (dailyCounts[day] || 0) + 1;
+    const users = await this.prisma.user.findMany({
+      where: { role: { not: 'ADMIN' } },
+      select: { role: true, gender: true, wilaya: true, profession: true } as any,
     });
 
-    return { byGender, byWilaya, byProfession, byRole, dailyCounts };
+    const group = (field: string) => {
+      const map: Record<string, number> = {};
+      users.forEach((u: any) => {
+        const key = u[field] || null;
+        map[key] = (map[key] || 0) + 1;
+      });
+      return Object.entries(map)
+        .map(([key, count]) => ({ [field]: key === 'null' ? null : key, _count: { _all: count } }))
+        .sort((a, b) => b._count._all - a._count._all);
+    };
+
+    return {
+      byGender:     group('gender'),
+      byWilaya:     group('wilaya').slice(0, 10),
+      byProfession: group('profession').slice(0, 10),
+      byRole:       group('role'),
+    };
   }
 
   async importFromParser(parserData: any) {
