@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 // eslint-disable-next-line @typescript-eslint/no-var-requires
-const pdfParse = require('pdf-parse');
+const pdfParseLib = require('pdf-parse');
+const pdfParse = pdfParseLib.default ?? pdfParseLib;
 import { parseText, limitPreview } from './text-parser';
 
 @Injectable()
