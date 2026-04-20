@@ -29,7 +29,6 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     loadUser().then(() => {
       const u = useAuthStore.getState().user;
       if (!u) router.push('/login');
-      else if (u.role === 'ADMIN') router.push('/admin');
     });
   }, []);
 
