@@ -86,6 +86,11 @@ export class AdminController {
     return this.adminService.deleteAllQuestions();
   }
 
+  @Delete('themes')
+  deleteAllThemes() {
+    return this.adminService.deleteAllThemes();
+  }
+
   @Get('payments/pending')
   getPendingPayments() {
     return this.paymentsService.getPendingPayments();

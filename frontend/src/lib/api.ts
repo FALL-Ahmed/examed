@@ -124,6 +124,7 @@ export const adminApi = {
   updateQuestion: (id: string, data: any) => api.put(`/admin/questions/${id}`, data),
   deleteQuestion: (id: string) => api.delete(`/admin/questions/${id}`),
   deleteAllQuestions: () => api.delete('/admin/questions'),
+  deleteAllThemes: () => api.delete('/admin/themes'),
   pendingPayments: () => api.get('/admin/payments/pending'),
   validatePayment: (id: string) => api.post(`/admin/payments/${id}/validate`),
   rejectPayment: (id: string, reason?: string) => api.post(`/admin/payments/${id}/reject`, { reason }),

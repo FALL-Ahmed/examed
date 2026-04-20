@@ -1,7 +1,7 @@
 'use client';
 import { useState } from 'react';
 import { adminApi } from '@/lib/api';
-import { Upload, FileText, CheckCircle, AlertCircle, Loader2, Type } from 'lucide-react';
+import { Upload, FileText, CheckCircle, AlertCircle, Loader2, Type, Trash2 } from 'lucide-react';
 
 type Tab = 'pdf' | 'text';
 
@@ -21,6 +21,7 @@ export default function UploadPage() {
   const [importing, setImporting] = useState(false);
   const [result, setResult] = useState<any>(null);
   const [error, setError] = useState('');
+  const [deleting, setDeleting] = useState(false);
 
   function handleFile(f: File) {
     if (!f.name.endsWith('.pdf')) { setError('Format PDF uniquement'); return; }
@@ -66,6 +67,20 @@ export default function UploadPage() {
       setError('Erreur import : ' + (err.response?.data?.detail || err.message));
     } finally {
       setImporting(false);
+    }
+  }
+
+  async function handleDeleteAllThemes() {
+    if (!confirm('Supprimer TOUS les thèmes, sous-thèmes et questions ? Cette action est irréversible.')) return;
+    setDeleting(true);
+    setError('');
+    try {
+      await adminApi.deleteAllThemes();
+      resetAll();
+    } catch (err: any) {
+      setError('Erreur suppression : ' + (err.response?.data?.message || err.message));
+    } finally {
+      setDeleting(false);
     }
   }
 
@@ -217,6 +232,20 @@ export default function UploadPage() {
           </button>
         </div>
       )}
+
+      {/* Zone danger */}
+      <div className="border border-red-200 rounded-2xl p-5 space-y-3 bg-red-50/50">
+        <p className="text-sm font-semibold text-red-700">Zone dangereuse</p>
+        <button
+          onClick={handleDeleteAllThemes}
+          disabled={deleting}
+          className="flex items-center gap-2 px-4 py-2.5 bg-red-600 text-white rounded-xl text-sm font-medium hover:bg-red-700 transition disabled:opacity-60"
+        >
+          {deleting ? <Loader2 className="w-4 h-4 animate-spin" /> : <Trash2 className="w-4 h-4" />}
+          Supprimer tous les thèmes et questions
+        </button>
+        <p className="text-xs text-red-500">Supprime définitivement tous les thèmes, sous-thèmes et questions de la base de données.</p>
+      </div>
 
       {/* Succès */}
       {result && (

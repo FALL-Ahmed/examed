@@ -120,6 +120,13 @@ export class AdminService {
     return { deleted: count };
   }
 
+  async deleteAllThemes() {
+    await this.prisma.question.deleteMany({});
+    await this.prisma.subTheme.deleteMany({});
+    const { count } = await this.prisma.theme.deleteMany({});
+    return { deleted: count };
+  }
+
   async getSetting(key: string): Promise<string | null> {
     const row = await this.prisma.setting.findUnique({ where: { key } });
     return row?.value ?? null;
