@@ -119,7 +119,6 @@ export class AdminService {
     const { count } = await this.prisma.question.deleteMany({});
     return { deleted: count };
   }
-  }
 
   async getSetting(key: string): Promise<string | null> {
     const row = await this.prisma.setting.findUnique({ where: { key } });
