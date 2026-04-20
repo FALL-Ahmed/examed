@@ -81,6 +81,9 @@ export const themesApi = {
 export const questionsApi = {
   practice: (params?: any) => api.get('/questions/practice', { params }),
   mistakes: () => api.get('/questions/mistakes'),
+  favorites: () => api.get('/questions/favorites'),
+  favoriteIds: () => api.get('/questions/favorites/ids'),
+  toggleFavorite: (id: string) => api.post(`/questions/${id}/favorite`),
 };
 
 // Attempts

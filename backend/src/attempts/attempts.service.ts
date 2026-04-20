@@ -12,15 +12,22 @@ export class AttemptsService {
   ) {}
 
   async startAttempt(userId: string, userRole: string, dto: {
-    mode: 'PRACTICE' | 'EXAM' | 'REVIEW';
+    mode: 'PRACTICE' | 'EXAM' | 'REVIEW' | 'FAVORITES';
     themeId?: string;
     subThemeId?: string;
     count?: number;
     durationMinutes?: number;
+    questionIds?: string[];
   }) {
     let questions: any[] = [];
 
-    if (dto.mode === 'EXAM') {
+    if (dto.mode === 'FAVORITES') {
+      if (!dto.questionIds?.length) throw new BadRequestException('Aucun favori');
+      questions = await this.prisma.question.findMany({
+        where: { id: { in: dto.questionIds }, isActive: true },
+        include: { subTheme: { include: { theme: true } } },
+      });
+    } else if (dto.mode === 'EXAM') {
       questions = await this.questionsService.getForExam(userId, userRole, {
         themeId: dto.themeId,
         count: dto.count || 20,

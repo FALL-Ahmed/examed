@@ -4,7 +4,8 @@ import { useRouter, usePathname } from 'next/navigation';
 import Link from 'next/link';
 import { useAuthStore } from '@/lib/auth-store';
 import { adminApi } from '@/lib/api';
-import { BookOpen, Users, FileText, CreditCard, Upload, BarChart2, LogOut, Shield, PieChart } from 'lucide-react';
+import { Users, FileText, CreditCard, Upload, BarChart2, LogOut, Shield, PieChart, Sun, Moon } from 'lucide-react';
+import { useTheme } from '@/components/ThemeProvider';
 
 const navItems = [
   { href: '/admin', icon: BarChart2, label: 'Dashboard', badge: false },
@@ -19,6 +20,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   const router = useRouter();
   const pathname = usePathname();
   const { user, loadUser, logout } = useAuthStore();
+  const { theme, toggle } = useTheme();
   const [pendingCount, setPendingCount] = useState(0);
 
   useEffect(() => {
@@ -72,7 +74,14 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
           })}
         </nav>
 
-        <div className="p-3 border-t border-slate-700">
+        <div className="p-3 border-t border-slate-700 space-y-1">
+          <button
+            onClick={toggle}
+            className="flex items-center gap-3 px-3 py-2.5 w-full rounded-xl text-sm font-medium text-slate-400 hover:bg-slate-800 hover:text-white transition"
+          >
+            {theme === 'dark' ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
+            {theme === 'dark' ? 'Mode clair' : 'Mode sombre'}
+          </button>
           <button
             onClick={() => { logout(); router.push('/login'); }}
             className="flex items-center gap-3 px-3 py-2.5 w-full rounded-xl text-sm font-medium text-slate-400 hover:bg-red-900/30 hover:text-red-400 transition"

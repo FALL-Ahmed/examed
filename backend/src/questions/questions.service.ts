@@ -91,4 +91,33 @@ export class QuestionsService {
       include: { subTheme: { include: { theme: true } } },
     });
   }
+
+  async toggleFavorite(userId: string, questionId: string) {
+    const existing = await (this.prisma as any).favorite.findUnique({
+      where: { userId_questionId: { userId, questionId } },
+    });
+    if (existing) {
+      await (this.prisma as any).favorite.delete({ where: { userId_questionId: { userId, questionId } } });
+      return { favorited: false };
+    }
+    await (this.prisma as any).favorite.create({ data: { userId, questionId } });
+    return { favorited: true };
+  }
+
+  async getFavorites(userId: string) {
+    const favs = await (this.prisma as any).favorite.findMany({
+      where: { userId },
+      orderBy: { createdAt: 'desc' },
+      include: { question: { include: { subTheme: { include: { theme: true } } } } },
+    });
+    return favs.map((f: any) => f.question);
+  }
+
+  async getFavoriteIds(userId: string) {
+    const favs = await (this.prisma as any).favorite.findMany({
+      where: { userId },
+      select: { questionId: true },
+    });
+    return favs.map((f: any) => f.questionId);
+  }
 }

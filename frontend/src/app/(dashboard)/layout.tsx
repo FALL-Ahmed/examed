@@ -5,16 +5,17 @@ import Link from 'next/link';
 import { useAuthStore } from '@/lib/auth-store';
 import { useTheme } from '@/components/ThemeProvider';
 import {
-  BookOpen, RefreshCw, Home, LogOut, Zap, Menu, X, TrendingUp, Sun, Moon, HeadphonesIcon,
+  BookOpen, RefreshCw, Home, LogOut, Zap, Menu, X, TrendingUp, Sun, Moon, HeadphonesIcon, Heart,
 } from 'lucide-react';
 
 const navItems = [
-  { href: '/dashboard', icon: Home,           label: 'Tableau de bord', color: '#818cf8' },
-  { href: '/practice',  icon: BookOpen,       label: 'Pratique',        color: '#0ea5e9' },
-  { href: '/exam',      icon: Zap,            label: 'Mode Série',      color: '#a78bfa' },
-  { href: '/review',    icon: RefreshCw,      label: 'Révision',        color: '#fbbf24' },
-  { href: '/stats',     icon: TrendingUp,     label: 'Statistiques',    color: '#38bdf8' },
-  { href: '/support',   icon: HeadphonesIcon, label: 'Support',         color: '#34d399' },
+  { href: '/dashboard',  icon: Home,           label: 'Tableau de bord', color: '#818cf8' },
+  { href: '/practice',   icon: BookOpen,       label: 'Pratique',        color: '#0ea5e9' },
+  { href: '/exam',       icon: Zap,            label: 'Mode Série',      color: '#a78bfa' },
+  { href: '/review',     icon: RefreshCw,      label: 'Révision',        color: '#fbbf24' },
+  { href: '/favorites',  icon: Heart,          label: 'Mes Favoris',     color: '#f43f5e' },
+  { href: '/stats',      icon: TrendingUp,     label: 'Statistiques',    color: '#38bdf8' },
+  { href: '/support',    icon: HeadphonesIcon, label: 'Support',         color: '#34d399' },
 ];
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
