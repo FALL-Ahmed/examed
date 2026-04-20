@@ -100,6 +100,7 @@ export default function RegisterPage() {
       const fd = new FormData();
       fd.append('operator', selectedOp);
       fd.append('amount', '0');
+      fd.append('paymentMethod', 'MOBILE_MONEY');
       fd.append('receipt', receipt);
       await paymentsApi.submit(fd);
 

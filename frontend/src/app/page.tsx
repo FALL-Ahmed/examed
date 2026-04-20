@@ -111,7 +111,7 @@ export default function LandingPage() {
               <Link href="/register"
                 className="inline-flex items-center justify-center gap-2 text-white font-bold px-7 py-4 rounded-2xl text-sm transition hover:opacity-90 shadow-xl shadow-violet-900/50"
                 style={{ background: 'linear-gradient(135deg,#7c3aed,#6366f1)' }}>
-                Commencer gratuitement <ArrowRight className="w-4 h-4" />
+                Commencer maintenant <ArrowRight className="w-4 h-4" />
               </Link>
               <Link href="/login"
                 className="inline-flex items-center justify-center gap-2 text-white/70 font-semibold px-7 py-4 rounded-2xl text-sm border border-white/15 hover:bg-white/10 transition">
