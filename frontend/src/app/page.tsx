@@ -9,6 +9,7 @@ import {
   Star, GraduationCap, ArrowRight, Target, Shield, Clock, Users,
 } from 'lucide-react';
 import { settingsApi } from '@/lib/api';
+import { LanguageSwitcherLight } from '@/components/LanguageSwitcher';
 
 export default function LandingPage() {
   const router = useRouter();
@@ -68,6 +69,7 @@ export default function LandingPage() {
             <span className="font-extrabold text-lg tracking-tight text-gray-900">{t('app.name')}</span>
           </div>
           <div className="flex items-center gap-2">
+            <LanguageSwitcherLight className="!text-gray-500 hover:!bg-gray-100 hover:!text-gray-900" />
             <Link href="/login"
               className="text-sm font-semibold text-gray-500 hover:text-gray-900 px-4 py-2 rounded-lg hover:bg-gray-100 transition">
               {t('auth.login.submit')}
