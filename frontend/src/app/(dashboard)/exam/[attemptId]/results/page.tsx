@@ -4,12 +4,14 @@ import { useParams } from 'next/navigation';
 import Link from 'next/link';
 import { attemptsApi } from '@/lib/api';
 import { CheckCircle, XCircle, ChevronDown, ChevronUp, RotateCcw, RefreshCw, Trophy, Clock, Target } from 'lucide-react';
+import { useLang } from '@/components/LanguageProvider';
 import { sentenceCase } from '@/lib/utils';
 
 export default function ResultsPage() {
   const { attemptId } = useParams<{ attemptId: string }>();
   const [review, setReview] = useState<any>(null);
   const [expanded, setExpanded] = useState<string | null>(null);
+  const { t } = useLang();
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState<'all' | 'correct' | 'wrong'>('all');
 
@@ -38,9 +40,9 @@ export default function ResultsPage() {
   );
 
   const FILTERS = [
-    { key: 'all', label: `Toutes (${total})` },
-    { key: 'correct', label: `Correctes (${correct})` },
-    { key: 'wrong', label: `Erreurs (${total - correct})` },
+    { key: 'all', label: `${t('stats.total')} (${total})` },
+    { key: 'correct', label: `${t('results.correct')} (${correct})` },
+    { key: 'wrong', label: `${t('results.incorrect')} (${total - correct})` },
   ] as const;
 
   return (
@@ -54,14 +56,14 @@ export default function ResultsPage() {
             <span className="text-3xl font-extrabold" style={{ color: scoreColor }}>{score}%</span>
           </div>
           <h2 className="text-xl font-bold">{scoreLabel}</h2>
-          <p className="text-muted-foreground text-sm mt-1">{correct} correctes sur {total}</p>
+          <p className="text-muted-foreground text-sm mt-1">{correct} {t('results.correct').toLowerCase()} / {total}</p>
         </div>
 
         <div className="grid grid-cols-3 gap-3">
           {[
-            { icon: Target, label: 'Score', value: `${score}%`, color: scoreColor },
-            { icon: CheckCircle, label: 'Correctes', value: `${correct}/${total}`, color: '#10b981' },
-            { icon: Clock, label: 'Durée', value: `${mins}m ${secs}s`, color: '#6366f1' },
+            { icon: Target, label: t('results.score'), value: `${score}%`, color: scoreColor },
+            { icon: CheckCircle, label: t('results.correct'), value: `${correct}/${total}`, color: '#10b981' },
+            { icon: Clock, label: t('exam.timeLeft'), value: `${mins}m ${secs}s`, color: '#6366f1' },
           ].map((s) => (
             <div key={s.label} className="bg-secondary rounded-xl p-3 text-center">
               <s.icon className="w-4 h-4 mx-auto mb-2" style={{ color: s.color }} />
@@ -76,11 +78,11 @@ export default function ResultsPage() {
       <div className="grid grid-cols-2 gap-3">
         <Link href="/exam"
           className="flex items-center justify-center gap-2 py-3 rounded-xl border border-border bg-card text-sm font-semibold hover:bg-secondary transition">
-          <RotateCcw className="w-4 h-4" /> Nouvelle série
+          <RotateCcw className="w-4 h-4" /> {t('results.retry')}
         </Link>
         <Link href="/review"
           className="flex items-center justify-center gap-2 py-3 rounded-xl gradient-warning text-white text-sm font-semibold hover:opacity-90 transition shadow-md shadow-amber-500/20">
-          <RefreshCw className="w-4 h-4" /> Réviser erreurs
+          <RefreshCw className="w-4 h-4" /> {t('review.title')}
         </Link>
       </div>
 
@@ -152,7 +154,7 @@ export default function ResultsPage() {
 
                 {q.explanation && (
                   <div className="mt-3 bg-card border border-border rounded-xl p-3 text-sm text-muted-foreground leading-relaxed">
-                    <p className="font-semibold text-foreground text-xs mb-1">Explication</p>
+                    <p className="font-semibold text-foreground text-xs mb-1">{t('review.correct')}</p>
                     {q.explanation}
                   </div>
                 )}

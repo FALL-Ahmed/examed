@@ -80,7 +80,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
       </div>
 
       {/* Nav */}
-      <nav className="flex-1 px-3 py-3 space-y-0.5 overflow-y-auto">
+      <nav className="flex-1 px-3 py-3 space-y-0.5 overflow-hidden">
         <p className="text-white/20 text-xs font-semibold uppercase tracking-wider px-3 mb-2">Menu</p>
         {navItems.map((item) => {
           const active = pathname === item.href || pathname.startsWith(item.href + '/');
@@ -123,8 +123,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     <div className="min-h-screen bg-background flex">
 
       {/* Sidebar desktop */}
-      <aside className={`hidden lg:flex w-60 xl:w-64 flex-col fixed inset-y-0 z-50 sidebar-bg sidebar-desktop
-        ${isRTL ? 'right-0' : 'left-0'}`}>
+      <aside className="hidden lg:flex w-60 xl:w-64 flex-col fixed inset-y-0 left-0 z-50 sidebar-bg sidebar-desktop">
         <SidebarContent />
       </aside>
 
@@ -135,9 +134,8 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
       )}
 
       {/* Mobile sidebar */}
-      <aside className={`lg:hidden fixed inset-y-0 z-50 w-72 flex flex-col sidebar-bg transition-transform duration-300 ease-out mobile-sidebar
-        ${isRTL ? 'right-0' : 'left-0'}
-        ${mobileOpen ? 'translate-x-0' : isRTL ? 'translate-x-full' : '-translate-x-full'}`}>
+      <aside className={`lg:hidden fixed inset-y-0 left-0 z-50 w-72 flex flex-col sidebar-bg transition-transform duration-300 ease-out mobile-sidebar
+        ${mobileOpen ? 'translate-x-0' : '-translate-x-full hidden-rtl'}`}>
         <div className={`absolute top-4 ${isRTL ? 'left-4' : 'right-4'}`}>
           <button onClick={() => setMobileOpen(false)} className="text-white/40 hover:text-white p-1">
             <X className="w-5 h-5" />
@@ -147,8 +145,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
       </aside>
 
       {/* Main */}
-      <div className={`flex-1 flex flex-col min-h-screen main-content
-        ${isRTL ? 'lg:mr-60 xl:mr-64' : 'lg:ml-60 xl:ml-64'}`}>
+      <div className="flex-1 flex flex-col min-h-screen main-content lg:ml-60 xl:ml-64">
 
         {/* Mobile topbar */}
         <header className="lg:hidden sticky top-0 z-30 bg-card/90 backdrop-blur-md border-b border-border h-14 flex items-center justify-between px-4 shadow-sm">

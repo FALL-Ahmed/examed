@@ -1,9 +1,11 @@
 'use client';
 import { useEffect, useState } from 'react';
 import { settingsApi } from '@/lib/api';
-import { MessageCircle, Mail, Phone, HeadphonesIcon } from 'lucide-react';
+import { MessageCircle, Mail, HeadphonesIcon } from 'lucide-react';
+import { useLang } from '@/components/LanguageProvider';
 
 export default function SupportPage() {
+  const { t } = useLang();
   const [contact, setContact] = useState<{ whatsapp: string | null; email: string | null }>({ whatsapp: null, email: null });
   const [loading, setLoading] = useState(true);
 
@@ -28,8 +30,8 @@ export default function SupportPage() {
             <HeadphonesIcon className="w-6 h-6 text-white" />
           </div>
           <div>
-            <h1 className="text-xl md:text-2xl font-bold">Support & Contact</h1>
-            <p className="text-white/70 text-sm mt-0.5">Notre équipe est disponible pour vous aider</p>
+            <h1 className="text-xl md:text-2xl font-bold">{t('support.title')}</h1>
+            <p className="text-white/70 text-sm mt-0.5">{t('support.contact')}</p>
           </div>
         </div>
       </div>

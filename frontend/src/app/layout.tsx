@@ -1,5 +1,5 @@
 import type { Metadata } from 'next'
-import { Plus_Jakarta_Sans, Cairo } from 'next/font/google'
+import { Plus_Jakarta_Sans, Tajawal } from 'next/font/google'
 import './globals.css'
 import { ThemeProvider } from '@/components/ThemeProvider'
 import { LanguageProvider } from '@/components/LanguageProvider'
@@ -11,9 +11,9 @@ const jakarta = Plus_Jakarta_Sans({
   display: 'swap',
 })
 
-const cairo = Cairo({
+const tajawal = Tajawal({
   subsets: ['arabic', 'latin'],
-  weight: ['400', '500', '600', '700'],
+  weight: ['400', '500', '700'],
   variable: '--font-cairo',
   display: 'swap',
 })
@@ -26,7 +26,7 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="fr" dir="ltr" suppressHydrationWarning
-      className={`${jakarta.variable} ${cairo.variable}`}>
+      className={`${jakarta.variable} ${tajawal.variable}`}>
       <body className={jakarta.className}>
         <ThemeProvider>
           <LanguageProvider>

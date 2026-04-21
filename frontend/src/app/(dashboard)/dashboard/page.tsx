@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useAuthStore } from '@/lib/auth-store';
 import { attemptsApi, userApi } from '@/lib/api';
+import { useLang } from '@/components/LanguageProvider';
 import {
   BookOpen, Zap, RefreshCw, TrendingUp,
   Clock, ArrowRight, Target, Award, Flame, ChevronRight, AlertTriangle, CalendarCheck,
@@ -30,43 +31,9 @@ function ScoreRing({ value }: { value: number }) {
   );
 }
 
-const MODES = [
-  {
-    href: '/practice',
-    icon: BookOpen,
-    label: 'Mode Pratique',
-    desc: 'Réponse immédiate après chaque question',
-    color: '#0ea5e9',
-    badge: null,
-  },
-  {
-    href: '/exam',
-    icon: Zap,
-    label: 'Mode Série',
-    desc: 'Chronomètre + correction complète en fin',
-    color: '#6366f1',
-    badge: 'Premium',
-  },
-  {
-    href: '/review',
-    icon: RefreshCw,
-    label: 'Révision Erreurs',
-    desc: 'Retravailler vos points faibles',
-    color: '#f59e0b',
-    badge: 'Premium',
-  },
-  {
-    href: '/stats',
-    icon: TrendingUp,
-    label: 'Statistiques',
-    desc: 'Courbes de progression par thème',
-    color: '#3b82f6',
-    badge: null,
-  },
-];
-
 export default function DashboardPage() {
   const { user } = useAuthStore();
+  const { t } = useLang();
   const [stats, setStats] = useState<any>(null);
   const [history, setHistory] = useState<any[]>([]);
   const [profile, setProfile] = useState<any>(null);
@@ -78,8 +45,15 @@ export default function DashboardPage() {
   }, []);
 
   const hour = new Date().getHours();
-  const greeting = hour < 12 ? 'Bonjour' : hour < 18 ? 'Bon après-midi' : 'Bonsoir';
+  const greeting = hour < 12 ? t('dash.hello.morning') : hour < 18 ? t('dash.hello.afternoon') : t('dash.hello.evening');
   const firstName = user?.fullName?.split(' ')[0];
+
+  const MODES = [
+    { href: '/practice', icon: BookOpen, label: t('nav.practice'), desc: t('practice.subtitle'), color: '#0ea5e9', badge: null },
+    { href: '/exam',     icon: Zap,      label: t('nav.exam'),     desc: t('exam.title'),      color: '#6366f1', badge: 'Premium' },
+    { href: '/review',   icon: RefreshCw, label: t('nav.review'),  desc: t('review.subtitle'), color: '#f59e0b', badge: 'Premium' },
+    { href: '/stats',    icon: TrendingUp, label: t('nav.stats'),  desc: t('stats.progress'),  color: '#3b82f6', badge: null },
+  ];
 
   const subEnd = profile?.subscriptionEnd ? new Date(profile.subscriptionEnd) : null;
   const daysLeft = subEnd ? Math.ceil((subEnd.getTime() - Date.now()) / 86400000) : null;
@@ -95,12 +69,12 @@ export default function DashboardPage() {
             <h1 className="text-2xl md:text-3xl font-bold mb-3">{firstName} 👋</h1>
             <p className="text-white/65 text-sm leading-relaxed max-w-sm">
               {stats?.totalAttempts
-                ? `${stats.totalAttempts} série${stats.totalAttempts > 1 ? 's' : ''} complétée${stats.totalAttempts > 1 ? 's' : ''} — continuez !`
-                : 'Commencez votre première session de révision.'}
+                ? `${stats.totalAttempts} ${t('dash.stats.series').toLowerCase()} — ${t('dash.start').toLowerCase()}`
+                : t('dash.start')}
             </p>
             <Link href="/practice"
               className="inline-flex items-center gap-2 mt-5 bg-white text-violet-700 font-semibold px-4 py-2.5 rounded-xl text-sm hover:bg-white/90 transition shadow-md">
-              Commencer <ArrowRight className="w-3.5 h-3.5" />
+              {t('dash.practice')} <ArrowRight className="w-3.5 h-3.5" />
             </Link>
           </div>
           {stats && <ScoreRing value={stats.globalScore ?? 0} />}
@@ -139,10 +113,10 @@ export default function DashboardPage() {
       {stats && (
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
           {[
-            { icon: Target, label: 'Score global', value: `${stats.globalScore ?? 0}%` },
-            { icon: Award, label: 'Meilleur score', value: `${stats.history?.length ? Math.max(...stats.history.map((h: any) => h.score)) : 0}%` },
-            { icon: Flame, label: 'Séries', value: stats.totalAttempts ?? 0 },
-            { icon: BookOpen, label: 'Correctes', value: `${stats.totalCorrect ?? 0}/${stats.totalQuestions ?? 0}` },
+            { icon: Target, label: t('dash.stats.score'), value: `${stats.globalScore ?? 0}%` },
+            { icon: Award, label: t('stats.bestScore'), value: `${stats.history?.length ? Math.max(...stats.history.map((h: any) => h.score)) : 0}%` },
+            { icon: Flame, label: t('dash.stats.series'), value: stats.totalAttempts ?? 0 },
+            { icon: BookOpen, label: t('dash.stats.correct'), value: `${stats.totalCorrect ?? 0}/${stats.totalQuestions ?? 0}` },
           ].map((s) => (
             <div key={s.label} className="bg-card border border-border rounded-xl p-4">
               <s.icon className="w-4 h-4 text-muted-foreground mb-3" />
@@ -155,7 +129,7 @@ export default function DashboardPage() {
 
       {/* ── Modes ── */}
       <div>
-        <h2 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider mb-3">Choisir un mode</h2>
+        <h2 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider mb-3">{t('dash.start')}</h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           {MODES.map((m) => (
             <Link key={m.href} href={m.href}
@@ -187,9 +161,9 @@ export default function DashboardPage() {
       {history.length > 0 && (
         <div>
           <div className="flex items-center justify-between mb-3">
-            <h2 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">Activité récente</h2>
+            <h2 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">{t('dash.activity')}</h2>
             <Link href="/stats" className="text-xs text-primary font-semibold hover:underline">
-              Tout voir
+              {t('stats.sessions')}
             </Link>
           </div>
           <div className="bg-card border border-border rounded-xl overflow-hidden divide-y divide-border">
@@ -202,9 +176,9 @@ export default function DashboardPage() {
                   </div>
                   <div className="flex-1 min-w-0">
                     <p className="text-sm font-medium">
-                      {a.mode === 'PRACTICE' ? 'Mode Pratique' : a.mode === 'EXAM' ? 'Mode Série' : 'Révision'}
+                      {a.mode === 'PRACTICE' ? t('nav.practice') : a.mode === 'EXAM' ? t('nav.exam') : t('nav.review')}
                     </p>
-                    <p className="text-xs text-muted-foreground">{a.correctQ}/{a.totalQ} correctes</p>
+                    <p className="text-xs text-muted-foreground">{a.correctQ}/{a.totalQ} {t('results.correct').toLowerCase()}</p>
                   </div>
                   <div className="flex items-center gap-1 text-xs text-muted-foreground flex-shrink-0">
                     <Clock className="w-3 h-3" />

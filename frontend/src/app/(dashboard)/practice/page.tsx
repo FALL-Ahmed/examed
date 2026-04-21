@@ -5,12 +5,14 @@ import Link from 'next/link';
 import { attemptsApi, themesApi } from '@/lib/api';
 import { useAuthStore } from '@/lib/auth-store';
 import { QuestionCard } from '@/components/QuestionCard';
+import { useLang } from '@/components/LanguageProvider';
 import { BookOpen, Loader2, Play, ChevronDown } from 'lucide-react';
 import { sentenceCase } from '@/lib/utils';
 
 export default function PracticePage() {
   const router = useRouter();
   const { user } = useAuthStore();
+  const { t } = useLang();
   const [themes, setThemes] = useState<any[]>([]);
   const [config, setConfig] = useState({ themeId: '', subThemeId: '', count: 10 });
   const [session, setSession] = useState<any>(null);
@@ -76,8 +78,8 @@ export default function PracticePage() {
               <BookOpen className="w-6 h-6 text-white" />
             </div>
             <div>
-              <h1 className="text-xl md:text-2xl font-bold">Mode Pratique</h1>
-              <p className="text-white/70 text-sm mt-0.5">Réponse immédiate après chaque question</p>
+              <h1 className="text-xl md:text-2xl font-bold">{t('practice.title')}</h1>
+              <p className="text-white/70 text-sm mt-0.5">{t('practice.subtitle')}</p>
             </div>
           </div>
         </div>
@@ -86,17 +88,17 @@ export default function PracticePage() {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Main config */}
           <div className="lg:col-span-2 bg-card border border-border rounded-2xl p-6 space-y-6">
-            <h2 className="font-bold text-lg">Configurer la session</h2>
+            <h2 className="font-bold text-lg">{t('practice.title')}</h2>
 
             <div>
-              <label className="block text-sm font-semibold mb-2">Thématique</label>
+              <label className="block text-sm font-semibold mb-2">{t('practice.selectTheme')}</label>
               <div className="relative">
                 <select
                   value={config.themeId}
                   onChange={(e) => setConfig({ ...config, themeId: e.target.value, subThemeId: '' })}
                   className="w-full appearance-none px-4 py-3 pr-10 bg-background border border-border rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary text-sm cursor-pointer"
                 >
-                  <option value="">Toutes les thématiques</option>
+                  <option value="">{t('practice.allThemes')}</option>
                   {themes.map((t) => (
                     <option key={t.id} value={t.id}>{sentenceCase(t.name)}</option>
                   ))}
@@ -111,14 +113,14 @@ export default function PracticePage() {
               if (!subThemes.length) return null;
               return (
                 <div>
-                  <label className="block text-sm font-semibold mb-2">Sous-thème</label>
+                  <label className="block text-sm font-semibold mb-2">{t('upload.subthemes')}</label>
                   <div className="relative">
                     <select
                       value={config.subThemeId}
                       onChange={(e) => setConfig({ ...config, subThemeId: e.target.value })}
                       className="w-full appearance-none px-4 py-3 pr-10 bg-background border border-border rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary text-sm cursor-pointer"
                     >
-                      <option value="">Tous les sous-thèmes</option>
+                      <option value="">{t('practice.allThemes')}</option>
                       {subThemes.map((s: any) => (
                         <option key={s.id} value={s.id}>
                           {sentenceCase(s.name)} ({s._count.questions} q.)
@@ -133,7 +135,7 @@ export default function PracticePage() {
 
             <div>
               <div className="flex items-center justify-between mb-3">
-                <label className="text-sm font-semibold">Nombre de questions</label>
+                <label className="text-sm font-semibold">{t('practice.questions')}</label>
                 <span className="text-2xl font-bold text-primary">{config.count}</span>
               </div>
               <input
@@ -166,7 +168,7 @@ export default function PracticePage() {
               onClick={startSession} disabled={loading}
               className="w-full gradient-primary text-white py-3.5 rounded-xl font-semibold hover:opacity-90 transition flex items-center justify-center gap-2 disabled:opacity-60 shadow-lg shadow-violet-500/20"
             >
-              {loading ? <><Loader2 className="w-4 h-4 animate-spin" />Démarrage...</> : <><Play className="w-4 h-4 fill-white" />Commencer</>}
+              {loading ? <><Loader2 className="w-4 h-4 animate-spin" />{t('common.loading')}</> : <><Play className="w-4 h-4 fill-white" />{t('practice.start')}</>}
             </button>
           </div>
 

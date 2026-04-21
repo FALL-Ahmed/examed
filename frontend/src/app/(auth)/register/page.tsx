@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { authApi, paymentsApi, settingsApi } from '@/lib/api';
+import { useLang } from '@/components/LanguageProvider';
 import { BookOpen, Loader2, Eye, EyeOff, ChevronRight, Copy, CheckCheck, Upload, X } from 'lucide-react';
 
 const PROFESSIONS = [
@@ -31,6 +32,7 @@ const OPERATORS = [
 
 export default function RegisterPage() {
   const router = useRouter();
+  const { t } = useLang();
   const [step, setStep] = useState(1);
 
   // Step 1 state
@@ -232,8 +234,8 @@ export default function RegisterPage() {
           {/* ── STEP 1 ── */}
           {step === 1 && (
             <div>
-              <h2 className="text-2xl font-extrabold text-gray-900 mb-1">Vos informations</h2>
-              <p className="text-gray-400 text-sm mb-7">Étape 1 sur 2 · Profil personnel</p>
+              <h2 className="text-2xl font-extrabold text-gray-900 mb-1">{t('auth.register.title')}</h2>
+              <p className="text-gray-400 text-sm mb-7">{t('auth.register.subtitle')}</p>
 
               {step1Error && (
                 <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-xl mb-5 text-sm">{step1Error}</div>
@@ -325,8 +327,8 @@ export default function RegisterPage() {
               </div>
 
               <p className="text-center text-sm text-gray-400 mt-6">
-                Déjà un compte ?{' '}
-                <Link href="/login" className="text-violet-600 font-semibold hover:underline">Se connecter</Link>
+                {t('auth.register.hasAccount')}{' '}
+                <Link href="/login" className="text-violet-600 font-semibold hover:underline">{t('auth.register.login')}</Link>
               </p>
             </div>
           )}

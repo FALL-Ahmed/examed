@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useAuthStore } from '@/lib/auth-store';
+import { useLang } from '@/components/LanguageProvider';
 import { BookOpen, Eye, EyeOff, Loader2, Stethoscope, Heart, Activity, Shield } from 'lucide-react';
 
 const STATS = [
@@ -21,6 +22,7 @@ const FEATURES = [
 export default function LoginPage() {
   const router = useRouter();
   const { login } = useAuthStore();
+  const { t } = useLang();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPwd, setShowPwd] = useState(false);
@@ -128,8 +130,8 @@ export default function LoginPage() {
           </div>
 
           <div className="mb-8">
-            <h2 className="text-2xl font-extrabold tracking-tight">Connexion</h2>
-            <p className="text-muted-foreground text-sm mt-1">Entrez vos identifiants pour continuer</p>
+            <h2 className="text-2xl font-extrabold tracking-tight">{t('auth.login.title')}</h2>
+            <p className="text-muted-foreground text-sm mt-1">{t('auth.login.subtitle')}</p>
           </div>
 
           {error && (
@@ -141,7 +143,7 @@ export default function LoginPage() {
 
           <form onSubmit={handleSubmit} className="space-y-5">
             <div>
-              <label className="block text-sm font-semibold mb-2">Adresse email</label>
+              <label className="block text-sm font-semibold mb-2">{t('auth.login.email')}</label>
               <input
                 type="email" value={email}
                 onChange={(e) => setEmail(e.target.value)}
@@ -152,7 +154,7 @@ export default function LoginPage() {
             </div>
 
             <div>
-              <label className="block text-sm font-semibold mb-2">Mot de passe</label>
+              <label className="block text-sm font-semibold mb-2">{t('auth.login.password')}</label>
               <div className="relative">
                 <input
                   type={showPwd ? 'text' : 'password'} value={password}
@@ -171,16 +173,16 @@ export default function LoginPage() {
             <button type="submit" disabled={loading}
               className="w-full gradient-primary text-white py-3.5 rounded-xl font-semibold hover:opacity-90 transition disabled:opacity-60 flex items-center justify-center gap-2 shadow-lg shadow-violet-500/25 mt-2">
               {loading && <Loader2 className="w-4 h-4 animate-spin" />}
-              {loading ? 'Connexion...' : 'Se connecter'}
+              {loading ? t('common.loading') : t('auth.login.submit')}
             </button>
           </form>
 
           <div className="flex items-center justify-between text-sm text-muted-foreground mt-6">
             <Link href="/forgot-password" className="text-primary font-semibold hover:underline">
-              Mot de passe oublié ?
+              {t('auth.login.forgot')}
             </Link>
             <Link href="/register" className="text-primary font-semibold hover:underline">
-              Créer un compte
+              {t('auth.login.register')}
             </Link>
           </div>
         </div>

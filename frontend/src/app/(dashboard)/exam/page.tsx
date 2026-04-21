@@ -4,11 +4,13 @@ import { useRouter } from 'next/navigation';
 import { attemptsApi, themesApi } from '@/lib/api';
 import { useAuthStore } from '@/lib/auth-store';
 import { Zap, Loader2, ChevronDown, Timer, Play, PlayCircle, Trash2 } from 'lucide-react';
+import { useLang } from '@/components/LanguageProvider';
 import { sentenceCase } from '@/lib/utils';
 
 export default function ExamConfigPage() {
   const router = useRouter();
   const { user } = useAuthStore();
+  const { t } = useLang();
   const [themes, setThemes] = useState<any[]>([]);
   const [config, setConfig] = useState({ themeId: '', count: 20, durationMinutes: 30 });
   const [loading, setLoading] = useState(false);
@@ -62,10 +64,10 @@ export default function ExamConfigPage() {
               <PlayCircle className="w-5 h-5 text-white" />
             </div>
             <div>
-              <p className="font-semibold text-violet-900 text-sm">Examen en cours</p>
+              <p className="font-semibold text-violet-900 text-sm">{t('exam.title')}</p>
               <p className="text-xs text-violet-600">
-                {Object.keys(savedExam.answers || {}).length} / {savedExam.session?.questions?.length || '?'} répondues
-                {savedExam.remainingSeconds ? ` · ${Math.ceil(savedExam.remainingSeconds / 60)} min restantes` : ''}
+                {Object.keys(savedExam.answers || {}).length} / {savedExam.session?.questions?.length || '?'} {t('exam.answered')}
+                {savedExam.remainingSeconds ? ` · ${Math.ceil(savedExam.remainingSeconds / 60)} min` : ''}
               </p>
             </div>
           </div>
@@ -77,7 +79,7 @@ export default function ExamConfigPage() {
             </button>
             <button onClick={resumeExam}
               className="flex items-center gap-1.5 bg-violet-600 text-white px-4 py-2 rounded-xl text-sm font-semibold hover:bg-violet-700 transition">
-              <Play className="w-3.5 h-3.5 fill-white" /> Reprendre
+              <Play className="w-3.5 h-3.5 fill-white" /> {t('common.next')}
             </button>
           </div>
         </div>
@@ -91,8 +93,8 @@ export default function ExamConfigPage() {
             <Zap className="w-6 h-6 text-white" />
           </div>
           <div>
-            <h1 className="text-xl md:text-2xl font-bold">Mode Série</h1>
-            <p className="text-white/70 text-sm mt-0.5">Examen chronométré avec correction complète en fin</p>
+            <h1 className="text-xl md:text-2xl font-bold">{t('exam.title')}</h1>
+            <p className="text-white/70 text-sm mt-0.5">{t('exam.confirm')}</p>
           </div>
         </div>
       </div>
@@ -100,17 +102,17 @@ export default function ExamConfigPage() {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Config */}
         <div className="lg:col-span-2 bg-card border border-border rounded-2xl p-6 space-y-6">
-          <h2 className="font-bold text-lg">Paramétrer l'examen</h2>
+          <h2 className="font-bold text-lg">{t('exam.title')}</h2>
 
           <div>
-            <label className="block text-sm font-semibold mb-2">Thématique</label>
+            <label className="block text-sm font-semibold mb-2">{t('practice.selectTheme')}</label>
             <div className="relative">
               <select
                 value={config.themeId}
                 onChange={(e) => setConfig({ ...config, themeId: e.target.value })}
                 className="w-full appearance-none px-4 py-3 pr-10 bg-background border border-border rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary text-sm cursor-pointer"
               >
-                <option value="">Toutes les thématiques</option>
+                <option value="">{t('practice.allThemes')}</option>
                 {themes.map((t) => <option key={t.id} value={t.id}>{sentenceCase(t.name)}</option>)}
               </select>
               <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none" />
@@ -119,7 +121,7 @@ export default function ExamConfigPage() {
 
           <div>
             <div className="flex items-center justify-between mb-3">
-              <label className="text-sm font-semibold">Nombre de questions</label>
+              <label className="text-sm font-semibold">{t('practice.questions')}</label>
               <span className="text-2xl font-bold text-primary">{config.count}</span>
             </div>
             <input type="range" min={5} max={100} step={5}
@@ -156,7 +158,7 @@ export default function ExamConfigPage() {
 
           <button onClick={startExam} disabled={loading}
             className="w-full gradient-primary text-white py-3.5 rounded-xl font-semibold hover:opacity-90 transition flex items-center justify-center gap-2 disabled:opacity-60 shadow-lg shadow-violet-500/20">
-            {loading ? <><Loader2 className="w-4 h-4 animate-spin" />Démarrage...</> : <><Play className="w-4 h-4 fill-white" />Lancer l'examen</>}
+            {loading ? <><Loader2 className="w-4 h-4 animate-spin" />{t('common.loading')}</> : <><Play className="w-4 h-4 fill-white" />{t('practice.start')}</>}
           </button>
         </div>
 

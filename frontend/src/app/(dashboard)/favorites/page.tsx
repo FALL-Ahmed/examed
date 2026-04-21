@@ -3,8 +3,10 @@ import { useEffect, useState } from 'react';
 import { questionsApi, attemptsApi } from '@/lib/api';
 import { Heart, BookOpen, Loader2, ArrowLeft } from 'lucide-react';
 import { QuestionCard } from '@/components/QuestionCard';
+import { useLang } from '@/components/LanguageProvider';
 
 export default function FavoritesPage() {
+  const { t } = useLang();
   const [questions, setQuestions] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [favoriteIds, setFavoriteIds] = useState<Set<string>>(new Set());
@@ -85,7 +87,7 @@ export default function FavoritesPage() {
         <div className="flex items-center justify-between mb-6">
           <button onClick={() => { setPracticeQuestions([]); setAttemptId(null); setCurrent(0); }}
             className="flex items-center gap-1.5 text-sm text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 transition">
-            <ArrowLeft className="w-4 h-4" /> Retour aux favoris
+            <ArrowLeft className="w-4 h-4" /> {t('favorites.title')}
           </button>
           {!isSingle && (
             <span className="text-xs text-gray-400">{current + 1} / {practiceQuestions.length}</span>
@@ -112,15 +114,15 @@ export default function FavoritesPage() {
         <div>
           <div className="flex items-center gap-2 mb-1">
             <Heart className="w-5 h-5 fill-rose-500 text-rose-500" />
-            <h1 className="text-2xl font-bold">Mes Favoris</h1>
+            <h1 className="text-2xl font-bold">{t('favorites.title')}</h1>
           </div>
-          <p className="text-sm text-gray-400">{questions.length} question{questions.length > 1 ? 's' : ''} enregistrée{questions.length > 1 ? 's' : ''}</p>
+          <p className="text-sm text-gray-400">{questions.length} {t('practice.questions')}</p>
         </div>
         {questions.length > 0 && (
           <button onClick={startAll}
             className="flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-bold text-white shadow-md shadow-violet-200 hover:opacity-90 transition"
             style={{ background: 'linear-gradient(135deg,#7c3aed,#6366f1)' }}>
-            <BookOpen className="w-4 h-4" /> Réviser tout
+            <BookOpen className="w-4 h-4" /> {t('review.title')}
           </button>
         )}
       </div>
@@ -130,8 +132,8 @@ export default function FavoritesPage() {
           <div className="w-16 h-16 rounded-2xl bg-rose-50 dark:bg-rose-900/20 flex items-center justify-center mb-4">
             <Heart className="w-8 h-8 text-rose-300" />
           </div>
-          <p className="font-semibold text-gray-700 dark:text-gray-300">Aucun favori pour l'instant</p>
-          <p className="text-sm text-gray-400 mt-1">Appuie sur le ❤️ lors d'une question pour l'ajouter ici</p>
+          <p className="font-semibold text-gray-700 dark:text-gray-300">{t('favorites.empty')}</p>
+          <p className="text-sm text-gray-400 mt-1">{t('favorites.add')}</p>
         </div>
       ) : (
         <div className="space-y-3">

@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react';
 import { adminApi, settingsApi } from '@/lib/api';
 import { Users, FileText, CreditCard, AlertCircle, Settings, Loader2, CheckCircle, Smartphone, MessageCircle } from 'lucide-react';
 import Link from 'next/link';
+import { useLang } from '@/components/LanguageProvider';
 
 export default function AdminDashboard() {
   const [stats, setStats] = useState<any>(null);
@@ -109,18 +110,20 @@ export default function AdminDashboard() {
     }
   }
 
+  const { t } = useLang();
+
   const kpis = stats ? [
-    { label: 'Utilisateurs', value: stats.totalUsers, icon: Users, color: 'bg-blue-500', href: '/admin/users' },
-    { label: 'Validés', value: stats.premiumUsers, icon: CheckCircle, color: 'bg-emerald-500', href: '/admin/users' },
-    { label: 'Questions', value: stats.totalQuestions, icon: FileText, color: 'bg-emerald-500', href: '/admin/questions' },
-    { label: 'Paiements en attente', value: stats.pendingPayments, icon: CreditCard, color: stats.pendingPayments > 0 ? 'bg-red-500' : 'bg-slate-400', href: '/admin/payments' },
+    { label: t('admin.stats.users'), value: stats.totalUsers, icon: Users, color: 'bg-blue-500', href: '/admin/users' },
+    { label: t('common.member'), value: stats.premiumUsers, icon: CheckCircle, color: 'bg-emerald-500', href: '/admin/users' },
+    { label: t('admin.stats.questions'), value: stats.totalQuestions, icon: FileText, color: 'bg-emerald-500', href: '/admin/questions' },
+    { label: t('admin.stats.payments'), value: stats.pendingPayments, icon: CreditCard, color: stats.pendingPayments > 0 ? 'bg-red-500' : 'bg-slate-400', href: '/admin/payments' },
   ] : [];
 
   return (
     <div className="space-y-8">
       <div>
-        <h1 className="text-2xl font-bold">Tableau de bord</h1>
-        <p className="text-muted-foreground">Vue d'ensemble de Bourour</p>
+        <h1 className="text-2xl font-bold">{t('admin.nav.dashboard')}</h1>
+        <p className="text-muted-foreground">{t('admin.label')}</p>
       </div>
 
       {stats?.pendingPayments > 0 && (

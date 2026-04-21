@@ -2,9 +2,11 @@
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { settingsApi, userApi } from '@/lib/api';
+import { useLang } from '@/components/LanguageProvider';
 import { BookOpen, Clock, CheckCircle2, MessageCircle, RefreshCw } from 'lucide-react';
 
 export default function PendingPage() {
+  const { t } = useLang();
   const [waPhone, setWaPhone] = useState<string | null>(null);
   const [isRenewal, setIsRenewal] = useState(false);
 
@@ -41,10 +43,8 @@ export default function PendingPage() {
 
           {isRenewal ? (
             <>
-              <h1 className="text-2xl font-extrabold text-white mb-3">Renouvellement requis</h1>
-              <p className="text-white/55 text-sm leading-relaxed mb-8">
-                Votre abonnement a expiré. Effectuez votre paiement mensuel et contactez-nous via WhatsApp pour revalider votre accès.
-              </p>
+              <h1 className="text-2xl font-extrabold text-white mb-3">{t('auth.pending.title')}</h1>
+              <p className="text-white/55 text-sm leading-relaxed mb-8">{t('auth.pending.desc')}</p>
               <div className="space-y-3 text-left mb-8">
                 {[
                   { icon: CheckCircle2, text: 'Abonnement précédent expiré', done: true },
@@ -60,10 +60,8 @@ export default function PendingPage() {
             </>
           ) : (
             <>
-              <h1 className="text-2xl font-extrabold text-white mb-3">Inscription reçue !</h1>
-              <p className="text-white/55 text-sm leading-relaxed mb-8">
-                Votre reçu de paiement a bien été envoyé. Notre équipe va le vérifier et activer votre compte sous <strong className="text-white/80">24 heures</strong>.
-              </p>
+              <h1 className="text-2xl font-extrabold text-white mb-3">{t('auth.register.submit')} ✓</h1>
+              <p className="text-white/55 text-sm leading-relaxed mb-8">{t('auth.pending.desc')}</p>
               <div className="space-y-3 text-left mb-8">
                 {[
                   { icon: CheckCircle2, text: 'Compte créé avec succès', done: true },
@@ -84,13 +82,13 @@ export default function PendingPage() {
               className="flex items-center justify-center gap-2.5 w-full py-3.5 rounded-2xl font-bold text-sm text-white mb-4 hover:opacity-90 transition shadow-lg"
               style={{ background: 'linear-gradient(135deg,#25d366,#128c7e)' }}>
               <MessageCircle className="w-4 h-4" />
-              Contacter le support WhatsApp
+              {t('support.whatsapp')}
             </a>
           )}
 
           <Link href="/login"
             className="block w-full py-3.5 rounded-2xl font-bold text-sm text-white text-center hover:opacity-90 transition border border-white/15 hover:bg-white/10">
-            Se connecter
+            {t('auth.login.submit')}
           </Link>
         </div>
       </div>

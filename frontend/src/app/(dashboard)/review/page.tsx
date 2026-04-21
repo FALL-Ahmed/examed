@@ -3,9 +3,11 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { attemptsApi } from '@/lib/api';
 import { RefreshCw, Loader2, AlertCircle, Play } from 'lucide-react';
+import { useLang } from '@/components/LanguageProvider';
 
 export default function ReviewPage() {
   const router = useRouter();
+  const { t } = useLang();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
@@ -34,8 +36,8 @@ export default function ReviewPage() {
             <RefreshCw className="w-6 h-6 text-white" />
           </div>
           <div>
-            <h1 className="text-xl md:text-2xl font-bold">Mode Révision</h1>
-            <p className="text-white/70 text-sm mt-0.5">Retravaillez les questions que vous avez ratées</p>
+            <h1 className="text-xl md:text-2xl font-bold">{t('review.title')}</h1>
+            <p className="text-white/70 text-sm mt-0.5">{t('review.subtitle')}</p>
           </div>
         </div>
       </div>
@@ -57,7 +59,7 @@ export default function ReviewPage() {
             onClick={startReview} disabled={loading}
             className="w-full gradient-warning text-white py-3.5 rounded-xl font-semibold hover:opacity-90 transition flex items-center justify-center gap-2 disabled:opacity-60 shadow-lg shadow-amber-500/20"
           >
-            {loading ? <><Loader2 className="w-4 h-4 animate-spin" />Chargement...</> : <><Play className="w-4 h-4 fill-white" />Commencer la révision</>}
+            {loading ? <><Loader2 className="w-4 h-4 animate-spin" />{t('common.loading')}</> : <><Play className="w-4 h-4 fill-white" />{t('practice.start')}</>}
           </button>
         </div>
 

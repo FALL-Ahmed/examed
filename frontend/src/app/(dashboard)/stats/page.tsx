@@ -6,6 +6,7 @@ import {
   BarChart, Bar, Cell,
 } from 'recharts';
 import { TrendingUp, Target, Award, Zap, BookOpen, CheckCircle } from 'lucide-react';
+import { useLang } from '@/components/LanguageProvider';
 import { sentenceCase } from '@/lib/utils';
 import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
@@ -58,15 +59,16 @@ export default function StatsPage() {
     score: h.score,
   }));
 
-  const qualifiedThemes = stats.themeStats.filter((t: any) => t.total >= 3);
-  const strengths = qualifiedThemes.filter((t: any) => t.score >= 70).sort((a: any, b: any) => b.score - a.score).slice(0, 4);
-  const weaknesses = qualifiedThemes.filter((t: any) => t.score < 70).sort((a: any, b: any) => a.score - b.score).slice(0, 4);
+  const { t } = useLang();
+  const qualifiedThemes = stats.themeStats.filter((th: any) => th.total >= 3);
+  const strengths = qualifiedThemes.filter((th: any) => th.score >= 70).sort((a: any, b: any) => b.score - a.score).slice(0, 4);
+  const weaknesses = qualifiedThemes.filter((th: any) => th.score < 70).sort((a: any, b: any) => a.score - b.score).slice(0, 4);
 
   const kpis = [
-    { label: 'Score global', value: `${stats.globalScore}%`, icon: Target, gradient: 'gradient-primary', shadow: 'shadow-violet-500/20' },
-    { label: 'Séries totales', value: stats.totalAttempts, icon: Zap, gradient: 'gradient-warning', shadow: 'shadow-amber-500/20' },
-    { label: 'Questions', value: stats.totalQuestions ?? stats.totalAnswered ?? 0, icon: BookOpen, gradient: 'gradient-success', shadow: 'shadow-emerald-500/20' },
-    { label: 'Correctes', value: stats.totalCorrect ?? 0, icon: CheckCircle, gradient: 'gradient-info', shadow: 'shadow-blue-500/20' },
+    { label: t('stats.avgScore'), value: `${stats.globalScore}%`, icon: Target, gradient: 'gradient-primary', shadow: 'shadow-violet-500/20' },
+    { label: t('stats.sessions'), value: stats.totalAttempts, icon: Zap, gradient: 'gradient-warning', shadow: 'shadow-amber-500/20' },
+    { label: t('dash.stats.questions'), value: stats.totalQuestions ?? stats.totalAnswered ?? 0, icon: BookOpen, gradient: 'gradient-success', shadow: 'shadow-emerald-500/20' },
+    { label: t('results.correct'), value: stats.totalCorrect ?? 0, icon: CheckCircle, gradient: 'gradient-info', shadow: 'shadow-blue-500/20' },
   ];
 
   return (
@@ -75,9 +77,9 @@ export default function StatsPage() {
       {/* Header */}
       <div>
         <h1 className="text-2xl font-bold tracking-tight flex items-center gap-2">
-          <TrendingUp className="w-6 h-6 text-primary" /> Mes statistiques
+          <TrendingUp className="w-6 h-6 text-primary" /> {t('stats.title')}
         </h1>
-        <p className="text-muted-foreground text-sm mt-1">Vue d'ensemble de votre progression</p>
+        <p className="text-muted-foreground text-sm mt-1">{t('stats.progress')}</p>
       </div>
 
       {/* KPI cards */}
@@ -102,7 +104,7 @@ export default function StatsPage() {
             <div className="w-8 h-8 rounded-lg gradient-primary flex items-center justify-center">
               <TrendingUp className="w-4 h-4 text-white" />
             </div>
-            <h2 className="font-bold">Évolution du score</h2>
+            <h2 className="font-bold">{t('stats.progress')}</h2>
           </div>
           <ResponsiveContainer width="100%" height={220}>
             <LineChart data={historyChart} margin={{ top: 5, right: 10, bottom: 5, left: -20 }}>
@@ -127,7 +129,7 @@ export default function StatsPage() {
             <div className="w-8 h-8 rounded-lg gradient-info flex items-center justify-center">
               <Award className="w-4 h-4 text-white" />
             </div>
-            <h2 className="font-bold">Score par thématique</h2>
+            <h2 className="font-bold">{t('stats.byTheme')}</h2>
           </div>
           <ResponsiveContainer width="100%" height={Math.max(200, stats.themeStats.length * 44)}>
             <BarChart data={stats.themeStats} layout="vertical" margin={{ left: 8, right: 40, top: 0, bottom: 0 }}>
@@ -157,21 +159,21 @@ export default function StatsPage() {
               <div className="w-7 h-7 rounded-lg gradient-success flex items-center justify-center">
                 <Award className="w-3.5 h-3.5 text-white" />
               </div>
-              <h3 className="font-semibold text-sm">Points forts</h3>
+              <h3 className="font-semibold text-sm">{t('stats.bestScore')}</h3>
             </div>
             {strengths.length > 0 ? (
               <div className="space-y-3.5">
-                {strengths.map((t: any) => (
-                  <div key={t.name}>
+                {strengths.map((th: any) => (
+                  <div key={th.name}>
                     <div className="flex justify-between text-xs font-medium mb-1.5">
-                      <span className="truncate pr-2 text-foreground">{sentenceCase(t.name)}</span>
+                      <span className="truncate pr-2 text-foreground">{sentenceCase(th.name)}</span>
                     </div>
-                    <ScoreBar score={t.score} />
+                    <ScoreBar score={th.score} />
                   </div>
                 ))}
               </div>
             ) : (
-              <p className="text-xs text-muted-foreground">Continuez à pratiquer pour voir vos points forts (score ≥ 70%).</p>
+              <p className="text-xs text-muted-foreground">{t('dash.start')} (≥ 70%).</p>
             )}
           </div>
 
@@ -180,21 +182,21 @@ export default function StatsPage() {
               <div className="w-7 h-7 rounded-lg gradient-danger flex items-center justify-center">
                 <Target className="w-3.5 h-3.5 text-white" />
               </div>
-              <h3 className="font-semibold text-sm">À améliorer</h3>
+              <h3 className="font-semibold text-sm">{t('review.title')}</h3>
             </div>
             {weaknesses.length > 0 ? (
               <div className="space-y-3.5">
-                {weaknesses.map((t: any) => (
-                  <div key={t.name}>
+                {weaknesses.map((th: any) => (
+                  <div key={th.name}>
                     <div className="flex justify-between text-xs font-medium mb-1.5">
-                      <span className="truncate pr-2 text-foreground">{sentenceCase(t.name)}</span>
+                      <span className="truncate pr-2 text-foreground">{sentenceCase(th.name)}</span>
                     </div>
-                    <ScoreBar score={t.score} />
+                    <ScoreBar score={th.score} />
                   </div>
                 ))}
               </div>
             ) : (
-              <p className="text-xs text-muted-foreground">Pas de thème en dessous de 70% — excellent travail !</p>
+              <p className="text-xs text-muted-foreground">{t('common.success')} !</p>
             )}
           </div>
         </div>
