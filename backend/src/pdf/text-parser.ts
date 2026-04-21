@@ -225,24 +225,39 @@ export function parseText(rawText: string): any {
     }
 
     // ── 8. Question naturelle (sans numéro, longue ou terminant par ? / :) ──
-    if (curTheme && QUESTION_NATURAL_RE.test(line) && (!curQuestion || curQuestion.correctAnswer)) {
+    // Exclure les entêtes tout en majuscules (PALUDISME, LES MENINGITES…)
+    const isAllCapsLine = line.trim() === line.trim().toUpperCase() && /[A-Z]/.test(line);
+    if (curTheme && QUESTION_NATURAL_RE.test(line) && (!curQuestion || curQuestion.correctAnswer) && !isAllCapsLine) {
       newQuestion(line);
       continue;
     }
 
     // ── 9. Thème / Sous-thème ──
     if (isThemeLine(line)) {
+      // Libérer la question complète avant de décider la structure (évite hasQs = false faussement)
+      if (curQuestion && curQuestion.correctAnswer) {
+        flushQuestion();
+      } else if (curQuestion && !curQuestion.choiceA && !curQuestion.correctAnswer) {
+        // Question vide (contenu parasite de l'explication) → effacer sans sauvegarder
+        curQuestion = null;
+        explLines = [];
+        inExplanation = false;
+        positionalSlot = 0;
+        waitingChoiceLetter = null;
+      }
       const hasQs = curTheme?.subThemes.some(s => s.questions.length > 0) ?? false;
       if (!curTheme) {
         newTheme(line);
       } else if (curQuestion && (curQuestion.choiceA || curQuestion.correctAnswer)) {
         if (hasQs) newTheme(line); else newSubTheme(line);
       } else if (!curQuestion) {
-        if (themeHasQuestions && line.split(/\s+/).length <= 6 && !line.endsWith(':')) {
-          // Ligne courte dans un thème avec questions → probablement une question sans numéro
+        // Entête tout en majuscules → forcément nouveau thème
+        const isAllCaps = line.trim() === line.trim().toUpperCase() && /[A-Z]/.test(line);
+        if (themeHasQuestions && line.split(/\s+/).length <= 6 && !line.endsWith(':') && !isAllCaps) {
+          // Ligne courte, mixte, dans un thème avec questions → question sans numéro
           newQuestion(line);
         } else if (hasQs || line.trim().endsWith(':')) {
-          // Thème avec questions ou ligne terminant par ':' (entête de section) → nouveau thème
+          // Thème avec questions ou ligne terminant par ':' → nouveau thème
           newTheme(line);
         } else if (curTheme) {
           newSubTheme(line);
