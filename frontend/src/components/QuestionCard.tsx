@@ -256,7 +256,20 @@ export function QuestionCard({ question, questionNumber, totalQuestions, onAnswe
               <div className="w-7 h-7 rounded-lg bg-amber-50 dark:bg-amber-900/30 border border-amber-200 dark:border-amber-700 flex items-center justify-center flex-shrink-0 mt-0.5">
                 <Lightbulb className="w-3.5 h-3.5 text-amber-500" />
               </div>
-              <p className="text-sm text-gray-600 dark:text-gray-300 leading-relaxed">{result.explanation}</p>
+              <div className="text-sm text-gray-600 dark:text-gray-300 leading-relaxed">
+                {result.explanation.includes('\n') ? (
+                  <ul className="space-y-1">
+                    {result.explanation.split('\n').filter(l => l.trim()).map((line, i) => (
+                      <li key={i} className="flex gap-2">
+                        <span className="text-amber-500 flex-shrink-0 mt-0.5">•</span>
+                        <span>{line.trim()}</span>
+                      </li>
+                    ))}
+                  </ul>
+                ) : (
+                  <p>{result.explanation}</p>
+                )}
+              </div>
             </div>
           )}
 

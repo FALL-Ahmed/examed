@@ -155,7 +155,18 @@ export default function ResultsPage() {
                 {q.explanation && (
                   <div className="mt-3 bg-card border border-border rounded-xl p-3 text-sm text-muted-foreground leading-relaxed">
                     <p className="font-semibold text-foreground text-xs mb-1">{t('review.correct')}</p>
-                    {q.explanation}
+                    {q.explanation.includes('\n') ? (
+                      <ul className="space-y-1 mt-1">
+                        {q.explanation.split('\n').filter((l: string) => l.trim()).map((line: string, i: number) => (
+                          <li key={i} className="flex gap-2">
+                            <span className="text-amber-500 flex-shrink-0 mt-0.5">•</span>
+                            <span>{line.trim()}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    ) : (
+                      <p>{q.explanation}</p>
+                    )}
                   </div>
                 )}
 
