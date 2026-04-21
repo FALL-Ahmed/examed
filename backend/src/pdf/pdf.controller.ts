@@ -47,4 +47,16 @@ export class PdfController {
     const imported = await this.adminService.importFromParser(parsed);
     return { parsed: parsed.stats, imported };
   }
+
+  @Post('ar-text-preview')
+  async arTextPreview(@Body('text') text: string) {
+    return this.pdfService.parseArTextPreview(text);
+  }
+
+  @Post('ar-text-import')
+  async arTextImport(@Body('text') text: string) {
+    const parsed = await this.pdfService.parseArTextImport(text);
+    const imported = await this.adminService.importFromParser(parsed);
+    return { parsed: parsed.stats, imported };
+  }
 }

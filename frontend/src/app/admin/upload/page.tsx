@@ -4,9 +4,11 @@ import { adminApi } from '@/lib/api';
 import { Upload, FileText, CheckCircle, AlertCircle, Loader2, Type, Trash2 } from 'lucide-react';
 
 type Tab = 'pdf' | 'text';
+type Lang = 'fr' | 'ar';
 
 export default function UploadPage() {
   const [tab, setTab] = useState<Tab>('text');
+  const [lang, setLang] = useState<Lang>('fr');
 
   // PDF state
   const [file, setFile] = useState<File | null>(null);
@@ -45,7 +47,9 @@ export default function UploadPage() {
     try {
       const { data } = tab === 'pdf'
         ? await adminApi.previewPdf(file!)
-        : await adminApi.previewText(rawText);
+        : lang === 'ar'
+          ? await adminApi.previewArText(rawText)
+          : await adminApi.previewText(rawText);
       setPreview(data);
     } catch (err: any) {
       setError('Erreur analyse : ' + (err.response?.data?.detail || err.message));
@@ -60,7 +64,9 @@ export default function UploadPage() {
     try {
       const { data } = tab === 'pdf'
         ? await adminApi.importPdf(file!)
-        : await adminApi.importText(rawText);
+        : lang === 'ar'
+          ? await adminApi.importArText(rawText)
+          : await adminApi.importText(rawText);
       setResult(data);
       setPreview(null);
     } catch (err: any) {
@@ -93,9 +99,25 @@ export default function UploadPage() {
         <p className="text-muted-foreground mt-1">Via PDF ou en collant le texte directement</p>
       </div>
 
+      {/* Langue */}
+      <div className="flex items-center gap-3">
+        <span className="text-sm font-medium text-muted-foreground">Langue du contenu :</span>
+        <div className="flex rounded-xl border border-border overflow-hidden">
+          {([['fr', '🇫🇷 Français'], ['ar', '🇲🇷 العربية']] as const).map(([l, label]) => (
+            <button
+              key={l}
+              onClick={() => { setLang(l); resetAll(); }}
+              className={`px-4 py-2 text-sm font-medium transition ${lang === l ? 'bg-primary text-white' : 'text-muted-foreground hover:bg-secondary'}`}
+            >
+              {label}
+            </button>
+          ))}
+        </div>
+      </div>
+
       {/* Tabs */}
       <div className="flex gap-2 border-b pb-0">
-        {([['text', 'Coller du texte', Type], ['pdf', 'Importer un PDF', Upload]] as const).map(([id, label, Icon]) => (
+        {([['text', lang === 'ar' ? 'لصق النص' : 'Coller du texte', Type], ['pdf', lang === 'ar' ? 'استيراد PDF' : 'Importer un PDF', Upload]] as const).map(([id, label, Icon]) => (
           <button
             key={id}
             onClick={() => { setTab(id); resetAll(); }}
@@ -140,13 +162,17 @@ export default function UploadPage() {
       {tab === 'text' && (
         <div className="space-y-2">
           <label className="text-sm font-medium">
-            Collez le contenu du guide ici
+            {lang === 'ar' ? 'الصق محتوى الدليل هنا' : 'Collez le contenu du guide ici'}
           </label>
           <textarea
             value={rawText}
             onChange={(e) => { setRawText(e.target.value); setPreview(null); setResult(null); }}
             rows={16}
-            placeholder={`Exemple de format attendu :\n\nLa Rage :\n1. Quels sont les animaux vecteurs de la rage ?\nA. Le chien\nB. Le chat\nC. Le renard\nD. Le lapin\nRéponses exactes : A B C\n\nLe Paludisme :\n2. Le paludisme est transmis par :\nA. Le moustique anophèle femelle\n...`}
+            dir={lang === 'ar' ? 'rtl' : 'ltr'}
+            placeholder={lang === 'ar'
+              ? 'الأمراض المعدية\n\nداء الكلب\n\n\tما هي خصائص عامل داء الكلب؟\n\tفيروس ARN\n\tعائلة رابدوفيروس\nالإجابات الدقيقة: أ ب\nتعليق: ...'
+              : 'La Rage :\n1. Quels sont les animaux vecteurs de la rage ?\nA. Le chien\nB. Le chat\nRéponses exactes : A B\n\nLe Paludisme :\n2. Le paludisme est transmis par :\n...'
+            }
             className="w-full px-4 py-3 border rounded-2xl text-sm font-mono focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary resize-none bg-white"
           />
           <p className="text-xs text-muted-foreground">

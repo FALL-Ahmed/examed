@@ -4,27 +4,30 @@ import { useRouter, usePathname } from 'next/navigation';
 import Link from 'next/link';
 import { useAuthStore } from '@/lib/auth-store';
 import { useTheme } from '@/components/ThemeProvider';
+import { useLang } from '@/components/LanguageProvider';
+import { LanguageSwitcher } from '@/components/LanguageSwitcher';
 import {
   BookOpen, RefreshCw, Home, LogOut, Zap, Menu, X, TrendingUp, Sun, Moon, HeadphonesIcon, Heart,
 } from 'lucide-react';
-
-const navItems = [
-  { href: '/dashboard',  icon: Home,           label: 'Tableau de bord', color: '#818cf8' },
-  { href: '/practice',   icon: BookOpen,       label: 'Pratique',        color: '#0ea5e9' },
-  { href: '/exam',       icon: Zap,            label: 'Mode Série',      color: '#a78bfa' },
-  { href: '/review',     icon: RefreshCw,      label: 'Révision',        color: '#fbbf24' },
-  { href: '/favorites',  icon: Heart,          label: 'Mes Favoris',     color: '#f43f5e' },
-  { href: '/stats',      icon: TrendingUp,     label: 'Statistiques',    color: '#38bdf8' },
-  { href: '/support',    icon: HeadphonesIcon, label: 'Support',         color: '#34d399' },
-];
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   const router = useRouter();
   const pathname = usePathname();
   const { user, loadUser, logout } = useAuthStore();
   const { theme, toggle } = useTheme();
+  const { t, isRTL } = useLang();
   const [mobileOpen, setMobileOpen] = useState(false);
   const [ready, setReady] = useState(false);
+
+  const navItems = [
+    { href: '/dashboard',  icon: Home,           label: t('nav.dashboard'), color: '#818cf8' },
+    { href: '/practice',   icon: BookOpen,       label: t('nav.practice'),  color: '#0ea5e9' },
+    { href: '/exam',       icon: Zap,            label: t('nav.exam'),      color: '#a78bfa' },
+    { href: '/review',     icon: RefreshCw,      label: t('nav.review'),    color: '#fbbf24' },
+    { href: '/favorites',  icon: Heart,          label: t('nav.favorites'), color: '#f43f5e' },
+    { href: '/stats',      icon: TrendingUp,     label: t('nav.stats'),     color: '#38bdf8' },
+    { href: '/support',    icon: HeadphonesIcon, label: t('nav.support'),   color: '#34d399' },
+  ];
 
   useEffect(() => {
     loadUser().then(() => {
@@ -57,8 +60,8 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
             <BookOpen className="w-4 h-4 text-white" />
           </div>
           <div>
-            <p className="text-white font-bold text-sm">Bourour</p>
-            <p className="text-white/40 text-xs">Infirmier · Mauritanie</p>
+            <p className="text-white font-bold text-sm">{t('app.name')}</p>
+            <p className="text-white/40 text-xs">{t('app.subtitle')}</p>
           </div>
         </div>
       </div>
@@ -71,7 +74,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           </div>
           <div className="flex-1 min-w-0">
             <p className="text-white text-xs font-semibold truncate">{user.fullName}</p>
-            <p className="text-white/40 text-xs">Membre actif</p>
+            <p className="text-white/40 text-xs">{t('common.member')}</p>
           </div>
         </div>
       </div>
@@ -87,7 +90,10 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                 ${active
                   ? 'text-white'
                   : 'text-white/50 hover:text-white hover:bg-white/5'}`}
-              style={active ? { background: `${item.color}18`, borderLeft: `3px solid ${item.color}` } : {}}
+              style={active ? {
+                background: `${item.color}18`,
+                borderInlineStart: `3px solid ${item.color}`,
+              } : {}}
             >
               <item.icon className="w-4 h-4 flex-shrink-0" style={{ color: active ? item.color : undefined }} />
               {item.label}
@@ -96,18 +102,18 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         })}
       </nav>
 
-
       {/* Bottom actions */}
       <div className="px-3 pb-4 border-t border-white/10 pt-3 space-y-1">
+        <LanguageSwitcher />
         <button onClick={toggle}
           className="flex items-center gap-3 px-3 py-2.5 w-full rounded-xl text-sm text-white/40 hover:text-white hover:bg-white/5 transition-all">
           {theme === 'dark' ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
-          {theme === 'dark' ? 'Mode clair' : 'Mode sombre'}
+          {theme === 'dark' ? t('common.light') : t('common.dark')}
         </button>
         <button onClick={() => { logout(); router.push('/login'); }}
           className="flex items-center gap-3 px-3 py-2.5 w-full rounded-xl text-sm text-white/40 hover:text-red-400 hover:bg-red-400/10 transition-all">
           <LogOut className="w-4 h-4" />
-          Déconnexion
+          {t('common.logout')}
         </button>
       </div>
     </>
@@ -117,7 +123,8 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     <div className="min-h-screen bg-background flex">
 
       {/* Sidebar desktop */}
-      <aside className="hidden lg:flex w-60 xl:w-64 flex-col fixed inset-y-0 left-0 z-50 sidebar-bg">
+      <aside className={`hidden lg:flex w-60 xl:w-64 flex-col fixed inset-y-0 z-50 sidebar-bg sidebar-desktop
+        ${isRTL ? 'right-0' : 'left-0'}`}>
         <SidebarContent />
       </aside>
 
@@ -128,9 +135,10 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
       )}
 
       {/* Mobile sidebar */}
-      <aside className={`lg:hidden fixed inset-y-0 left-0 z-50 w-72 flex flex-col sidebar-bg transition-transform duration-300 ease-out
-        ${mobileOpen ? 'translate-x-0' : '-translate-x-full'}`}>
-        <div className="absolute top-4 right-4">
+      <aside className={`lg:hidden fixed inset-y-0 z-50 w-72 flex flex-col sidebar-bg transition-transform duration-300 ease-out mobile-sidebar
+        ${isRTL ? 'right-0' : 'left-0'}
+        ${mobileOpen ? 'translate-x-0' : isRTL ? 'translate-x-full' : '-translate-x-full'}`}>
+        <div className={`absolute top-4 ${isRTL ? 'left-4' : 'right-4'}`}>
           <button onClick={() => setMobileOpen(false)} className="text-white/40 hover:text-white p-1">
             <X className="w-5 h-5" />
           </button>
@@ -139,7 +147,8 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
       </aside>
 
       {/* Main */}
-      <div className="flex-1 lg:ml-60 xl:ml-64 flex flex-col min-h-screen">
+      <div className={`flex-1 flex flex-col min-h-screen main-content
+        ${isRTL ? 'lg:mr-60 xl:mr-64' : 'lg:ml-60 xl:ml-64'}`}>
 
         {/* Mobile topbar */}
         <header className="lg:hidden sticky top-0 z-30 bg-card/90 backdrop-blur-md border-b border-border h-14 flex items-center justify-between px-4 shadow-sm">
@@ -150,7 +159,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
             <div className="w-7 h-7 rounded-lg gradient-primary flex items-center justify-center">
               <BookOpen className="w-3.5 h-3.5 text-white" />
             </div>
-            <span className="font-bold text-sm">Bourour</span>
+            <span className="font-bold text-sm">{t('app.name')}</span>
           </div>
           <button onClick={toggle} className="text-muted-foreground hover:text-foreground">
             {theme === 'dark' ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}

@@ -12,7 +12,7 @@ export default function PracticePage() {
   const router = useRouter();
   const { user } = useAuthStore();
   const [themes, setThemes] = useState<any[]>([]);
-  const [config, setConfig] = useState({ themeId: '', count: 10 });
+  const [config, setConfig] = useState({ themeId: '', subThemeId: '', count: 10 });
   const [session, setSession] = useState<any>(null);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [loading, setLoading] = useState(false);
@@ -31,6 +31,7 @@ export default function PracticePage() {
       const { data } = await attemptsApi.start({
         mode: 'PRACTICE',
         themeId: config.themeId || undefined,
+        subThemeId: config.subThemeId || undefined,
         count: config.count,
       });
       setSession(data);
@@ -92,7 +93,7 @@ export default function PracticePage() {
               <div className="relative">
                 <select
                   value={config.themeId}
-                  onChange={(e) => setConfig({ ...config, themeId: e.target.value })}
+                  onChange={(e) => setConfig({ ...config, themeId: e.target.value, subThemeId: '' })}
                   className="w-full appearance-none px-4 py-3 pr-10 bg-background border border-border rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary text-sm cursor-pointer"
                 >
                   <option value="">Toutes les thématiques</option>
@@ -103,6 +104,32 @@ export default function PracticePage() {
                 <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none" />
               </div>
             </div>
+
+            {config.themeId && (() => {
+              const selectedTheme = themes.find((t) => t.id === config.themeId);
+              const subThemes = selectedTheme?.subThemes ?? [];
+              if (!subThemes.length) return null;
+              return (
+                <div>
+                  <label className="block text-sm font-semibold mb-2">Sous-thème</label>
+                  <div className="relative">
+                    <select
+                      value={config.subThemeId}
+                      onChange={(e) => setConfig({ ...config, subThemeId: e.target.value })}
+                      className="w-full appearance-none px-4 py-3 pr-10 bg-background border border-border rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary text-sm cursor-pointer"
+                    >
+                      <option value="">Tous les sous-thèmes</option>
+                      {subThemes.map((s: any) => (
+                        <option key={s.id} value={s.id}>
+                          {sentenceCase(s.name)} ({s._count.questions} q.)
+                        </option>
+                      ))}
+                    </select>
+                    <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none" />
+                  </div>
+                </div>
+              );
+            })()}
 
             <div>
               <div className="flex items-center justify-between mb-3">

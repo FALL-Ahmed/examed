@@ -6,22 +6,25 @@ import { useAuthStore } from '@/lib/auth-store';
 import { adminApi } from '@/lib/api';
 import { Users, FileText, CreditCard, Upload, BarChart2, LogOut, Shield, PieChart, Sun, Moon } from 'lucide-react';
 import { useTheme } from '@/components/ThemeProvider';
-
-const navItems = [
-  { href: '/admin', icon: BarChart2, label: 'Dashboard', badge: false },
-  { href: '/admin/analytics', icon: PieChart, label: 'Analytiques', badge: false },
-  { href: '/admin/upload', icon: Upload, label: 'Importer PDF', badge: false },
-  { href: '/admin/questions', icon: FileText, label: 'Questions', badge: false },
-  { href: '/admin/users', icon: Users, label: 'Utilisateurs', badge: false },
-  { href: '/admin/payments', icon: CreditCard, label: 'Paiements', badge: true },
-];
+import { useLang } from '@/components/LanguageProvider';
+import { LanguageSwitcherLight } from '@/components/LanguageSwitcher';
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
   const router = useRouter();
   const pathname = usePathname();
   const { user, loadUser, logout } = useAuthStore();
   const { theme, toggle } = useTheme();
+  const { t, isRTL } = useLang();
   const [pendingCount, setPendingCount] = useState(0);
+
+  const navItems = [
+    { href: '/admin',           icon: BarChart2, label: t('admin.nav.dashboard'), badge: false },
+    { href: '/admin/analytics', icon: PieChart,  label: t('admin.nav.analytics'), badge: false },
+    { href: '/admin/upload',    icon: Upload,    label: t('admin.nav.upload'),    badge: false },
+    { href: '/admin/questions', icon: FileText,  label: t('admin.nav.questions'), badge: false },
+    { href: '/admin/users',     icon: Users,     label: t('admin.nav.users'),     badge: false },
+    { href: '/admin/payments',  icon: CreditCard,label: t('admin.nav.payments'),  badge: true  },
+  ];
 
   useEffect(() => {
     loadUser().then(() => {
@@ -39,14 +42,15 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   );
 
   return (
-    <div className="min-h-screen flex bg-slate-50">
-      <aside className="w-60 bg-slate-900 text-white flex flex-col shadow-xl">
+    <div className="min-h-screen flex bg-slate-50 dark:bg-slate-950">
+      <aside className={`w-60 bg-slate-900 text-white flex flex-col shadow-xl flex-shrink-0
+        ${isRTL ? 'order-last' : 'order-first'}`}>
         <div className="p-5 border-b border-slate-700">
           <div className="flex items-center gap-2">
-            <Shield className="w-6 h-6 text-blue-400" />
+            <Shield className="w-6 h-6 text-blue-400 flex-shrink-0" />
             <div>
-              <p className="font-bold text-sm">Bourour</p>
-              <p className="text-xs text-slate-400">Administration</p>
+              <p className="font-bold text-sm">{t('app.name')}</p>
+              <p className="text-xs text-slate-400">{t('admin.label')}</p>
             </div>
           </div>
         </div>
@@ -75,18 +79,19 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         </nav>
 
         <div className="p-3 border-t border-slate-700 space-y-1">
+          <LanguageSwitcherLight />
           <button
             onClick={toggle}
             className="flex items-center gap-3 px-3 py-2.5 w-full rounded-xl text-sm font-medium text-slate-400 hover:bg-slate-800 hover:text-white transition"
           >
             {theme === 'dark' ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
-            {theme === 'dark' ? 'Mode clair' : 'Mode sombre'}
+            {theme === 'dark' ? t('common.light') : t('common.dark')}
           </button>
           <button
             onClick={() => { logout(); router.push('/login'); }}
             className="flex items-center gap-3 px-3 py-2.5 w-full rounded-xl text-sm font-medium text-slate-400 hover:bg-red-900/30 hover:text-red-400 transition"
           >
-            <LogOut className="w-4 h-4" /> Déconnexion
+            <LogOut className="w-4 h-4" /> {t('common.logout')}
           </button>
         </div>
       </aside>

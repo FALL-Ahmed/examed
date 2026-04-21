@@ -3,6 +3,7 @@ import { Injectable } from '@nestjs/common';
 const pdfParseLib = require('pdf-parse');
 const pdfParse = pdfParseLib.default ?? pdfParseLib;
 import { parseText, limitPreview } from './text-parser';
+import { parseArText, limitPreviewAr } from './ar-text-parser';
 
 @Injectable()
 export class PdfService {
@@ -25,6 +26,15 @@ export class PdfService {
 
   async parseTextImport(text: string) {
     return parseText(text);
+  }
+
+  async parseArTextPreview(text: string) {
+    const result = parseArText(text);
+    return limitPreviewAr(result);
+  }
+
+  async parseArTextImport(text: string) {
+    return parseArText(text);
   }
 
   private async extractText(fileBuffer: Buffer): Promise<string> {
