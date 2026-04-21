@@ -88,9 +88,10 @@ export class AdminService {
     });
   }
 
-  async getQuestions(page = 1, limit = 20, themeId?: string, search?: string) {
+  async getQuestions(page = 1, limit = 20, themeId?: string, search?: string, subThemeId?: string) {
     const where: any = {};
-    if (themeId) where.subTheme = { themeId };
+    if (subThemeId) where.subThemeId = subThemeId;
+    else if (themeId) where.subTheme = { themeId };
     if (search) where.text = { contains: search, mode: 'insensitive' };
 
     const [questions, total] = await Promise.all([

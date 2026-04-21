@@ -63,6 +63,7 @@ export class PdfService {
             choiceE: opts.E || '',
             correctAnswer: Array.isArray(q.reponses) ? q.reponses.join(',') : String(q.reponses || ''),
             explanation: q.commentaire || '',
+            imageUrl: q.image || null,
           });
         }
 

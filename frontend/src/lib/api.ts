@@ -123,6 +123,11 @@ export const adminApi = {
   questions: (params?: any) => api.get('/admin/questions', { params }),
   updateQuestion: (id: string, data: any) => api.put(`/admin/questions/${id}`, data),
   deleteQuestion: (id: string) => api.delete(`/admin/questions/${id}`),
+  uploadQuestionImage: (id: string, file: File) => {
+    const fd = new FormData();
+    fd.append('image', file);
+    return api.post(`/admin/questions/${id}/image`, fd, { headers: { 'Content-Type': 'multipart/form-data' } });
+  },
   deleteAllQuestions: () => api.delete('/admin/questions'),
   deleteAllThemes: () => api.delete('/admin/themes'),
   pendingPayments: () => api.get('/admin/payments/pending'),

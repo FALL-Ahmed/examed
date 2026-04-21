@@ -65,6 +65,7 @@ export class AttemptsService {
 
     return {
       attemptId: attempt.id,
+      mode: attempt.mode,
       questions: questions.map((q) => ({
         id: q.id,
         text: q.text,

@@ -2,7 +2,7 @@
 import { useState } from 'react';
 import { CheckCircle2, XCircle, ChevronRight, Lightbulb, Heart } from 'lucide-react';
 import { questionsApi } from '@/lib/api';
-import { sentenceCase } from '@/lib/utils';
+import { sentenceCase, resolveImageUrl } from '@/lib/utils';
 
 interface Question {
   id: string;
@@ -171,7 +171,7 @@ export function QuestionCard({ question, questionNumber, totalQuestions, onAnswe
         )}
             {question.imageUrl && (
               <img
-                src={`${process.env.NEXT_PUBLIC_API_URL}${question.imageUrl}`}
+                src={resolveImageUrl(question.imageUrl)}
                 alt="Schéma"
                 className="w-full rounded-xl object-contain max-h-48 mb-4 border border-gray-100 dark:border-gray-700"
               />
@@ -261,7 +261,7 @@ export function QuestionCard({ question, questionNumber, totalQuestions, onAnswe
 
           {result.imageUrl && (
             <img
-              src={`${process.env.NEXT_PUBLIC_API_URL}${result.imageUrl}`}
+              src={resolveImageUrl(result.imageUrl)}
               alt="Schéma"
               className="w-full object-contain max-h-40 border-t border-gray-100 dark:border-gray-700"
             />

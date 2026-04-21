@@ -3,6 +3,7 @@ import { useState, useEffect, useCallback, useRef } from 'react';
 import { useRouter, useParams, useSearchParams } from 'next/navigation';
 import { attemptsApi } from '@/lib/api';
 import { ExamTimer } from '@/components/ExamTimer';
+import { resolveImageUrl } from '@/lib/utils';
 import { CheckCircle, Bookmark, ChevronLeft, ChevronRight, Send, Pause, Grid } from 'lucide-react';
 
 type AnswerState = Record<string, string>;
@@ -70,8 +71,9 @@ export default function ExamPage() {
   }
 
   function handlePause() {
-    // State is already saved in localStorage via the effect above
-    router.push('/exam');
+    const mode = session?.mode;
+    if (mode === 'REVIEW') router.push('/review');
+    else router.push('/exam');
   }
 
   const finishExam = useCallback(async () => {
@@ -220,7 +222,7 @@ export default function ExamPage() {
           <p className="font-medium text-gray-800 leading-relaxed">{q.text}</p>
           {q.imageUrl && (
             <img
-              src={`${process.env.NEXT_PUBLIC_API_URL}${q.imageUrl}`}
+              src={resolveImageUrl(q.imageUrl)}
               alt="Schéma"
               className="w-full rounded-xl object-contain max-h-48 mt-4 border border-gray-100"
             />

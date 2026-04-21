@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { attemptsApi } from '@/lib/api';
 import { CheckCircle, XCircle, ChevronDown, ChevronUp, RotateCcw, RefreshCw, Trophy, Clock, Target } from 'lucide-react';
 import { useLang } from '@/components/LanguageProvider';
-import { sentenceCase } from '@/lib/utils';
+import { sentenceCase, resolveImageUrl } from '@/lib/utils';
 
 export default function ResultsPage() {
   const { attemptId } = useParams<{ attemptId: string }>();
@@ -76,7 +76,7 @@ export default function ResultsPage() {
 
       {/* ── Actions ── */}
       <div className="grid grid-cols-2 gap-3">
-        <Link href="/exam"
+        <Link href={review.mode === 'REVIEW' ? '/review' : '/exam'}
           className="flex items-center justify-center gap-2 py-3 rounded-xl border border-border bg-card text-sm font-semibold hover:bg-secondary transition">
           <RotateCcw className="w-4 h-4" /> {t('results.retry')}
         </Link>
@@ -161,7 +161,7 @@ export default function ResultsPage() {
 
                 {q.imageUrl && (
                   <img
-                    src={`${process.env.NEXT_PUBLIC_API_URL}${q.imageUrl}`}
+                    src={resolveImageUrl(q.imageUrl)}
                     alt="Schéma"
                     className="w-full rounded-xl max-h-40 object-contain mt-2"
                   />
