@@ -37,6 +37,39 @@ export class PdfService {
     return parseArText(text);
   }
 
+  parseJsonImport(json: Record<string, Record<string, any[]>>) {
+    const themes: any[] = [];
+
+    for (const [themeName, subThemesData] of Object.entries(json)) {
+      const subThemes: any[] = [];
+
+      for (const [subThemeName, questions] of Object.entries(subThemesData)) {
+        const parsedQuestions = questions.map((q: any) => ({
+          text: q.question || '',
+          choiceA: q.options?.A || '',
+          choiceB: q.options?.B || '',
+          choiceC: q.options?.C || '',
+          choiceD: q.options?.D || '',
+          choiceE: q.options?.E || '',
+          correctAnswer: Array.isArray(q.reponses) ? q.reponses.join(',') : String(q.reponses || ''),
+          explanation: q.commentaire || '',
+        }));
+
+        subThemes.push({ name: subThemeName, questions: parsedQuestions });
+      }
+
+      themes.push({ name: themeName, subThemes });
+    }
+
+    const totalSubThemes = themes.reduce((a, t) => a + t.subThemes.length, 0);
+    const totalQ = themes.reduce((a, t) => a + t.subThemes.reduce((b: number, s: any) => b + s.questions.length, 0), 0);
+
+    return {
+      themes,
+      stats: { themes: themes.length, subThemes: totalSubThemes, questions: totalQ },
+    };
+  }
+
   private async extractText(fileBuffer: Buffer): Promise<string> {
     const data = await pdfParse(fileBuffer);
     return data.text;

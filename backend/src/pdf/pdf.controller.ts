@@ -59,4 +59,27 @@ export class PdfController {
     const imported = await this.adminService.importFromParser(parsed);
     return { parsed: parsed.stats, imported };
   }
+
+  @Post('json-preview')
+  async jsonPreview(@Body() body: Record<string, any>) {
+    const parsed = this.pdfService.parseJsonImport(body);
+    return {
+      stats: parsed.stats,
+      themes: parsed.themes.slice(0, 3).map((t: any) => ({
+        name: t.name,
+        subThemes: t.subThemes.slice(0, 2).map((s: any) => ({
+          name: s.name,
+          questions: s.questions.slice(0, 2),
+          totalQuestions: s.questions.length,
+        })),
+      })),
+    };
+  }
+
+  @Post('json-import')
+  async jsonImport(@Body() body: Record<string, any>) {
+    const parsed = this.pdfService.parseJsonImport(body);
+    const imported = await this.adminService.importFromParser(parsed);
+    return { parsed: parsed.stats, imported };
+  }
 }

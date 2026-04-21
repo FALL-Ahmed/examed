@@ -1,13 +1,13 @@
 'use client';
 import { useState } from 'react';
 import { adminApi } from '@/lib/api';
-import { Upload, FileText, CheckCircle, AlertCircle, Loader2, Type, Trash2 } from 'lucide-react';
+import { Upload, FileText, CheckCircle, AlertCircle, Loader2, Type, Trash2, FileJson } from 'lucide-react';
 
-type Tab = 'pdf' | 'text';
+type Tab = 'pdf' | 'text' | 'json';
 type Lang = 'fr' | 'ar';
 
 export default function UploadPage() {
-  const [tab, setTab] = useState<Tab>('text');
+  const [tab, setTab] = useState<Tab>('json');
   const [lang, setLang] = useState<Lang>('fr');
 
   // PDF state
@@ -16,6 +16,12 @@ export default function UploadPage() {
 
   // Text state
   const [rawText, setRawText] = useState('');
+
+  // JSON state
+  const [jsonFile, setJsonFile] = useState<File | null>(null);
+  const [jsonDrag, setJsonDrag] = useState(false);
+  const [jsonData, setJsonData] = useState<any>(null);
+  const [jsonError, setJsonError] = useState('');
 
   // Shared state
   const [preview, setPreview] = useState<any>(null);
@@ -33,8 +39,32 @@ export default function UploadPage() {
     setError('');
   }
 
+  function handleJsonFile(f: File) {
+    if (!f.name.endsWith('.json')) { setJsonError('Format JSON uniquement'); return; }
+    setJsonFile(f);
+    setJsonError('');
+    setPreview(null);
+    setResult(null);
+    setError('');
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      try {
+        const parsed = JSON.parse(e.target?.result as string);
+        setJsonData(parsed);
+      } catch {
+        setJsonError('Fichier JSON invalide');
+        setJsonFile(null);
+        setJsonData(null);
+      }
+    };
+    reader.readAsText(f);
+  }
+
   function resetAll() {
     setFile(null);
+    setJsonFile(null);
+    setJsonData(null);
+    setJsonError('');
     setRawText('');
     setPreview(null);
     setResult(null);
@@ -45,11 +75,16 @@ export default function UploadPage() {
     setPreviewing(true);
     setError('');
     try {
-      const { data } = tab === 'pdf'
-        ? await adminApi.previewPdf(file!)
-        : lang === 'ar'
+      let data: any;
+      if (tab === 'pdf') {
+        ({ data } = await adminApi.previewPdf(file!));
+      } else if (tab === 'json') {
+        ({ data } = await adminApi.previewJson(jsonData));
+      } else {
+        ({ data } = lang === 'ar'
           ? await adminApi.previewArText(rawText)
-          : await adminApi.previewText(rawText);
+          : await adminApi.previewText(rawText));
+      }
       setPreview(data);
     } catch (err: any) {
       setError('Erreur analyse : ' + (err.response?.data?.detail || err.message));
@@ -62,11 +97,16 @@ export default function UploadPage() {
     setImporting(true);
     setError('');
     try {
-      const { data } = tab === 'pdf'
-        ? await adminApi.importPdf(file!)
-        : lang === 'ar'
+      let data: any;
+      if (tab === 'pdf') {
+        ({ data } = await adminApi.importPdf(file!));
+      } else if (tab === 'json') {
+        ({ data } = await adminApi.importJson(jsonData));
+      } else {
+        ({ data } = lang === 'ar'
           ? await adminApi.importArText(rawText)
-          : await adminApi.importText(rawText);
+          : await adminApi.importText(rawText));
+      }
       setResult(data);
       setPreview(null);
     } catch (err: any) {
@@ -90,34 +130,45 @@ export default function UploadPage() {
     }
   }
 
-  const canPreview = tab === 'pdf' ? !!file : rawText.trim().length > 50;
+  const canPreview =
+    tab === 'pdf' ? !!file :
+    tab === 'json' ? !!jsonData :
+    rawText.trim().length > 50;
+
+  const TABS: [Tab, string, any][] = [
+    ['json', 'Importer JSON', FileJson],
+    ['text', lang === 'ar' ? 'لصق النص' : 'Coller du texte', Type],
+    ['pdf', lang === 'ar' ? 'استيراد PDF' : 'Importer un PDF', Upload],
+  ];
 
   return (
     <div className="max-w-2xl space-y-6">
       <div>
         <h1 className="text-2xl font-bold">Importer des questions</h1>
-        <p className="text-muted-foreground mt-1">Via PDF ou en collant le texte directement</p>
+        <p className="text-muted-foreground mt-1">Via JSON structuré, PDF ou en collant le texte</p>
       </div>
 
-      {/* Langue */}
-      <div className="flex items-center gap-3">
-        <span className="text-sm font-medium text-muted-foreground">Langue du contenu :</span>
-        <div className="flex rounded-xl border border-border overflow-hidden">
-          {([['fr', '🇫🇷 Français'], ['ar', '🇲🇷 العربية']] as const).map(([l, label]) => (
-            <button
-              key={l}
-              onClick={() => { setLang(l); resetAll(); }}
-              className={`px-4 py-2 text-sm font-medium transition ${lang === l ? 'bg-primary text-white' : 'text-muted-foreground hover:bg-secondary'}`}
-            >
-              {label}
-            </button>
-          ))}
+      {/* Langue (only relevant for text tab) */}
+      {tab === 'text' && (
+        <div className="flex items-center gap-3">
+          <span className="text-sm font-medium text-muted-foreground">Langue du contenu :</span>
+          <div className="flex rounded-xl border border-border overflow-hidden">
+            {([['fr', '🇫🇷 Français'], ['ar', '🇲🇷 العربية']] as const).map(([l, label]) => (
+              <button
+                key={l}
+                onClick={() => { setLang(l); resetAll(); }}
+                className={`px-4 py-2 text-sm font-medium transition ${lang === l ? 'bg-primary text-white' : 'text-muted-foreground hover:bg-secondary'}`}
+              >
+                {label}
+              </button>
+            ))}
+          </div>
         </div>
-      </div>
+      )}
 
       {/* Tabs */}
       <div className="flex gap-2 border-b pb-0">
-        {([['text', lang === 'ar' ? 'لصق النص' : 'Coller du texte', Type], ['pdf', lang === 'ar' ? 'استيراد PDF' : 'Importer un PDF', Upload]] as const).map(([id, label, Icon]) => (
+        {TABS.map(([id, label, Icon]) => (
           <button
             key={id}
             onClick={() => { setTab(id); resetAll(); }}
@@ -129,6 +180,45 @@ export default function UploadPage() {
           </button>
         ))}
       </div>
+
+      {/* JSON Tab */}
+      {tab === 'json' && (
+        <div className="space-y-3">
+          <div
+            onDragOver={(e) => { e.preventDefault(); setJsonDrag(true); }}
+            onDragLeave={() => setJsonDrag(false)}
+            onDrop={(e) => { e.preventDefault(); setJsonDrag(false); const f = e.dataTransfer.files[0]; if (f) handleJsonFile(f); }}
+            className={`border-2 border-dashed rounded-2xl p-12 text-center transition cursor-pointer
+              ${jsonDrag ? 'border-primary bg-blue-50' : jsonFile ? 'border-green-400 bg-green-50' : 'border-border hover:border-primary hover:bg-blue-50'}`}
+            onClick={() => document.getElementById('json-input')?.click()}
+          >
+            <input id="json-input" type="file" accept=".json" className="hidden"
+              onChange={(e) => e.target.files?.[0] && handleJsonFile(e.target.files[0])} />
+            {jsonFile ? (
+              <div className="flex flex-col items-center gap-2">
+                <FileJson className="w-12 h-12 text-green-500" />
+                <p className="font-semibold text-green-700">{jsonFile.name}</p>
+                <p className="text-sm text-muted-foreground">{(jsonFile.size / 1024).toFixed(1)} KB</p>
+              </div>
+            ) : (
+              <div className="flex flex-col items-center gap-2">
+                <FileJson className="w-12 h-12 text-muted-foreground" />
+                <p className="font-medium">Glisser-déposer guide_perfect.json ici</p>
+                <p className="text-sm text-muted-foreground">ou cliquer pour sélectionner</p>
+                <p className="text-xs text-muted-foreground mt-2">Format : Thème → Sous-thème → questions[]</p>
+              </div>
+            )}
+          </div>
+          {jsonError && (
+            <p className="text-sm text-red-600">{jsonError}</p>
+          )}
+          {jsonData && (
+            <div className="bg-secondary rounded-xl px-4 py-3 text-sm text-muted-foreground">
+              {Object.keys(jsonData).length} thèmes détectés dans le fichier
+            </div>
+          )}
+        </div>
+      )}
 
       {/* PDF Tab */}
       {tab === 'pdf' && (
@@ -231,8 +321,15 @@ export default function UploadPage() {
               <p className="font-medium">{theme.name}</p>
               {theme.subThemes.slice(0, 1).map((sub: any) => (
                 <div key={sub.name} className="mt-2 ml-4">
-                  <p className="text-sm text-muted-foreground">{sub.name}</p>
-                  {sub.questions.slice(0, 2).map((q: any, i: number) => (
+                  <p className="text-sm text-muted-foreground">
+                    {sub.name}
+                    {sub.totalQuestions !== undefined && (
+                      <span className="ml-2 text-xs bg-secondary px-2 py-0.5 rounded-full">
+                        {sub.totalQuestions} questions
+                      </span>
+                    )}
+                  </p>
+                  {(sub.questions ?? []).slice(0, 2).map((q: any, i: number) => (
                     <div key={i} className="mt-2 ml-4 text-xs bg-secondary p-3 rounded-lg">
                       <p className="font-medium">{q.text}</p>
                       <div className="mt-1 space-y-0.5">
@@ -292,6 +389,9 @@ export default function UploadPage() {
               </div>
             ))}
           </div>
+          {result.imported?.questionsSkipped > 0 && (
+            <p className="text-xs text-amber-600">{result.imported.questionsSkipped} questions ignorées (déjà existantes)</p>
+          )}
           <button onClick={resetAll} className="text-sm text-green-700 underline">
             Importer d&apos;autres questions
           </button>
