@@ -66,7 +66,7 @@ export default function PendingPage() {
                 {[
                   { icon: CheckCircle2, text: 'Compte créé avec succès', done: true },
                   { icon: CheckCircle2, text: 'Reçu de paiement soumis', done: true },
-                  { icon: Clock, text: 'Validation en cours par notre équipe', done: false },
+                  { icon: Clock, text: 'Validation par notre équipe (quelques minutes à 1h)', done: false },
                 ].map((s, i) => (
                   <div key={i} className="flex items-center gap-3">
                     <s.icon className={`w-4 h-4 flex-shrink-0 ${s.done ? 'text-emerald-400' : 'text-white/30'}`} />
