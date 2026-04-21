@@ -19,8 +19,8 @@ const tajawal = Tajawal({
 })
 
 export const metadata: Metadata = {
-  title: 'Bourour — Préparation Concours de Santé',
-  description: 'Application de révision QCM pour étudiants en santé en Mauritanie',
+  title: 'Al Bourour — Préparation Concours de Santé',
+  description: 'Application de révision QCM pour étudiants en soins infirmiers en Mauritanie',
 }
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

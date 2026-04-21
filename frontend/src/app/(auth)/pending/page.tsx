@@ -32,7 +32,7 @@ export default function PendingPage() {
           <div className="w-8 h-8 rounded-lg flex items-center justify-center" style={{ background: 'linear-gradient(135deg,#7c3aed,#6366f1)' }}>
             <BookOpen className="w-4 h-4 text-white" />
           </div>
-          <span className="font-bold text-lg text-white">Bourour</span>
+          <span className="font-bold text-lg text-white">Al Bourour</span>
         </div>
 
         <div className="bg-white/5 border border-white/10 rounded-3xl p-10 backdrop-blur-sm">

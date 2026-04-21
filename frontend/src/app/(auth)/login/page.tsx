@@ -4,25 +4,12 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useAuthStore } from '@/lib/auth-store';
 import { useLang } from '@/components/LanguageProvider';
-import { BookOpen, Eye, EyeOff, Loader2, Stethoscope, Heart, Activity, Shield } from 'lucide-react';
-
-const STATS = [
-  { value: '500+', label: 'Questions validées' },
-  { value: '50+',  label: 'Thématiques' },
-  { value: '24/7', label: 'Accès illimité' },
-];
-
-const FEATURES = [
-  { icon: Stethoscope, text: 'QCM par spécialité médicale' },
-  { icon: Activity,    text: 'Suivi de progression en temps réel' },
-  { icon: Shield,      text: 'Contenu validé par des professionnels' },
-  { icon: Heart,       text: 'Pour infirmiers, étudiants et soignants' },
-];
+import { BookOpen, Eye, EyeOff, Loader2, Stethoscope, Activity, Shield, Users } from 'lucide-react';
 
 export default function LoginPage() {
   const router = useRouter();
   const { login } = useAuthStore();
-  const { t } = useLang();
+  const { t, lang } = useLang();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPwd, setShowPwd] = useState(false);
@@ -32,6 +19,19 @@ export default function LoginPage() {
 
   useEffect(() => { setMounted(true); }, []);
 
+  const STATS = [
+    { value: '500+', label: t('login.stat1') },
+    { value: '50+',  label: t('login.stat2') },
+    { value: '24/7', label: t('login.stat3') },
+  ];
+
+  const FEATURES = [
+    { icon: Stethoscope, text: t('login.feat1') },
+    { icon: Activity,    text: t('login.feat2') },
+    { icon: Shield,      text: t('login.feat3') },
+    { icon: Users,       text: t('login.feat4') },
+  ];
+
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setLoading(true); setError('');
@@ -40,12 +40,12 @@ export default function LoginPage() {
       const user = useAuthStore.getState().user;
       router.push(user?.role === 'ADMIN' ? '/admin' : '/dashboard');
     } catch (err: any) {
-      setError(err.response?.data?.message || 'Email ou mot de passe incorrect');
+      setError(err.response?.data?.message || t('auth.login.error'));
     } finally { setLoading(false); }
   }
 
   return (
-    <div className="min-h-screen flex">
+    <div className="min-h-screen flex" dir={lang === 'ar' ? 'rtl' : 'ltr'}>
 
       {/* ── LEFT animated brand panel ── */}
       <div className="hidden lg:flex lg:w-[55%] flex-col relative overflow-hidden"
@@ -70,31 +70,31 @@ export default function LoginPage() {
             <div className="w-10 h-10 rounded-xl bg-white/15 border border-white/20 flex items-center justify-center backdrop-blur-sm">
               <BookOpen className="w-5 h-5 text-white" />
             </div>
-            <span className="text-white font-bold text-xl tracking-tight">Bourour</span>
+            <span className="text-white font-bold text-xl tracking-tight">{t('app.name')}</span>
           </div>
 
           {/* Main copy */}
           <div className="flex-1 flex flex-col justify-center">
             <div className={`transition-all duration-700 delay-100 ${mounted ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
               <p className="text-sky-300 text-sm font-semibold uppercase tracking-[0.2em] mb-4">
-                Plateforme médicale
+                {t('login.brand.tag')}
               </p>
               <h1 className="text-5xl font-extrabold text-white leading-[1.1] mb-6">
-                La référence<br />
-                des <span className="text-transparent bg-clip-text"
+                {t('login.brand.title1')}<br />
+                <span className="text-transparent bg-clip-text"
                   style={{ backgroundImage: 'linear-gradient(90deg,#38bdf8,#818cf8)' }}>
-                  soignants
+                  {t('login.brand.title2')}
                 </span>
               </h1>
               <p className="text-white/55 text-base leading-relaxed mb-10 max-w-sm">
-                Infirmiers, étudiants en soins, aides-soignants — testez et renforcez vos connaissances médicales à votre rythme.
+                {t('login.brand.sub')}
               </p>
             </div>
 
             {/* Features */}
             <div className={`space-y-3 mb-12 transition-all duration-700 delay-200 ${mounted ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
               {FEATURES.map(({ icon: Icon, text }, i) => (
-                <div key={text} className="flex items-center gap-3"
+                <div key={i} className="flex items-center gap-3"
                   style={{ transitionDelay: `${300 + i * 80}ms` }}>
                   <div className="w-8 h-8 rounded-lg border border-white/15 bg-white/10 flex items-center justify-center flex-shrink-0 backdrop-blur-sm">
                     <Icon className="w-3.5 h-3.5 text-sky-300" />
@@ -126,7 +126,7 @@ export default function LoginPage() {
             <div className="w-10 h-10 rounded-xl gradient-primary flex items-center justify-center shadow-lg shadow-violet-500/30">
               <BookOpen className="w-5 h-5 text-white" />
             </div>
-            <span className="font-bold text-xl">Bourour</span>
+            <span className="font-bold text-xl">{t('app.name')}</span>
           </div>
 
           <div className="mb-8">

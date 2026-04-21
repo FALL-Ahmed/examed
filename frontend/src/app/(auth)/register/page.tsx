@@ -165,7 +165,7 @@ export default function RegisterPage() {
           <div className="w-9 h-9 rounded-xl flex items-center justify-center" style={{ background: 'linear-gradient(135deg,#7c3aed,#6366f1)' }}>
             <BookOpen className="w-4 h-4 text-white" />
           </div>
-          <span className="text-white font-bold text-lg">Bourour</span>
+          <span className="text-white font-bold text-lg">Al Bourour</span>
         </div>
 
         <div className="relative space-y-8">
@@ -207,7 +207,7 @@ export default function RegisterPage() {
           </div>
         </div>
 
-        <p className="relative text-white/20 text-xs">© 2025 Bourour · Mauritanie</p>
+        <p className="relative text-white/20 text-xs">© 2025 Al Bourour · Mauritanie</p>
       </div>
 
       {/* Right form */}
@@ -219,7 +219,7 @@ export default function RegisterPage() {
             <div className="w-8 h-8 rounded-lg flex items-center justify-center" style={{ background: 'linear-gradient(135deg,#7c3aed,#6366f1)' }}>
               <BookOpen className="w-4 h-4 text-white" />
             </div>
-            <span className="font-bold text-lg">Bourour</span>
+            <span className="font-bold text-lg">Al Bourour</span>
           </div>
 
           {/* Progress bar */}

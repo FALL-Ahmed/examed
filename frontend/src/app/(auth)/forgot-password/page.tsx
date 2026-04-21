@@ -57,7 +57,7 @@ export default function ForgotPasswordPage() {
             <div className="w-10 h-10 rounded-xl bg-white/15 border border-white/20 flex items-center justify-center backdrop-blur-sm">
               <Mail className="w-5 h-5 text-white" />
             </div>
-            <span className="text-white font-bold text-xl tracking-tight">Bourour</span>
+            <span className="text-white font-bold text-xl tracking-tight">Al Bourour</span>
           </div>
 
           <div className="flex-1 flex flex-col justify-center">

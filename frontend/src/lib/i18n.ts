@@ -3,7 +3,7 @@ export type Lang = 'fr' | 'ar';
 export const translations = {
   fr: {
     // ─── App ───────────────────────────────────────────────────────────────
-    'app.name': 'Bourour',
+    'app.name': 'Al Bourour',
     'app.subtitle': 'Infirmier · Mauritanie',
     'app.tagline': 'Préparation Concours de Santé',
 
@@ -228,11 +228,24 @@ export const translations = {
     'landing.features.title': 'Tout ce dont vous avez besoin',
     'landing.pricing.title': 'Tarification simple',
     'landing.pricing.cta': 'S\'abonner maintenant',
+
+    // ─── Login brand panel ─────────────────────────────────────────────────
+    'login.brand.tag': 'Sciences Infirmières · Mauritanie',
+    'login.brand.title1': 'La référence en',
+    'login.brand.title2': 'sciences infirmières',
+    'login.brand.sub': 'La plateforme QCM dédiée aux étudiants infirmiers et soignants de Mauritanie. Préparez votre concours à votre rythme.',
+    'login.feat1': 'QCM en soins infirmiers et sciences médicales',
+    'login.feat2': 'Contenu validé par des médecins et infirmiers',
+    'login.feat3': 'Suivi de progression thème par thème',
+    'login.feat4': 'Adapté aux concours mauritaniens',
+    'login.stat1': 'Questions',
+    'login.stat2': 'Thèmes',
+    'login.stat3': 'Accès',
   },
 
   ar: {
     // ─── App ───────────────────────────────────────────────────────────────
-    'app.name': 'بورور',
+    'app.name': 'البورور',
     'app.subtitle': 'تمريض · موريتانيا',
     'app.tagline': 'التحضير لمسابقة الصحة',
 
@@ -457,6 +470,19 @@ export const translations = {
     'landing.features.title': 'كل ما تحتاجه',
     'landing.pricing.title': 'تسعير بسيط',
     'landing.pricing.cta': 'اشترك الآن',
+
+    // ─── Login brand panel ─────────────────────────────────────────────────
+    'login.brand.tag': 'علوم التمريض · موريتانيا',
+    'login.brand.title1': 'المرجع في',
+    'login.brand.title2': 'علوم التمريض',
+    'login.brand.sub': 'منصة QCM مخصصة لطلاب التمريض والعاملين في الصحة بموريتانيا. استعدّ لمسابقتك بالوتيرة التي تناسبك.',
+    'login.feat1': 'أسئلة في التمريض والعلوم الطبية',
+    'login.feat2': 'محتوى معتمد من أطباء وممرضين',
+    'login.feat3': 'متابعة التقدم موضوعاً بموضوع',
+    'login.feat4': 'مكيّف مع المسابقات الموريتانية',
+    'login.stat1': 'سؤال',
+    'login.stat2': 'موضوع',
+    'login.stat3': 'وصول',
   },
 } as const;
 
