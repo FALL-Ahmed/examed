@@ -77,14 +77,27 @@ export default function PendingPage() {
             </>
           )}
 
-          {waLink && (
-            <a href={waLink} target="_blank" rel="noopener noreferrer"
-              className="flex items-center justify-center gap-2.5 w-full py-3.5 rounded-2xl font-bold text-sm text-white mb-4 hover:opacity-90 transition shadow-lg"
-              style={{ background: 'linear-gradient(135deg,#25d366,#128c7e)' }}>
-              <MessageCircle className="w-4 h-4" />
-              {t('support.whatsapp')}
-            </a>
-          )}
+          {/* WhatsApp CTA */}
+          <div className="bg-white/5 border border-white/10 rounded-2xl p-4 mb-4 text-left">
+            <p className="text-white/80 text-xs font-semibold mb-1">Accélérer la validation ?</p>
+            <p className="text-white/50 text-xs mb-3 leading-relaxed">
+              Envoyez votre reçu de paiement directement sur WhatsApp pour une activation immédiate.
+            </p>
+            {waLink ? (
+              <a href={waLink} target="_blank" rel="noopener noreferrer"
+                className="flex items-center justify-center gap-2.5 w-full py-3 rounded-xl font-bold text-sm text-white hover:opacity-90 transition shadow-lg"
+                style={{ background: 'linear-gradient(135deg,#25d366,#128c7e)' }}>
+                <MessageCircle className="w-4 h-4" />
+                Contacter le support
+                {waPhone && <span className="font-normal opacity-80 text-xs ml-1">· {waPhone}</span>}
+              </a>
+            ) : (
+              <div className="flex items-center justify-center gap-2 py-3 rounded-xl text-sm text-white/30 border border-white/10">
+                <MessageCircle className="w-4 h-4" />
+                Chargement du contact…
+              </div>
+            )}
+          </div>
 
           <Link href="/login"
             className="block w-full py-3.5 rounded-2xl font-bold text-sm text-white text-center hover:opacity-90 transition border border-white/15 hover:bg-white/10">

@@ -1,5 +1,5 @@
 'use client';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { attemptsApi, themesApi } from '@/lib/api';
@@ -8,6 +8,8 @@ import { QuestionCard } from '@/components/QuestionCard';
 import { useLang } from '@/components/LanguageProvider';
 import { BookOpen, Loader2, Play, ChevronDown } from 'lucide-react';
 import { sentenceCase } from '@/lib/utils';
+
+const PRACTICE_KEY = 'practice_state';
 
 export default function PracticePage() {
   const router = useRouter();
@@ -21,10 +23,31 @@ export default function PracticePage() {
   const [error, setError] = useState('');
   const [configured, setConfigured] = useState(false);
   const [answers, setAnswers] = useState<Array<{ correct: boolean } | null>>([]);
+  const saveRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
     themesApi.all().then((r) => setThemes(r.data)).catch(() => {});
+
+    // Restore saved practice session
+    try {
+      const saved = JSON.parse(localStorage.getItem(PRACTICE_KEY) || 'null');
+      if (saved?.session) {
+        setSession(saved.session);
+        setCurrentIndex(saved.currentIndex || 0);
+        setAnswers(saved.answers || Array(saved.session.questions.length).fill(null));
+        setConfigured(true);
+      }
+    } catch {}
   }, []);
+
+  // Persist practice session to localStorage
+  useEffect(() => {
+    if (!session) return;
+    if (saveRef.current) clearTimeout(saveRef.current);
+    saveRef.current = setTimeout(() => {
+      localStorage.setItem(PRACTICE_KEY, JSON.stringify({ session, currentIndex, answers }));
+    }, 300);
+  }, [session, currentIndex, answers]);
 
   async function startSession() {
     setLoading(true);
@@ -60,6 +83,7 @@ export default function PracticePage() {
 
   function handleNext() {
     if (currentIndex + 1 >= session.questions.length) {
+      localStorage.removeItem(PRACTICE_KEY);
       attemptsApi.finish(session.attemptId).catch(() => {});
       router.push(`/exam/${session.attemptId}/results`);
     } else {
@@ -246,6 +270,14 @@ export default function PracticePage() {
             </div>
           </div>
         </div>
+
+        {/* Abandon */}
+        <button
+          onClick={() => { localStorage.removeItem(PRACTICE_KEY); setSession(null); setConfigured(false); setAnswers([]); setCurrentIndex(0); }}
+          className="w-full py-2.5 rounded-xl border border-border text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-secondary transition"
+        >
+          Nouvelle session
+        </button>
 
         {/* Question dots grid */}
         <div className="bg-card border border-border rounded-2xl p-5">

@@ -1,8 +1,8 @@
 'use client';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { attemptsApi } from '@/lib/api';
-import { RefreshCw, Loader2, AlertCircle, Play } from 'lucide-react';
+import { RefreshCw, Loader2, AlertCircle, Play, PlayCircle, Trash2 } from 'lucide-react';
 import { useLang } from '@/components/LanguageProvider';
 
 export default function ReviewPage() {
@@ -10,6 +10,14 @@ export default function ReviewPage() {
   const { t } = useLang();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [savedReview, setSavedReview] = useState<any>(null);
+
+  useEffect(() => {
+    try {
+      const saved = JSON.parse(localStorage.getItem('exam_state') || 'null');
+      if (saved?.attemptId && saved?.session?.mode === 'REVIEW') setSavedReview(saved);
+    } catch {}
+  }, []);
 
   async function startReview() {
     setLoading(true);
@@ -30,6 +38,39 @@ export default function ReviewPage() {
 
   return (
     <div className="space-y-8">
+
+      {/* Resume banner */}
+      {savedReview && (
+        <div className="flex items-center justify-between gap-4 bg-amber-50 border border-amber-200 rounded-2xl px-5 py-4">
+          <div className="flex items-center gap-3">
+            <div className="w-9 h-9 rounded-xl bg-amber-500 flex items-center justify-center flex-shrink-0">
+              <PlayCircle className="w-5 h-5 text-white" />
+            </div>
+            <div>
+              <p className="font-semibold text-amber-900 text-sm">{t('review.title')}</p>
+              <p className="text-xs text-amber-600">
+                {Object.keys(savedReview.answers || {}).length} / {savedReview.session?.questions?.length || '?'} répondues
+              </p>
+            </div>
+          </div>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => { localStorage.removeItem('exam_state'); setSavedReview(null); }}
+              className="p-2 rounded-lg text-amber-400 hover:text-red-500 hover:bg-red-50 transition"
+              title="Abandonner"
+            >
+              <Trash2 className="w-4 h-4" />
+            </button>
+            <button
+              onClick={() => router.push(`/exam/${savedReview.attemptId}`)}
+              className="flex items-center gap-1.5 bg-amber-500 text-white px-4 py-2 rounded-xl text-sm font-semibold hover:bg-amber-600 transition"
+            >
+              <Play className="w-3.5 h-3.5 fill-white" /> Reprendre
+            </button>
+          </div>
+        </div>
+      )}
+
       <div className="rounded-2xl p-6 md:p-8 text-white gradient-warning">
         <div className="flex items-center gap-4">
           <div className="w-12 h-12 rounded-xl bg-white/20 border border-white/30 flex items-center justify-center flex-shrink-0">

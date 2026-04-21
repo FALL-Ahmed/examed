@@ -21,7 +21,7 @@ export default function ExamConfigPage() {
     themesApi.all().then((r) => setThemes(r.data)).catch(() => {});
     try {
       const saved = JSON.parse(localStorage.getItem('exam_state') || 'null');
-      if (saved?.attemptId) setSavedExam(saved);
+      if (saved?.attemptId && saved?.session?.mode === 'EXAM') setSavedExam(saved);
     } catch {}
   }, []);
 
