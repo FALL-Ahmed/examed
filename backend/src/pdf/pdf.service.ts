@@ -39,21 +39,32 @@ export class PdfService {
 
   parseJsonImport(json: Record<string, Record<string, any[]>>) {
     const themes: any[] = [];
+    let skippedNoOptions = 0;
 
     for (const [themeName, subThemesData] of Object.entries(json)) {
       const subThemes: any[] = [];
 
       for (const [subThemeName, questions] of Object.entries(subThemesData)) {
-        const parsedQuestions = questions.map((q: any) => ({
-          text: q.question || '',
-          choiceA: q.options?.A || '',
-          choiceB: q.options?.B || '',
-          choiceC: q.options?.C || '',
-          choiceD: q.options?.D || '',
-          choiceE: q.options?.E || '',
-          correctAnswer: Array.isArray(q.reponses) ? q.reponses.join(',') : String(q.reponses || ''),
-          explanation: q.commentaire || '',
-        }));
+        const parsedQuestions: any[] = [];
+
+        for (const q of questions) {
+          const opts = q.options ?? {};
+          if (Object.keys(opts).length === 0) {
+            skippedNoOptions++;
+            continue;
+          }
+
+          parsedQuestions.push({
+            text: q.question || '',
+            choiceA: opts.A || '',
+            choiceB: opts.B || '',
+            choiceC: opts.C || '',
+            choiceD: opts.D || '',
+            choiceE: opts.E || '',
+            correctAnswer: Array.isArray(q.reponses) ? q.reponses.join(',') : String(q.reponses || ''),
+            explanation: q.commentaire || '',
+          });
+        }
 
         subThemes.push({ name: subThemeName, questions: parsedQuestions });
       }
@@ -66,7 +77,7 @@ export class PdfService {
 
     return {
       themes,
-      stats: { themes: themes.length, subThemes: totalSubThemes, questions: totalQ },
+      stats: { themes: themes.length, subThemes: totalSubThemes, questions: totalQ, skippedNoOptions },
     };
   }
 

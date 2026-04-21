@@ -392,6 +392,9 @@ export default function UploadPage() {
           {result.imported?.questionsSkipped > 0 && (
             <p className="text-xs text-amber-600">{result.imported.questionsSkipped} questions ignorées (déjà existantes)</p>
           )}
+          {result.parsed?.skippedNoOptions > 0 && (
+            <p className="text-xs text-amber-600">{result.parsed.skippedNoOptions} questions ignorées (sans choix de réponses dans le JSON)</p>
+          )}
           <button onClick={resetAll} className="text-sm text-green-700 underline">
             Importer d&apos;autres questions
           </button>
