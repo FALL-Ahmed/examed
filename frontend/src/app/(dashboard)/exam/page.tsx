@@ -165,12 +165,12 @@ export default function ExamConfigPage() {
         {/* Summary */}
         <div className="space-y-4">
           <div className="bg-card border border-border rounded-2xl p-5">
-            <h3 className="font-semibold text-sm mb-4">Résumé de la session</h3>
+            <h3 className="font-semibold text-sm mb-4">{t('exam.summary')}</h3>
             <div className="space-y-3">
               {[
-                { icon: Zap, label: 'Questions', value: config.count },
-                { icon: Timer, label: 'Durée totale', value: `${config.durationMinutes} min` },
-                { icon: Timer, label: 'Temps / question', value: `~${secPerQ}s` },
+                { icon: Zap, label: t('practice.questions'), value: config.count },
+                { icon: Timer, label: t('exam.duration'), value: `${config.durationMinutes} min` },
+                { icon: Timer, label: t('exam.timePerQ'), value: `~${secPerQ}s` },
               ].map(({ icon: Icon, label, value }) => (
                 <div key={label} className="flex items-center justify-between">
                   <div className="flex items-center gap-2 text-sm text-muted-foreground">
@@ -185,7 +185,7 @@ export default function ExamConfigPage() {
 
           <div className="bg-violet-500/5 border border-violet-500/20 rounded-xl p-4">
             <p className="text-xs text-muted-foreground leading-relaxed">
-              <strong className="text-foreground">Mode examen :</strong> les réponses sont corrigées uniquement à la fin. Vous ne verrez pas la correction après chaque question.
+              <strong className="text-foreground">{t('exam.title')} :</strong> {t('exam.modeNote')}
             </p>
           </div>
         </div>

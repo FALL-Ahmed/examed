@@ -202,7 +202,7 @@ export default function StatsPage() {
         </div>
       ) : qualifiedThemes.length === 0 && stats.themeStats.length > 0 ? (
         <div className="bg-card border border-border rounded-2xl p-5 text-center text-sm text-muted-foreground">
-          Répondez à au moins 3 questions par thématique pour voir vos points forts et axes d'amélioration.
+          {t('practice.start')} — {t('stats.progress')}
         </div>
       ) : null}
     </div>

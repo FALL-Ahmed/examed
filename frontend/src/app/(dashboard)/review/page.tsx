@@ -64,13 +64,13 @@ export default function ReviewPage() {
         </div>
 
         <div className="bg-card border border-amber-500/20 rounded-2xl p-5">
-          <h3 className="font-semibold text-sm mb-3">Comment ça marche ?</h3>
+          <h3 className="font-semibold text-sm mb-3">{t('practice.howTitle')}</h3>
           <div className="space-y-3">
             {[
-              'Toutes vos erreurs regroupées',
-              'Des plus récentes aux plus anciennes',
-              'Correction immédiate à chaque question',
-              'Progressez sur vos points faibles',
+              t('review.how1'),
+              t('review.how2'),
+              t('review.how3'),
+              t('review.how4'),
             ].map((s, i) => (
               <div key={i} className="flex items-start gap-2.5 text-sm text-muted-foreground">
                 <span className="w-5 h-5 rounded-full bg-amber-500/15 text-amber-600 dark:text-amber-400 text-xs font-bold flex items-center justify-center flex-shrink-0 mt-0.5">

@@ -175,13 +175,13 @@ export default function PracticePage() {
           {/* Side info */}
           <div className="space-y-4">
             <div className="bg-card border border-border rounded-2xl p-5">
-              <h3 className="font-semibold text-sm mb-3">Comment ça marche ?</h3>
+              <h3 className="font-semibold text-sm mb-3">{t('practice.howTitle')}</h3>
               <div className="space-y-3 text-sm text-muted-foreground">
                 {[
-                  "Chaque question s'affiche une par une",
-                  'La correction est immédiate après votre réponse',
-                  'Une explication vous aide à comprendre',
-                  'Progressez thème par thème',
+                  t('practice.how1'),
+                  t('practice.how2'),
+                  t('practice.how3'),
+                  t('practice.how4'),
                 ].map((step, i) => (
                   <div key={i} className="flex items-start gap-2.5">
                     <span className="w-5 h-5 rounded-full bg-secondary text-xs font-bold flex items-center justify-center flex-shrink-0 mt-0.5">

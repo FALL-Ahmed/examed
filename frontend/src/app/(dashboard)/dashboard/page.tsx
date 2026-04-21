@@ -52,7 +52,7 @@ export default function DashboardPage() {
     { href: '/practice', icon: BookOpen, label: t('nav.practice'), desc: t('practice.subtitle'), color: '#0ea5e9', badge: null },
     { href: '/exam',     icon: Zap,      label: t('nav.exam'),     desc: t('exam.title'),      color: '#6366f1', badge: 'Premium' },
     { href: '/review',   icon: RefreshCw, label: t('nav.review'),  desc: t('review.subtitle'), color: '#f59e0b', badge: 'Premium' },
-    { href: '/stats',    icon: TrendingUp, label: t('nav.stats'),  desc: t('stats.progress'),  color: '#3b82f6', badge: null },
+    { href: '/stats',    icon: TrendingUp, label: t('nav.stats'),  desc: t('stats.progress'),  color: '#3b82f6', badge: 'Premium' },
   ];
 
   const subEnd = profile?.subscriptionEnd ? new Date(profile.subscriptionEnd) : null;
@@ -92,9 +92,9 @@ export default function DashboardPage() {
           <AlertTriangle className="w-5 h-5 flex-shrink-0" />
           <div className="flex-1 text-sm">
             <span className="font-semibold">
-              {daysLeft <= 0 ? 'Abonnement expiré' : `Abonnement expire dans ${daysLeft} jour${daysLeft > 1 ? 's' : ''}`}
+              {daysLeft <= 0 ? t('dash.sub.expired') : `${t('dash.sub.expires')} ${daysLeft} ${daysLeft > 1 ? t('dash.sub.days') : t('dash.sub.day')}`}
             </span>
-            <span className="opacity-70 ml-2">— Contactez l'admin pour renouveler.</span>
+            <span className="opacity-70 ml-2">— {t('dash.sub.renew')}</span>
           </div>
         </div>
       )}
@@ -103,8 +103,8 @@ export default function DashboardPage() {
         <div className="flex items-center gap-3 bg-emerald-500/10 border border-emerald-500/20 rounded-2xl px-5 py-3">
           <CalendarCheck className="w-4 h-4 text-emerald-400 flex-shrink-0" />
           <p className="text-sm text-emerald-400">
-            Abonnement valide jusqu'au <strong>{subEnd.toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' })}</strong>
-            <span className="opacity-70 ml-1">({daysLeft} jours restants)</span>
+            {t('dash.sub.valid')} <strong>{subEnd.toLocaleDateString(undefined, { day: 'numeric', month: 'long', year: 'numeric' })}</strong>
+            <span className="opacity-70 ml-1">({daysLeft} {daysLeft > 1 ? t('dash.sub.days') : t('dash.sub.day')})</span>
           </p>
         </div>
       )}
