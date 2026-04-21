@@ -104,16 +104,18 @@ export default function ExamPage() {
   }
 
   const q = session.questions[currentIndex];
-  const choices = ['A', 'B', 'C', 'D'];
-  const choiceLabels: Record<string, string> = {
-    A: q.choiceA, B: q.choiceB, C: q.choiceC, D: q.choiceD,
+  const allChoiceLabels: Record<string, string> = {
+    A: q.choiceA, B: q.choiceB, C: q.choiceC, D: q.choiceD, E: q.choiceE ?? '',
   };
+  const choices = ['A', 'B', 'C', 'D', 'E'].filter((l) => allChoiceLabels[l]?.trim());
+  const choiceLabels = allChoiceLabels;
 
   const BADGE: Record<string, string> = {
     A: 'bg-violet-100 text-violet-700 border-violet-200',
     B: 'bg-sky-100 text-sky-700 border-sky-200',
     C: 'bg-emerald-100 text-emerald-700 border-emerald-200',
     D: 'bg-amber-100 text-amber-700 border-amber-200',
+    E: 'bg-rose-100 text-rose-700 border-rose-200',
   };
 
   const BADGE_SELECTED: Record<string, string> = {
