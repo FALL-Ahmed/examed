@@ -4531,8 +4531,10 @@
         ],
         "commentaire": "Les laxatifs exigent une bonne hydratation. L'infirmier doit s'assurer que le patient boit au moins 1,5 L d'eau par jour et l'encourager, si possible, à marcher un peu pour stimuler le transit."
       }
-    ],
-    "ANATOMIE": [
+    ]
+  },
+  "ANATOMIE": {
+    "LE SQUELETTE": [
       {
         "numero": 2,
         "question": "Quel est le rôle principal du squelette axial ?",
@@ -4545,6 +4547,143 @@
         },
         "reponses": [
           "D"
+        ],
+        "commentaire": ""
+      },
+      {
+        "numero": 3,
+        "question": "Combien d'os composent le crâne ?",
+        "options": {
+          "A": "10 os",
+          "B": "13 os",
+          "C": "8 os pour la boîte crânienne et 13 os pour la face",
+          "D": "24 os",
+          "E": "3 os"
+        },
+        "reponses": [
+          "C"
+        ],
+        "commentaire": ""
+      },
+      {
+        "numero": 4,
+        "question": "Quel est le nombre de vertèbres dans le rachis ?",
+        "options": {
+          "A": "24 vertèbres",
+          "B": "30 vertèbres",
+          "C": "12 vertèbres",
+          "D": "26 vertèbres",
+          "E": "32 vertèbres"
+        },
+        "reponses": [
+          "E"
+        ],
+        "commentaire": ""
+      },
+      {
+        "numero": 5,
+        "question": "Quel est le rôle de la cage thoracique ?",
+        "options": {
+          "A": "Protéger le cœur et les poumons",
+          "B": "Supporter le poids du corps",
+          "C": "Permettre le mouvement des bras",
+          "D": "Stocker des minéraux",
+          "E": "Produire des globules rouges"
+        },
+        "reponses": [
+          "A"
+        ],
+        "commentaire": ""
+      },
+      {
+        "numero": 6,
+        "question": "Quel est un exemple d'os dans la ceinture scapulaire ?",
+        "options": {
+          "A": "Fémur",
+          "B": "Scapula",
+          "C": "Humérus",
+          "D": "Tibia",
+          "E": "Radius"
+        },
+        "reponses": [
+          "B"
+        ],
+        "commentaire": ""
+      }
+    ],
+    "STRUCTURE ET TYPES D'OS": [
+      {
+        "numero": 8,
+        "question": "Quelle est la définition d'un os long ?",
+        "options": {
+          "A": "Un os dont la largeur et l'épaisseur sont égales",
+          "B": "Un os dont la longueur prédomine",
+          "C": "Un os très court et épais",
+          "D": "Un os plat et large",
+          "E": "Un os de forme irrégulière"
+        },
+        "reponses": [
+          "B"
+        ],
+        "commentaire": ""
+      },
+      {
+        "numero": 10,
+        "question": "Quelles cellules sont responsables de la formation du tissu osseux ?",
+        "options": {
+          "A": "Ostéocytes",
+          "B": "Ostéoclastes",
+          "C": "Ostéoblastes",
+          "D": "Chondrocytes",
+          "E": "Fibroblastes"
+        },
+        "reponses": [
+          "C"
+        ],
+        "commentaire": ""
+      },
+      {
+        "numero": 11,
+        "question": "Quelle partie de l'os qui contient la moelle osseuse ?",
+        "options": {
+          "A": "Épiphyse",
+          "B": "Corticale",
+          "C": "Diaphyse",
+          "D": "Métaphyse",
+          "E": "Périoste"
+        },
+        "reponses": [
+          "C"
+        ],
+        "commentaire": ""
+      },
+      {
+        "numero": 12,
+        "question": "Quels peuvent être les signes d'une fracture osseuse ?",
+        "options": {
+          "A": "Rougeur uniquement",
+          "B": "Douleur aiguë, œdème et déformation",
+          "C": "Faiblesse musculaire",
+          "D": "Perturbation alimentaire",
+          "E": "Fatigue générale"
+        },
+        "reponses": [
+          "B"
+        ],
+        "commentaire": ""
+      },
+      {
+        "numero": 15,
+        "question": "L'os spongieux est principalement trouvé :",
+        "options": {
+          "A": "Dans la diaphyse",
+          "B": "Dans les épiphyses",
+          "C": "Dans le périoste",
+          "D": "Dans la moelle jaune",
+          "E": "À l'extérieur des os"
+        },
+        "reponses": [
+          "A"
         ],
         "commentaire": ""
       }

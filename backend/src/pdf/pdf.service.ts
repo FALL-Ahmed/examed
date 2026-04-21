@@ -37,40 +37,46 @@ export class PdfService {
     return parseArText(text);
   }
 
-  parseJsonImport(json: Record<string, Record<string, any[]>>) {
+  parseJsonImport(json: Record<string, any>) {
     const themes: any[] = [];
     let skippedNoOptions = 0;
 
-    for (const [themeName, subThemesData] of Object.entries(json)) {
-      const subThemes: any[] = [];
+    const parseQuestion = (q: any): any | null => {
+      const opts = q.options ?? {};
+      if (Object.keys(opts).length === 0) { skippedNoOptions++; return null; }
+      return {
+        text: q.question || '',
+        choiceA: opts.A || '',
+        choiceB: opts.B || '',
+        choiceC: opts.C || '',
+        choiceD: opts.D || '',
+        choiceE: opts.E || '',
+        correctAnswer: Array.isArray(q.reponses) ? q.reponses.join(',') : String(q.reponses || ''),
+        explanation: q.commentaire || '',
+        imageUrl: q.image || null,
+      };
+    };
 
-      for (const [subThemeName, questions] of Object.entries(subThemesData)) {
-        const parsedQuestions: any[] = [];
-
-        for (const q of questions) {
-          const opts = q.options ?? {};
-          if (Object.keys(opts).length === 0) {
-            skippedNoOptions++;
-            continue;
-          }
-
-          parsedQuestions.push({
-            text: q.question || '',
-            choiceA: opts.A || '',
-            choiceB: opts.B || '',
-            choiceC: opts.C || '',
-            choiceD: opts.D || '',
-            choiceE: opts.E || '',
-            correctAnswer: Array.isArray(q.reponses) ? q.reponses.join(',') : String(q.reponses || ''),
-            explanation: q.commentaire || '',
-            imageUrl: q.image || null,
-          });
+    // Format A: { "categories": [{ "nom": "...", "themes": [{ "nom": "...", "questions": [...] }] }] }
+    if (Array.isArray(json.categories)) {
+      for (const cat of json.categories) {
+        const subThemes: any[] = [];
+        for (const th of (cat.themes ?? [])) {
+          const parsedQuestions = (th.questions ?? []).map(parseQuestion).filter(Boolean);
+          subThemes.push({ name: th.nom || th.name, questions: parsedQuestions });
         }
-
-        subThemes.push({ name: subThemeName, questions: parsedQuestions });
+        themes.push({ name: cat.nom || cat.name, subThemes });
       }
-
-      themes.push({ name: themeName, subThemes });
+    } else {
+      // Format B: { "THEME": { "Sous-thème": [...questions...] } }
+      for (const [themeName, subThemesData] of Object.entries(json)) {
+        const subThemes: any[] = [];
+        for (const [subThemeName, questions] of Object.entries(subThemesData as Record<string, any[]>)) {
+          const parsedQuestions = (questions ?? []).map(parseQuestion).filter(Boolean);
+          subThemes.push({ name: subThemeName, questions: parsedQuestions });
+        }
+        themes.push({ name: themeName, subThemes });
+      }
     }
 
     const totalSubThemes = themes.reduce((a, t) => a + t.subThemes.length, 0);
