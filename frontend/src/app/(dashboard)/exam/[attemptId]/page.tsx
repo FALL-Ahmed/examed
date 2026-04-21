@@ -125,17 +125,24 @@ export default function ExamPage() {
     B: 'bg-sky-600 text-white border-sky-600',
     C: 'bg-emerald-600 text-white border-emerald-600',
     D: 'bg-amber-500 text-white border-amber-500',
+    E: 'bg-rose-600 text-white border-rose-600',
   };
 
   function selectAnswer(letter: string) {
-    setAnswers((prev) => ({ ...prev, [q.id]: letter }));
+    setAnswers((prev) => {
+      const current = (prev[q.id] || '').split(',').filter(Boolean);
+      const next = current.includes(letter)
+        ? current.filter((l) => l !== letter)
+        : [...current, letter].sort();
+      return { ...prev, [q.id]: next.join(',') };
+    });
   }
 
   function toggleMark() {
     setMarked((prev) => ({ ...prev, [q.id]: !prev[q.id] }));
   }
 
-  const answered = Object.keys(answers).length;
+  const answered = Object.values(answers).filter(Boolean).length;
   const total = session.questions.length;
 
   return (
@@ -229,10 +236,18 @@ export default function ExamPage() {
           )}
         </div>
 
+        {/* Multiple answers indicator */}
+        {q.isMultiple && (
+          <span className="inline-flex items-center text-xs bg-violet-50 text-violet-600 px-2.5 py-1 rounded-full font-medium border border-violet-200">
+            Plusieurs réponses possibles
+          </span>
+        )}
+
         {/* Choices */}
         <div className="space-y-2.5">
           {choices.map((letter) => {
-            const isSelected = answers[q.id] === letter;
+            const selectedLetters = (answers[q.id] || '').split(',').filter(Boolean);
+            const isSelected = selectedLetters.includes(letter);
             return (
               <button
                 key={letter}
@@ -244,7 +259,7 @@ export default function ExamPage() {
               >
                 <div className="flex items-center gap-3 px-4 py-3.5">
                   <span className={`w-7 h-7 rounded-lg border-2 flex items-center justify-center text-xs font-bold flex-shrink-0 transition-all
-                    ${isSelected ? BADGE_SELECTED[letter] : BADGE[letter]}`}>
+                    ${isSelected ? (BADGE_SELECTED[letter] || 'bg-violet-600 text-white border-violet-600') : BADGE[letter]}`}>
                     {isSelected ? <CheckCircle className="w-4 h-4" /> : letter}
                   </span>
                   <span className="text-sm text-gray-700">{choiceLabels[letter]}</span>

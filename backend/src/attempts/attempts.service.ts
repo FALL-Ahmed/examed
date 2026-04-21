@@ -77,6 +77,7 @@ export class AttemptsService {
         imageUrl: q.imageUrl,
         subTheme: q.subTheme?.name,
         theme: q.subTheme?.theme?.name,
+        isMultiple: q.correctAnswer.split(',').length > 1,
       })),
       timeLimit: attempt.timeLimit,
       startedAt: attempt.startedAt,

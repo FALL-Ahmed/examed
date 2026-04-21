@@ -15,6 +15,7 @@ interface Question {
   imageUrl?: string;
   theme?: string;
   subTheme?: string;
+  isMultiple?: boolean;
 }
 
 interface AnswerResult {
@@ -164,11 +165,11 @@ export function QuestionCard({ question, questionNumber, totalQuestions, onAnswe
       <div className="bg-white dark:bg-gray-800 rounded-2xl border border-gray-200 dark:border-gray-700 shadow-sm p-5">
         <div className="flex items-start justify-between gap-3 mb-1">
           <div className="flex-1">
-            {result && correctLetters.length > 1 && (
-          <span className="inline-flex items-center mb-3 text-xs bg-violet-50 dark:bg-violet-900/30 text-violet-600 dark:text-violet-300 px-2.5 py-1 rounded-full font-medium border border-violet-200 dark:border-violet-700">
-            Plusieurs réponses possibles
-          </span>
-        )}
+            {(question.isMultiple || (result && correctLetters.length > 1)) && (
+              <span className="inline-flex items-center mb-3 text-xs bg-violet-50 dark:bg-violet-900/30 text-violet-600 dark:text-violet-300 px-2.5 py-1 rounded-full font-medium border border-violet-200 dark:border-violet-700">
+                Plusieurs réponses possibles
+              </span>
+            )}
             {question.imageUrl && (
               <img
                 src={resolveImageUrl(question.imageUrl)}
