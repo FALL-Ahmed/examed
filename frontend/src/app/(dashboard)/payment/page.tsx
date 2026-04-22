@@ -278,12 +278,18 @@ function PaymentModal({
 
 // ─── Main page ─────────────────────────────────────────────────────────────────
 
+const PROMO_END = new Date('2026-04-27T23:59:59');
+const isPromoActive = () => new Date() <= PROMO_END;
+
 export default function PaymentPage() {
   const { user }                            = useAuthStore();
   const [price, setPrice]                   = useState(500);
   const [operators, setOperators]           = useState<Operator[]>(OPERATOR_BASE.map((o) => ({ ...o, phone: '' })));
   const [selectedOperator, setSelectedOperator] = useState<Operator | null>(null);
   const [history, setHistory]               = useState<any[]>([]);
+
+  const promoActive = isPromoActive();
+  const finalPrice  = promoActive ? Math.round(price / 2) : price;
 
   useEffect(() => {
     settingsApi.price().then((r) => setPrice(r.data.price)).catch(() => {});
@@ -351,6 +357,19 @@ export default function PaymentPage() {
   return (
     <div className="max-w-3xl mx-auto space-y-14">
 
+      {/* Promo banner */}
+      {promoActive && (
+        <div className="relative overflow-hidden rounded-2xl px-6 py-4 text-white text-center"
+          style={{ background: 'linear-gradient(135deg,#dc2626,#f97316)' }}>
+          <div className="absolute inset-0 opacity-10"
+            style={{ backgroundImage: 'radial-gradient(circle at 1px 1px,white 1px,transparent 0)', backgroundSize: '20px 20px' }} />
+          <div className="relative">
+            <p className="text-lg font-extrabold tracking-tight">🎉 -50% de réduction — Offre de lancement !</p>
+            <p className="text-sm text-white/80 mt-0.5">Valable jusqu'au <strong className="text-white">lundi 27 avril 2026</strong> · Ne manquez pas cette opportunité</p>
+          </div>
+        </div>
+      )}
+
       {/* Hero */}
       <div className="text-center space-y-2">
         <div className="inline-flex items-center gap-1.5 bg-primary/10 border border-primary/20 rounded-full px-3 py-1 mb-2">
@@ -387,8 +406,14 @@ export default function PaymentPage() {
               </span>
             </div>
             <p className="text-xs font-semibold text-white/50 uppercase tracking-wider mb-1">Premium</p>
-            <p className="text-xl font-black text-white">{price}</p>
+            {promoActive && (
+              <p className="text-sm text-white/40 line-through">{price} MRU</p>
+            )}
+            <p className="text-xl font-black text-white">{finalPrice}</p>
             <p className="text-xs text-white/40">MRU / mois</p>
+            {promoActive && (
+              <span className="inline-block mt-1 bg-red-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full">-50%</span>
+            )}
           </div>
         </div>
 
@@ -503,7 +528,7 @@ export default function PaymentPage() {
       {selectedOperator && (
         <PaymentModal
           operator={selectedOperator}
-          price={price}
+          price={finalPrice}
           onClose={() => setSelectedOperator(null)}
           onSuccess={refreshHistory}
         />

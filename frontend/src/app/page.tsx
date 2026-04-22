@@ -61,9 +61,9 @@ export default function LandingPage() {
       {/* ── Navbar ── */}
       <nav className="sticky top-0 z-50 bg-white/95 backdrop-blur-md border-b border-gray-100/80 shadow-sm">
         <div className="w-full px-6 lg:px-10 h-16 flex items-center justify-between">
-          <div className="rounded-xl px-3 py-1.5 shadow-md flex items-center"
-            style={{ background: 'linear-gradient(135deg,#7c3aed,#6366f1)' }}>
-            <img src="/logo-full.png" alt="Al Bourour" className="h-8 w-auto object-contain" />
+          <div className="rounded-xl px-4 py-2 shadow-md flex items-center"
+            style={{ background: 'linear-gradient(135deg,#1e1b4b,#312e81)' }}>
+            <img src="/logo-full.png" alt="Al Bourour" className="h-10 w-auto object-contain" />
           </div>
           <div className="flex items-center gap-1 flex-nowrap flex-shrink-0">
             <LanguageSwitcherLight className="!text-gray-500 hover:!bg-gray-100 hover:!text-gray-900 flex-shrink-0" />
