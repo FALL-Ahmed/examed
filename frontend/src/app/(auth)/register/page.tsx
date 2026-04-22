@@ -217,11 +217,8 @@ function RegisterContent() {
         <div className="absolute top-1/3 left-0 w-64 h-64 rounded-full blur-3xl opacity-20"
           style={{ background: 'radial-gradient(circle,#7c3aed,transparent)' }} />
 
-        <div className="relative flex items-center gap-2.5">
-          <div className="w-9 h-9 rounded-xl flex items-center justify-center" style={{ background: 'linear-gradient(135deg,#7c3aed,#6366f1)' }}>
-            <BookOpen className="w-4 h-4 text-white" />
-          </div>
-          <span className="text-white font-bold text-lg">Al Bourour</span>
+        <div className="relative">
+          <img src="/logo-full.png" alt="Al Bourour" className="h-10 w-auto object-contain" />
         </div>
 
         <div className="relative space-y-8">
@@ -271,11 +268,8 @@ function RegisterContent() {
         <div className="w-full max-w-lg py-8">
 
           {/* Mobile logo */}
-          <div className="lg:hidden flex items-center gap-2 mb-8">
-            <div className="w-8 h-8 rounded-lg flex items-center justify-center" style={{ background: 'linear-gradient(135deg,#7c3aed,#6366f1)' }}>
-              <BookOpen className="w-4 h-4 text-white" />
-            </div>
-            <span className="font-bold text-lg">Al Bourour</span>
+          <div className="lg:hidden mb-8">
+            <img src="/logo-full.png" alt="Al Bourour" className="h-10 w-auto object-contain" />
           </div>
 
           {/* Progress bar */}

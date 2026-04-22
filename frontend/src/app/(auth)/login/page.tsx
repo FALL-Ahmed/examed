@@ -66,11 +66,8 @@ export default function LoginPage() {
         <div className="relative flex flex-col h-full p-12">
 
           {/* Logo */}
-          <div className={`flex items-center gap-3 transition-all duration-700 ${mounted ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-4'}`}>
-            <div className="w-10 h-10 rounded-xl bg-white/15 border border-white/20 flex items-center justify-center backdrop-blur-sm">
-              <BookOpen className="w-5 h-5 text-white" />
-            </div>
-            <span className="text-white font-bold text-xl tracking-tight">{t('app.name')}</span>
+          <div className={`transition-all duration-700 ${mounted ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-4'}`}>
+            <img src="/logo-full.png" alt="Al Bourour" className="h-12 w-auto object-contain" />
           </div>
 
           {/* Main copy */}
@@ -122,11 +119,8 @@ export default function LoginPage() {
         <div className={`w-full max-w-md transition-all duration-700 delay-150 ${mounted ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'}`}>
 
           {/* Mobile logo */}
-          <div className="lg:hidden flex items-center justify-center gap-3 mb-10">
-            <div className="w-10 h-10 rounded-xl gradient-primary flex items-center justify-center shadow-lg shadow-violet-500/30">
-              <BookOpen className="w-5 h-5 text-white" />
-            </div>
-            <span className="font-bold text-xl">{t('app.name')}</span>
+          <div className="lg:hidden flex items-center justify-center mb-10">
+            <img src="/logo-full.png" alt="Al Bourour" className="h-12 w-auto object-contain" />
           </div>
 
           <div className="mb-8">

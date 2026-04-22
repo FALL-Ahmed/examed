@@ -61,13 +61,7 @@ export default function LandingPage() {
       {/* ── Navbar ── */}
       <nav className="sticky top-0 z-50 bg-white/95 backdrop-blur-md border-b border-gray-100/80 shadow-sm">
         <div className="w-full px-6 lg:px-10 h-16 flex items-center justify-between">
-          <div className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-lg flex items-center justify-center shadow-md shadow-violet-200"
-              style={{ background: 'linear-gradient(135deg,#7c3aed,#6366f1)' }}>
-              <BookOpen className="w-4 h-4 text-white" />
-            </div>
-            <span className="font-extrabold text-lg tracking-tight text-gray-900">{t('app.name')}</span>
-          </div>
+          <img src="/logo-full.png" alt="Al Bourour" className="h-10 w-auto object-contain" />
           <div className="flex items-center gap-1 flex-nowrap flex-shrink-0">
             <LanguageSwitcherLight className="!text-gray-500 hover:!bg-gray-100 hover:!text-gray-900 flex-shrink-0" />
             <Link href="/login"
@@ -309,11 +303,7 @@ export default function LandingPage() {
       <footer className="border-t border-gray-100 py-8 px-6 lg:px-10">
         <div className="max-w-6xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4 text-sm text-gray-400">
           <div className="flex items-center gap-2">
-            <div className="w-6 h-6 rounded-md flex items-center justify-center"
-              style={{ background: 'linear-gradient(135deg,#7c3aed,#6366f1)' }}>
-              <BookOpen className="w-3 h-3 text-white" />
-            </div>
-            <span className="font-bold text-gray-600">{t('app.name')}</span>
+            <img src="/logo-full.png" alt="Al Bourour" className="h-7 w-auto object-contain" />
             <span className="text-gray-300">·</span>
             <span>{t('landing.footer.tagline')}</span>
           </div>
