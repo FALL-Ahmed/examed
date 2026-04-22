@@ -67,7 +67,7 @@ export default function LoginPage() {
 
           {/* Logo */}
           <div className={`transition-all duration-700 ${mounted ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-4'}`}>
-            <img src="/logo-full.png" alt="Al Bourour" className="h-16 w-auto object-contain" />
+            <img src="/logo-full.png" alt="Al Bourour" className="h-28 w-auto object-contain" />
           </div>
 
           {/* Main copy */}
@@ -121,7 +121,7 @@ export default function LoginPage() {
           {/* Mobile logo */}
           <div className="lg:hidden flex items-center justify-center mb-10">
             <div className="rounded-xl px-3 py-1.5 shadow-md flex items-center" style={{ background: 'linear-gradient(135deg,#7c3aed,#6366f1)' }}>
-              <img src="/logo-full.png" alt="Al Bourour" className="h-10 w-auto object-contain" />
+              <img src="/logo-full.png" alt="Al Bourour" className="h-16 w-auto object-contain" />
             </div>
           </div>
 

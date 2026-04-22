@@ -218,7 +218,7 @@ function RegisterContent() {
           style={{ background: 'radial-gradient(circle,#7c3aed,transparent)' }} />
 
         <div className="relative">
-          <img src="/logo-full.png" alt="Al Bourour" className="h-16 w-auto object-contain" />
+          <img src="/logo-full.png" alt="Al Bourour" className="h-28 w-auto object-contain" />
         </div>
 
         <div className="relative space-y-8">
@@ -270,7 +270,7 @@ function RegisterContent() {
           {/* Mobile logo */}
           <div className="lg:hidden mb-8">
             <div className="rounded-xl px-3 py-1.5 shadow-md inline-flex items-center" style={{ background: 'linear-gradient(135deg,#7c3aed,#6366f1)' }}>
-              <img src="/logo-full.png" alt="Al Bourour" className="h-10 w-auto object-contain" />
+              <img src="/logo-full.png" alt="Al Bourour" className="h-16 w-auto object-contain" />
             </div>
           </div>
 

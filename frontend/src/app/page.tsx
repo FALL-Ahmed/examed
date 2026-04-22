@@ -65,7 +65,7 @@ export default function LandingPage() {
         <div className="w-full px-6 lg:px-10 h-16 flex items-center justify-between">
           <div className="rounded-xl px-4 py-2 shadow-md flex items-center"
             style={{ background: 'linear-gradient(135deg,#1e1b4b,#312e81)' }}>
-            <img src="/logo-full.png" alt="Al Bourour" className="h-10 w-auto object-contain" />
+            <img src="/logo-full.png" alt="Al Bourour" className="h-16 w-auto object-contain" />
           </div>
           <div className="flex items-center gap-1 flex-nowrap flex-shrink-0">
             <LanguageSwitcherLight className="!text-gray-500 hover:!bg-gray-100 hover:!text-gray-900 flex-shrink-0" />
@@ -335,7 +335,7 @@ export default function LandingPage() {
         <div className="max-w-6xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4 text-sm text-gray-400">
           <div className="flex items-center gap-2">
             <div className="rounded-lg px-2 py-1 flex items-center" style={{ background: 'linear-gradient(135deg,#7c3aed,#6366f1)' }}>
-              <img src="/logo-full.png" alt="Al Bourour" className="h-5 w-auto object-contain" />
+              <img src="/logo-full.png" alt="Al Bourour" className="h-8 w-auto object-contain" />
             </div>
             <span className="text-gray-300">·</span>
             <span>{t('landing.footer.tagline')}</span>
