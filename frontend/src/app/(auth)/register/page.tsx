@@ -100,13 +100,18 @@ function RegisterContent() {
   const promoActive = new Date() <= new Date('2026-04-27T23:59:59');
   const promo = (p: number) => Math.round(p / 2);
 
-  const baseAmount = selectedPlan === 'SOLO_1M'
-    ? pricing.solo1m?.price ?? 500
-    : selectedPlan === 'SOLO_3M'
-    ? pricing.solo3m?.price ?? 1200
-    : (pricing.groupPerP?.price ?? 400) * groupSize;
+  const solo1mBase  = pricing.solo1m?.price ?? 500;
+  const solo3mBase  = pricing.solo3m?.price ?? 1200;
+  const groupPerP   = pricing.groupPerP?.price ?? 400;
+  const groupBase   = groupPerP * groupSize;
 
-  const computedAmount = promoActive ? promo(baseAmount) : baseAmount;
+  const solo1mPrice  = promoActive ? promo(solo1mBase)  : solo1mBase;
+  const solo3mPrice  = promoActive ? promo(solo3mBase)  : solo3mBase;
+  const groupPrice   = promoActive ? promo(groupBase)   : groupBase;
+
+  const computedAmount = selectedPlan === 'SOLO_1M' ? solo1mPrice
+    : selectedPlan === 'SOLO_3M' ? solo3mPrice
+    : groupPrice;
 
   const computedDuration = selectedPlan === 'SOLO_3M' ? 90 : 30;
 
@@ -487,8 +492,8 @@ function RegisterContent() {
                       <p className="text-xs text-gray-500 mt-0.5">Accès complet pendant 30 jours</p>
                     </div>
                     <div className="text-right flex-shrink-0 ml-4">
-                      {promoActive && <p className="text-xs text-gray-400 line-through">{pricing.solo1m?.price ?? 500} MRU</p>}
-                      <p className="font-extrabold text-violet-700 text-lg">{promoActive ? promo(pricing.solo1m?.price ?? 500) : (pricing.solo1m?.price ?? 500)} <span className="text-sm font-semibold">MRU</span></p>
+                      {promoActive && <p className="text-xs text-gray-400 line-through">{solo1mBase} MRU</p>}
+                      <p className="font-extrabold text-violet-700 text-lg">{solo1mPrice} <span className="text-sm font-semibold">MRU</span></p>
                       {promoActive && <span className="text-xs font-bold bg-red-100 text-red-600 px-1.5 py-0.5 rounded-full">-50%</span>}
                     </div>
                     {selectedPlan === 'SOLO_1M' && (
@@ -510,8 +515,8 @@ function RegisterContent() {
                       <p className="text-xs text-gray-500 mt-0.5">Accès complet pendant 90 jours</p>
                     </div>
                     <div className="text-right flex-shrink-0 ml-4">
-                      {promoActive && <p className="text-xs text-gray-400 line-through">{pricing.solo3m?.price ?? 1200} MRU</p>}
-                      <p className="font-extrabold text-violet-700 text-lg">{promoActive ? promo(pricing.solo3m?.price ?? 1200) : (pricing.solo3m?.price ?? 1200)} <span className="text-sm font-semibold">MRU</span></p>
+                      {promoActive && <p className="text-xs text-gray-400 line-through">{solo3mBase} MRU</p>}
+                      <p className="font-extrabold text-violet-700 text-lg">{solo3mPrice} <span className="text-sm font-semibold">MRU</span></p>
                       {promoActive && <span className="text-xs font-bold bg-red-100 text-red-600 px-1.5 py-0.5 rounded-full">-50%</span>}
                     </div>
                     {selectedPlan === 'SOLO_3M' && (
@@ -528,11 +533,11 @@ function RegisterContent() {
                     <div className="flex items-center justify-between w-full">
                       <div>
                         <p className="font-bold text-gray-900 text-sm">Groupe · 1 mois</p>
-                        <p className="text-xs text-gray-500 mt-0.5">Min. {pricing.groupMin ?? 5} membres · {promoActive ? promo(pricing.groupPerP?.price ?? 400) : (pricing.groupPerP?.price ?? 400)} MRU/personne</p>
+                        <p className="text-xs text-gray-500 mt-0.5">Min. {pricing.groupMin ?? 5} membres · {groupPerP} MRU/personne</p>
                       </div>
                       <div className="text-right flex-shrink-0 ml-4">
-                        {promoActive && <p className="text-xs text-gray-400 line-through">{(pricing.groupPerP?.price ?? 400) * groupSize} MRU</p>}
-                        <p className="font-extrabold text-violet-700 text-lg">{computedAmount} <span className="text-sm font-semibold">MRU</span></p>
+                        {promoActive && <p className="text-xs text-gray-400 line-through">{groupBase} MRU</p>}
+                        <p className="font-extrabold text-violet-700 text-lg">{groupPrice} <span className="text-sm font-semibold">MRU</span></p>
                         {promoActive && <span className="text-xs font-bold bg-red-100 text-red-600 px-1.5 py-0.5 rounded-full">-50%</span>}
                       </div>
                       {selectedPlan === 'GROUP' && (
@@ -549,7 +554,7 @@ function RegisterContent() {
                         <span className="w-6 text-center font-bold text-gray-900">{groupSize}</span>
                         <button type="button" onClick={() => setGroupSize(groupSize + 1)}
                           className="w-7 h-7 rounded-full bg-white border border-gray-300 text-gray-700 font-bold flex items-center justify-center hover:bg-gray-50">+</button>
-                        <span className="text-xs text-gray-500 ml-1">= <strong>{computedAmount} MRU</strong> total{promoActive && <span className="ml-1 text-red-500 font-bold">(-50%)</span>}</span>
+                        <span className="text-xs text-gray-500 ml-1">= <strong>{groupPrice} MRU</strong> total</span>
                       </div>
                     )}
                   </button>
