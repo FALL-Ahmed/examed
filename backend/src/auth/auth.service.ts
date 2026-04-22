@@ -96,7 +96,7 @@ export class AuthService {
     const deviceVerifSetting = await this.prisma.setting.findUnique({ where: { key: 'DEVICE_VERIFICATION' } });
     const deviceVerifEnabled = deviceVerifSetting?.value === 'true';
 
-    if (deviceVerifEnabled) {
+    if (deviceVerifEnabled && user.role !== 'ADMIN') {
       const deviceTrustResult2 = await this.checkDeviceTrust(user.id, deviceInfo);
       if (!deviceTrustResult2.isTrusted) {
         // Générer les tokens quand même pour que le frontend puisse appeler verify-device
