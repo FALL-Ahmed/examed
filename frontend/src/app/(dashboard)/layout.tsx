@@ -41,7 +41,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   if (!ready || !user) return (
     <div className="min-h-screen flex items-center justify-center bg-background">
       <div className="flex flex-col items-center gap-4">
-        <img src="/logo-full.png" alt="Al Bourour" className="h-12 w-auto object-contain" />
+        <img src="/logo-full.png" alt="Al Bourour" className="h-16 w-auto object-contain" />
         <div className="w-5 h-5 border-2 border-primary border-t-transparent rounded-full animate-spin" />
       </div>
     </div>
@@ -53,7 +53,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     <>
       {/* Logo */}
       <div className="px-5 py-5 border-b border-white/10">
-        <img src="/logo-full.png" alt="Al Bourour" className="h-10 w-auto object-contain" />
+        <img src="/logo-full.png" alt="Al Bourour" className="h-14 w-auto object-contain" />
       </div>
 
       {/* User */}
@@ -142,7 +142,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           <button onClick={() => setMobileOpen(true)}>
             <Menu className="w-5 h-5 text-foreground" />
           </button>
-          <img src="/logo-full.png" alt="Al Bourour" className="h-8 w-auto object-contain" />
+          <img src="/logo-full.png" alt="Al Bourour" className="h-10 w-auto object-contain" />
           <button onClick={toggle} className="text-muted-foreground hover:text-foreground">
             {theme === 'dark' ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
           </button>
