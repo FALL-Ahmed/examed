@@ -6,12 +6,13 @@ export class AdminService {
   constructor(private prisma: PrismaService) {}
 
   async getDashboardStats() {
-    const [totalUsers, premiumUsers, totalQuestions, pendingPayments, todayRegistrations] =
+    const [totalUsers, premiumUsers, totalQuestions, pendingPayments, pendingGroupPayments, todayRegistrations] =
       await Promise.all([
         this.prisma.user.count({ where: { role: { not: 'ADMIN' } } }),
         this.prisma.user.count({ where: { role: 'PREMIUM' } }),
         this.prisma.question.count({ where: { isActive: true } }),
         this.prisma.payment.count({ where: { status: 'PENDING' } }),
+        this.prisma.payment.count({ where: { status: 'PENDING', planType: 'GROUP' } }),
         this.prisma.user.count({
           where: {
             createdAt: { gte: new Date(new Date().setHours(0, 0, 0, 0)) },
@@ -19,7 +20,7 @@ export class AdminService {
         }),
       ]);
 
-    return { totalUsers, premiumUsers, totalQuestions, pendingPayments, todayRegistrations };
+    return { totalUsers, premiumUsers, totalQuestions, pendingPayments, pendingGroupPayments, todayRegistrations };
   }
 
   async getUsers(page = 1, limit = 20, search?: string) {

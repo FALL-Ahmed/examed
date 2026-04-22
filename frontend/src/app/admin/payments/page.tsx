@@ -133,10 +133,10 @@ export default function AdminPaymentsPage() {
             return (
               <div
                 key={p.id}
-                className="bg-white rounded-2xl border border-slate-200 shadow-sm hover:shadow-md transition-shadow overflow-hidden"
+                className={`bg-white rounded-2xl shadow-sm hover:shadow-md transition-shadow overflow-hidden border ${p.planType === 'GROUP' ? 'border-emerald-300' : 'border-slate-200'}`}
               >
                 {/* Top accent bar */}
-                <div className="h-1 bg-gradient-to-r from-amber-400 to-orange-400" />
+                <div className={`h-1 bg-gradient-to-r ${p.planType === 'GROUP' ? 'from-emerald-400 to-teal-500' : 'from-amber-400 to-orange-400'}`} />
 
                 <div className="p-6 flex flex-col lg:flex-row gap-6">
 

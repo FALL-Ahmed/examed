@@ -1,7 +1,7 @@
 'use client';
 import { useEffect, useState } from 'react';
 import { adminApi, settingsApi } from '@/lib/api';
-import { Users, FileText, CreditCard, AlertCircle, Settings, Loader2, CheckCircle, Smartphone, MessageCircle } from 'lucide-react';
+import { Users, FileText, CreditCard, AlertCircle, Settings, Loader2, CheckCircle, Smartphone, MessageCircle, UserPlus } from 'lucide-react';
 import Link from 'next/link';
 import { useLang } from '@/components/LanguageProvider';
 
@@ -126,11 +126,30 @@ export default function AdminDashboard() {
         <p className="text-muted-foreground">{t('admin.label')}</p>
       </div>
 
+      {stats?.pendingGroupPayments > 0 && (
+        <div className="bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-300 dark:border-emerald-500/40 rounded-2xl p-4 flex items-center gap-3">
+          <div className="w-8 h-8 rounded-xl bg-emerald-500 flex items-center justify-center flex-shrink-0">
+            <UserPlus className="w-4 h-4 text-white" />
+          </div>
+          <div className="flex-1">
+            <p className="text-sm font-bold text-emerald-800 dark:text-emerald-300">
+              {stats.pendingGroupPayments} demande{stats.pendingGroupPayments > 1 ? 's' : ''} de groupe en attente
+            </p>
+            <p className="text-xs text-emerald-600 dark:text-emerald-400 mt-0.5">
+              Ces paiements incluent plusieurs membres — vérifiez les emails invités avant de valider.
+            </p>
+          </div>
+          <Link href="/admin/payments" className="flex-shrink-0 px-3 py-1.5 bg-emerald-500 text-white rounded-xl text-xs font-bold hover:bg-emerald-600 transition">
+            Voir les groupes
+          </Link>
+        </div>
+      )}
+
       {stats?.pendingPayments > 0 && (
         <div className="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-500/30 rounded-2xl p-4 flex items-center gap-3">
           <AlertCircle className="w-5 h-5 text-amber-600" />
           <p className="text-sm text-amber-800 dark:text-amber-400 font-medium">
-            {stats.pendingPayments} paiement(s) en attente de validation
+            {stats.pendingPayments} paiement{stats.pendingPayments > 1 ? 's' : ''} en attente de validation
           </p>
           <Link href="/admin/payments" className="ml-auto text-sm text-amber-700 dark:text-amber-400 underline font-medium">
             Voir
