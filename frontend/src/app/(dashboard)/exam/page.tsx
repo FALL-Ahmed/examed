@@ -18,7 +18,13 @@ export default function ExamConfigPage() {
   const [savedExam, setSavedExam] = useState<any>(null);
 
   useEffect(() => {
-    themesApi.all(lang).then((r) => setThemes(r.data)).catch(() => {});
+    themesApi.all(lang).then((r) => {
+      setThemes(r.data);
+      setConfig((c) => ({ ...c, themeId: '' }));
+    }).catch(() => {});
+  }, [lang]);
+
+  useEffect(() => {
     try {
       const saved = JSON.parse(localStorage.getItem('exam_state') || 'null');
       if (saved?.attemptId && saved?.session?.mode === 'EXAM') setSavedExam(saved);

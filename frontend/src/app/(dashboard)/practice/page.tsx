@@ -26,8 +26,13 @@ export default function PracticePage() {
   const saveRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
-    themesApi.all(lang).then((r) => setThemes(r.data)).catch(() => {});
+    themesApi.all(lang).then((r) => {
+      setThemes(r.data);
+      setConfig((c) => ({ ...c, themeId: '', subThemeId: '' }));
+    }).catch(() => {});
+  }, [lang]);
 
+  useEffect(() => {
     // Restore saved practice session
     try {
       const saved = JSON.parse(localStorage.getItem(PRACTICE_KEY) || 'null');
