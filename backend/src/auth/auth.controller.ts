@@ -4,7 +4,7 @@ import {
 import { ApiTags, ApiBearerAuth } from '@nestjs/swagger';
 import { AuthService } from './auth.service';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
-import { RegisterDto, LoginDto, RefreshDto, ResetPasswordDto } from './dto/auth.dto';
+import { RegisterDto, LoginDto, RefreshDto, ResetPasswordDto, VerifyDeviceDto } from './dto/auth.dto';
 
 @ApiTags('Auth')
 @Controller('auth')
@@ -56,6 +56,30 @@ export class AuthController {
   @ApiBearerAuth()
   revokeSession(@Req() req: any, @Param('id') id: string) {
     return this.authService.revokeSession(req.user.sub, id);
+  }
+
+  // ──── DEVICE TRUST ENDPOINTS ────
+
+  @Post('devices/verify')
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
+  @HttpCode(200)
+  verifyDevice(@Req() req: any, @Body() dto: VerifyDeviceDto) {
+    return this.authService.verifyDevice(req.user.sub, dto);
+  }
+
+  @Get('devices/trusted')
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
+  getTrustedDevices(@Req() req: any) {
+    return this.authService.getTrustedDevices(req.user.sub);
+  }
+
+  @Delete('devices/:id')
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
+  revokeTrustedDevice(@Req() req: any, @Param('id') id: string) {
+    return this.authService.revokeTrustedDevice(req.user.sub, id);
   }
 
   @Get('check-invite')

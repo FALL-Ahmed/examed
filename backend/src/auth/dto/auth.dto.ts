@@ -63,3 +63,23 @@ export class ResetPasswordDto {
   @MinLength(8)
   password: string;
 }
+
+export class VerifyDeviceDto {
+  @IsString()
+  verificationCode: string; // Code 6 chiffres
+
+  @IsString()
+  deviceFingerprint: string;
+
+  @IsOptional()
+  @IsString()
+  deviceName?: string; // "Mon iPhone", "PC Bureau", etc
+}
+
+export class TrustDeviceResponseDto {
+  id: string;
+  deviceName: string;
+  deviceFingerprint: string;
+  lastUsedAt: Date;
+  isActive: boolean;
+}

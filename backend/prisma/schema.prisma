@@ -73,6 +73,7 @@ model User {
   userAnswers     UserAnswer[]
   payments        Payment[]
   favorites       Favorite[]
+  trustedDevices  TrustedDevice[]
   dailyQuestionCount Int       @default(0)
   lastQuestionDate   DateTime?
   createdAt       DateTime     @default(now())
@@ -207,4 +208,32 @@ model Setting {
   key       String   @id
   value     String
   updatedAt DateTime @updatedAt
+}
+
+model TrustedDevice {
+  id                String   @id @default(cuid())
+  userId            String
+  user              User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  deviceFingerprint String   // Hash unique du device (user agent + browser + etc)
+  deviceName        String   // "iPhone de Ahmed", "PC Bureau", etc
+  lastUsedAt        DateTime @default(now())
+  isActive          Boolean  @default(true)
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  @@unique([userId, deviceFingerprint])
+  @@index([userId, isActive])
+}
+
+model DeviceVerification {
+  id                String   @id @default(cuid())
+  userId            String
+  deviceFingerprint String   // Device en attente de vérification
+  verificationCode  String   // Code 6 chiffres envoyé par email
+  expiresAt         DateTime
+  attempts          Int      @default(0)
+  isUsed            Boolean  @default(false)
+  createdAt         DateTime @default(now())
+
+  @@index([userId, deviceFingerprint])
 }
