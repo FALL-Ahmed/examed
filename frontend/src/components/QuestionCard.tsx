@@ -169,7 +169,7 @@ export function QuestionCard({ question, questionNumber, totalQuestions, onAnswe
       </div>
 
       {/* Question */}
-      <div className="bg-white dark:bg-gray-800 rounded-2xl border border-gray-200 dark:border-gray-700 shadow-sm p-5">
+      <div className="bg-white dark:bg-gray-800 rounded-2xl border border-gray-200 dark:border-gray-700 shadow-sm p-5" dir={isAr ? 'rtl' : 'ltr'}>
         <div className="flex items-start justify-between gap-3 mb-1">
           <div className="flex-1">
             {(question.isMultiple || (result && correctLetters.length > 1)) && (
@@ -198,7 +198,7 @@ export function QuestionCard({ question, questionNumber, totalQuestions, onAnswe
       </div>
 
       {/* Choices */}
-      <div className="space-y-2">
+      <div className="space-y-2" dir={isAr ? 'rtl' : 'ltr'}>
         {choices.map((letter) => {
           const text = question[`choice${letter}` as keyof Question] as string;
           const isCorrect = result && correctLetters.includes(letter);
@@ -209,7 +209,7 @@ export function QuestionCard({ question, questionNumber, totalQuestions, onAnswe
               key={letter}
               onClick={() => toggleLetter(letter)}
               disabled={!!result || loading}
-              className={`w-full text-left rounded-xl transition-all duration-150 disabled:cursor-default ${rowClass(letter)}`}
+              className={`w-full text-right rounded-xl transition-all duration-150 disabled:cursor-default ${rowClass(letter)}`}
             >
               <div className="flex items-center gap-3 px-4 py-3.5">
                 <span className={`w-7 h-7 rounded-lg border-2 flex items-center justify-center text-xs font-bold flex-shrink-0 transition-all ${badgeClass(letter)}`}>
@@ -236,7 +236,7 @@ export function QuestionCard({ question, questionNumber, totalQuestions, onAnswe
 
       {/* Feedback */}
       {result && (
-        <div className={`rounded-2xl border overflow-hidden ${result.isCorrect ? 'border-emerald-300 dark:border-emerald-700' : 'border-red-300 dark:border-red-700'}`}>
+        <div dir={isAr ? 'rtl' : 'ltr'} className={`rounded-2xl border overflow-hidden ${result.isCorrect ? 'border-emerald-300 dark:border-emerald-700' : 'border-red-300 dark:border-red-700'}`}>
 
           <div className={`flex items-center gap-3 px-5 py-4 ${result.isCorrect ? 'bg-emerald-50 dark:bg-emerald-900/30' : 'bg-red-50 dark:bg-red-900/30'}`}>
             {result.isCorrect ? (
