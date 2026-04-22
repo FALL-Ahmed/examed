@@ -14,7 +14,7 @@ interface AuthStore {
   user: User | null;
   isLoading: boolean;
   setUser: (user: User | null) => void;
-  login: (email: string, password: string) => Promise<void>;
+  login: (email: string, password: string) => Promise<{ requiresDeviceVerification: boolean; deviceFingerprint?: string }>;
   logout: () => Promise<void>;
   loadUser: () => Promise<void>;
 }
@@ -32,6 +32,7 @@ export const useAuthStore = create<AuthStore>((set) => ({
       Cookies.set('access_token', data.accessToken, { expires: 1 });
       Cookies.set('refresh_token', data.refreshToken, { expires: 7 });
       set({ user: data.user });
+      return { requiresDeviceVerification: data.requiresDeviceVerification, deviceFingerprint: data.deviceFingerprint };
     } finally {
       set({ isLoading: false });
     }

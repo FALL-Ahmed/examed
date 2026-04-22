@@ -29,6 +29,7 @@ export default function AdminDashboard() {
   const [supportEmail, setSupportEmail] = useState('');
   const [savingEmail, setSavingEmail] = useState(false);
   const [savedEmail, setSavedEmail] = useState(false);
+  const [deviceVerif, setDeviceVerif] = useState(false);
 
   useEffect(() => {
     adminApi.stats().then((r) => setStats(r.data)).catch(() => {});
@@ -43,6 +44,7 @@ export default function AdminDashboard() {
         pGroup:   r.data.PRICE_GROUP_PER_PERSON ?? '400',
         groupMin: r.data.GROUP_MIN_MEMBERS ?? '5',
       });
+      setDeviceVerif(r.data.DEVICE_VERIFICATION === 'true');
     }).catch(() => {});
     settingsApi.operators().then((r) => {
       const map: Record<string, string> = {};
@@ -80,6 +82,12 @@ export default function AdminDashboard() {
     } finally {
       setSavingEmail(false);
     }
+  }
+
+  async function toggleDeviceVerif() {
+    const next = !deviceVerif;
+    setDeviceVerif(next);
+    await adminApi.setSetting('DEVICE_VERIFICATION', String(next)).catch(() => setDeviceVerif(!next));
   }
 
   async function saveWhatsapp(e: React.FormEvent) {
@@ -266,6 +274,27 @@ export default function AdminDashboard() {
                 Affiché aux utilisateurs dans la section support.
               </p>
             </form>
+          </div>
+
+          <div className="border-t border-border pt-4 mt-2">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-semibold flex items-center gap-1.5">
+                  <Smartphone className="w-3.5 h-3.5 text-primary" />
+                  Vérification d'appareil
+                </p>
+                <p className="text-xs text-muted-foreground mt-0.5">
+                  Si activé, un code email est demandé lors d'une connexion depuis un nouvel appareil.
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={toggleDeviceVerif}
+                className={`relative w-11 h-6 rounded-full transition-colors flex-shrink-0 ${deviceVerif ? 'bg-primary' : 'bg-border'}`}
+              >
+                <span className={`absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full shadow transition-transform ${deviceVerif ? 'translate-x-5' : 'translate-x-0'}`} />
+              </button>
+            </div>
           </div>
         </div>
       </div>

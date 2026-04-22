@@ -4,7 +4,8 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useAuthStore } from '@/lib/auth-store';
 import { useLang } from '@/components/LanguageProvider';
-import { BookOpen, Eye, EyeOff, Loader2, Stethoscope, Activity, Shield, Users } from 'lucide-react';
+import { BookOpen, Eye, EyeOff, Loader2, Stethoscope, Activity, Shield, Users, Smartphone } from 'lucide-react';
+import { authApi } from '@/lib/api';
 
 export default function LoginPage() {
   const router = useRouter();
@@ -16,6 +17,9 @@ export default function LoginPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [mounted, setMounted] = useState(false);
+  const [deviceStep, setDeviceStep] = useState(false);
+  const [deviceFingerprint, setDeviceFingerprint] = useState('');
+  const [verifyCode, setVerifyCode] = useState('');
 
   useEffect(() => { setMounted(true); }, []);
 
@@ -36,11 +40,28 @@ export default function LoginPage() {
     e.preventDefault();
     setLoading(true); setError('');
     try {
-      await login(email, password);
+      const result = await login(email, password);
+      if (result.requiresDeviceVerification) {
+        setDeviceFingerprint(result.deviceFingerprint ?? '');
+        setDeviceStep(true);
+        return;
+      }
       const user = useAuthStore.getState().user;
       router.push(user?.role === 'ADMIN' ? '/admin' : '/dashboard');
     } catch (err: any) {
       setError(err.response?.data?.message || t('auth.login.error'));
+    } finally { setLoading(false); }
+  }
+
+  async function handleVerifyDevice(e: React.FormEvent) {
+    e.preventDefault();
+    setLoading(true); setError('');
+    try {
+      await authApi.verifyDevice({ verificationCode: verifyCode.trim(), deviceFingerprint });
+      const user = useAuthStore.getState().user;
+      router.push(user?.role === 'ADMIN' ? '/admin' : '/dashboard');
+    } catch (err: any) {
+      setError(err.response?.data?.message || 'Code incorrect ou expiré');
     } finally { setLoading(false); }
   }
 
@@ -129,6 +150,52 @@ export default function LoginPage() {
             <span className="font-bold text-xl">{t('app.name')}</span>
           </div>
 
+          {deviceStep ? (
+            <>
+              <div className="mb-8 flex flex-col items-start gap-3">
+                <div className="w-12 h-12 rounded-2xl bg-primary/10 flex items-center justify-center">
+                  <Smartphone className="w-6 h-6 text-primary" />
+                </div>
+                <div>
+                  <h2 className="text-2xl font-extrabold tracking-tight">Vérification requise</h2>
+                  <p className="text-muted-foreground text-sm mt-1">
+                    Un code a été envoyé à <strong>{email}</strong>. Entrez-le ci-dessous pour approuver cet appareil.
+                  </p>
+                </div>
+              </div>
+
+              {error && (
+                <div className="bg-destructive/10 border border-destructive/20 text-destructive px-4 py-3 rounded-xl mb-6 text-sm flex items-center gap-2">
+                  <span className="w-4 h-4 rounded-full bg-destructive/20 flex items-center justify-center text-xs font-bold flex-shrink-0">!</span>
+                  {error}
+                </div>
+              )}
+
+              <form onSubmit={handleVerifyDevice} className="space-y-5">
+                <div>
+                  <label className="block text-sm font-semibold mb-2">Code de vérification</label>
+                  <input
+                    type="text" value={verifyCode}
+                    onChange={(e) => setVerifyCode(e.target.value)}
+                    className="w-full px-4 py-3 bg-secondary border border-border rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition text-sm placeholder:text-muted-foreground tracking-widest text-center text-lg font-bold"
+                    placeholder="······"
+                    maxLength={8}
+                    required
+                  />
+                </div>
+                <button type="submit" disabled={loading}
+                  className="w-full gradient-primary text-white py-3.5 rounded-xl font-semibold hover:opacity-90 transition disabled:opacity-60 flex items-center justify-center gap-2 shadow-lg shadow-violet-500/25">
+                  {loading && <Loader2 className="w-4 h-4 animate-spin" />}
+                  {loading ? t('common.loading') : 'Vérifier l\'appareil'}
+                </button>
+                <button type="button" onClick={() => { setDeviceStep(false); setError(''); setVerifyCode(''); }}
+                  className="w-full text-sm text-muted-foreground hover:text-foreground transition text-center">
+                  ← Retour à la connexion
+                </button>
+              </form>
+            </>
+          ) : (
+            <>
           <div className="mb-8">
             <h2 className="text-2xl font-extrabold tracking-tight">{t('auth.login.title')}</h2>
             <p className="text-muted-foreground text-sm mt-1">{t('auth.login.subtitle')}</p>
@@ -185,6 +252,8 @@ export default function LoginPage() {
               {t('auth.login.register')}
             </Link>
           </div>
+            </>
+          )}
         </div>
       </div>
     </div>

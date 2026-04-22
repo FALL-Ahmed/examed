@@ -59,6 +59,8 @@ api.interceptors.response.use(
 export const authApi = {
   register: (data: any) => api.post('/auth/register', data),
   login: (data: any) => api.post('/auth/login', data),
+  verifyDevice: (data: { verificationCode: string; deviceFingerprint: string; deviceName?: string }) =>
+    api.post('/auth/devices/verify', data),
   logout: () => api.post('/auth/logout'),
   getSessions: () => api.get('/auth/sessions'),
   revokeSession: (id: string) => api.delete(`/auth/sessions/${id}`),
