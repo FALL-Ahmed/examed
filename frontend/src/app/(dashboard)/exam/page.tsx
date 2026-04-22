@@ -150,7 +150,7 @@ export default function ExamConfigPage() {
           <div>
             <div className="flex items-center justify-between mb-3">
               <label className="text-sm font-semibold">Durée</label>
-              <span className="text-2xl font-bold text-primary">{config.durationMinutes}<span className="text-sm font-normal text-muted-foreground ml-1">min</span></span>
+              <span className="text-2xl font-bold text-primary">{config.durationMinutes}<span className="text-sm font-normal text-muted-foreground ml-1">{lang === 'ar' ? 'دقيقة' : 'min'}</span></span>
             </div>
             <input type="range" min={10} max={120} step={5}
               value={config.durationMinutes}
@@ -176,8 +176,8 @@ export default function ExamConfigPage() {
             <div className="space-y-3">
               {[
                 { icon: Zap, label: t('practice.questions'), value: config.count },
-                { icon: Timer, label: t('exam.duration'), value: `${config.durationMinutes} min` },
-                { icon: Timer, label: t('exam.timePerQ'), value: `~${secPerQ}s` },
+                { icon: Timer, label: t('exam.duration'), value: `${config.durationMinutes} ${lang === 'ar' ? 'دقيقة' : 'min'}` },
+                { icon: Timer, label: t('exam.timePerQ'), value: `~${secPerQ} ${lang === 'ar' ? 'ث' : 's'}` },
               ].map(({ icon: Icon, label, value }) => (
                 <div key={label} className="flex items-center justify-between">
                   <div className="flex items-center gap-2 text-sm text-muted-foreground">

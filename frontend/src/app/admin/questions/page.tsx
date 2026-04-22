@@ -79,7 +79,7 @@ function InspectModal({ q, isAr, onClose }: { q: any; isAr: boolean; onClose: ()
   );
 }
 
-function EditForm({ editing, setEditing, onSave, saving, onImageUpload, uploadingImage, imageInputRef }: any) {
+function EditForm({ editing, setEditing, onSave, saving, onImageUpload, uploadingImage, imageInputRef, imageError }: any) {
   return (
     <div className="space-y-3 p-5">
       <textarea
@@ -134,6 +134,7 @@ function EditForm({ editing, setEditing, onSave, saving, onImageUpload, uploadin
             Upload
           </button>
         </div>
+        {imageError && <p className="text-xs text-red-500">{imageError}</p>}
         {editing.imageUrl && (
           <img src={resolveImageUrl(editing.imageUrl)} alt="Aperçu" className="w-full rounded-xl object-contain max-h-36 border border-slate-100" />
         )}
@@ -165,6 +166,7 @@ export default function AdminQuestionsPage() {
   const [inspecting, setInspecting] = useState<any>(null);
   const [saving, setSaving] = useState(false);
   const [uploadingImage, setUploadingImage] = useState(false);
+  const [imageError, setImageError] = useState('');
   const [deletingAll, setDeletingAll] = useState(false);
   const imageInputRef = useRef<HTMLInputElement>(null);
 
@@ -221,9 +223,12 @@ export default function AdminQuestionsPage() {
   async function handleImageUpload(file: File) {
     if (!editing) return;
     setUploadingImage(true);
+    setImageError('');
     try {
       const { data: d } = await adminApi.uploadQuestionImage(editing.id, file);
       setEditing((prev: any) => ({ ...prev, imageUrl: d.imageUrl }));
+    } catch (err: any) {
+      setImageError(err.response?.data?.message || 'Échec de l\'upload image');
     } finally {
       setUploadingImage(false);
     }
@@ -369,7 +374,7 @@ export default function AdminQuestionsPage() {
                   editing={editing} setEditing={setEditing}
                   onSave={save} saving={saving}
                   onImageUpload={handleImageUpload} uploadingImage={uploadingImage}
-                  imageInputRef={imageInputRef}
+                  imageInputRef={imageInputRef} imageError={imageError}
                 />
               ) : (
                 <div className="p-4">

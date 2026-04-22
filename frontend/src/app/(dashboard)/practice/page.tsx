@@ -238,6 +238,14 @@ export default function PracticePage() {
 
       {/* ── Main question area ── */}
       <div className="xl:col-span-2">
+        <div className="flex justify-end mb-3 xl:hidden">
+          <button
+            onClick={() => { localStorage.removeItem(PRACTICE_KEY); setSession(null); setConfigured(false); setAnswers([]); setCurrentIndex(0); }}
+            className="text-xs text-muted-foreground border border-border rounded-lg px-3 py-1.5 hover:text-red-500 hover:border-red-300 transition"
+          >
+            Arrêter la session
+          </button>
+        </div>
         <QuestionCard
           question={currentQ}
           questionNumber={currentIndex + 1}
