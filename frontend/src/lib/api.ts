@@ -63,6 +63,7 @@ export const authApi = {
   getSessions: () => api.get('/auth/sessions'),
   revokeSession: (id: string) => api.delete(`/auth/sessions/${id}`),
   resetPassword: (data: any) => api.post('/auth/reset-password', data),
+  checkGroupInvite: (email: string) => api.get(`/auth/check-invite?email=${encodeURIComponent(email)}`),
 };
 
 // User

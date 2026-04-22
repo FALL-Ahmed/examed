@@ -16,6 +16,7 @@ class SubmitPaymentDto {
   @IsString() @IsOptional() planType?: string;
   @IsOptional() @Type(() => Number) @IsNumber() groupSize?: number;
   @IsOptional() @Type(() => Number) @IsNumber() durationDays?: number;
+  @IsOptional() @IsString() groupEmails?: string;
 }
 
 @ApiTags('Payments')
@@ -53,7 +54,11 @@ export class PaymentsController {
     @Body() dto: SubmitPaymentDto,
     @UploadedFile() receipt?: Express.Multer.File,
   ) {
-    return this.paymentsService.submitPayment(req.user.sub, dto, receipt);
+    let groupEmails: string[] | undefined;
+    if (dto.groupEmails) {
+      try { groupEmails = JSON.parse(dto.groupEmails); } catch { groupEmails = []; }
+    }
+    return this.paymentsService.submitPayment(req.user.sub, { ...dto, groupEmails }, receipt);
   }
 
   @Get('me')

@@ -45,7 +45,7 @@ export function LanguageSwitcherLight({ className = '' }: { className?: string }
   return (
     <button
       onClick={() => setLang(next)}
-      className={`flex items-center gap-2 px-3 py-2 w-full rounded-xl text-sm font-medium
+      className={`flex items-center gap-2 px-3 py-2 rounded-xl text-sm font-medium
         text-slate-400 hover:bg-slate-800 hover:text-white transition ${className}`}
     >
       <span>{nextFlag}</span>

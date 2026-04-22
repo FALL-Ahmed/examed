@@ -68,14 +68,14 @@ export default function LandingPage() {
             </div>
             <span className="font-extrabold text-lg tracking-tight text-gray-900">{t('app.name')}</span>
           </div>
-          <div className="flex items-center gap-2">
-            <LanguageSwitcherLight className="!text-gray-500 hover:!bg-gray-100 hover:!text-gray-900" />
+          <div className="flex items-center gap-1 flex-nowrap flex-shrink-0">
+            <LanguageSwitcherLight className="!text-gray-500 hover:!bg-gray-100 hover:!text-gray-900 flex-shrink-0" />
             <Link href="/login"
-              className="text-sm font-semibold text-gray-500 hover:text-gray-900 px-4 py-2 rounded-lg hover:bg-gray-100 transition">
+              className="text-sm font-semibold text-gray-500 hover:text-gray-900 px-3 py-2 rounded-lg hover:bg-gray-100 transition whitespace-nowrap flex-shrink-0">
               {t('auth.login.submit')}
             </Link>
             <Link href="/register"
-              className="text-sm font-semibold text-white px-4 py-2.5 rounded-xl transition hover:opacity-90 shadow-md shadow-violet-200"
+              className="text-sm font-semibold text-white px-3 py-2 rounded-xl transition hover:opacity-90 shadow-md shadow-violet-200 whitespace-nowrap flex-shrink-0"
               style={{ background: 'linear-gradient(135deg,#7c3aed,#6366f1)' }}>
               {t('auth.register.submit')} →
             </Link>
@@ -221,7 +221,7 @@ export default function LandingPage() {
                 {pricing?.solo1m?.price ?? 500}
                 <span className="text-lg font-semibold text-gray-400 ml-1">MRU</span>
               </p>
-              <Link href="/register"
+              <Link href="/register?plan=SOLO_1M"
                 className="block w-full text-center py-3 rounded-2xl font-bold text-sm border-2 border-gray-200 text-gray-700 hover:border-indigo-400 hover:text-indigo-600 transition">
                 {t('landing.pricing.start')}
               </Link>
@@ -244,7 +244,7 @@ export default function LandingPage() {
               <p className="text-xs text-violet-500 font-semibold mb-6">
                 ≈ {pricing ? Math.round(pricing.solo3m.price / 3) : 400} MRU/mois
               </p>
-              <Link href="/register"
+              <Link href="/register?plan=SOLO_3M"
                 className="block w-full text-center py-3 rounded-2xl font-bold text-sm text-white transition hover:opacity-90 shadow-md shadow-violet-200"
                 style={{ background: 'linear-gradient(135deg,#7c3aed,#6366f1)' }}>
                 {t('landing.pricing.start')}
@@ -271,7 +271,7 @@ export default function LandingPage() {
                   </div>
                 ))}
               </div>
-              <Link href="/register"
+              <Link href="/register?plan=GROUP"
                 className="block w-full text-center py-3 rounded-2xl font-bold text-sm border-2 border-gray-200 text-gray-700 hover:border-emerald-400 hover:text-emerald-600 transition">
                 {t('landing.pricing.group.create')}
               </Link>

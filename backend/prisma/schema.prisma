@@ -178,6 +178,7 @@ model Payment {
   validatedBy     String?
   validatedAt     DateTime?
   rejectionReason String?
+  groupInvites    GroupInvite[]
   createdAt       DateTime      @default(now())
 }
 
@@ -185,6 +186,20 @@ enum PaymentStatus {
   PENDING
   VALIDATED
   REJECTED
+}
+
+model GroupInvite {
+  id        String   @id @default(cuid())
+  email     String
+  paymentId String
+  payment   Payment  @relation(fields: [paymentId], references: [id], onDelete: Cascade)
+  isActive  Boolean  @default(false)
+  isUsed    Boolean  @default(false)
+  usedAt    DateTime?
+  createdAt DateTime @default(now())
+
+  @@unique([email, paymentId])
+  @@index([email])
 }
 
 model Setting {

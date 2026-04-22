@@ -37,18 +37,42 @@ export class AuthService {
       if (pseudoTaken) throw new BadRequestException('Ce pseudo est déjà utilisé');
     }
 
-    const hash = await bcrypt.hash(dto.password, 12);
-    const user = await this.prisma.user.create({
-      data: {
-        email: dto.email,
-        passwordHash: hash,
-        fullName: dto.fullName,
-        phone: dto.phone || null,
-        ...({ pseudo: dto.pseudo || null, gender: dto.gender || null, profession: dto.profession || null, wilaya: dto.wilaya || null } as any),
-      },
+    // Check if this email has an active group invite
+    const invite = await (this.prisma as any).groupInvite.findFirst({
+      where: { email: dto.email.trim().toLowerCase(), isActive: true, isUsed: false },
+      include: { payment: { select: { durationDays: true } } },
     });
 
-    return { message: 'Compte créé avec succès', userId: user.id };
+    const hash = await bcrypt.hash(dto.password, 12);
+
+    let userData: any = {
+      email: dto.email,
+      passwordHash: hash,
+      fullName: dto.fullName,
+      phone: dto.phone || null,
+      pseudo: dto.pseudo || null,
+      gender: dto.gender || null,
+      profession: dto.profession || null,
+      wilaya: dto.wilaya || null,
+    };
+
+    if (invite) {
+      const subscriptionEnd = new Date();
+      subscriptionEnd.setDate(subscriptionEnd.getDate() + (invite.payment?.durationDays ?? 30));
+      userData.role = 'PREMIUM';
+      userData.subscriptionEnd = subscriptionEnd;
+    }
+
+    const user = await this.prisma.user.create({ data: userData });
+
+    if (invite) {
+      await (this.prisma as any).groupInvite.update({
+        where: { id: invite.id },
+        data: { isUsed: true, usedAt: new Date() },
+      });
+    }
+
+    return { message: 'Compte créé avec succès', userId: user.id, groupActivated: !!invite };
   }
 
   async login(
@@ -155,6 +179,15 @@ export class AuthService {
     await this.revokeAllUserSessions(user.id);
 
     return { message: 'Mot de passe réinitialisé avec succès. Connectez-vous avec votre nouveau mot de passe.' };
+  }
+
+  async checkGroupInvite(email: string) {
+    if (!email) return { isInvited: false };
+    const invite = await (this.prisma as any).groupInvite.findFirst({
+      where: { email: email.trim().toLowerCase(), isActive: true, isUsed: false },
+      include: { payment: { select: { durationDays: true } } },
+    });
+    return { isInvited: !!invite, durationDays: invite?.payment?.durationDays ?? 30 };
   }
 
   async logout(userId: string, deviceId: string) {

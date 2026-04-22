@@ -1,10 +1,10 @@
 'use client';
 import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { authApi, paymentsApi, settingsApi } from '@/lib/api';
 import { useLang } from '@/components/LanguageProvider';
-import { BookOpen, Loader2, Eye, EyeOff, ChevronRight, Copy, CheckCheck, Upload, X } from 'lucide-react';
+import { BookOpen, Loader2, Eye, EyeOff, ChevronRight, Copy, CheckCheck, Upload, X, Users } from 'lucide-react';
 
 const PROFESSIONS = [
   { value: 'etudiant_infirmier',  label: 'Étudiant en soins infirmiers' },
@@ -32,6 +32,7 @@ const OPERATORS = [
 
 export default function RegisterPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const { t } = useLang();
   const [step, setStep] = useState(1);
 
@@ -46,13 +47,18 @@ export default function RegisterPage() {
   // Step 2 state
   const [operators, setOperators] = useState<Record<string, string>>({});
   const [pricing, setPricing] = useState<any>({ solo1m: { price: 500 }, solo3m: { price: 1200 }, groupPerP: { price: 400 }, groupMin: 5 });
-  const [selectedPlan, setSelectedPlan] = useState<'SOLO_1M' | 'SOLO_3M' | 'GROUP'>('SOLO_1M');
+  const planParam = searchParams.get('plan');
+  const [selectedPlan, setSelectedPlan] = useState<'SOLO_1M' | 'SOLO_3M' | 'GROUP'>(
+    planParam === 'SOLO_3M' ? 'SOLO_3M' : planParam === 'GROUP' ? 'GROUP' : 'SOLO_1M'
+  );
   const [groupSize, setGroupSize] = useState(5);
+  const [groupEmailsText, setGroupEmailsText] = useState('');
   const [selectedOp, setSelectedOp] = useState('');
   const [copied, setCopied] = useState(false);
   const [receipt, setReceipt] = useState<File | null>(null);
   const [step2Error, setStep2Error] = useState('');
   const [loading, setLoading] = useState(false);
+  const [isGroupMember, setIsGroupMember] = useState(false);
 
   useEffect(() => {
     settingsApi.operators().then((r) => {
@@ -87,22 +93,30 @@ export default function RegisterPage() {
     return '';
   }
 
-  function goToStep2() {
+  async function goToStep2() {
     const err = validateStep1();
     if (err) { setStep1Error(err); return; }
     setStep1Error('');
+    setLoading(true);
+    try {
+      const { data } = await authApi.checkGroupInvite(form.email.trim());
+      if (data.isInvited) {
+        setIsGroupMember(true);
+        setStep(2);
+        return;
+      }
+    } catch {}
+    setLoading(false);
     setStep(2);
   }
 
   async function handleSubmit() {
-    if (!selectedOp) { setStep2Error('Choisissez un opérateur'); return; }
-    if (!receipt) { setStep2Error('Veuillez uploader votre reçu'); return; }
     setStep2Error('');
     setLoading(true);
 
     try {
       // 1. Register
-      const { data: reg } = await authApi.register({
+      await authApi.register({
         fullName: `${form.firstName.trim()} ${form.lastName.trim()}`,
         pseudo: form.pseudo.trim() || undefined,
         gender: form.gender || undefined,
@@ -119,14 +133,45 @@ export default function RegisterPage() {
       Cookies.set('access_token', loginData.accessToken, { expires: 1 });
       Cookies.set('refresh_token', loginData.refreshToken, { expires: 7 });
 
-      // 3. Submit payment
+      // Group member: no payment needed, go directly to dashboard
+      if (isGroupMember) {
+        router.push('/dashboard');
+        return;
+      }
+
+      // 3. Validate payment fields
+      if (!selectedOp) { setStep2Error('Choisissez un opérateur'); setLoading(false); return; }
+      if (!receipt) { setStep2Error('Veuillez uploader votre reçu'); setLoading(false); return; }
+
+      // 4. Validate group emails count
+      if (selectedPlan === 'GROUP') {
+        const emails = groupEmailsText.split('\n').map(e => e.trim()).filter(Boolean);
+        const required = groupSize - 1;
+        if (emails.length !== required) {
+          setStep2Error(`Vous devez entrer exactement ${required} email${required > 1 ? 's' : ''} de membres (groupSize - 1).`);
+          setLoading(false);
+          return;
+        }
+        const invalid = emails.filter(e => !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e));
+        if (invalid.length > 0) {
+          setStep2Error(`Email invalide : ${invalid[0]}`);
+          setLoading(false);
+          return;
+        }
+      }
+
+      // 5. Submit payment
       const fd = new FormData();
       fd.append('operator', selectedOp);
       fd.append('amount', String(computedAmount));
       fd.append('paymentMethod', 'MOBILE_MONEY');
       fd.append('planType', selectedPlan);
       fd.append('durationDays', String(computedDuration));
-      if (selectedPlan === 'GROUP') fd.append('groupSize', String(groupSize));
+      if (selectedPlan === 'GROUP') {
+        fd.append('groupSize', String(groupSize));
+        const emails = groupEmailsText.split('\n').map(e => e.trim()).filter(Boolean);
+        fd.append('groupEmails', JSON.stringify(emails));
+      }
       fd.append('receipt', receipt);
       await paymentsApi.submit(fd);
 
@@ -319,10 +364,10 @@ export default function RegisterPage() {
                   </div>
                 </div>
 
-                <button onClick={goToStep2}
-                  className="w-full py-3.5 rounded-xl font-bold text-sm text-white flex items-center justify-center gap-2 hover:opacity-90 transition mt-2 shadow-md shadow-violet-200"
+                <button onClick={goToStep2} disabled={loading}
+                  className="w-full py-3.5 rounded-xl font-bold text-sm text-white flex items-center justify-center gap-2 hover:opacity-90 transition mt-2 shadow-md shadow-violet-200 disabled:opacity-60"
                   style={{ background: 'linear-gradient(135deg,#7c3aed,#6366f1)' }}>
-                  Continuer <ChevronRight className="w-4 h-4" />
+                  {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : <>Continuer <ChevronRight className="w-4 h-4" /></>}
                 </button>
               </div>
 
@@ -336,9 +381,39 @@ export default function RegisterPage() {
           {/* ── STEP 2 ── */}
           {step === 2 && (
             <div>
-              <button onClick={() => setStep(1)} className="text-sm text-gray-400 hover:text-gray-700 mb-5 flex items-center gap-1 transition">
+              <button onClick={() => { setStep(1); setIsGroupMember(false); }} className="text-sm text-gray-400 hover:text-gray-700 mb-5 flex items-center gap-1 transition">
                 ← Retour
               </button>
+
+              {/* Group member fast-track */}
+              {isGroupMember ? (
+                <div>
+                  <div className="flex items-center gap-3 mb-6">
+                    <div className="w-12 h-12 rounded-2xl bg-emerald-500 flex items-center justify-center flex-shrink-0">
+                      <CheckCheck className="w-6 h-6 text-white" />
+                    </div>
+                    <div>
+                      <h2 className="text-xl font-extrabold text-gray-900">Accès groupe détecté !</h2>
+                      <p className="text-gray-400 text-sm">Votre email fait partie d'un groupe premium.</p>
+                    </div>
+                  </div>
+                  <div className="bg-emerald-50 border border-emerald-200 rounded-2xl p-5 mb-6">
+                    <p className="text-emerald-800 text-sm font-semibold mb-1">✓ Aucun paiement requis</p>
+                    <p className="text-emerald-700 text-xs leading-relaxed">
+                      Votre accès premium sera activé immédiatement après la création de votre compte.
+                    </p>
+                  </div>
+                  {step2Error && (
+                    <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-xl mb-5 text-sm">{step2Error}</div>
+                  )}
+                  <button onClick={handleSubmit} disabled={loading}
+                    className="w-full py-3.5 rounded-xl font-bold text-sm text-white flex items-center justify-center gap-2 hover:opacity-90 transition disabled:opacity-60 shadow-md shadow-emerald-200"
+                    style={{ background: 'linear-gradient(135deg,#10b981,#059669)' }}>
+                    {loading ? <><Loader2 className="w-4 h-4 animate-spin" /> Création…</> : 'Créer mon compte →'}
+                  </button>
+                </div>
+              ) : (
+              <>
               <h2 className="text-2xl font-extrabold text-gray-900 mb-1">Paiement</h2>
               <p className="text-gray-400 text-sm mb-7">Étape 2 sur 2 · Choisissez votre opérateur et envoyez votre reçu</p>
 
@@ -421,6 +496,36 @@ export default function RegisterPage() {
                   </button>
                 </div>
               </div>
+
+              {/* Group member emails */}
+              {selectedPlan === 'GROUP' && (
+                <div className="mb-6">
+                  <label className={labelClass}>
+                    Emails des membres <span className="text-red-400">*</span>
+                    <span className="text-gray-400 font-normal ml-1">({groupSize - 1} email{groupSize - 1 > 1 ? 's' : ''} requis)</span>
+                  </label>
+                  <textarea
+                    value={groupEmailsText}
+                    onChange={(e) => setGroupEmailsText(e.target.value)}
+                    rows={Math.max(3, groupSize - 1)}
+                    placeholder={'membre1@email.com\nmembre2@email.com\n...'}
+                    className="w-full px-4 py-3 bg-white border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-violet-300 focus:border-violet-400 transition text-sm placeholder:text-gray-400 text-gray-800 font-mono"
+                  />
+                  <p className="text-xs text-gray-400 mt-1.5">
+                    Un email par ligne · Vous êtes déjà inclus en tant qu'organisateur
+                  </p>
+                  {groupEmailsText && (() => {
+                    const count = groupEmailsText.split('\n').map(e => e.trim()).filter(Boolean).length;
+                    const required = groupSize - 1;
+                    const ok = count === required;
+                    return (
+                      <p className={`text-xs mt-1 font-semibold ${ok ? 'text-emerald-600' : 'text-amber-600'}`}>
+                        {count}/{required} email{required > 1 ? 's' : ''} {ok ? '✓' : 'saisi' + (count > 1 ? 's' : '')}
+                      </p>
+                    );
+                  })()}
+                </div>
+              )}
 
               {/* Operators */}
               <div className="mb-6">
@@ -507,6 +612,8 @@ export default function RegisterPage() {
               <p className="text-center text-xs text-gray-400 mt-4">
                 Votre accès sera activé dès validation de votre paiement par notre équipe.
               </p>
+              </>
+              )}
             </div>
           )}
         </div>

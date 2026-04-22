@@ -1,5 +1,5 @@
 import {
-  Controller, Post, Get, Delete, Body, Req, Param, UseGuards, HttpCode,
+  Controller, Post, Get, Delete, Body, Req, Param, Query, UseGuards, HttpCode,
 } from '@nestjs/common';
 import { ApiTags, ApiBearerAuth } from '@nestjs/swagger';
 import { AuthService } from './auth.service';
@@ -56,5 +56,10 @@ export class AuthController {
   @ApiBearerAuth()
   revokeSession(@Req() req: any, @Param('id') id: string) {
     return this.authService.revokeSession(req.user.sub, id);
+  }
+
+  @Get('check-invite')
+  checkGroupInvite(@Query('email') email: string) {
+    return this.authService.checkGroupInvite(email);
   }
 }

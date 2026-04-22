@@ -110,7 +110,7 @@ export class AdminController {
 
   @Get('payments/pending')
   getPendingPayments() {
-    return this.paymentsService.getPendingPayments();
+    return this.paymentsService.getPendingPaymentsWithInvites();
   }
 
   @Post('payments/:id/validate')

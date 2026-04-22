@@ -19,6 +19,7 @@ export class PaymentsService {
       operator?: string;
       planType?: string;
       groupSize?: number;
+      groupEmails?: string[];
       notes?: string;
     },
     receipt?: Express.Multer.File,
@@ -28,7 +29,7 @@ export class PaymentsService {
       receiptUrl = await this.storage.uploadReceipt(receipt);
     }
 
-    return this.prisma.payment.create({
+    const payment = await this.prisma.payment.create({
       data: {
         userId,
         amount: dto.amount,
@@ -40,6 +41,16 @@ export class PaymentsService {
         receiptUrl,
       } as any,
     });
+
+    if (dto.planType === 'GROUP' && dto.groupEmails?.length) {
+      const emails = [...new Set(dto.groupEmails.map((e) => e.trim().toLowerCase()).filter(Boolean))];
+      await this.prisma.groupInvite.createMany({
+        data: emails.map((email) => ({ email, paymentId: payment.id })),
+        skipDuplicates: true,
+      });
+    }
+
+    return payment;
   }
 
   async getMyPayments(userId: string) {
@@ -75,10 +86,38 @@ export class PaymentsService {
       data: { role: 'PREMIUM', subscriptionEnd },
     });
 
+    // Activate group invites so members can register with auto-premium
+    if (payment.planType === 'GROUP') {
+      await (this.prisma as any).groupInvite.updateMany({
+        where: { paymentId, isActive: false },
+        data: { isActive: true },
+      });
+    }
+
     return this.prisma.payment.update({
       where: { id: paymentId },
       data: { status: 'VALIDATED', validatedBy: adminId, validatedAt: new Date() },
     });
+  }
+
+  async checkGroupInvite(email: string) {
+    const invite = await (this.prisma as any).groupInvite.findFirst({
+      where: { email: email.trim().toLowerCase(), isActive: true, isUsed: false },
+      include: { payment: { select: { durationDays: true } } },
+    });
+    return { isInvited: !!invite, durationDays: invite?.payment?.durationDays ?? 30 };
+  }
+
+  async getPendingPaymentsWithInvites() {
+    const payments = await this.prisma.payment.findMany({
+      where: { status: 'PENDING' },
+      include: {
+        user: { select: { email: true, fullName: true, phone: true } },
+        groupInvites: { select: { email: true, isUsed: true } },
+      },
+      orderBy: { createdAt: 'asc' },
+    });
+    return payments;
   }
 
   async rejectPayment(paymentId: string, adminId: string, reason?: string) {

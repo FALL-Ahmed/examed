@@ -207,6 +207,24 @@ export default function AdminPaymentsPage() {
                       </div>
                     </div>
 
+                    {/* Group invites */}
+                    {p.planType === 'GROUP' && p.groupInvites?.length > 0 && (
+                      <div className="p-3 bg-violet-50 border border-violet-100 rounded-xl">
+                        <p className="text-xs font-bold text-violet-700 mb-2">
+                          Membres invités ({p.groupInvites.filter((i: any) => i.isUsed).length}/{p.groupInvites.length} inscrits)
+                        </p>
+                        <div className="space-y-1">
+                          {p.groupInvites.map((inv: any) => (
+                            <div key={inv.email} className="flex items-center gap-2">
+                              <span className={`w-2 h-2 rounded-full flex-shrink-0 ${inv.isUsed ? 'bg-emerald-400' : 'bg-gray-300'}`} />
+                              <span className="text-xs text-violet-800 font-mono">{inv.email}</span>
+                              {inv.isUsed && <span className="text-xs text-emerald-600 font-semibold">✓ inscrit</span>}
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
                     {/* Notes */}
                     {p.notes && (
                       <div className="flex items-start gap-2 p-3 bg-blue-50 border border-blue-100 rounded-xl">
