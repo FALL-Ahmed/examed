@@ -23,7 +23,7 @@ async function bootstrap() {
       ].filter(Boolean);
 
       // Autoriser toutes les previews Vercel
-      if (!origin || allowed.includes(origin) || /\.vercel\.app$/.test(origin)) {
+      if (!origin || allowed.includes(origin) || /\.vercel\.app$/.test(origin) || /\.netlify\.app$/.test(origin)) {
         callback(null, true);
       } else {
         callback(new Error('Not allowed by CORS'));
