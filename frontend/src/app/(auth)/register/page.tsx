@@ -7,7 +7,7 @@ import { useLang } from '@/components/LanguageProvider';
 import { BookOpen, Loader2, Eye, EyeOff, ChevronRight, Copy, CheckCheck, Upload, X, Users } from 'lucide-react';
 
 const PROFESSIONS = [
-  { value: 'etudiant_infirmier',  label: 'Étudiant en soins infirmiers' },
+  { value: 'etudiant_infirmier',  label: 'Étudiant en sciences infirmières' },
   { value: 'etudiant_medecine',   label: 'Étudiant en médecine' },
   { value: 'etudiant_pharmacie',  label: 'Étudiant en pharmacie' },
   { value: 'infirmier_diplome',   label: 'Infirmier diplômé' },
@@ -60,6 +60,30 @@ function RegisterContent() {
   const [loading, setLoading] = useState(false);
   const [isGroupMember, setIsGroupMember] = useState(false);
 
+  // Restore state from sessionStorage on mount
+  useEffect(() => {
+    const saved = sessionStorage.getItem('register_state');
+    if (saved) {
+      try {
+        const s = JSON.parse(saved);
+        if (s.form) setForm(s.form);
+        if (s.step) setStep(s.step);
+        if (s.selectedPlan) setSelectedPlan(s.selectedPlan);
+        if (s.groupSize) setGroupSize(s.groupSize);
+        if (s.groupEmailsText !== undefined) setGroupEmailsText(s.groupEmailsText);
+        if (s.selectedOp) setSelectedOp(s.selectedOp);
+        if (s.isGroupMember) setIsGroupMember(s.isGroupMember);
+      } catch {}
+    }
+  }, []);
+
+  // Persist state to sessionStorage on every change
+  useEffect(() => {
+    sessionStorage.setItem('register_state', JSON.stringify({
+      form, step, selectedPlan, groupSize, groupEmailsText, selectedOp, isGroupMember,
+    }));
+  }, [form, step, selectedPlan, groupSize, groupEmailsText, selectedOp, isGroupMember]);
+
   useEffect(() => {
     settingsApi.operators().then((r) => {
       const map: Record<string, string> = {};
@@ -68,15 +92,21 @@ function RegisterContent() {
     }).catch(() => {});
     settingsApi.pricing().then((r) => {
       setPricing(r.data);
-      setGroupSize(r.data.groupMin ?? 5);
+      // Only set default groupSize if nothing was restored from sessionStorage
+      if (!sessionStorage.getItem('register_state')) setGroupSize(r.data.groupMin ?? 5);
     }).catch(() => {});
   }, []);
 
-  const computedAmount = selectedPlan === 'SOLO_1M'
+  const promoActive = new Date() <= new Date('2026-04-27T23:59:59');
+  const promo = (p: number) => Math.round(p / 2);
+
+  const baseAmount = selectedPlan === 'SOLO_1M'
     ? pricing.solo1m?.price ?? 500
     : selectedPlan === 'SOLO_3M'
     ? pricing.solo3m?.price ?? 1200
     : (pricing.groupPerP?.price ?? 400) * groupSize;
+
+  const computedAmount = promoActive ? promo(baseAmount) : baseAmount;
 
   const computedDuration = selectedPlan === 'SOLO_3M' ? 90 : 30;
 
@@ -135,6 +165,7 @@ function RegisterContent() {
 
       // Group member: no payment needed, go directly to dashboard
       if (isGroupMember) {
+        sessionStorage.removeItem('register_state');
         window.location.href = '/dashboard';
         return;
       }
@@ -187,6 +218,7 @@ function RegisterContent() {
       fd.append('receipt', receipt);
       await paymentsApi.submit(fd);
 
+      sessionStorage.removeItem('register_state');
       window.location.href = '/pending';
     } catch (err: any) {
       setStep2Error(err.response?.data?.message || 'Une erreur est survenue');
@@ -426,7 +458,17 @@ function RegisterContent() {
               ) : (
               <>
               <h2 className="text-2xl font-extrabold text-gray-900 mb-1">Paiement</h2>
-              <p className="text-gray-400 text-sm mb-7">Étape 2 sur 2 · Choisissez votre opérateur et envoyez votre reçu</p>
+              <p className="text-gray-400 text-sm mb-4">Étape 2 sur 2 · Choisissez votre opérateur et envoyez votre reçu</p>
+
+              {promoActive && (
+                <div className="flex items-center gap-3 p-3.5 rounded-2xl bg-gradient-to-r from-red-50 to-orange-50 border border-red-200 mb-5">
+                  <div className="text-xl flex-shrink-0">🎉</div>
+                  <div>
+                    <p className="text-sm font-bold text-red-700">Offre de lancement — <span className="text-red-600">-50% sur tous les plans !</span></p>
+                    <p className="text-xs text-red-500 mt-0.5">Jusqu'au 27 avril 2026 · Les prix barrés sont les prix normaux</p>
+                  </div>
+                </div>
+              )}
 
               {step2Error && (
                 <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-xl mb-5 text-sm">{step2Error}</div>
@@ -445,7 +487,9 @@ function RegisterContent() {
                       <p className="text-xs text-gray-500 mt-0.5">Accès complet pendant 30 jours</p>
                     </div>
                     <div className="text-right flex-shrink-0 ml-4">
-                      <p className="font-extrabold text-violet-700 text-lg">{pricing.solo1m?.price ?? 500} <span className="text-sm font-semibold">MRU</span></p>
+                      {promoActive && <p className="text-xs text-gray-400 line-through">{pricing.solo1m?.price ?? 500} MRU</p>}
+                      <p className="font-extrabold text-violet-700 text-lg">{promoActive ? promo(pricing.solo1m?.price ?? 500) : (pricing.solo1m?.price ?? 500)} <span className="text-sm font-semibold">MRU</span></p>
+                      {promoActive && <span className="text-xs font-bold bg-red-100 text-red-600 px-1.5 py-0.5 rounded-full">-50%</span>}
                     </div>
                     {selectedPlan === 'SOLO_1M' && (
                       <div className="absolute top-3 right-3 w-4 h-4 rounded-full bg-violet-500 flex items-center justify-center">
@@ -466,7 +510,9 @@ function RegisterContent() {
                       <p className="text-xs text-gray-500 mt-0.5">Accès complet pendant 90 jours</p>
                     </div>
                     <div className="text-right flex-shrink-0 ml-4">
-                      <p className="font-extrabold text-violet-700 text-lg">{pricing.solo3m?.price ?? 1200} <span className="text-sm font-semibold">MRU</span></p>
+                      {promoActive && <p className="text-xs text-gray-400 line-through">{pricing.solo3m?.price ?? 1200} MRU</p>}
+                      <p className="font-extrabold text-violet-700 text-lg">{promoActive ? promo(pricing.solo3m?.price ?? 1200) : (pricing.solo3m?.price ?? 1200)} <span className="text-sm font-semibold">MRU</span></p>
+                      {promoActive && <span className="text-xs font-bold bg-red-100 text-red-600 px-1.5 py-0.5 rounded-full">-50%</span>}
                     </div>
                     {selectedPlan === 'SOLO_3M' && (
                       <div className="absolute top-3 right-3 w-4 h-4 rounded-full bg-violet-500 flex items-center justify-center">
@@ -482,10 +528,12 @@ function RegisterContent() {
                     <div className="flex items-center justify-between w-full">
                       <div>
                         <p className="font-bold text-gray-900 text-sm">Groupe · 1 mois</p>
-                        <p className="text-xs text-gray-500 mt-0.5">Min. {pricing.groupMin ?? 5} membres · {pricing.groupPerP?.price ?? 400} MRU/personne</p>
+                        <p className="text-xs text-gray-500 mt-0.5">Min. {pricing.groupMin ?? 5} membres · {promoActive ? promo(pricing.groupPerP?.price ?? 400) : (pricing.groupPerP?.price ?? 400)} MRU/personne</p>
                       </div>
                       <div className="text-right flex-shrink-0 ml-4">
+                        {promoActive && <p className="text-xs text-gray-400 line-through">{(pricing.groupPerP?.price ?? 400) * groupSize} MRU</p>}
                         <p className="font-extrabold text-violet-700 text-lg">{computedAmount} <span className="text-sm font-semibold">MRU</span></p>
+                        {promoActive && <span className="text-xs font-bold bg-red-100 text-red-600 px-1.5 py-0.5 rounded-full">-50%</span>}
                       </div>
                       {selectedPlan === 'GROUP' && (
                         <div className="absolute top-3 right-3 w-4 h-4 rounded-full bg-violet-500 flex items-center justify-center">
@@ -501,7 +549,7 @@ function RegisterContent() {
                         <span className="w-6 text-center font-bold text-gray-900">{groupSize}</span>
                         <button type="button" onClick={() => setGroupSize(groupSize + 1)}
                           className="w-7 h-7 rounded-full bg-white border border-gray-300 text-gray-700 font-bold flex items-center justify-center hover:bg-gray-50">+</button>
-                        <span className="text-xs text-gray-500 ml-1">= <strong>{computedAmount} MRU</strong> total</span>
+                        <span className="text-xs text-gray-500 ml-1">= <strong>{computedAmount} MRU</strong> total{promoActive && <span className="ml-1 text-red-500 font-bold">(-50%)</span>}</span>
                       </div>
                     )}
                   </button>
