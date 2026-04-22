@@ -2,6 +2,7 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import Cookies from 'js-cookie';
 import { useAuthStore } from '@/lib/auth-store';
 import { useLang } from '@/components/LanguageProvider';
 import { BookOpen, Eye, EyeOff, Loader2, Stethoscope, Activity, Shield, Users, Smartphone } from 'lucide-react';
@@ -57,9 +58,11 @@ export default function LoginPage() {
     e.preventDefault();
     setLoading(true); setError('');
     try {
-      await authApi.verifyDevice({ verificationCode: verifyCode.trim(), deviceFingerprint });
-      const user = useAuthStore.getState().user;
-      router.push(user?.role === 'ADMIN' ? '/admin' : '/dashboard');
+      const { data } = await authApi.verifyDevice({ email, verificationCode: verifyCode.trim(), deviceFingerprint });
+      Cookies.set('access_token', data.accessToken, { expires: 1 });
+      Cookies.set('refresh_token', data.refreshToken, { expires: 7 });
+      useAuthStore.getState().setUser(data.user);
+      router.push(data.user?.role === 'ADMIN' ? '/admin' : '/dashboard');
     } catch (err: any) {
       setError(err.response?.data?.message || 'Code incorrect ou expiré');
     } finally { setLoading(false); }

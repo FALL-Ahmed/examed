@@ -89,9 +89,6 @@ export class AuthService {
     const valid = await bcrypt.compare(password, user.passwordHash);
     if (!valid) throw new UnauthorizedException('Identifiants invalides');
 
-    // ──── VÉRIFIER LE DEVICE ────
-    const deviceTrustResult = await this.checkDeviceTrust(user.id, deviceInfo);
-
     // ──── VÉRIFIER SI LA VÉRIFICATION D'APPAREIL EST ACTIVÉE ────
     const deviceVerifSetting = await this.prisma.setting.findUnique({ where: { key: 'DEVICE_VERIFICATION' } });
     const deviceVerifEnabled = deviceVerifSetting?.value === 'true';
@@ -99,15 +96,9 @@ export class AuthService {
     if (deviceVerifEnabled && user.role !== 'ADMIN') {
       const deviceTrustResult2 = await this.checkDeviceTrust(user.id, deviceInfo);
       if (!deviceTrustResult2.isTrusted) {
-        // Générer les tokens quand même pour que le frontend puisse appeler verify-device
-        await this.enforceSessionLimit(user.id, deviceInfo.deviceId);
-        const tokens2 = await this.generateTokens(user.id, user.role, deviceInfo.deviceId);
         return {
           requiresDeviceVerification: true,
           deviceFingerprint: generateDeviceFingerprint(deviceInfo),
-          accessToken: tokens2.accessToken,
-          refreshToken: tokens2.refreshToken,
-          user: { id: user.id, email: user.email, fullName: user.fullName, role: user.role, subscriptionEnd: user.subscriptionEnd },
         };
       }
     }
@@ -138,8 +129,8 @@ export class AuthService {
 
     const tokens = await this.generateTokens(user.id, user.role, deviceInfo.deviceId);
     return {
-      requiresDeviceVerification: !deviceTrustResult.isTrusted,
-      deviceFingerprint: !deviceTrustResult.isTrusted ? generateDeviceFingerprint(deviceInfo) : undefined,
+      requiresDeviceVerification: false,
+      deviceFingerprint: undefined,
       accessToken: tokens.accessToken,
       refreshToken: tokens.refreshToken,
       user: {
@@ -328,13 +319,16 @@ export class AuthService {
   /**
    * Vérifier le code et approuver le device
    */
-  async verifyDevice(userId: string, dto: VerifyDeviceDto) {
-    const { verificationCode, deviceFingerprint, deviceName } = dto;
+  async verifyDevice(dto: VerifyDeviceDto) {
+    const { email, verificationCode, deviceFingerprint, deviceName } = dto;
+
+    const user = await this.prisma.user.findUnique({ where: { email } });
+    if (!user) throw new BadRequestException('Utilisateur introuvable');
 
     // Chercher la demande de vérification
     const verification = await this.prisma.deviceVerification.findFirst({
       where: {
-        userId,
+        userId: user.id,
         deviceFingerprint,
         isUsed: false,
       },
@@ -372,20 +366,20 @@ export class AuthService {
     // Créer le device de confiance
     const trustedDevice = await this.prisma.trustedDevice.create({
       data: {
-        userId,
+        userId: user.id,
         deviceFingerprint,
         deviceName: deviceName || generateDeviceName('Unknown'),
         isActive: true,
       },
     });
 
+    // Créer la session et générer les tokens
+    await this.enforceSessionLimit(user.id, user.id);
+    const tokens = await this.generateTokens(user.id, user.role, trustedDevice.deviceFingerprint);
     return {
-      message: 'Device approuvé avec succès',
-      device: {
-        id: trustedDevice.id,
-        deviceName: trustedDevice.deviceName,
-        createdAt: trustedDevice.createdAt,
-      },
+      accessToken: tokens.accessToken,
+      refreshToken: tokens.refreshToken,
+      user: { id: user.id, email: user.email, fullName: user.fullName, role: user.role, subscriptionEnd: user.subscriptionEnd },
     };
   }
 

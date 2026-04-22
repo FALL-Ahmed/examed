@@ -65,8 +65,11 @@ export class ResetPasswordDto {
 }
 
 export class VerifyDeviceDto {
+  @IsEmail()
+  email: string;
+
   @IsString()
-  verificationCode: string; // Code 6 chiffres
+  verificationCode: string;
 
   @IsString()
   deviceFingerprint: string;

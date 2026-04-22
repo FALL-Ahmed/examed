@@ -29,10 +29,13 @@ export const useAuthStore = create<AuthStore>((set) => ({
     set({ isLoading: true });
     try {
       const { data } = await authApi.login({ email, password });
+      if (data.requiresDeviceVerification) {
+        return { requiresDeviceVerification: true, deviceFingerprint: data.deviceFingerprint };
+      }
       Cookies.set('access_token', data.accessToken, { expires: 1 });
       Cookies.set('refresh_token', data.refreshToken, { expires: 7 });
       set({ user: data.user });
-      return { requiresDeviceVerification: data.requiresDeviceVerification, deviceFingerprint: data.deviceFingerprint };
+      return { requiresDeviceVerification: false };
     } finally {
       set({ isLoading: false });
     }

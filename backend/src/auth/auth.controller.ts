@@ -61,11 +61,9 @@ export class AuthController {
   // ──── DEVICE TRUST ENDPOINTS ────
 
   @Post('devices/verify')
-  @UseGuards(JwtAuthGuard)
-  @ApiBearerAuth()
   @HttpCode(200)
-  verifyDevice(@Req() req: any, @Body() dto: VerifyDeviceDto) {
-    return this.authService.verifyDevice(req.user.sub, dto);
+  verifyDevice(@Body() dto: VerifyDeviceDto) {
+    return this.authService.verifyDevice(dto);
   }
 
   @Get('devices/trusted')
