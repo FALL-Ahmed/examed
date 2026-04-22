@@ -7,7 +7,7 @@ import { useLang } from '@/components/LanguageProvider';
 
 export default function ReviewPage() {
   const router = useRouter();
-  const { t } = useLang();
+  const { t, lang } = useLang();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [savedReview, setSavedReview] = useState<any>(null);
@@ -23,7 +23,7 @@ export default function ReviewPage() {
     setLoading(true);
     setError('');
     try {
-      const { data } = await attemptsApi.start({ mode: 'REVIEW', count: 20 });
+      const { data } = await attemptsApi.start({ mode: 'REVIEW', count: 20, language: lang.toUpperCase() });
       router.push(`/exam/${data.attemptId}?data=${encodeURIComponent(JSON.stringify(data))}`);
     } catch (err: any) {
       setError(

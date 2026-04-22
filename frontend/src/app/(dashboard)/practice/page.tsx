@@ -14,7 +14,7 @@ const PRACTICE_KEY = 'practice_state';
 export default function PracticePage() {
   const router = useRouter();
   const { user } = useAuthStore();
-  const { t } = useLang();
+  const { t, lang } = useLang();
   const [themes, setThemes] = useState<any[]>([]);
   const [config, setConfig] = useState({ themeId: '', subThemeId: '', count: 10 });
   const [session, setSession] = useState<any>(null);
@@ -26,7 +26,7 @@ export default function PracticePage() {
   const saveRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
-    themesApi.all().then((r) => setThemes(r.data)).catch(() => {});
+    themesApi.all(lang).then((r) => setThemes(r.data)).catch(() => {});
 
     // Restore saved practice session
     try {
@@ -58,6 +58,7 @@ export default function PracticePage() {
         themeId: config.themeId || undefined,
         subThemeId: config.subThemeId || undefined,
         count: config.count,
+        language: lang.toUpperCase(),
       });
       setSession(data);
       setCurrentIndex(0);

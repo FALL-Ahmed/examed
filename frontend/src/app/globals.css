@@ -215,9 +215,11 @@ html[dir="rtl"] {
   left: auto;
   right: 0;
 }
-[dir="rtl"] .main-content {
-  margin-left: 0;
-  margin-right: 15rem; /* 60 = w-60 */
+@media (min-width: 1024px) {
+  [dir="rtl"] .main-content {
+    margin-left: 0;
+    margin-right: 15rem; /* 60 = w-60 */
+  }
 }
 @media (min-width: 1280px) {
   [dir="rtl"] .main-content {

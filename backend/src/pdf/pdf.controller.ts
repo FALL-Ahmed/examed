@@ -32,7 +32,7 @@ export class PdfController {
   @UseInterceptors(FileInterceptor('file', { limits: { fileSize: 50 * 1024 * 1024 } }))
   async importPdf(@UploadedFile() file: Express.Multer.File) {
     const parsed = await this.pdfService.parseAndImport(file.buffer, file.originalname);
-    const imported = await this.adminService.importFromParser(parsed);
+    const imported = await this.adminService.importFromParser(parsed, 'FR');
     return { parsed: parsed.stats, imported };
   }
 
@@ -44,7 +44,7 @@ export class PdfController {
   @Post('text-import')
   async textImport(@Body('text') text: string) {
     const parsed = await this.pdfService.parseTextImport(text);
-    const imported = await this.adminService.importFromParser(parsed);
+    const imported = await this.adminService.importFromParser(parsed, 'FR');
     return { parsed: parsed.stats, imported };
   }
 
@@ -56,15 +56,16 @@ export class PdfController {
   @Post('ar-text-import')
   async arTextImport(@Body('text') text: string) {
     const parsed = await this.pdfService.parseArTextImport(text);
-    const imported = await this.adminService.importFromParser(parsed);
+    const imported = await this.adminService.importFromParser(parsed, 'AR');
     return { parsed: parsed.stats, imported };
   }
 
   @Post('json-preview')
   async jsonPreview(@Body() body: Record<string, any>) {
     const parsed = this.pdfService.parseJsonImport(body);
+    const detectedLang = /[؀-ۿ]/.test(JSON.stringify(body).slice(0, 500)) ? 'AR' : 'FR';
     return {
-      stats: parsed.stats,
+      stats: { ...parsed.stats, language: detectedLang },
       themes: parsed.themes.slice(0, 3).map((t: any) => ({
         name: t.name,
         subThemes: t.subThemes.slice(0, 2).map((s: any) => ({
@@ -78,8 +79,9 @@ export class PdfController {
 
   @Post('json-import')
   async jsonImport(@Body() body: Record<string, any>) {
+    const detectedLang = /[؀-ۿ]/.test(JSON.stringify(body).slice(0, 500)) ? 'AR' : 'FR';
     const parsed = this.pdfService.parseJsonImport(body);
-    const imported = await this.adminService.importFromParser(parsed);
-    return { parsed: parsed.stats, imported };
+    const imported = await this.adminService.importFromParser(parsed, detectedLang);
+    return { parsed: { ...parsed.stats, language: detectedLang }, imported };
   }
 }

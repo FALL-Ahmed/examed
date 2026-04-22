@@ -11,6 +11,7 @@ datasource db {
 model Theme {
   id        String     @id @default(cuid())
   name      String     @unique
+  language  String     @default("FR")
   order     Int        @default(0)
   subThemes SubTheme[]
   createdAt DateTime   @default(now())

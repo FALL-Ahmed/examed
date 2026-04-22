@@ -15,6 +15,7 @@ export class QuestionsService {
     themeId?: string;
     subThemeId?: string;
     count?: number;
+    language?: string;
   }) {
     // Vérifier quota FREE
     if (userRole === 'FREE') {
@@ -29,9 +30,13 @@ export class QuestionsService {
     }
 
     const where: any = { isActive: true };
-    if (opts.subThemeId) where.subThemeId = opts.subThemeId;
-    else if (opts.themeId) {
-      where.subTheme = { themeId: opts.themeId };
+    if (opts.subThemeId) {
+      where.subThemeId = opts.subThemeId;
+    } else {
+      const subFilter: any = {};
+      if (opts.themeId) subFilter.themeId = opts.themeId;
+      if (opts.language) subFilter.theme = { language: opts.language };
+      if (Object.keys(subFilter).length) where.subTheme = subFilter;
     }
 
     const total = await this.prisma.question.count({ where });
@@ -48,6 +53,7 @@ export class QuestionsService {
   async getForExam(userId: string, userRole: string, opts: {
     themeId?: string;
     count: number;
+    language?: string;
   }) {
     if (userRole === 'FREE') {
       throw new ForbiddenException({
@@ -57,7 +63,10 @@ export class QuestionsService {
     }
 
     const where: any = { isActive: true };
-    if (opts.themeId) where.subTheme = { themeId: opts.themeId };
+    const subFilter: any = {};
+    if (opts.themeId) subFilter.themeId = opts.themeId;
+    if (opts.language) subFilter.theme = { language: opts.language };
+    if (Object.keys(subFilter).length) where.subTheme = subFilter;
 
     // Mélanger aléatoirement
     const questions = await this.prisma.question.findMany({

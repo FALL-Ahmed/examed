@@ -75,7 +75,7 @@ export const userApi = {
 
 // Themes
 export const themesApi = {
-  all: () => api.get('/themes'),
+  all: (lang?: string) => api.get('/themes', lang ? { params: { lang } } : undefined),
 };
 
 // Questions

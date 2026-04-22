@@ -19,6 +19,9 @@ class StartAttemptDto {
 
   @IsOptional() @IsNumber()
   durationMinutes?: number;
+
+  @IsOptional() @IsString()
+  language?: string;
 }
 
 class SubmitAnswerDto {

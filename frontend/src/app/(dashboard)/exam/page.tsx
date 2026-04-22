@@ -10,7 +10,7 @@ import { sentenceCase } from '@/lib/utils';
 export default function ExamConfigPage() {
   const router = useRouter();
   const { user } = useAuthStore();
-  const { t } = useLang();
+  const { t, lang } = useLang();
   const [themes, setThemes] = useState<any[]>([]);
   const [config, setConfig] = useState({ themeId: '', count: 20, durationMinutes: 30 });
   const [loading, setLoading] = useState(false);
@@ -18,7 +18,7 @@ export default function ExamConfigPage() {
   const [savedExam, setSavedExam] = useState<any>(null);
 
   useEffect(() => {
-    themesApi.all().then((r) => setThemes(r.data)).catch(() => {});
+    themesApi.all(lang).then((r) => setThemes(r.data)).catch(() => {});
     try {
       const saved = JSON.parse(localStorage.getItem('exam_state') || 'null');
       if (saved?.attemptId && saved?.session?.mode === 'EXAM') setSavedExam(saved);
@@ -33,6 +33,7 @@ export default function ExamConfigPage() {
         themeId: config.themeId || undefined,
         count: config.count,
         durationMinutes: config.durationMinutes,
+        language: lang.toUpperCase(),
       });
       router.push(`/exam/${data.attemptId}?data=${encodeURIComponent(JSON.stringify(data))}`);
     } catch (err: any) {

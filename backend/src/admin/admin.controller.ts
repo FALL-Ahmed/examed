@@ -81,8 +81,9 @@ export class AdminController {
     @Query('themeId') themeId?: string,
     @Query('subThemeId') subThemeId?: string,
     @Query('search') search?: string,
+    @Query('language') language?: string,
   ) {
-    return this.adminService.getQuestions(page ? parseInt(page) : 1, 20, themeId, search, subThemeId);
+    return this.adminService.getQuestions(page ? parseInt(page) : 1, 20, themeId, search, subThemeId, language);
   }
 
   @Put('questions/:id')

@@ -148,6 +148,7 @@ function EditForm({ editing, setEditing, onSave, saving, onImageUpload, uploadin
 }
 
 export default function AdminQuestionsPage() {
+  const [langTab, setLangTab] = useState<'FR' | 'AR'>('FR');
   const [themes, setThemes] = useState<any[]>([]);
   const [expandedThemes, setExpandedThemes] = useState<Set<string>>(new Set());
   const [selectedThemeId, setSelectedThemeId] = useState('');
@@ -163,17 +164,19 @@ export default function AdminQuestionsPage() {
   const imageInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    themesApi.all().then((r) => {
+    themesApi.all(langTab.toLowerCase()).then((r) => {
       setThemes(r.data);
-      if (r.data.length > 0) setExpandedThemes(new Set([r.data[0].id]));
+      setSelectedThemeId('');
+      setSelectedSubThemeId('');
+      setExpandedThemes(r.data.length > 0 ? new Set([r.data[0].id]) : new Set());
     }).catch(() => {});
-  }, []);
+  }, [langTab]);
 
-  useEffect(() => { setPage(1); }, [selectedThemeId, selectedSubThemeId, search]);
-  useEffect(() => { load(); }, [page, selectedThemeId, selectedSubThemeId, search]);
+  useEffect(() => { setPage(1); }, [selectedThemeId, selectedSubThemeId, search, langTab]);
+  useEffect(() => { load(); }, [page, selectedThemeId, selectedSubThemeId, search, langTab]);
 
   async function load() {
-    const params: any = { page };
+    const params: any = { page, language: langTab };
     if (selectedSubThemeId) params.subThemeId = selectedSubThemeId;
     else if (selectedThemeId) params.themeId = selectedThemeId;
     if (search) params.search = search;
@@ -243,7 +246,27 @@ export default function AdminQuestionsPage() {
       : 'Toutes les questions';
 
   return (
-    <div className="flex gap-6 h-full">
+    <div className="flex flex-col gap-4 h-full">
+
+      {/* Language tabs */}
+      <div className="flex gap-2">
+        <button
+          onClick={() => setLangTab('FR')}
+          className={`flex items-center gap-2 px-4 py-2 rounded-xl border text-sm font-semibold transition
+            ${langTab === 'FR' ? 'bg-blue-500 border-blue-500 text-white shadow-sm' : 'bg-blue-50 border-blue-200 text-blue-700 hover:bg-blue-100'}`}
+        >
+          🇫🇷 Français
+        </button>
+        <button
+          onClick={() => setLangTab('AR')}
+          className={`flex items-center gap-2 px-4 py-2 rounded-xl border text-sm font-semibold transition
+            ${langTab === 'AR' ? 'bg-emerald-500 border-emerald-500 text-white shadow-sm' : 'bg-emerald-50 border-emerald-200 text-emerald-700 hover:bg-emerald-100'}`}
+        >
+          🇲🇷 العربية
+        </button>
+      </div>
+
+      <div className="flex gap-6 flex-1 min-h-0">
 
       {/* ── Sidebar ── */}
       <aside className="w-64 flex-shrink-0 space-y-1">
@@ -430,6 +453,7 @@ export default function AdminQuestionsPage() {
       </div>
 
       {inspecting && <InspectModal q={inspecting} onClose={() => setInspecting(null)} />}
+      </div>
     </div>
   );
 }

@@ -5,8 +5,9 @@ import { PrismaService } from '../prisma/prisma.service';
 export class ThemesService {
   constructor(private prisma: PrismaService) {}
 
-  findAll() {
+  findAll(language?: string) {
     return this.prisma.theme.findMany({
+      where: language ? { language } : undefined,
       include: {
         subThemes: {
           select: { id: true, name: true, order: true, _count: { select: { questions: true } } },

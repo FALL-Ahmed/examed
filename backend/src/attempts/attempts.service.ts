@@ -18,6 +18,7 @@ export class AttemptsService {
     count?: number;
     durationMinutes?: number;
     questionIds?: string[];
+    language?: string;
   }) {
     let questions: any[] = [];
 
@@ -31,6 +32,7 @@ export class AttemptsService {
       questions = await this.questionsService.getForExam(userId, userRole, {
         themeId: dto.themeId,
         count: dto.count || 20,
+        language: dto.language,
       });
     } else if (dto.mode === 'REVIEW') {
       questions = await this.questionsService.getMistakes(userId);
@@ -48,6 +50,7 @@ export class AttemptsService {
         themeId: dto.themeId,
         subThemeId: dto.subThemeId,
         count: dto.count || 1,
+        language: dto.language,
       });
     }
 

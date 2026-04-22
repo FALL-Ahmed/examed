@@ -92,10 +92,16 @@ export class AdminService {
     });
   }
 
-  async getQuestions(page = 1, limit = 20, themeId?: string, search?: string, subThemeId?: string) {
+  async getQuestions(page = 1, limit = 20, themeId?: string, search?: string, subThemeId?: string, language?: string) {
     const where: any = {};
-    if (subThemeId) where.subThemeId = subThemeId;
-    else if (themeId) where.subTheme = { themeId };
+    if (subThemeId) {
+      where.subThemeId = subThemeId;
+    } else {
+      const subFilter: any = {};
+      if (themeId) subFilter.themeId = themeId;
+      if (language) subFilter.theme = { language };
+      if (Object.keys(subFilter).length) where.subTheme = subFilter;
+    }
     if (search) where.text = { contains: search, mode: 'insensitive' };
 
     const [questions, total] = await Promise.all([
@@ -208,7 +214,7 @@ export class AdminService {
     };
   }
 
-  async importFromParser(parserData: any) {
+  async importFromParser(parserData: any, language = 'FR') {
     let themesCreated = 0;
     let subThemesCreated = 0;
     let questionsCreated = 0;
@@ -217,8 +223,8 @@ export class AdminService {
     for (const themeData of parserData.themes) {
       const theme = await this.prisma.theme.upsert({
         where: { name: themeData.name },
-        update: {},
-        create: { name: themeData.name },
+        update: { language },
+        create: { name: themeData.name, language },
       });
       themesCreated++;
 
