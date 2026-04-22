@@ -1,6 +1,5 @@
 'use client';
-export const dynamic = 'force-dynamic';
-import { useState, useEffect } from 'react';
+import { Suspense, useState, useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { authApi, paymentsApi, settingsApi } from '@/lib/api';
@@ -31,7 +30,7 @@ const OPERATORS = [
   { id: 'SEDAD',   name: 'Sedad',   image: '/images/sedad.png',   key: 'SEDAD_PHONE'   },
 ];
 
-export default function RegisterPage() {
+function RegisterContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { t } = useLang();
@@ -651,5 +650,17 @@ export default function RegisterPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function RegisterPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+        <div className="w-8 h-8 border-4 border-violet-500 border-t-transparent rounded-full animate-spin" />
+      </div>
+    }>
+      <RegisterContent />
+    </Suspense>
   );
 }
