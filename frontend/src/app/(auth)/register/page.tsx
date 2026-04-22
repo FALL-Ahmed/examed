@@ -148,13 +148,25 @@ export default function RegisterPage() {
         const emails = groupEmailsText.split('\n').map(e => e.trim()).filter(Boolean);
         const required = groupSize - 1;
         if (emails.length !== required) {
-          setStep2Error(`Vous devez entrer exactement ${required} email${required > 1 ? 's' : ''} de membres (groupSize - 1).`);
+          setStep2Error(`Vous devez entrer exactement ${required} email${required > 1 ? 's' : ''} de membres.`);
           setLoading(false);
           return;
         }
         const invalid = emails.filter(e => !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e));
         if (invalid.length > 0) {
           setStep2Error(`Email invalide : ${invalid[0]}`);
+          setLoading(false);
+          return;
+        }
+        const lowered = emails.map(e => e.toLowerCase());
+        const unique = new Set(lowered);
+        if (unique.size !== emails.length) {
+          setStep2Error('Certains emails sont en double. Chaque membre doit avoir un email unique.');
+          setLoading(false);
+          return;
+        }
+        if (lowered.includes(form.email.trim().toLowerCase())) {
+          setStep2Error('Votre propre email ne doit pas figurer dans la liste des membres.');
           setLoading(false);
           return;
         }
@@ -515,13 +527,32 @@ export default function RegisterPage() {
                     Un email par ligne · Vous êtes déjà inclus en tant qu'organisateur
                   </p>
                   {groupEmailsText && (() => {
-                    const count = groupEmailsText.split('\n').map(e => e.trim()).filter(Boolean).length;
+                    const lines = groupEmailsText.split('\n').map(e => e.trim()).filter(Boolean);
                     const required = groupSize - 1;
-                    const ok = count === required;
+                    const seen = new Set<string>();
+                    const duplicates = new Set<string>();
+                    lines.forEach(e => {
+                      const low = e.toLowerCase();
+                      if (seen.has(low)) duplicates.add(low);
+                      else seen.add(low);
+                    });
+                    const includesOrganizer = lines.some(e => e.toLowerCase() === form.email.trim().toLowerCase());
+                    const hasDuplicates = duplicates.size > 0;
+                    const ok = lines.length === required && !hasDuplicates && !includesOrganizer;
+                    const error = includesOrganizer
+                      ? 'Votre propre email ne doit pas figurer dans la liste (vous êtes déjà organisateur)'
+                      : hasDuplicates
+                      ? `Emails en double : ${[...duplicates].join(', ')}`
+                      : null;
                     return (
-                      <p className={`text-xs mt-1 font-semibold ${ok ? 'text-emerald-600' : 'text-amber-600'}`}>
-                        {count}/{required} email{required > 1 ? 's' : ''} {ok ? '✓' : 'saisi' + (count > 1 ? 's' : '')}
-                      </p>
+                      <div className="mt-1.5">
+                        {error
+                          ? <p className="text-xs font-semibold text-red-600">{error}</p>
+                          : <p className={`text-xs font-semibold ${ok ? 'text-emerald-600' : 'text-amber-600'}`}>
+                              {lines.length}/{required} email{required > 1 ? 's' : ''} {ok ? '✓' : 'saisi' + (lines.length > 1 ? 's' : '')}
+                            </p>
+                        }
+                      </div>
                     );
                   })()}
                 </div>
