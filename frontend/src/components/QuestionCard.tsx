@@ -177,13 +177,6 @@ export function QuestionCard({ question, questionNumber, totalQuestions, onAnswe
                 {isAr ? 'إجابات متعددة ممكنة' : 'Plusieurs réponses possibles'}
               </span>
             )}
-            {question.imageUrl && (
-              <img
-                src={resolveImageUrl(question.imageUrl)}
-                alt="Schéma"
-                className="w-full rounded-xl object-contain max-h-48 mb-4 border border-gray-100 dark:border-gray-700"
-              />
-            )}
           </div>
           <button
             onClick={handleFavorite}
@@ -293,11 +286,11 @@ export function QuestionCard({ question, questionNumber, totalQuestions, onAnswe
             </div>
           )}
 
-          {result.imageUrl && (
+          {(result.imageUrl || question.imageUrl) && (
             <img
-              src={resolveImageUrl(result.imageUrl)}
+              src={resolveImageUrl(result.imageUrl || question.imageUrl)}
               alt="Schéma"
-              className="w-full object-contain max-h-40 border-t border-gray-100 dark:border-gray-700"
+              className="w-full object-contain max-h-64 border-t border-gray-100 dark:border-gray-700"
             />
           )}
 

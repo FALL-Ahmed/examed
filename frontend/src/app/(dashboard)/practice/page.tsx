@@ -243,7 +243,7 @@ export default function PracticePage() {
             onClick={() => { localStorage.removeItem(PRACTICE_KEY); setSession(null); setConfigured(false); setAnswers([]); setCurrentIndex(0); }}
             className="text-xs text-muted-foreground border border-border rounded-lg px-3 py-1.5 hover:text-red-500 hover:border-red-300 transition"
           >
-            Arrêter la session
+            {t('practice.stopSession')}
           </button>
         </div>
         <QuestionCard
@@ -260,7 +260,7 @@ export default function PracticePage() {
       <div className="space-y-4">
         {/* Progress overview */}
         <div className="bg-card border border-border rounded-2xl p-5">
-          <h3 className="font-semibold text-sm mb-4">Progression</h3>
+          <h3 className="font-semibold text-sm mb-4">{t('practice.progress')}</h3>
           <div className="space-y-3 mb-4">
             <div>
               <div className="flex justify-between text-xs text-muted-foreground mb-1">
@@ -276,11 +276,11 @@ export default function PracticePage() {
           <div className="grid grid-cols-2 gap-2">
             <div className="bg-emerald-500/10 rounded-xl p-3 text-center">
               <p className="text-xl font-bold text-emerald-600 dark:text-emerald-400">{correctCount}</p>
-              <p className="text-xs text-muted-foreground mt-0.5">Correctes</p>
+              <p className="text-xs text-muted-foreground mt-0.5">{t('practice.correct')}</p>
             </div>
             <div className="bg-red-500/10 rounded-xl p-3 text-center">
               <p className="text-xl font-bold text-red-500">{answered - correctCount}</p>
-              <p className="text-xs text-muted-foreground mt-0.5">Erreurs</p>
+              <p className="text-xs text-muted-foreground mt-0.5">{t('practice.errors')}</p>
             </div>
           </div>
         </div>
@@ -290,12 +290,12 @@ export default function PracticePage() {
           onClick={() => { localStorage.removeItem(PRACTICE_KEY); setSession(null); setConfigured(false); setAnswers([]); setCurrentIndex(0); }}
           className="w-full py-2.5 rounded-xl border border-border text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-secondary transition"
         >
-          Nouvelle session
+          {t('practice.newSession')}
         </button>
 
         {/* Question dots grid */}
         <div className="bg-card border border-border rounded-2xl p-5">
-          <h3 className="font-semibold text-sm mb-3">Navigation</h3>
+          <h3 className="font-semibold text-sm mb-3">{t('practice.navigation')}</h3>
           <div className="flex flex-wrap gap-1.5">
             {session.questions.map((_: any, i: number) => {
               const ans = answers[i];

@@ -43,8 +43,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 
   return (
     <div className="min-h-screen flex bg-slate-50 dark:bg-slate-950" dir={isRTL ? 'rtl' : 'ltr'}>
-      <aside className={`w-60 bg-slate-900 text-white flex flex-col shadow-xl flex-shrink-0 sticky top-0 h-screen
-        ${isRTL ? 'order-last' : 'order-first'}`}>
+      <aside className="w-60 bg-slate-900 text-white flex flex-col shadow-xl flex-shrink-0 sticky top-0 h-screen">
         <div className="p-5 border-b border-slate-700">
           <div className="flex items-center gap-2">
             <Shield className="w-6 h-6 text-blue-400 flex-shrink-0" />
