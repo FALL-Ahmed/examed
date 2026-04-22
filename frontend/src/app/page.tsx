@@ -279,14 +279,16 @@ export default function LandingPage() {
               <h3 className="font-extrabold text-xl text-gray-900 mb-1">{t('landing.pricing.group.name')}</h3>
               <p className="text-gray-400 text-sm mb-6">Min. {pricing?.groupMin ?? 5} {lang === 'ar' ? 'أشخاص' : 'personnes'}</p>
               <div className="mb-1">
-                {promoActive && <p className="text-sm text-gray-400 line-through">{pricing?.groupPerP?.price ?? 400} MRU</p>}
+                {promoActive && <p className="text-sm text-gray-400 line-through">{(pricing?.groupPerP?.price ?? 400) * (pricing?.groupMin ?? 5)} MRU</p>}
                 <p className="text-4xl font-black text-gray-900">
-                  {promoActive ? promo(pricing?.groupPerP?.price ?? 400) : (pricing?.groupPerP?.price ?? 400)}
+                  {promoActive ? promo((pricing?.groupPerP?.price ?? 400) * (pricing?.groupMin ?? 5)) : (pricing?.groupPerP?.price ?? 400) * (pricing?.groupMin ?? 5)}
                   <span className="text-lg font-semibold text-gray-400 ml-1">MRU</span>
                 </p>
                 {promoActive && <span className="inline-block mt-1 bg-red-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full">-50%</span>}
               </div>
-              <p className="text-xs text-emerald-600 font-semibold mb-6">{t('landing.pricing.group.per')}</p>
+              <p className="text-xs text-emerald-600 font-semibold mb-6">
+                {promoActive ? promo(pricing?.groupPerP?.price ?? 400) : (pricing?.groupPerP?.price ?? 400)} MRU / {lang === 'ar' ? 'شخص' : 'personne'}
+              </p>
               <div className="space-y-1.5 mb-6">
                 {[5, 10, 20].map((n) => {
                   const perP = pricing?.groupPerP?.price ?? 400;
