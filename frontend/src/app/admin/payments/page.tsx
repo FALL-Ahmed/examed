@@ -185,14 +185,22 @@ export default function AdminPaymentsPage() {
                       <span className="px-2.5 py-0.5 rounded-full bg-amber-50 border border-amber-200 text-amber-700 text-xs font-bold">
                         En attente
                       </span>
+                      {p.planType === 'SOLO_1M' && (
+                        <span className="px-2.5 py-0.5 rounded-full bg-indigo-50 border border-indigo-200 text-indigo-700 text-xs font-bold">Solo · 1 mois</span>
+                      )}
+                      {p.planType === 'SOLO_3M' && (
+                        <span className="px-2.5 py-0.5 rounded-full bg-violet-50 border border-violet-200 text-violet-700 text-xs font-bold">Solo · 3 mois</span>
+                      )}
+                      {p.planType === 'GROUP' && (
+                        <span className="px-2.5 py-0.5 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-700 text-xs font-bold">
+                          Groupe · {p.groupSize ?? '?'} membres
+                        </span>
+                      )}
                       {p.operator && (
                         <span className={`px-2.5 py-0.5 rounded-full border text-xs font-semibold ${opColor}`}>
                           {p.operator}
                         </span>
                       )}
-                      <span className="px-2.5 py-0.5 rounded-full bg-slate-100 text-slate-600 text-xs font-medium border border-slate-200">
-                        Mobile Money
-                      </span>
                     </div>
 
                     {/* User info */}
@@ -208,20 +216,30 @@ export default function AdminPaymentsPage() {
                     </div>
 
                     {/* Group invites */}
-                    {p.planType === 'GROUP' && p.groupInvites?.length > 0 && (
-                      <div className="p-3 bg-violet-50 border border-violet-100 rounded-xl">
-                        <p className="text-xs font-bold text-violet-700 mb-2">
-                          Membres invités ({p.groupInvites.filter((i: any) => i.isUsed).length}/{p.groupInvites.length} inscrits)
-                        </p>
-                        <div className="space-y-1">
-                          {p.groupInvites.map((inv: any) => (
-                            <div key={inv.email} className="flex items-center gap-2">
-                              <span className={`w-2 h-2 rounded-full flex-shrink-0 ${inv.isUsed ? 'bg-emerald-400' : 'bg-gray-300'}`} />
-                              <span className="text-xs text-violet-800 font-mono">{inv.email}</span>
-                              {inv.isUsed && <span className="text-xs text-emerald-600 font-semibold">✓ inscrit</span>}
+                    {p.planType === 'GROUP' && (
+                      <div className="p-3 bg-violet-50 border border-violet-200 rounded-xl">
+                        {p.groupInvites?.length > 0 ? (
+                          <>
+                            <p className="text-xs font-bold text-violet-700 mb-2">
+                              Membres invités — {p.groupInvites.filter((i: any) => i.isUsed).length}/{p.groupInvites.length} inscrits
+                            </p>
+                            <div className="space-y-1">
+                              {p.groupInvites.map((inv: any) => (
+                                <div key={inv.email} className="flex items-center gap-2">
+                                  <span className={`w-2 h-2 rounded-full flex-shrink-0 ${inv.isUsed ? 'bg-emerald-400' : 'bg-slate-300'}`} />
+                                  <span className="text-xs text-violet-800 font-mono flex-1">{inv.email}</span>
+                                  <span className={`text-xs font-semibold ${inv.isUsed ? 'text-emerald-600' : 'text-slate-400'}`}>
+                                    {inv.isUsed ? '✓ inscrit' : 'en attente'}
+                                  </span>
+                                </div>
+                              ))}
                             </div>
-                          ))}
-                        </div>
+                          </>
+                        ) : (
+                          <p className="text-xs text-violet-500 font-medium">
+                            ⚠ Aucun email de membre fourni pour ce groupe
+                          </p>
+                        )}
                       </div>
                     )}
 

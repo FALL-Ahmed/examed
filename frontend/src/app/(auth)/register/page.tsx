@@ -135,7 +135,7 @@ function RegisterContent() {
 
       // Group member: no payment needed, go directly to dashboard
       if (isGroupMember) {
-        router.push('/dashboard');
+        window.location.href = '/dashboard';
         return;
       }
 
@@ -187,10 +187,9 @@ function RegisterContent() {
       fd.append('receipt', receipt);
       await paymentsApi.submit(fd);
 
-      router.push('/pending');
+      window.location.href = '/pending';
     } catch (err: any) {
       setStep2Error(err.response?.data?.message || 'Une erreur est survenue');
-    } finally {
       setLoading(false);
     }
   }
