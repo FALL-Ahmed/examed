@@ -368,7 +368,7 @@ export class AuthService {
       data: {
         userId: user.id,
         deviceFingerprint,
-        deviceName: deviceName || generateDeviceName('Unknown'),
+        deviceName: generateDeviceName(deviceName || ''),
         isActive: true,
       },
     });

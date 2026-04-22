@@ -58,7 +58,7 @@ export default function LoginPage() {
     e.preventDefault();
     setLoading(true); setError('');
     try {
-      const { data } = await authApi.verifyDevice({ email, verificationCode: verifyCode.trim(), deviceFingerprint });
+      const { data } = await authApi.verifyDevice({ email, verificationCode: verifyCode.trim(), deviceFingerprint, deviceName: navigator.userAgent });
       Cookies.set('access_token', data.accessToken, { expires: 1 });
       Cookies.set('refresh_token', data.refreshToken, { expires: 7 });
       useAuthStore.getState().setUser(data.user);

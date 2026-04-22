@@ -30,23 +30,25 @@ export function generateVerificationCode(): string {
  * "iPhone", "Android", "Windows", "Mac", etc
  */
 export function getDeviceType(userAgent: string): string {
-  if (/iPhone|iPad|iPod/.test(userAgent)) return 'iOS';
+  if (/iPhone/.test(userAgent)) return 'iPhone';
+  if (/iPad/.test(userAgent)) return 'iPad';
   if (/Android/.test(userAgent)) return 'Android';
   if (/Windows/.test(userAgent)) return 'Windows';
   if (/Mac/.test(userAgent)) return 'Mac';
   if (/Linux/.test(userAgent)) return 'Linux';
-  return 'Unknown';
+  return 'Appareil';
 }
 
 /**
  * Extrait le navigateur du user agent
  */
 export function getBrowserName(userAgent: string): string {
+  if (/Edg\/|Edge\//.test(userAgent)) return 'Edge';
+  if (/OPR\/|Opera/.test(userAgent)) return 'Opera';
+  if (/Firefox/.test(userAgent)) return 'Firefox';
   if (/Chrome/.test(userAgent)) return 'Chrome';
   if (/Safari/.test(userAgent)) return 'Safari';
-  if (/Firefox/.test(userAgent)) return 'Firefox';
-  if (/Edge/.test(userAgent)) return 'Edge';
-  return 'Unknown';
+  return 'Navigateur';
 }
 
 /**
