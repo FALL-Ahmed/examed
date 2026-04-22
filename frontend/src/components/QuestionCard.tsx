@@ -202,7 +202,7 @@ export function QuestionCard({ question, questionNumber, totalQuestions, onAnswe
               key={letter}
               onClick={() => toggleLetter(letter)}
               disabled={!!result || loading}
-              className={`w-full text-right rounded-xl transition-all duration-150 disabled:cursor-default ${rowClass(letter)}`}
+              className={`w-full ${isAr ? 'text-right' : 'text-left'} rounded-xl transition-all duration-150 disabled:cursor-default ${rowClass(letter)}`}
             >
               <div className="flex items-center gap-3 px-4 py-3.5">
                 <span className={`w-7 h-7 rounded-lg border-2 flex items-center justify-center text-xs font-bold flex-shrink-0 transition-all ${badgeClass(letter)}`}>
