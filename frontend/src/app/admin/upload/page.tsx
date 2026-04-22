@@ -329,17 +329,26 @@ export default function UploadPage() {
                       </span>
                     )}
                   </p>
-                  {(sub.questions ?? []).slice(0, 2).map((q: any, i: number) => (
-                    <div key={i} className="mt-2 ml-4 text-xs bg-secondary p-3 rounded-lg">
-                      <p className="font-medium">{q.text}</p>
-                      <div className="mt-1 space-y-0.5">
-                        {['A','B','C','D','E'].filter(l => q[`choice${l}`]).map(l => (
-                          <p key={l} className="text-muted-foreground">{l}: {q[`choice${l}`]}</p>
-                        ))}
+                  {(sub.questions ?? []).slice(0, 2).map((q: any, i: number) => {
+                    const isAr = preview.stats.language === 'AR';
+                    const arLetters: Record<string,string> = { A:'أ', B:'ب', C:'ج', D:'د', E:'هـ' };
+                    const dl = (l: string) => isAr ? arLetters[l] ?? l : l;
+                    return (
+                      <div key={i} className="mt-2 ml-4 text-xs bg-secondary p-3 rounded-lg" dir={isAr ? 'rtl' : 'ltr'}>
+                        <p className="font-medium">{q.text}</p>
+                        <div className="mt-1 space-y-0.5">
+                          {['A','B','C','D','E'].filter(l => q[`choice${l}`]).map(l => (
+                            <p key={l} className="text-muted-foreground">{dl(l)}: {q[`choice${l}`]}</p>
+                          ))}
+                        </div>
+                        {q.correctAnswer && (
+                          <p className="text-green-600 mt-1 font-medium">
+                            {isAr ? 'الإجابة:' : 'Réponse(s):'} {q.correctAnswer.split(',').map((l: string) => dl(l.trim())).join(', ')}
+                          </p>
+                        )}
                       </div>
-                      {q.correctAnswer && <p className="text-green-600 mt-1 font-medium">Réponse(s): {q.correctAnswer}</p>}
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
               ))}
             </div>

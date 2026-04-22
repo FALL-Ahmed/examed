@@ -17,8 +17,11 @@ const BADGE_COLORS: Record<string, string> = {
   E: 'bg-rose-100 text-rose-700 border-rose-200',
 };
 
-function InspectModal({ q, onClose }: { q: any; onClose: () => void }) {
+const AR_LETTERS: Record<string, string> = { A: 'أ', B: 'ب', C: 'ج', D: 'د', E: 'هـ' };
+
+function InspectModal({ q, isAr, onClose }: { q: any; isAr: boolean; onClose: () => void }) {
   const correct = q.correctAnswer?.split(',').map((s: string) => s.trim()) ?? [];
+  const dl = (l: string) => isAr ? AR_LETTERS[l] ?? l : l;
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
       <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={onClose} />
@@ -32,7 +35,7 @@ function InspectModal({ q, onClose }: { q: any; onClose: () => void }) {
             <X className="w-4 h-4" />
           </button>
         </div>
-        <div className="p-6 space-y-5">
+        <div className="p-6 space-y-5" dir={isAr ? 'rtl' : 'ltr'}>
           {q.imageUrl && (
             <img src={resolveImageUrl(q.imageUrl)} alt="Question" className="w-full rounded-xl object-contain max-h-48 border border-slate-100" />
           )}
@@ -46,10 +49,10 @@ function InspectModal({ q, onClose }: { q: any; onClose: () => void }) {
               return (
                 <div key={l} className={`flex items-start gap-3 p-3 rounded-xl border-2 ${isCorrect ? 'border-emerald-400 bg-emerald-50' : 'border-slate-100 bg-slate-50'}`}>
                   <span className={`flex-shrink-0 w-6 h-6 rounded-full text-xs font-bold flex items-center justify-center border ${isCorrect ? 'bg-emerald-500 text-white border-emerald-500' : BADGE_COLORS[l]}`}>
-                    {l}
+                    {dl(l)}
                   </span>
                   <p className={`text-sm leading-relaxed ${isCorrect ? 'font-semibold text-emerald-800' : 'text-slate-700'}`}>
-                    {q[`choice${l}`]}{isCorrect && <span className="ml-2 text-xs text-emerald-500">✓</span>}
+                    {q[`choice${l}`]}{isCorrect && <span className="mx-2 text-xs text-emerald-500">✓</span>}
                   </p>
                 </div>
               );
@@ -57,7 +60,9 @@ function InspectModal({ q, onClose }: { q: any; onClose: () => void }) {
           </div>
           <div className="flex items-center gap-2">
             <span className="text-xs font-bold text-slate-400 uppercase tracking-wide">Réponse :</span>
-            <span className="px-3 py-1 rounded-full bg-emerald-100 text-emerald-700 text-sm font-bold">{q.correctAnswer}</span>
+            <span className="px-3 py-1 rounded-full bg-emerald-100 text-emerald-700 text-sm font-bold">
+              {q.correctAnswer?.split(',').map((l: string) => dl(l.trim())).join(', ')}
+            </span>
           </div>
           {q.explanation?.trim() && (
             <div className="p-4 rounded-xl bg-amber-50 border border-amber-200">
@@ -452,7 +457,7 @@ export default function AdminQuestionsPage() {
         )}
       </div>
 
-      {inspecting && <InspectModal q={inspecting} onClose={() => setInspecting(null)} />}
+      {inspecting && <InspectModal q={inspecting} isAr={langTab === 'AR'} onClose={() => setInspecting(null)} />}
       </div>
     </div>
   );

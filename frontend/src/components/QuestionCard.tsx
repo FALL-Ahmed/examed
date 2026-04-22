@@ -3,6 +3,9 @@ import { useState } from 'react';
 import { CheckCircle2, XCircle, ChevronRight, Lightbulb, Heart } from 'lucide-react';
 import { questionsApi } from '@/lib/api';
 import { sentenceCase, resolveImageUrl } from '@/lib/utils';
+import { useLang } from '@/components/LanguageProvider';
+
+const AR_LETTERS: Record<string, string> = { A: 'أ', B: 'ب', C: 'ج', D: 'د', E: 'هـ' };
 
 interface Question {
   id: string;
@@ -63,6 +66,10 @@ const ROW_SELECTED: Record<string, string> = {
 };
 
 export function QuestionCard({ question, questionNumber, totalQuestions, onAnswer, onNext, isLast, isFavorited = false, onFavoriteToggle }: Props) {
+  const { lang } = useLang();
+  const isAr = lang === 'ar';
+  const displayLetter = (l: string) => isAr ? AR_LETTERS[l] ?? l : l;
+
   const [selected, setSelected] = useState<Set<string>>(new Set());
   const [result, setResult] = useState<AnswerResult | null>(null);
   const [loading, setLoading] = useState(false);
@@ -167,7 +174,7 @@ export function QuestionCard({ question, questionNumber, totalQuestions, onAnswe
           <div className="flex-1">
             {(question.isMultiple || (result && correctLetters.length > 1)) && (
               <span className="inline-flex items-center mb-3 text-xs bg-violet-50 dark:bg-violet-900/30 text-violet-600 dark:text-violet-300 px-2.5 py-1 rounded-full font-medium border border-violet-200 dark:border-violet-700">
-                Plusieurs réponses possibles
+                {isAr ? 'إجابات متعددة ممكنة' : 'Plusieurs réponses possibles'}
               </span>
             )}
             {question.imageUrl && (
@@ -206,7 +213,7 @@ export function QuestionCard({ question, questionNumber, totalQuestions, onAnswe
             >
               <div className="flex items-center gap-3 px-4 py-3.5">
                 <span className={`w-7 h-7 rounded-lg border-2 flex items-center justify-center text-xs font-bold flex-shrink-0 transition-all ${badgeClass(letter)}`}>
-                  {isCorrect ? <CheckCircle2 className="w-4 h-4" /> : isWrong ? <XCircle className="w-4 h-4" /> : letter}
+                  {isCorrect ? <CheckCircle2 className="w-4 h-4" /> : isWrong ? <XCircle className="w-4 h-4" /> : displayLetter(letter)}
                 </span>
                 <span className="flex-1 text-sm text-gray-700 dark:text-gray-200 leading-snug">{text}</span>
               </div>
@@ -223,7 +230,7 @@ export function QuestionCard({ question, questionNumber, totalQuestions, onAnswe
           className="w-full py-3.5 rounded-xl font-semibold text-sm text-white transition disabled:opacity-40 disabled:cursor-not-allowed shadow-md shadow-violet-200"
           style={{ background: selected.size === 0 ? '#9ca3af' : 'linear-gradient(135deg,#7c3aed,#6366f1)' }}
         >
-          {loading ? 'Vérification…' : 'Valider ma réponse'}
+          {loading ? (isAr ? 'جارٍ التحقق…' : 'Vérification…') : (isAr ? 'تحقق من إجابتي' : 'Valider ma réponse')}
         </button>
       )}
 
@@ -237,7 +244,7 @@ export function QuestionCard({ question, questionNumber, totalQuestions, onAnswe
                 <div className="w-8 h-8 rounded-full bg-emerald-500 flex items-center justify-center flex-shrink-0">
                   <CheckCircle2 className="w-4 h-4 text-white" />
                 </div>
-                <span className="font-semibold text-emerald-700 dark:text-emerald-300">Bonne réponse !</span>
+                <span className="font-semibold text-emerald-700 dark:text-emerald-300">{isAr ? 'إجابة صحيحة!' : 'Bonne réponse !'}</span>
               </>
             ) : (
               <>
@@ -245,7 +252,8 @@ export function QuestionCard({ question, questionNumber, totalQuestions, onAnswe
                   <XCircle className="w-4 h-4 text-white" />
                 </div>
                 <span className="font-semibold text-red-700 dark:text-red-300">
-                  Réponse : {result.correctAnswer.split(',').join(', ')}
+                  {isAr ? 'الإجابة:' : 'Réponse :'}{' '}
+                  {result.correctAnswer.split(',').map((l) => displayLetter(l.trim())).join(', ')}
                 </span>
               </>
             )}
@@ -287,8 +295,8 @@ export function QuestionCard({ question, questionNumber, totalQuestions, onAnswe
               className="w-full py-3 rounded-xl font-semibold text-sm text-white flex items-center justify-center gap-2 shadow-md shadow-violet-200 transition hover:opacity-90"
               style={{ background: 'linear-gradient(135deg,#7c3aed,#6366f1)' }}
             >
-              {isLast ? 'Voir les résultats' : 'Question suivante'}
-              <ChevronRight className="w-4 h-4" />
+              {isLast ? (isAr ? 'عرض النتائج' : 'Voir les résultats') : (isAr ? 'السؤال التالي' : 'Question suivante')}
+              <ChevronRight className={`w-4 h-4 ${isAr ? 'rotate-180' : ''}`} />
             </button>
           </div>
         </div>
