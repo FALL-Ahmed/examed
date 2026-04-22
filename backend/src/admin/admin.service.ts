@@ -23,8 +23,11 @@ export class AdminService {
     return { totalUsers, premiumUsers, totalQuestions, pendingPayments, pendingGroupPayments, todayRegistrations };
   }
 
-  async getUsers(page = 1, limit = 20, search?: string) {
+  async getUsers(page = 1, limit = 20, search?: string, planType?: string) {
     const where: any = { role: { not: 'ADMIN' } };
+    if (planType) {
+      where.payments = { some: { status: 'VALIDATED', planType } };
+    }
     if (search) {
       where.OR = [
         { email: { contains: search, mode: 'insensitive' } },
@@ -145,6 +148,39 @@ export class AdminService {
   async getSettings() {
     const rows = await this.prisma.setting.findMany();
     return Object.fromEntries(rows.map((r) => [r.key, r.value]));
+  }
+
+  async getGroups() {
+    const payments = await this.prisma.payment.findMany({
+      where: { status: 'VALIDATED', planType: 'GROUP' },
+      include: {
+        user: { select: { id: true, fullName: true, email: true, phone: true, subscriptionEnd: true } },
+        groupInvites: true,
+      },
+      orderBy: { validatedAt: 'desc' },
+    });
+
+    const allEmails = payments.flatMap((p) => (p as any).groupInvites.map((i: any) => i.email));
+    const memberUsers = allEmails.length
+      ? await this.prisma.user.findMany({
+          where: { email: { in: allEmails } },
+          select: { id: true, fullName: true, email: true, subscriptionEnd: true },
+        })
+      : [];
+    const userByEmail = Object.fromEntries(memberUsers.map((u) => [u.email, u]));
+
+    return payments.map((p: any) => ({
+      id: p.id,
+      amount: p.amount,
+      groupSize: p.groupSize,
+      validatedAt: p.validatedAt,
+      organizer: p.user,
+      members: p.groupInvites.map((inv: any) => ({
+        email: inv.email,
+        isUsed: inv.isUsed,
+        user: userByEmail[inv.email] ?? null,
+      })),
+    }));
   }
 
   async getUserAnalytics() {

@@ -40,12 +40,19 @@ export class AdminController {
     @Query('page') page?: string,
     @Query('limit') limit?: string,
     @Query('search') search?: string,
+    @Query('planType') planType?: string,
   ) {
     return this.adminService.getUsers(
       page ? parseInt(page) : 1,
       limit ? parseInt(limit) : 20,
       search,
+      planType,
     );
+  }
+
+  @Get('groups')
+  getGroups() {
+    return this.adminService.getGroups();
   }
 
   @Get('users/:id')
