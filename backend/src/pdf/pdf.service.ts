@@ -41,9 +41,23 @@ export class PdfService {
     const themes: any[] = [];
     let skippedNoOptions = 0;
 
+    const AR_TO_LATIN: Record<string, string> = { 'أ': 'A', 'ب': 'B', 'ج': 'C', 'د': 'D', 'ه': 'E', 'هـ': 'E' };
+
+    const normalizeOpts = (opts: Record<string, any>): Record<string, any> => {
+      const result: Record<string, any> = {};
+      for (const [k, v] of Object.entries(opts)) {
+        result[AR_TO_LATIN[k] ?? k] = v;
+      }
+      return result;
+    };
+
+    const normalizeAnswer = (ans: string): string =>
+      ans.split(',').map(s => AR_TO_LATIN[s.trim()] ?? s.trim()).join(',');
+
     const parseQuestion = (q: any): any | null => {
-      const opts = q.options ?? {};
+      const opts = normalizeOpts(q.options ?? {});
       if (Object.keys(opts).length === 0) { skippedNoOptions++; return null; }
+      const rawAnswer = Array.isArray(q.reponses) ? q.reponses.join(',') : String(q.reponses || '');
       return {
         text: q.question || '',
         choiceA: opts.A || '',
@@ -51,7 +65,7 @@ export class PdfService {
         choiceC: opts.C || '',
         choiceD: opts.D || '',
         choiceE: opts.E || '',
-        correctAnswer: Array.isArray(q.reponses) ? q.reponses.join(',') : String(q.reponses || ''),
+        correctAnswer: normalizeAnswer(rawAnswer),
         explanation: q.commentaire || '',
         imageUrl: q.image || null,
       };
