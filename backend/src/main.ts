@@ -18,12 +18,17 @@ async function bootstrap() {
   app.enableCors({
     origin: (origin, callback) => {
       const allowed = [
-        process.env.FRONTEND_URL,
+        ...(process.env.FRONTEND_URL ?? '').split(',').map(s => s.trim()),
         'http://localhost:3000',
       ].filter(Boolean);
 
-      // Autoriser toutes les previews Vercel
-      if (!origin || allowed.includes(origin) || /\.vercel\.app$/.test(origin) || /\.netlify\.app$/.test(origin)) {
+      if (
+        !origin ||
+        allowed.includes(origin) ||
+        /\.vercel\.app$/.test(origin) ||
+        /\.netlify\.app$/.test(origin) ||
+        /albourour\.com$/.test(origin)
+      ) {
         callback(null, true);
       } else {
         callback(new Error('Not allowed by CORS'));
