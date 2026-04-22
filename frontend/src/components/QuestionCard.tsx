@@ -266,17 +266,29 @@ export function QuestionCard({ question, questionNumber, totalQuestions, onAnswe
               </div>
               <div className="text-sm text-gray-600 dark:text-gray-300 leading-relaxed">
                 {result.explanation.includes('\n') ? (
-                  <ul className="space-y-1">
-                    {result.explanation.split('\n').filter(l => l.trim()).map((line, i) => (
-                      <li key={i} className="flex gap-2">
-                        <span className="text-amber-500 flex-shrink-0 mt-0.5">•</span>
-                        <span>{line.trim()}</span>
-                      </li>
-                    ))}
+                  <ul className="space-y-2">
+                    {result.explanation.split('\n').filter(l => l.trim()).map((line, i) => {
+                      const colonIdx = line.indexOf(':');
+                      const hasTitle = colonIdx > 0 && colonIdx < 60 && line.slice(colonIdx + 1).trim().length > 0;
+                      return (
+                        <li key={i} className="flex gap-2">
+                          <span className="text-amber-500 flex-shrink-0 mt-0.5">•</span>
+                          <span>
+                            {hasTitle ? (
+                              <><strong className="text-gray-800 dark:text-gray-100">{line.slice(0, colonIdx + 1)}</strong>{' '}{line.slice(colonIdx + 1).trim()}</>
+                            ) : line.trim()}
+                          </span>
+                        </li>
+                      );
+                    })}
                   </ul>
-                ) : (
-                  <p>{result.explanation}</p>
-                )}
+                ) : (() => {
+                  const colonIdx = result.explanation.indexOf(':');
+                  const hasTitle = colonIdx > 0 && colonIdx < 60 && result.explanation.slice(colonIdx + 1).trim().length > 0;
+                  return hasTitle ? (
+                    <p><strong className="text-gray-800 dark:text-gray-100">{result.explanation.slice(0, colonIdx + 1)}</strong>{' '}{result.explanation.slice(colonIdx + 1).trim()}</p>
+                  ) : <p>{result.explanation}</p>;
+                })()}
               </div>
             </div>
           )}
