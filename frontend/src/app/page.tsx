@@ -15,7 +15,6 @@ export default function LandingPage() {
   const router = useRouter();
   const { loadUser } = useAuthStore();
   const { t, lang } = useLang();
-  const [checked, setChecked] = useState(false);
   const [pricing, setPricing] = useState<any>(null);
   const promoActive = new Date() <= new Date('2026-04-27T23:59:59');
   const promo = (p: number) => Math.round(p / 2);
@@ -45,15 +44,8 @@ export default function LandingPage() {
     loadUser().then(() => {
       const u = useAuthStore.getState().user;
       if (u) router.replace(u.role === 'ADMIN' ? '/admin' : '/dashboard');
-      else setChecked(true);
     });
   }, []);
-
-  if (!checked) return (
-    <div className="min-h-screen flex items-center justify-center" style={{ background: '#0a0a1a' }}>
-      <div className="w-8 h-8 border-4 border-violet-500 border-t-transparent rounded-full animate-spin" />
-    </div>
-  );
 
   const line2prefix = t('landing.hero.line2prefix');
 
