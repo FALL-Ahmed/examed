@@ -21,12 +21,29 @@ const tajawal = Tajawal({
 export const metadata: Metadata = {
   title: 'Al Bourour — Préparation Concours de Santé',
   description: 'Application de révision QCM pour étudiants en soins infirmiers en Mauritanie',
+  manifest: '/manifest.json',
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: 'default',
+    title: 'Al Bourour',
+  },
+  icons: {
+    icon: [
+      { url: '/icon-192.png', sizes: '192x192', type: 'image/png' },
+      { url: '/icon-512.png', sizes: '512x512', type: 'image/png' },
+    ],
+    apple: [{ url: '/apple-touch-icon.png', sizes: '180x180', type: 'image/png' }],
+  },
 }
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="fr" dir="ltr" suppressHydrationWarning
       className={`${jakarta.variable} ${tajawal.variable}`}>
+      <head>
+        <meta name="theme-color" content="#3b82f6" />
+        <meta name="mobile-web-app-capable" content="yes" />
+      </head>
       <body>
         <ThemeProvider>
           <LanguageProvider>
