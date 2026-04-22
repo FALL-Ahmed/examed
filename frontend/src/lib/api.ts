@@ -123,6 +123,7 @@ export const adminApi = {
   resetSubscription: (id: string) => api.put(`/admin/users/${id}/reset-subscription`),
   getUser: (id: string) => api.get(`/admin/users/${id}`),
   deleteUser: (id: string) => api.delete(`/admin/users/${id}`),
+  revokeDevice: (deviceId: string) => api.delete(`/admin/devices/${deviceId}`),
   questions: (params?: any) => api.get('/admin/questions', { params }),
   updateQuestion: (id: string, data: any) => api.put(`/admin/questions/${id}`, data),
   deleteQuestion: (id: string) => api.delete(`/admin/questions/${id}`),

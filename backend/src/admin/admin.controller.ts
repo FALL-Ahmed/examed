@@ -75,6 +75,11 @@ export class AdminController {
     return this.adminService.resetUserSubscription(id);
   }
 
+  @Delete('devices/:deviceId')
+  revokeDevice(@Param('deviceId') deviceId: string) {
+    return this.adminService.revokeUserDevice(deviceId);
+  }
+
   @Get('questions')
   getQuestions(
     @Query('page') page?: string,

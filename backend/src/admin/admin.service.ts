@@ -69,7 +69,19 @@ export class AdminService {
             validatedAt: true, rejectionReason: true,
           },
         },
+        trustedDevices: {
+          where: { isActive: true },
+          orderBy: { lastUsedAt: 'desc' },
+          select: { id: true, deviceName: true, createdAt: true, lastUsedAt: true },
+        },
       } as any,
+    });
+  }
+
+  async revokeUserDevice(deviceId: string) {
+    return (this.prisma as any).trustedDevice.update({
+      where: { id: deviceId },
+      data: { isActive: false },
     });
   }
 

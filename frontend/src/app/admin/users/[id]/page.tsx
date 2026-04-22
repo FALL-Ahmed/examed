@@ -251,6 +251,48 @@ export default function UserDetailPage() {
         )}
       </div>
 
+      {/* Trusted devices */}
+      <div>
+        <h2 className="text-lg font-bold text-slate-900 mb-4 flex items-center gap-2">
+          Appareils de confiance
+          <span className="text-sm font-normal text-slate-400">({user.trustedDevices?.length ?? 0})</span>
+        </h2>
+        {!user.trustedDevices?.length ? (
+          <div className="bg-white rounded-2xl border border-dashed border-slate-200 py-10 text-center">
+            <p className="text-slate-400 text-sm">Aucun appareil enregistré</p>
+          </div>
+        ) : (
+          <div className="space-y-2">
+            {user.trustedDevices.map((d: any) => (
+              <div key={d.id} className="bg-white rounded-2xl border border-slate-200 shadow-sm px-5 py-4 flex items-center justify-between gap-4">
+                <div className="flex items-center gap-3">
+                  <div className="w-9 h-9 rounded-xl bg-slate-100 flex items-center justify-center flex-shrink-0">
+                    <Briefcase className="w-4 h-4 text-slate-500" />
+                  </div>
+                  <div>
+                    <p className="text-sm font-semibold text-slate-800">{d.deviceName}</p>
+                    <p className="text-xs text-slate-400">
+                      Ajouté le {new Date(d.createdAt).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' })}
+                      {d.lastUsedAt && ` · Dernière utilisation ${new Date(d.lastUsedAt).toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' })}`}
+                    </p>
+                  </div>
+                </div>
+                <button
+                  onClick={async () => {
+                    if (!confirm('Révoquer cet appareil ?')) return;
+                    await adminApi.revokeDevice(d.id).catch(() => {});
+                    load();
+                  }}
+                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold border border-red-200 text-red-500 hover:bg-red-50 transition flex-shrink-0"
+                >
+                  <Trash2 className="w-3.5 h-3.5" /> Révoquer
+                </button>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+
       {previewUrl && <ReceiptModal url={previewUrl} onClose={() => setPreviewUrl(null)} />}
     </div>
   );
