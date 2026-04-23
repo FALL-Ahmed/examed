@@ -291,7 +291,7 @@ function RegisterContent() {
           </div>
 
           <div className="space-y-2.5">
-            {['500+ questions médicales validées', 'Pour infirmiers, médecins, techniciens…', 'Adapté aux concours mauritaniens'].map((t) => (
+            {['350+ questions médicales validées', 'Pour infirmiers, médecins, techniciens…', 'Adapté aux concours mauritaniens'].map((t) => (
               <div key={t} className="flex items-center gap-2.5">
                 <div className="w-1.5 h-1.5 rounded-full bg-violet-400 flex-shrink-0" />
                 <span className="text-white/50 text-xs">{t}</span>

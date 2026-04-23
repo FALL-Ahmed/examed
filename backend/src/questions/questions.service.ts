@@ -78,6 +78,37 @@ export class QuestionsService {
     return shuffled.slice(0, opts.count);
   }
 
+  async getFreeTrial(themeName: string) {
+    const FREE_THEMES = ['paludisme', 'pediatrie', 'pédiatrie', 'lavage'];
+    const normalized = themeName.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '');
+    const allowed = FREE_THEMES.some((t) => normalized.includes(t) || t.includes(normalized));
+    if (!allowed) throw new Error('Thème non disponible en essai gratuit');
+
+    const questions = await this.prisma.question.findMany({
+      where: {
+        isActive: true,
+        subTheme: { theme: { name: { contains: themeName, mode: 'insensitive' } } },
+      },
+      take: 10,
+      include: { subTheme: { include: { theme: true } } },
+    });
+
+    if (questions.length === 0) {
+      return this.prisma.question.findMany({
+        where: {
+          isActive: true,
+          subTheme: {
+            theme: { name: { contains: normalized.split('').slice(0, 4).join(''), mode: 'insensitive' } },
+          },
+        },
+        take: 10,
+        include: { subTheme: { include: { theme: true } } },
+      });
+    }
+
+    return questions;
+  }
+
   async getMistakes(userId: string) {
     // Questions ratées: dernière réponse incorrecte
     const wrongAnswers = await this.prisma.userAnswer.findMany({

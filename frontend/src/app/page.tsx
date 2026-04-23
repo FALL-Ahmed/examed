@@ -39,9 +39,9 @@ export default function LandingPage() {
   ];
 
   const FREE_CHAPTERS = [
-    { emoji: '🦟', name: lang === 'ar' ? 'الملاريا' : 'Paludisme' },
-    { emoji: '👶', name: lang === 'ar' ? 'طب الأطفال' : 'Pédiatrie' },
-    { emoji: '🧼', name: lang === 'ar' ? 'غسل اليدين' : 'Lavage des mains' },
+    { key: 'Paludisme',  name: lang === 'ar' ? 'الملاريا' : 'Paludisme' },
+    { key: 'Pédiatrie',  name: lang === 'ar' ? 'طب الأطفال' : 'Pédiatrie' },
+    { key: 'Lavage',     name: lang === 'ar' ? 'غسل اليدين' : 'Lavage des mains' },
   ];
 
   useEffect(() => {
@@ -68,7 +68,6 @@ export default function LandingPage() {
             <span className="font-extrabold text-lg tracking-tight text-gray-900">{t('app.name')}</span>
           </div>
           <div className="flex items-center gap-1 flex-nowrap flex-shrink-0">
-            <span className="text-xl mr-1" title="Mauritanie">🇲🇷</span>
             <LanguageSwitcherLight className="!text-gray-500 hover:!bg-gray-100 hover:!text-gray-900 flex-shrink-0" />
             <Link href="/login"
               className="text-sm font-semibold text-gray-500 hover:text-gray-900 px-3 py-2 rounded-lg hover:bg-gray-100 transition whitespace-nowrap flex-shrink-0">
@@ -116,7 +115,7 @@ export default function LandingPage() {
             </p>
 
             <div className="flex flex-col sm:flex-row gap-3">
-              <Link href="/register"
+              <Link href="/free-trial"
                 className="inline-flex items-center justify-center gap-2 text-white font-bold px-7 py-4 rounded-2xl text-sm transition hover:opacity-90 shadow-xl shadow-violet-900/50"
                 style={{ background: 'linear-gradient(135deg,#7c3aed,#6366f1)' }}>
                 {t('landing.hero.start')} <ArrowRight className="w-4 h-4" />
@@ -129,12 +128,22 @@ export default function LandingPage() {
 
             {/* Stats bar */}
             <div className="flex flex-wrap gap-8 mt-12 pt-10 border-t border-white/10">
-              {STATS.map((s) => (
-                <div key={s.label}>
-                  <p className="text-xl font-extrabold text-white">{s.value}</p>
-                  <p className="text-xs text-white/40 mt-0.5">{s.label}</p>
-                </div>
-              ))}
+              <div>
+                <p className="text-2xl font-extrabold text-white">300+</p>
+                <p className="text-xs text-white/40 mt-0.5">{t('landing.stat.q')}</p>
+              </div>
+              <div>
+                <p className="text-2xl font-extrabold text-white">FR · AR</p>
+                <p className="text-xs text-white/40 mt-0.5">{t('landing.stat.themes')}</p>
+              </div>
+              <div>
+                <p className="text-2xl font-extrabold text-white">100%</p>
+                <p className="text-xs text-white/40 mt-0.5">{t('landing.stat.adapted')}</p>
+              </div>
+              <div>
+                <p className="text-2xl font-extrabold text-white">24/7</p>
+                <p className="text-xs text-white/40 mt-0.5">{t('landing.stat.available')}</p>
+              </div>
             </div>
           </div>
         </div>
@@ -183,9 +192,8 @@ export default function LandingPage() {
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 max-w-2xl mx-auto">
             {FREE_CHAPTERS.map((ch) => (
-              <Link key={ch.name} href="/register"
+              <Link key={ch.name} href={`/free-trial?theme=${ch.key}`}
                 className="flex flex-col items-center gap-3 p-6 bg-white rounded-2xl border-2 border-violet-100 hover:border-violet-400 hover:shadow-lg transition-all group">
-                <span className="text-4xl">{ch.emoji}</span>
                 <p className="font-bold text-gray-900 text-sm text-center">{ch.name}</p>
                 <span className="text-xs font-semibold text-violet-600 bg-violet-50 px-2 py-0.5 rounded-full group-hover:bg-violet-100 transition">
                   {lang === 'ar' ? 'مجاناً' : 'Gratuit'}
@@ -225,7 +233,7 @@ export default function LandingPage() {
             </div>
             {/* FR + AR */}
             <div className="p-6 rounded-2xl border border-gray-100 bg-gray-50 flex flex-col gap-3">
-              <div className="w-10 h-10 rounded-xl bg-blue-100 flex items-center justify-center text-xl">🇲🇷</div>
+              <div className="w-10 h-10 rounded-xl bg-blue-100 flex items-center justify-center text-xl">🌐</div>
               <p className="text-3xl font-black text-gray-900">FR · AR</p>
               <div>
                 <p className="font-bold text-gray-800 text-sm">
@@ -346,19 +354,25 @@ export default function LandingPage() {
           </div>
 
           {promoActive && (
-            <div className="mb-10 relative overflow-hidden rounded-3xl px-8 py-6 text-white text-center shadow-xl shadow-red-200"
-              style={{ background: 'linear-gradient(135deg,#dc2626 0%,#f97316 100%)' }}>
-              <div className="absolute inset-0 opacity-10"
-                style={{ backgroundImage: 'radial-gradient(circle at 1px 1px,white 1px,transparent 0)', backgroundSize: '20px 20px' }} />
-              <div className="relative">
-                <p className="text-2xl font-black mb-1">
-                  {lang === 'ar' ? '🎉 تخفيض -50% — عرض الإطلاق !' : '🎉 -50% de réduction — Offre de lancement !'}
+            <div className="mb-12 relative overflow-hidden rounded-3xl text-white text-center shadow-2xl shadow-red-300"
+              style={{ background: 'linear-gradient(135deg,#b91c1c 0%,#dc2626 40%,#f97316 100%)' }}>
+              <div className="absolute inset-0 opacity-[0.07]"
+                style={{ backgroundImage: 'radial-gradient(circle at 1px 1px,white 1px,transparent 0)', backgroundSize: '24px 24px' }} />
+              <div className="absolute top-0 left-1/4 w-64 h-32 rounded-full blur-3xl opacity-20 pointer-events-none"
+                style={{ background: 'radial-gradient(circle,#fbbf24,transparent)' }} />
+              <div className="relative px-8 py-8">
+                <div className="text-5xl mb-3">🔥</div>
+                <p className="text-3xl md:text-4xl font-black mb-2 tracking-tight">
+                  {lang === 'ar' ? '-50% على جميع الخطط !' : '-50% sur tous les plans !'}
                 </p>
-                <p className="text-white/85 text-sm">
+                <p className="text-white/80 text-base mb-4">
                   {lang === 'ar'
-                    ? <>صالح حتى <strong className="text-white underline">الاثنين 27 أبريل 2026</strong> — الأسعار الأصلية مشطوبة أدناه</>
-                    : <>Valable jusqu'au <strong className="text-white underline">lundi 27 avril 2026</strong> — les prix barrés sont les prix normaux</>}
+                    ? <>عرض الإطلاق — صالح حتى <strong className="text-white text-lg underline decoration-2">الاثنين 27 أبريل 2026</strong></>
+                    : <>Offre de lancement — valable jusqu'au <strong className="text-white text-lg underline decoration-2">lundi 27 avril 2026</strong></>}
                 </p>
+                <div className="inline-flex items-center gap-2 bg-white/20 border border-white/30 text-white text-sm font-bold px-4 py-2 rounded-full backdrop-blur-sm">
+                  ⏳ {lang === 'ar' ? 'الأسعار الأصلية مشطوبة أدناه' : 'Les prix barrés ci-dessous sont les prix normaux'}
+                </div>
               </div>
             </div>
           )}
@@ -373,12 +387,12 @@ export default function LandingPage() {
               <h3 className="font-extrabold text-xl text-gray-900 mb-1">{t('landing.pricing.solo1.name')}</h3>
               <p className="text-gray-400 text-sm mb-6">{t('landing.pricing.solo1.desc')}</p>
               <div className="mb-6">
-                {promoActive && <p className="text-base text-gray-400 line-through font-semibold">{pricing?.solo1m?.price ?? 500} MRU</p>}
+                {promoActive && <p className="text-2xl font-black text-red-400 line-through">{pricing?.solo1m?.price ?? 500} MRU</p>}
                 <p className="text-4xl font-black text-gray-900">
                   {promoActive ? promo(pricing?.solo1m?.price ?? 500) : (pricing?.solo1m?.price ?? 500)}
                   <span className="text-lg font-semibold text-gray-400 ml-1">MRU</span>
                 </p>
-                {promoActive && <span className="inline-flex items-center gap-1 mt-2 bg-red-500 text-white text-xs font-black px-3 py-1 rounded-full">🔥 -50%</span>}
+                {promoActive && <span className="inline-flex items-center gap-1 mt-2 bg-red-500 text-white text-sm font-black px-3 py-1.5 rounded-full">🔥 -50%</span>}
               </div>
               <Link href="/register?plan=SOLO_1M"
                 className="block w-full text-center py-3 rounded-2xl font-bold text-sm border-2 border-gray-200 text-gray-700 hover:border-indigo-400 hover:text-indigo-600 transition">
@@ -397,12 +411,12 @@ export default function LandingPage() {
               <h3 className="font-extrabold text-xl text-gray-900 mb-1">{t('landing.pricing.solo3.name')}</h3>
               <p className="text-gray-400 text-sm mb-6">{t('landing.pricing.solo3.desc')}</p>
               <div className="mb-1">
-                {promoActive && <p className="text-base text-gray-400 line-through font-semibold">{pricing?.solo3m?.price ?? 1200} MRU</p>}
+                {promoActive && <p className="text-2xl font-black text-red-400 line-through">{pricing?.solo3m?.price ?? 1200} MRU</p>}
                 <p className="text-4xl font-black text-gray-900">
                   {promoActive ? promo(pricing?.solo3m?.price ?? 1200) : (pricing?.solo3m?.price ?? 1200)}
                   <span className="text-lg font-semibold text-gray-400 ml-1">MRU</span>
                 </p>
-                {promoActive && <span className="inline-flex items-center gap-1 mt-2 bg-red-500 text-white text-xs font-black px-3 py-1 rounded-full">🔥 -50%</span>}
+                {promoActive && <span className="inline-flex items-center gap-1 mt-2 bg-red-500 text-white text-sm font-black px-3 py-1.5 rounded-full">🔥 -50%</span>}
               </div>
               <p className="text-xs text-violet-500 font-semibold mb-6">
                 ≈ {promoActive ? promo(pricing ? Math.round(pricing.solo3m.price / 3) : 400) : (pricing ? Math.round(pricing.solo3m.price / 3) : 400)} MRU/{lang === 'ar' ? 'شهر' : 'mois'}
@@ -422,12 +436,12 @@ export default function LandingPage() {
               <h3 className="font-extrabold text-xl text-gray-900 mb-1">{t('landing.pricing.group.name')}</h3>
               <p className="text-gray-400 text-sm mb-6">Min. {pricing?.groupMin ?? 5} {lang === 'ar' ? 'أشخاص' : 'personnes'}</p>
               <div className="mb-1">
-                {promoActive && <p className="text-base text-gray-400 line-through font-semibold">{(pricing?.groupPerP?.price ?? 400) * (pricing?.groupMin ?? 5)} MRU</p>}
+                {promoActive && <p className="text-2xl font-black text-red-400 line-through">{(pricing?.groupPerP?.price ?? 400) * (pricing?.groupMin ?? 5)} MRU</p>}
                 <p className="text-4xl font-black text-gray-900">
                   {promoActive ? promo((pricing?.groupPerP?.price ?? 400) * (pricing?.groupMin ?? 5)) : (pricing?.groupPerP?.price ?? 400) * (pricing?.groupMin ?? 5)}
                   <span className="text-lg font-semibold text-gray-400 ml-1">MRU</span>
                 </p>
-                {promoActive && <span className="inline-flex items-center gap-1 mt-2 bg-red-500 text-white text-xs font-black px-3 py-1 rounded-full">🔥 -50%</span>}
+                {promoActive && <span className="inline-flex items-center gap-1 mt-2 bg-red-500 text-white text-sm font-black px-3 py-1.5 rounded-full">🔥 -50%</span>}
               </div>
               <p className="text-xs text-emerald-600 font-semibold mb-6">
                 {promoActive ? promo(pricing?.groupPerP?.price ?? 400) : (pricing?.groupPerP?.price ?? 400)} MRU / {lang === 'ar' ? 'شخص' : 'personne'}

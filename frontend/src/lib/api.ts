@@ -81,6 +81,10 @@ export const themesApi = {
 };
 
 // Questions
+export const publicApi = {
+  freeTrial: (theme: string) => axios.get(`${API_URL}/questions/free-trial`, { params: { theme } }),
+};
+
 export const questionsApi = {
   practice: (params?: any) => api.get('/questions/practice', { params }),
   mistakes: () => api.get('/questions/mistakes'),
