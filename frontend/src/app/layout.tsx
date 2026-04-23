@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 import { Plus_Jakarta_Sans, Tajawal } from 'next/font/google'
 import Script from 'next/script'
 import './globals.css'
+import 'flag-icons/css/flag-icons.min.css'
 import { ThemeProvider } from '@/components/ThemeProvider'
 import { LanguageProvider } from '@/components/LanguageProvider'
 

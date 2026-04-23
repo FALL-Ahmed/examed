@@ -3,19 +3,21 @@ import { useLang } from '@/components/LanguageProvider';
 
 interface Props {
   className?: string;
-  /** 'icon' shows flag+code, 'full' shows full name */
   variant?: 'icon' | 'full';
+}
+
+function Flag({ code }: { code: 'mr' | 'fr' }) {
+  return <span className={`fi fi-${code} rounded-sm`} style={{ fontSize: '1.1em', lineHeight: 1 }} />;
 }
 
 export function LanguageSwitcher({ className = '', variant = 'full' }: Props) {
   const { lang, setLang } = useLang();
 
   const options = [
-    { code: 'fr' as const, label: 'Français', flag: '🇫🇷', short: 'FR' },
-    { code: 'ar' as const, label: 'العربية', flag: '🇲🇷', short: 'ع' },
+    { code: 'fr' as const, label: 'Français', flagCode: 'fr' as const, short: 'FR' },
+    { code: 'ar' as const, label: 'العربية',  flagCode: 'mr' as const, short: 'ع' },
   ];
 
-  const current = options.find(o => o.code === lang)!;
   const next = options.find(o => o.code !== lang)!;
 
   return (
@@ -25,22 +27,17 @@ export function LanguageSwitcher({ className = '', variant = 'full' }: Props) {
       className={`flex items-center gap-2 px-3 py-2 rounded-xl text-sm font-medium transition-all
         hover:bg-white/10 text-white/60 hover:text-white ${className}`}
     >
-      <span>{next.flag}</span>
-      {variant === 'full' ? (
-        <span>{next.label}</span>
-      ) : (
-        <span className="font-bold">{next.short}</span>
-      )}
+      <Flag code={next.flagCode} />
+      {variant === 'full' ? <span>{next.label}</span> : <span className="font-bold">{next.short}</span>}
     </button>
   );
 }
 
-/** Variant for light backgrounds (admin sidebar) */
 export function LanguageSwitcherLight({ className = '' }: { className?: string }) {
   const { lang, setLang } = useLang();
   const next = lang === 'fr' ? 'ar' : 'fr';
   const nextLabel = lang === 'fr' ? 'العربية' : 'Français';
-  const nextFlag = lang === 'fr' ? '🇲🇷' : '🇫🇷';
+  const nextFlagCode = lang === 'fr' ? 'mr' : 'fr';
 
   return (
     <button
@@ -48,7 +45,7 @@ export function LanguageSwitcherLight({ className = '' }: { className?: string }
       className={`flex items-center gap-2 px-3 py-2 rounded-xl text-sm font-medium
         text-slate-400 hover:bg-slate-800 hover:text-white transition ${className}`}
     >
-      <span>{nextFlag}</span>
+      <Flag code={nextFlagCode as 'mr' | 'fr'} />
       <span>{nextLabel}</span>
     </button>
   );

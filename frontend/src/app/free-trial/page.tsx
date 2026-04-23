@@ -105,7 +105,8 @@ function FreeTrialContent() {
         <div className="flex items-center gap-2">
           <button
             onClick={() => setLang(isAr ? 'fr' : 'ar')}
-            className="text-xs font-bold px-3 py-1.5 rounded-lg border border-gray-200 text-gray-600 hover:bg-gray-50 transition">
+            className="flex items-center gap-1.5 text-xs font-bold px-3 py-1.5 rounded-lg border border-gray-200 text-gray-600 hover:bg-gray-50 transition">
+            <span className={`fi fi-${isAr ? 'fr' : 'mr'} rounded-sm`} style={{ fontSize: '1em' }} />
             {isAr ? 'Français' : 'العربية'}
           </button>
           <Link href="/register"

@@ -25,12 +25,6 @@ export default function LandingPage() {
     { icon: TrendingUp, title: t('landing.feat3.title'), subtitle: t('landing.feat3.subtitle'), desc: t('landing.feat3.desc'), color: '#34d399' },
   ];
 
-  const STATS = [
-    { value: '300+', label: t('landing.stat.q') },
-    { value: lang === 'ar' ? '🇲🇷 ع·ف' : '🇲🇷 FR·AR', label: t('landing.stat.themes') },
-    { value: '✓', label: t('landing.stat.adapted') },
-    { value: '10 min', label: t('landing.stat.available') },
-  ];
 
   const TESTIMONIALS = [
     { name: t('landing.testi.1.name'), role: t('landing.testi.1.role'), text: t('landing.testi.1.text'), stars: 5 },
