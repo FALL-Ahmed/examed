@@ -145,7 +145,7 @@ export default function LandingPage() {
 
       {/* ── Vidéo démo ── */}
       <section className="py-20 px-6 lg:px-10 bg-white">
-        <div className="max-w-4xl mx-auto text-center">
+        <div className="max-w-6xl mx-auto text-center">
           <p className="text-violet-600 text-xs font-bold uppercase tracking-widest mb-3">
             {lang === 'ar' ? 'اكتشف المنصة' : 'Découvrez la plateforme'}
           </p>
@@ -157,15 +157,19 @@ export default function LandingPage() {
               ? 'جولة سريعة في المنصة — من التدريب إلى نتائجك في دقائق'
               : 'Tour rapide de la plateforme — de l\'entraînement à vos résultats en quelques minutes'}
           </p>
-          <div className="relative rounded-3xl overflow-hidden shadow-2xl shadow-violet-100 border border-gray-100">
-            <video
-              src="/demo.mp4"
-              controls
-              playsInline
-              preload="metadata"
-              className="w-full aspect-video bg-gray-900"
-              poster=""
-            />
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+              <p className="text-sm font-semibold text-gray-500 mb-3">🇫🇷 Français</p>
+              <div className="relative rounded-3xl overflow-hidden shadow-2xl shadow-violet-100 border border-gray-100">
+                <video src="/demo-fr.mp4" controls playsInline preload="metadata" className="w-full aspect-video bg-gray-900" />
+              </div>
+            </div>
+            <div>
+              <p className="text-sm font-semibold text-gray-500 mb-3">🇲🇷 العربية</p>
+              <div className="relative rounded-3xl overflow-hidden shadow-2xl shadow-violet-100 border border-gray-100">
+                <video src="/demo-ar.mp4" controls playsInline preload="metadata" className="w-full aspect-video bg-gray-900" />
+              </div>
+            </div>
           </div>
         </div>
       </section>
