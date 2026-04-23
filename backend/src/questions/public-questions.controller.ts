@@ -6,7 +6,7 @@ export class PublicQuestionsController {
   constructor(private questionsService: QuestionsService) {}
 
   @Get()
-  getFreeTrial(@Query('theme') theme: string) {
-    return this.questionsService.getFreeTrial(theme || 'paludisme');
+  getFreeTrial(@Query('theme') theme: string, @Query('lang') lang: string) {
+    return this.questionsService.getFreeTrial(theme || 'paludisme', lang || 'fr');
   }
 }

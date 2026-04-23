@@ -6,9 +6,9 @@ import { BookOpen, ArrowRight, CheckCircle2, XCircle, ChevronRight } from 'lucid
 import { publicApi } from '@/lib/api';
 
 const THEMES = [
-  { key: 'Paludisme',     label: 'Paludisme',      labelAr: 'الملاريا' },
-  { key: 'Pédiatrie',     label: 'Pédiatrie',       labelAr: 'طب الأطفال' },
-  { key: 'Lavage',        label: 'Lavage des mains', labelAr: 'غسل اليدين' },
+  { key: 'Paludisme',  label: 'Paludisme',       labelAr: 'الملاريا' },
+  { key: 'Pédiatrie',  label: 'Pédiatrie',        labelAr: 'طب الأطفال' },
+  { key: 'Lavage',     label: 'Lavage des mains', labelAr: 'غسل اليدين' },
 ];
 
 function FreeTrialContent() {
@@ -18,7 +18,7 @@ function FreeTrialContent() {
   const [lang, setLang] = useState<'fr' | 'ar'>('fr');
   const [questions, setQuestions] = useState<any[]>([]);
   const [index, setIndex] = useState(0);
-  const [selected, setSelected] = useState<string | null>(null);
+  const [selected, setSelected] = useState<string[]>([]);
   const [revealed, setRevealed] = useState(false);
   const [score, setScore] = useState(0);
   const [done, setDone] = useState(false);
@@ -29,26 +29,38 @@ function FreeTrialContent() {
 
   useEffect(() => {
     setLoading(true);
-    publicApi.freeTrial(themeKey)
+    setIndex(0); setSelected([]); setRevealed(false); setScore(0); setDone(false); setError('');
+    publicApi.freeTrial(themeKey, lang)
       .then((r) => { setQuestions(r.data); setLoading(false); })
       .catch(() => { setError('Impossible de charger les questions.'); setLoading(false); });
-  }, [themeKey]);
+  }, [themeKey, lang]);
 
   const q = questions[index];
   const choices = q ? ['A', 'B', 'C', 'D', ...(q.choiceE ? ['E'] : [])].filter((c) => q[`choice${c}`]) : [];
-  const correctAnswers = q?.correctAnswer?.split(',').map((s: string) => s.trim()) ?? [];
+  const correctAnswers: string[] = q?.correctAnswer?.split(',').map((s: string) => s.trim()) ?? [];
+  const isMultiple = correctAnswers.length > 1;
 
-  function handleSelect(choice: string) {
+  function toggleChoice(c: string) {
     if (revealed) return;
-    setSelected(choice);
+    if (isMultiple) {
+      setSelected((prev) => prev.includes(c) ? prev.filter((x) => x !== c) : [...prev, c]);
+    } else {
+      setSelected([c]);
+    }
+  }
+
+  function validate() {
+    if (selected.length === 0 || revealed) return;
     setRevealed(true);
-    if (correctAnswers.includes(choice)) setScore((s) => s + 1);
+    const isCorrect = correctAnswers.length === selected.length &&
+      correctAnswers.every((c) => selected.includes(c));
+    if (isCorrect) setScore((s) => s + 1);
   }
 
   function next() {
     if (index + 1 >= questions.length) { setDone(true); return; }
     setIndex((i) => i + 1);
-    setSelected(null);
+    setSelected([]);
     setRevealed(false);
   }
 
@@ -134,7 +146,7 @@ function FreeTrialContent() {
                 {isAr ? 'إنشاء حسابي مجاناً' : 'Créer mon compte gratuitement'} <ArrowRight className="w-4 h-4" />
               </Link>
               <div>
-                <button onClick={() => { setIndex(0); setSelected(null); setRevealed(false); setScore(0); setDone(false); }}
+                <button onClick={() => { setIndex(0); setSelected([]); setRevealed(false); setScore(0); setDone(false); }}
                   className="text-sm text-violet-600 font-semibold hover:underline mt-2">
                   {isAr ? 'إعادة المحاولة' : 'Recommencer'}
                 </button>
@@ -148,31 +160,39 @@ function FreeTrialContent() {
             {/* Progress */}
             <div className="h-1.5 bg-gray-100">
               <div className="h-full bg-violet-500 transition-all duration-500"
-                style={{ width: `${((index) / questions.length) * 100}%` }} />
+                style={{ width: `${(index / questions.length) * 100}%` }} />
             </div>
 
             <div className="p-8">
-              <div className="flex items-center justify-between mb-6">
+              <div className="flex items-center justify-between mb-2">
                 <span className="text-xs font-bold text-gray-400 uppercase tracking-wider">{themeLabel}</span>
                 <span className="text-xs font-semibold text-gray-400">{index + 1} / {questions.length}</span>
               </div>
+
+              {isMultiple && !revealed && (
+                <p className="text-xs text-violet-600 font-semibold mb-4">
+                  {isAr ? 'سؤال متعدد الإجابات — اختر كل الإجابات الصحيحة' : 'Plusieurs réponses possibles — sélectionnez toutes les bonnes'}
+                </p>
+              )}
 
               <p className="text-lg font-bold text-gray-900 leading-snug mb-8" dir={isAr ? 'rtl' : 'ltr'}>{q.text}</p>
 
               <div className="space-y-3 mb-6">
                 {choices.map((c) => {
                   const isCorrect = correctAnswers.includes(c);
-                  const isSelected = selected === c;
-                  let cls = 'border-gray-200 bg-white text-gray-700 hover:border-violet-300';
+                  const isSelected = selected.includes(c);
+                  let cls = 'border-gray-200 bg-white text-gray-700 hover:border-violet-300 cursor-pointer';
+                  if (!revealed && isSelected) cls = 'border-violet-500 bg-violet-50 text-violet-800 cursor-pointer';
                   if (revealed) {
-                    if (isCorrect) cls = 'border-emerald-400 bg-emerald-50 text-emerald-800';
-                    else if (isSelected) cls = 'border-red-400 bg-red-50 text-red-700';
-                    else cls = 'border-gray-100 bg-gray-50 text-gray-400';
+                    if (isCorrect) cls = 'border-emerald-400 bg-emerald-50 text-emerald-800 cursor-default';
+                    else if (isSelected) cls = 'border-red-400 bg-red-50 text-red-700 cursor-default';
+                    else cls = 'border-gray-100 bg-gray-50 text-gray-400 cursor-default';
                   }
                   return (
-                    <button key={c} onClick={() => handleSelect(c)}
+                    <button key={c} onClick={() => toggleChoice(c)}
                       className={`w-full flex items-center gap-3 p-4 rounded-2xl border-2 text-left text-sm font-medium transition-all ${cls}`}>
-                      <span className="w-6 h-6 rounded-full border-2 border-current flex items-center justify-center text-xs font-bold flex-shrink-0">{c}</span>
+                      <span className={`w-6 h-6 flex items-center justify-center text-xs font-bold flex-shrink-0 border-2 border-current
+                        ${isMultiple ? 'rounded-md' : 'rounded-full'}`}>{c}</span>
                       <span className="flex-1">{q[`choice${c}`]}</span>
                       {revealed && isCorrect && <CheckCircle2 className="w-4 h-4 text-emerald-500 flex-shrink-0" />}
                       {revealed && isSelected && !isCorrect && <XCircle className="w-4 h-4 text-red-500 flex-shrink-0" />}
@@ -188,7 +208,16 @@ function FreeTrialContent() {
                 </div>
               )}
 
-              {revealed && (
+              {!revealed ? (
+                <button onClick={validate} disabled={selected.length === 0}
+                  className={`w-full flex items-center justify-center gap-2 py-3.5 rounded-2xl font-bold text-sm transition
+                    ${selected.length > 0
+                      ? 'text-white hover:opacity-90 shadow-md shadow-violet-200'
+                      : 'text-gray-400 bg-gray-100 cursor-not-allowed'}`}
+                  style={selected.length > 0 ? { background: 'linear-gradient(135deg,#7c3aed,#6366f1)' } : {}}>
+                  {isAr ? 'تحقق من إجابتي' : 'Valider ma réponse'}
+                </button>
+              ) : (
                 <button onClick={next}
                   className="w-full flex items-center justify-center gap-2 py-3.5 rounded-2xl font-bold text-sm text-white hover:opacity-90 transition shadow-md shadow-violet-200"
                   style={{ background: 'linear-gradient(135deg,#7c3aed,#6366f1)' }}>

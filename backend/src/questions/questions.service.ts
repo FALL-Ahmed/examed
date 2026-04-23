@@ -78,20 +78,29 @@ export class QuestionsService {
     return shuffled.slice(0, opts.count);
   }
 
-  async getFreeTrial(themeName: string) {
+  async getFreeTrial(themeName: string, lang: string = 'fr') {
     const normalized = themeName.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '');
 
-    // Mapping: clé frontend → filtre DB
-    const THEME_MAP: Record<string, { field: 'subTheme' | 'theme'; keyword: string }> = {
-      paludisme: { field: 'subTheme', keyword: 'paludisme' },
-      lavage:    { field: 'subTheme', keyword: 'lavage' },
-      pediatrie: { field: 'theme',    keyword: 'pediatrie' },
+    type ThemeEntry = { field: 'subTheme' | 'theme'; keyword: string };
+    const THEME_MAP: Record<string, { fr: ThemeEntry; ar: ThemeEntry }> = {
+      paludisme: {
+        fr: { field: 'subTheme', keyword: 'paludisme' },
+        ar: { field: 'subTheme', keyword: 'الملاريا' },
+      },
+      lavage: {
+        fr: { field: 'subTheme', keyword: 'lavage' },
+        ar: { field: 'subTheme', keyword: 'غسل' },
+      },
+      pediatrie: {
+        fr: { field: 'theme', keyword: 'pediatrie' },
+        ar: { field: 'theme', keyword: 'طب الأطفال' },
+      },
     };
 
     const entry = Object.entries(THEME_MAP).find(([k]) => normalized.includes(k));
     if (!entry) throw new Error('Thème non disponible en essai gratuit');
 
-    const [, { field, keyword }] = entry;
+    const { field, keyword } = entry[1][lang === 'ar' ? 'ar' : 'fr'];
 
     const where = field === 'subTheme'
       ? { isActive: true, subTheme: { name: { contains: keyword, mode: 'insensitive' as const } } }
