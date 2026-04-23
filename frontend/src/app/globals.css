@@ -206,7 +206,8 @@ input[type="range"]::-webkit-slider-thumb:hover {
 
 /* ── RTL / Arabic font ─────────────────────────────────────────────────── */
 html[dir="rtl"] body,
-html[dir="rtl"] {
+html[dir="rtl"],
+[dir="rtl"] {
   font-family: var(--font-cairo), ui-sans-serif, system-ui, sans-serif !important;
 }
 
