@@ -33,12 +33,12 @@ const CustomTooltip = ({ active, payload, label }: any) => {
   );
 };
 
-function getLevel(score: number) {
-  if (score >= 90) return { label: 'Élite', color: '#f59e0b', bg: 'from-amber-400 to-orange-500', emoji: '👑' };
-  if (score >= 75) return { label: 'Expert', color: '#6366f1', bg: 'from-violet-500 to-indigo-600', emoji: '🎯' };
-  if (score >= 60) return { label: 'Avancé', color: '#10b981', bg: 'from-emerald-400 to-teal-500', emoji: '🚀' };
-  if (score >= 40) return { label: 'Intermédiaire', color: '#3b82f6', bg: 'from-blue-400 to-cyan-500', emoji: '📈' };
-  return { label: 'Débutant', color: '#94a3b8', bg: 'from-slate-400 to-slate-500', emoji: '🌱' };
+function getLevel(score: number, isAr: boolean) {
+  if (score >= 90) return { label: isAr ? 'نخبة'        : 'Élite',         color: '#f59e0b', bg: 'from-amber-400 to-orange-500',  emoji: '👑' };
+  if (score >= 75) return { label: isAr ? 'خبير'        : 'Expert',        color: '#6366f1', bg: 'from-violet-500 to-indigo-600', emoji: '🎯' };
+  if (score >= 60) return { label: isAr ? 'متقدم'       : 'Avancé',        color: '#10b981', bg: 'from-emerald-400 to-teal-500',  emoji: '🚀' };
+  if (score >= 40) return { label: isAr ? 'متوسط'       : 'Intermédiaire', color: '#3b82f6', bg: 'from-blue-400 to-cyan-500',     emoji: '📈' };
+  return           {        label: isAr ? 'مبتدئ'       : 'Débutant',      color: '#94a3b8', bg: 'from-slate-400 to-slate-500',   emoji: '🌱' };
 }
 
 function calcStreak(history: any[]): number {
@@ -57,7 +57,8 @@ function calcStreak(history: any[]): number {
 }
 
 export default function StatsPage() {
-  const { t } = useLang();
+  const { lang } = useLang();
+  const isAr = lang === 'ar';
   const [stats, setStats] = useState<any>(null);
   const [loading, setLoading] = useState(true);
 
@@ -87,15 +88,14 @@ export default function StatsPage() {
   const strengths = qualifiedThemes.filter((th: any) => th.score >= 70).sort((a: any, b: any) => b.score - a.score).slice(0, 4);
   const weaknesses = qualifiedThemes.filter((th: any) => th.score < 70).sort((a: any, b: any) => a.score - b.score).slice(0, 4);
 
-  const level = getLevel(stats.globalScore);
+  const level = getLevel(stats.globalScore, isAr);
   const streak = calcStreak(stats.history);
   const bestScore = stats.history.length ? Math.max(...stats.history.map((h: any) => h.score)) : 0;
-  const accuracy = stats.totalQuestions > 0 ? Math.round((stats.totalCorrect / stats.totalQuestions) * 100) : 0;
 
-  const nextLevel = stats.globalScore < 40 ? { label: 'Intermédiaire', threshold: 40 }
-    : stats.globalScore < 60 ? { label: 'Avancé', threshold: 60 }
-    : stats.globalScore < 75 ? { label: 'Expert', threshold: 75 }
-    : stats.globalScore < 90 ? { label: 'Élite', threshold: 90 }
+  const nextLevel = stats.globalScore < 40 ? { label: isAr ? 'متوسط'  : 'Intermédiaire', threshold: 40 }
+    : stats.globalScore < 60 ? { label: isAr ? 'متقدم'  : 'Avancé',        threshold: 60 }
+    : stats.globalScore < 75 ? { label: isAr ? 'خبير'   : 'Expert',        threshold: 75 }
+    : stats.globalScore < 90 ? { label: isAr ? 'نخبة'   : 'Élite',         threshold: 90 }
     : null;
 
   return (
@@ -127,13 +127,13 @@ export default function StatsPage() {
               <span className="text-2xl">{level.emoji}</span>
               <span className="text-xl font-extrabold">{level.label}</span>
             </div>
-            <p className="text-white/80 text-sm mb-4">{stats.totalAttempts} session{stats.totalAttempts > 1 ? 's' : ''} · {stats.totalQuestions} questions répondues</p>
+            <p className="text-white/80 text-sm mb-4">{stats.totalAttempts} {isAr ? (stats.totalAttempts > 1 ? 'جلسات' : 'جلسة') : ('session' + (stats.totalAttempts > 1 ? 's' : ''))} · {stats.totalQuestions} {isAr ? 'سؤالاً' : 'questions répondues'}</p>
 
             {/* Progress to next level */}
             {nextLevel && (
               <div>
                 <div className="flex justify-between text-xs text-white/70 mb-1.5">
-                  <span>Vers {nextLevel.label}</span>
+                  <span>{isAr ? `نحو ${nextLevel.label}` : `Vers ${nextLevel.label}`}</span>
                   <span>{stats.globalScore}% / {nextLevel.threshold}%</span>
                 </div>
                 <div className="h-2 bg-white/20 rounded-full overflow-hidden">
@@ -151,7 +151,7 @@ export default function StatsPage() {
             <div className="flex-shrink-0 flex flex-col items-center bg-white/20 rounded-2xl px-5 py-3">
               <Flame className="w-6 h-6 text-orange-200 mb-1" />
               <span className="text-2xl font-extrabold">{streak}</span>
-              <span className="text-xs text-white/80">jour{streak > 1 ? 's' : ''}</span>
+              <span className="text-xs text-white/80">{isAr ? (streak > 1 ? 'أيام' : 'يوم') : ('jour' + (streak > 1 ? 's' : ''))}</span>
             </div>
           )}
         </div>
@@ -160,10 +160,10 @@ export default function StatsPage() {
       {/* KPI cards */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         {[
-          { label: 'Sessions', value: stats.totalAttempts, icon: Zap, gradient: 'gradient-warning', shadow: 'shadow-amber-500/20' },
-          { label: 'Questions répondues', value: stats.totalQuestions, icon: BookOpen, gradient: 'gradient-info', shadow: 'shadow-blue-500/20' },
-          { label: 'Bonnes réponses', value: stats.totalCorrect, icon: CheckCircle, gradient: 'gradient-success', shadow: 'shadow-emerald-500/20' },
-          { label: 'Meilleur score', value: `${bestScore}%`, icon: Trophy, gradient: 'gradient-primary', shadow: 'shadow-violet-500/20' },
+          { label: isAr ? 'الجلسات'         : 'Sessions',            value: stats.totalAttempts,  icon: Zap,       gradient: 'gradient-warning', shadow: 'shadow-amber-500/20' },
+          { label: isAr ? 'الأسئلة المجابة' : 'Questions répondues', value: stats.totalQuestions, icon: BookOpen,  gradient: 'gradient-info',    shadow: 'shadow-blue-500/20' },
+          { label: isAr ? 'الإجابات الصحيحة': 'Bonnes réponses',     value: stats.totalCorrect,   icon: CheckCircle, gradient: 'gradient-success', shadow: 'shadow-emerald-500/20' },
+          { label: isAr ? 'أفضل نتيجة'      : 'Meilleur score',      value: `${bestScore}%`,      icon: Trophy,    gradient: 'gradient-primary', shadow: 'shadow-violet-500/20' },
         ].map((k) => (
           <div key={k.label} className="bg-card border border-border rounded-2xl p-5 flex flex-col gap-3 card-hover">
             <div className={`w-10 h-10 rounded-xl ${k.gradient} flex items-center justify-center shadow-lg ${k.shadow}`}>
@@ -184,7 +184,7 @@ export default function StatsPage() {
             <div className="w-8 h-8 rounded-lg gradient-primary flex items-center justify-center">
               <TrendingUp className="w-4 h-4 text-white" />
             </div>
-            <h2 className="font-bold">Évolution du score</h2>
+            <h2 className="font-bold">{isAr ? 'تطور النتيجة' : 'Évolution du score'}</h2>
           </div>
           <ResponsiveContainer width="100%" height={220}>
             <LineChart data={historyChart} margin={{ top: 5, right: 10, bottom: 5, left: -20 }}>
@@ -209,7 +209,7 @@ export default function StatsPage() {
             <div className="w-8 h-8 rounded-lg gradient-info flex items-center justify-center">
               <Award className="w-4 h-4 text-white" />
             </div>
-            <h2 className="font-bold">Score par thème</h2>
+            <h2 className="font-bold">{isAr ? 'النتيجة حسب الموضوع' : 'Score par thème'}</h2>
           </div>
           <ResponsiveContainer width="100%" height={Math.max(200, stats.themeStats.length * 44)}>
             <BarChart data={stats.themeStats} layout="vertical" margin={{ left: 8, right: 40, top: 0, bottom: 0 }}>
@@ -239,7 +239,7 @@ export default function StatsPage() {
               <div className="w-7 h-7 rounded-lg gradient-success flex items-center justify-center">
                 <Award className="w-3.5 h-3.5 text-white" />
               </div>
-              <h3 className="font-semibold text-sm">Points forts</h3>
+              <h3 className="font-semibold text-sm">{isAr ? 'نقاط القوة' : 'Points forts'}</h3>
             </div>
             {strengths.length > 0 ? (
               <div className="space-y-3.5">
@@ -251,7 +251,7 @@ export default function StatsPage() {
                 ))}
               </div>
             ) : (
-              <p className="text-xs text-muted-foreground">Continuez à pratiquer pour voir vos points forts (≥ 70%).</p>
+              <p className="text-xs text-muted-foreground">{isAr ? 'واصل التدريب لاكتشاف نقاط قوتك (≥ 70%).' : 'Continuez à pratiquer pour voir vos points forts (≥ 70%).'}</p>
             )}
           </div>
 
@@ -260,7 +260,7 @@ export default function StatsPage() {
               <div className="w-7 h-7 rounded-lg gradient-danger flex items-center justify-center">
                 <Target className="w-3.5 h-3.5 text-white" />
               </div>
-              <h3 className="font-semibold text-sm">À améliorer</h3>
+              <h3 className="font-semibold text-sm">{isAr ? 'للتحسين' : 'À améliorer'}</h3>
             </div>
             {weaknesses.length > 0 ? (
               <div className="space-y-3.5">
@@ -272,7 +272,7 @@ export default function StatsPage() {
                 ))}
               </div>
             ) : (
-              <p className="text-xs text-muted-foreground">Excellent ! Aucun point faible détecté.</p>
+              <p className="text-xs text-muted-foreground">{isAr ? 'ممتاز! لا توجد نقاط ضعف.' : 'Excellent ! Aucun point faible détecté.'}</p>
             )}
           </div>
         </div>
