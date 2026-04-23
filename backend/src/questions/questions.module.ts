@@ -7,7 +7,7 @@ import { UsersModule } from '../users/users.module';
 @Module({
   imports: [UsersModule],
   providers: [QuestionsService],
-  controllers: [QuestionsController, PublicQuestionsController],
+  controllers: [PublicQuestionsController, QuestionsController],
   exports: [QuestionsService],
 })
 export class QuestionsModule {}
