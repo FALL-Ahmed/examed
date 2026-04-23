@@ -16,11 +16,6 @@ export class AdminService {
       totalUsers, premiumUsers, totalQuestions,
       pendingPayments, pendingGroupPayments,
       todayRegistrations, weekRegistrations,
-      totalAttempts, completedAttempts,
-      totalAnswers, correctAnswers,
-      revenueTotal, revenueMonth,
-      activeUsersWeek,
-      avgScore,
     ] = await Promise.all([
       this.prisma.user.count({ where: { role: { not: 'ADMIN' } } }),
       this.prisma.user.count({ where: { role: 'PREMIUM' } }),
@@ -29,13 +24,21 @@ export class AdminService {
       this.prisma.payment.count({ where: { status: 'PENDING', planType: 'GROUP' } }),
       this.prisma.user.count({ where: { createdAt: { gte: startOfDay } } }),
       this.prisma.user.count({ where: { createdAt: { gte: startOfWeek } } }),
+    ]);
+
+    const [
+      totalAttempts, completedAttempts,
+      totalAnswers, correctAnswers,
+      revenueTotal, revenueMonth,
+      activeUsersWeek, avgScore,
+    ] = await Promise.all([
       this.prisma.attempt.count(),
       this.prisma.attempt.count({ where: { isCompleted: true } }),
       this.prisma.userAnswer.count(),
       this.prisma.userAnswer.count({ where: { isCorrect: true } }),
       this.prisma.payment.aggregate({ where: { status: 'VALIDATED' }, _sum: { amount: true } }),
       this.prisma.payment.aggregate({ where: { status: 'VALIDATED', validatedAt: { gte: startOfMonth } }, _sum: { amount: true } }),
-      this.prisma.attempt.groupBy({ by: ['userId'], where: { startedAt: { gte: startOfWeek } } }).then((r) => r.length),
+      this.prisma.attempt.findMany({ where: { startedAt: { gte: startOfWeek } }, distinct: ['userId'], select: { userId: true } }).then((r) => r.length),
       this.prisma.attempt.aggregate({ where: { isCompleted: true, totalQ: { gt: 0 } }, _avg: { score: true } }),
     ]);
 
@@ -100,7 +103,7 @@ export class AdminService {
             select: {
               id: true, mode: true, score: true, totalQ: true, correctQ: true,
               timeTaken: true, isCompleted: true, startedAt: true, completedAt: true,
-              subTheme: { select: { name: true, theme: { select: { name: true } } } },
+              subThemeId: true,
             },
           },
           payments: {
@@ -132,21 +135,31 @@ export class AdminService {
       }),
     ]);
 
-    // Enrichir les sous-thèmes avec leur nom
-    const subThemeIds = attemptsByTheme.map((a) => a.subThemeId).filter(Boolean) as string[];
-    const subThemes = subThemeIds.length
+    // Enrichir les sous-thèmes (pour les attempts et le top)
+    const allSubThemeIds = [
+      ...attemptsByTheme.map((a) => a.subThemeId),
+      ...(user?.attempts ?? []).map((a: any) => a.subThemeId),
+    ].filter(Boolean) as string[];
+    const uniqueIds = [...new Set(allSubThemeIds)];
+    const subThemes = uniqueIds.length
       ? await this.prisma.subTheme.findMany({
-          where: { id: { in: subThemeIds } },
+          where: { id: { in: uniqueIds } },
           select: { id: true, name: true, theme: { select: { name: true } } },
         })
       : [];
     const subThemeMap = Object.fromEntries(subThemes.map((s) => [s.id, s]));
 
-    const avgScore = user?.attempts?.filter((a: any) => a.isCompleted && a.totalQ > 0)
+    const avgScore = (user?.attempts ?? []).filter((a: any) => a.isCompleted && a.totalQ > 0)
       .reduce((acc: any, a: any, _: any, arr: any) => acc + a.score / arr.length, 0) ?? 0;
+
+    const attempts = (user?.attempts ?? []).map((a: any) => ({
+      ...a,
+      subTheme: subThemeMap[a.subThemeId] ?? null,
+    }));
 
     return {
       ...user,
+      attempts,
       activity: {
         totalAnswers,
         correctAnswers,
