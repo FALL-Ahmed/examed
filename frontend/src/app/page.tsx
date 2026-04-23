@@ -361,7 +361,6 @@ export default function LandingPage() {
               <div className="absolute top-0 left-1/4 w-64 h-32 rounded-full blur-3xl opacity-20 pointer-events-none"
                 style={{ background: 'radial-gradient(circle,#fbbf24,transparent)' }} />
               <div className="relative px-8 py-8">
-                <div className="text-5xl mb-3">🔥</div>
                 <p className="text-3xl md:text-4xl font-black mb-2 tracking-tight">
                   {lang === 'ar' ? '-50% على جميع الخطط !' : '-50% sur tous les plans !'}
                 </p>
@@ -392,7 +391,7 @@ export default function LandingPage() {
                   {promoActive ? promo(pricing?.solo1m?.price ?? 500) : (pricing?.solo1m?.price ?? 500)}
                   <span className="text-lg font-semibold text-gray-400 ml-1">MRU</span>
                 </p>
-                {promoActive && <span className="inline-flex items-center gap-1 mt-2 bg-red-500 text-white text-sm font-black px-3 py-1.5 rounded-full">🔥 -50%</span>}
+                {promoActive && <span className="inline-flex items-center gap-1 mt-2 bg-red-500 text-white text-sm font-black px-3 py-1.5 rounded-full">-50%</span>}
               </div>
               <Link href="/register?plan=SOLO_1M"
                 className="block w-full text-center py-3 rounded-2xl font-bold text-sm border-2 border-gray-200 text-gray-700 hover:border-indigo-400 hover:text-indigo-600 transition">
@@ -416,7 +415,7 @@ export default function LandingPage() {
                   {promoActive ? promo(pricing?.solo3m?.price ?? 1200) : (pricing?.solo3m?.price ?? 1200)}
                   <span className="text-lg font-semibold text-gray-400 ml-1">MRU</span>
                 </p>
-                {promoActive && <span className="inline-flex items-center gap-1 mt-2 bg-red-500 text-white text-sm font-black px-3 py-1.5 rounded-full">🔥 -50%</span>}
+                {promoActive && <span className="inline-flex items-center gap-1 mt-2 bg-red-500 text-white text-sm font-black px-3 py-1.5 rounded-full">-50%</span>}
               </div>
               <p className="text-xs text-violet-500 font-semibold mb-6">
                 ≈ {promoActive ? promo(pricing ? Math.round(pricing.solo3m.price / 3) : 400) : (pricing ? Math.round(pricing.solo3m.price / 3) : 400)} MRU/{lang === 'ar' ? 'شهر' : 'mois'}
@@ -441,7 +440,7 @@ export default function LandingPage() {
                   {promoActive ? promo((pricing?.groupPerP?.price ?? 400) * (pricing?.groupMin ?? 5)) : (pricing?.groupPerP?.price ?? 400) * (pricing?.groupMin ?? 5)}
                   <span className="text-lg font-semibold text-gray-400 ml-1">MRU</span>
                 </p>
-                {promoActive && <span className="inline-flex items-center gap-1 mt-2 bg-red-500 text-white text-sm font-black px-3 py-1.5 rounded-full">🔥 -50%</span>}
+                {promoActive && <span className="inline-flex items-center gap-1 mt-2 bg-red-500 text-white text-sm font-black px-3 py-1.5 rounded-full">-50%</span>}
               </div>
               <p className="text-xs text-emerald-600 font-semibold mb-6">
                 {promoActive ? promo(pricing?.groupPerP?.price ?? 400) : (pricing?.groupPerP?.price ?? 400)} MRU / {lang === 'ar' ? 'شخص' : 'personne'}
