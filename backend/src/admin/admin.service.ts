@@ -1,4 +1,5 @@
 import { Injectable } from '@nestjs/common';
+import * as bcrypt from 'bcrypt';
 import { PrismaService } from '../prisma/prisma.service';
 
 @Injectable()
@@ -6,21 +7,52 @@ export class AdminService {
   constructor(private prisma: PrismaService) {}
 
   async getDashboardStats() {
-    const [totalUsers, premiumUsers, totalQuestions, pendingPayments, pendingGroupPayments, todayRegistrations] =
-      await Promise.all([
-        this.prisma.user.count({ where: { role: { not: 'ADMIN' } } }),
-        this.prisma.user.count({ where: { role: 'PREMIUM' } }),
-        this.prisma.question.count({ where: { isActive: true } }),
-        this.prisma.payment.count({ where: { status: 'PENDING' } }),
-        this.prisma.payment.count({ where: { status: 'PENDING', planType: 'GROUP' } }),
-        this.prisma.user.count({
-          where: {
-            createdAt: { gte: new Date(new Date().setHours(0, 0, 0, 0)) },
-          },
-        }),
-      ]);
+    const now = new Date();
+    const startOfDay   = new Date(now); startOfDay.setHours(0, 0, 0, 0);
+    const startOfWeek  = new Date(now); startOfWeek.setDate(now.getDate() - 7);
+    const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
 
-    return { totalUsers, premiumUsers, totalQuestions, pendingPayments, pendingGroupPayments, todayRegistrations };
+    const [
+      totalUsers, premiumUsers, totalQuestions,
+      pendingPayments, pendingGroupPayments,
+      todayRegistrations, weekRegistrations,
+      totalAttempts, completedAttempts,
+      totalAnswers, correctAnswers,
+      revenueTotal, revenueMonth,
+      activeUsersWeek,
+      avgScore,
+    ] = await Promise.all([
+      this.prisma.user.count({ where: { role: { not: 'ADMIN' } } }),
+      this.prisma.user.count({ where: { role: 'PREMIUM' } }),
+      this.prisma.question.count({ where: { isActive: true } }),
+      this.prisma.payment.count({ where: { status: 'PENDING' } }),
+      this.prisma.payment.count({ where: { status: 'PENDING', planType: 'GROUP' } }),
+      this.prisma.user.count({ where: { createdAt: { gte: startOfDay } } }),
+      this.prisma.user.count({ where: { createdAt: { gte: startOfWeek } } }),
+      this.prisma.attempt.count(),
+      this.prisma.attempt.count({ where: { isCompleted: true } }),
+      this.prisma.userAnswer.count(),
+      this.prisma.userAnswer.count({ where: { isCorrect: true } }),
+      this.prisma.payment.aggregate({ where: { status: 'VALIDATED' }, _sum: { amount: true } }),
+      this.prisma.payment.aggregate({ where: { status: 'VALIDATED', validatedAt: { gte: startOfMonth } }, _sum: { amount: true } }),
+      this.prisma.attempt.groupBy({ by: ['userId'], where: { startedAt: { gte: startOfWeek } } }).then((r) => r.length),
+      this.prisma.attempt.aggregate({ where: { isCompleted: true, totalQ: { gt: 0 } }, _avg: { score: true } }),
+    ]);
+
+    return {
+      totalUsers, premiumUsers, totalQuestions,
+      pendingPayments, pendingGroupPayments,
+      todayRegistrations, weekRegistrations,
+      totalAttempts, completedAttempts,
+      completionRate: totalAttempts > 0 ? Math.round((completedAttempts / totalAttempts) * 100) : 0,
+      totalAnswers, correctAnswers,
+      accuracyRate: totalAnswers > 0 ? Math.round((correctAnswers / totalAnswers) * 100) : 0,
+      revenueTotal: revenueTotal._sum.amount ?? 0,
+      revenueMonth: revenueMonth._sum.amount ?? 0,
+      avgScore: Math.round(((avgScore._avg.score ?? 0)) * 10) / 10,
+      conversionRate: totalUsers > 0 ? Math.round((premiumUsers / totalUsers) * 100) : 0,
+      activeUsersWeek,
+    };
   }
 
   async getUsers(page = 1, limit = 20, search?: string, planType?: string) {
@@ -54,28 +86,81 @@ export class AdminService {
   }
 
   async getUserById(userId: string) {
-    return this.prisma.user.findUnique({
-      where: { id: userId },
-      select: {
-        id: true, email: true, fullName: true, phone: true,
-        role: true, subscriptionEnd: true, isActive: true, createdAt: true,
-        gender: true, profession: true, wilaya: true, pseudo: true,
-        _count: { select: { attempts: true } },
-        payments: {
-          orderBy: { createdAt: 'desc' },
-          select: {
-            id: true, amount: true, status: true, paymentMethod: true,
-            operator: true, receiptUrl: true, createdAt: true,
-            validatedAt: true, rejectionReason: true,
+    const [user, totalAnswers, correctAnswers, favorites, lastAttempt, attemptsByTheme] = await Promise.all([
+      this.prisma.user.findUnique({
+        where: { id: userId },
+        select: {
+          id: true, email: true, fullName: true, phone: true,
+          role: true, subscriptionEnd: true, isActive: true, createdAt: true,
+          gender: true, profession: true, wilaya: true, pseudo: true,
+          _count: { select: { attempts: true, favorites: true } },
+          attempts: {
+            orderBy: { startedAt: 'desc' },
+            take: 20,
+            select: {
+              id: true, mode: true, score: true, totalQ: true, correctQ: true,
+              timeTaken: true, isCompleted: true, startedAt: true, completedAt: true,
+              subTheme: { select: { name: true, theme: { select: { name: true } } } },
+            },
           },
-        },
-        trustedDevices: {
-          where: { isActive: true },
-          orderBy: { lastUsedAt: 'desc' },
-          select: { id: true, deviceName: true, createdAt: true, lastUsedAt: true },
-        },
-      } as any,
-    });
+          payments: {
+            orderBy: { createdAt: 'desc' },
+            select: {
+              id: true, amount: true, status: true, paymentMethod: true,
+              operator: true, receiptUrl: true, createdAt: true,
+              validatedAt: true, rejectionReason: true, planType: true,
+            },
+          },
+          trustedDevices: {
+            where: { isActive: true },
+            orderBy: { lastUsedAt: 'desc' },
+            select: { id: true, deviceName: true, createdAt: true, lastUsedAt: true },
+          },
+        } as any,
+      }),
+      this.prisma.userAnswer.count({ where: { userId } }),
+      this.prisma.userAnswer.count({ where: { userId, isCorrect: true } }),
+      this.prisma.favorite.count({ where: { userId } }),
+      this.prisma.attempt.findFirst({ where: { userId }, orderBy: { startedAt: 'desc' }, select: { startedAt: true } }),
+      this.prisma.attempt.groupBy({
+        by: ['subThemeId'],
+        where: { userId, isCompleted: true },
+        _count: { _all: true },
+        _avg: { score: true },
+        orderBy: { _count: { subThemeId: 'desc' } },
+        take: 5,
+      }),
+    ]);
+
+    // Enrichir les sous-thèmes avec leur nom
+    const subThemeIds = attemptsByTheme.map((a) => a.subThemeId).filter(Boolean) as string[];
+    const subThemes = subThemeIds.length
+      ? await this.prisma.subTheme.findMany({
+          where: { id: { in: subThemeIds } },
+          select: { id: true, name: true, theme: { select: { name: true } } },
+        })
+      : [];
+    const subThemeMap = Object.fromEntries(subThemes.map((s) => [s.id, s]));
+
+    const avgScore = user?.attempts?.filter((a: any) => a.isCompleted && a.totalQ > 0)
+      .reduce((acc: any, a: any, _: any, arr: any) => acc + a.score / arr.length, 0) ?? 0;
+
+    return {
+      ...user,
+      activity: {
+        totalAnswers,
+        correctAnswers,
+        accuracyRate: totalAnswers > 0 ? Math.round((correctAnswers / totalAnswers) * 100) : 0,
+        favorites,
+        lastSeen: lastAttempt?.startedAt ?? null,
+        avgScore: Math.round(avgScore * 10) / 10,
+        topSubThemes: attemptsByTheme.map((a) => ({
+          subTheme: subThemeMap[a.subThemeId!] ?? null,
+          attempts: a._count._all,
+          avgScore: Math.round(((a._avg.score ?? 0)) * 10) / 10,
+        })),
+      },
+    };
   }
 
   async revokeUserDevice(deviceId: string) {
@@ -95,6 +180,11 @@ export class AdminService {
       where: { id: userId },
       data: { isActive: !user.isActive },
     });
+  }
+
+  async changeUserPassword(userId: string, newPassword: string) {
+    const hash = await bcrypt.hash(newPassword, 10);
+    return this.prisma.user.update({ where: { id: userId }, data: { password: hash } });
   }
 
   async resetUserSubscription(userId: string) {

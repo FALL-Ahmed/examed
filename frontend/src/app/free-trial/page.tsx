@@ -14,8 +14,9 @@ const THEMES = [
 function FreeTrialContent() {
   const searchParams = useSearchParams();
   const themeKey = searchParams.get('theme') || 'Paludisme';
+  const langParam = searchParams.get('lang') === 'ar' ? 'ar' : 'fr';
 
-  const [lang, setLang] = useState<'fr' | 'ar'>('fr');
+  const [lang, setLang] = useState<'fr' | 'ar'>(langParam);
   const [questions, setQuestions] = useState<any[]>([]);
   const [index, setIndex] = useState(0);
   const [selected, setSelected] = useState<string[]>([]);

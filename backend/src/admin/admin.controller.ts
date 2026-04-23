@@ -75,6 +75,11 @@ export class AdminController {
     return this.adminService.resetUserSubscription(id);
   }
 
+  @Put('users/:id/password')
+  changePassword(@Param('id') id: string, @Body() body: { password: string }) {
+    return this.adminService.changeUserPassword(id, body.password);
+  }
+
   @Delete('devices/:deviceId')
   revokeDevice(@Param('deviceId') deviceId: string) {
     return this.adminService.revokeUserDevice(deviceId);
