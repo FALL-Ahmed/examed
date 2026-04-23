@@ -79,34 +79,29 @@ export class QuestionsService {
   }
 
   async getFreeTrial(themeName: string) {
-    const FREE_THEMES = ['paludisme', 'pediatrie', 'pédiatrie', 'lavage'];
     const normalized = themeName.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '');
-    const allowed = FREE_THEMES.some((t) => normalized.includes(t) || t.includes(normalized));
-    if (!allowed) throw new Error('Thème non disponible en essai gratuit');
 
-    const questions = await this.prisma.question.findMany({
-      where: {
-        isActive: true,
-        subTheme: { theme: { name: { contains: themeName, mode: 'insensitive' } } },
-      },
+    // Mapping: clé frontend → filtre DB
+    const THEME_MAP: Record<string, { field: 'subTheme' | 'theme'; keyword: string }> = {
+      paludisme: { field: 'subTheme', keyword: 'paludisme' },
+      lavage:    { field: 'subTheme', keyword: 'lavage' },
+      pediatrie: { field: 'theme',    keyword: 'pediatrie' },
+    };
+
+    const entry = Object.entries(THEME_MAP).find(([k]) => normalized.includes(k));
+    if (!entry) throw new Error('Thème non disponible en essai gratuit');
+
+    const [, { field, keyword }] = entry;
+
+    const where = field === 'subTheme'
+      ? { isActive: true, subTheme: { name: { contains: keyword, mode: 'insensitive' as const } } }
+      : { isActive: true, subTheme: { theme: { name: { contains: keyword, mode: 'insensitive' as const } } } };
+
+    return this.prisma.question.findMany({
+      where,
       take: 10,
       include: { subTheme: { include: { theme: true } } },
     });
-
-    if (questions.length === 0) {
-      return this.prisma.question.findMany({
-        where: {
-          isActive: true,
-          subTheme: {
-            theme: { name: { contains: normalized.split('').slice(0, 4).join(''), mode: 'insensitive' } },
-          },
-        },
-        take: 10,
-        include: { subTheme: { include: { theme: true } } },
-      });
-    }
-
-    return questions;
   }
 
   async getMistakes(userId: string) {
