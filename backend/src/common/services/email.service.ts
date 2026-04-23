@@ -44,6 +44,41 @@ export class EmailService {
     }
   }
 
+  async sendPasswordResetEmail(email: string, resetLink: string): Promise<boolean> {
+    try {
+      await this.resend.emails.send({
+        from: this.from,
+        to: email,
+        subject: 'Réinitialisation de votre mot de passe - Al Bourour',
+        html: `
+          <div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;">
+            <div style="background:linear-gradient(135deg,#7c3aed,#6366f1);padding:30px;border-radius:12px 12px 0 0;text-align:center;">
+              <h2 style="color:white;margin:0;">Réinitialisation du mot de passe</h2>
+            </div>
+            <div style="background:#fafafa;padding:30px;border-radius:0 0 12px 12px;border:1px solid #eee;">
+              <p>Bonjour,</p>
+              <p>Vous avez demandé à réinitialiser votre mot de passe. Cliquez sur le bouton ci-dessous :</p>
+              <div style="text-align:center;margin:30px 0;">
+                <a href="${resetLink}" style="background:linear-gradient(135deg,#7c3aed,#6366f1);color:white;padding:14px 28px;border-radius:10px;text-decoration:none;font-weight:bold;font-size:15px;">
+                  Réinitialiser mon mot de passe
+                </a>
+              </div>
+              <p style="color:#888;font-size:13px;">⏰ Ce lien expire dans <strong>1 heure</strong>.</p>
+              <p style="color:#888;font-size:13px;">Si vous n'avez pas demandé cette réinitialisation, ignorez cet email.</p>
+              <hr style="border:none;border-top:1px solid #eee;margin:24px 0;" />
+              <p style="color:#bbb;font-size:11px;text-align:center;">© 2026 Al Bourour — Tous droits réservés</p>
+            </div>
+          </div>
+        `,
+      });
+      this.logger.log(`✅ Email reset envoyé à ${email}`);
+      return true;
+    } catch (error) {
+      this.logger.error(`❌ Erreur envoi reset: ${error.message}`);
+      return false;
+    }
+  }
+
   async sendNewDeviceNotification(email: string, deviceName: string, location: string): Promise<boolean> {
     try {
       await this.resend.emails.send({

@@ -32,6 +32,7 @@ export class AuthService {
     wilaya?: string;
     phone?: string;
   }) {
+    dto.email = dto.email.trim().toLowerCase();
     const existing = await this.prisma.user.findUnique({ where: { email: dto.email } });
     if (existing) throw new BadRequestException('Email déjà utilisé');
 
@@ -49,7 +50,7 @@ export class AuthService {
     const hash = await bcrypt.hash(dto.password, 12);
 
     let userData: any = {
-      email: dto.email,
+      email: dto.email.trim().toLowerCase(),
       passwordHash: hash,
       fullName: dto.fullName,
       phone: dto.phone || null,
@@ -83,7 +84,7 @@ export class AuthService {
     password: string,
     deviceInfo: { deviceId: string; userAgent: string; ip: string },
   ) {
-    const user = await this.prisma.user.findUnique({ where: { email } });
+    const user = await this.prisma.user.findUnique({ where: { email: email.trim().toLowerCase() } });
     if (!user || !user.isActive) throw new UnauthorizedException('Identifiants invalides');
 
     const valid = await bcrypt.compare(password, user.passwordHash);
@@ -171,12 +172,10 @@ export class AuthService {
     let user;
 
     if (token) {
-      // Chercher l'utilisateur par son jeton de réinitialisation unique
-      user = await this.prisma.user.findFirst({ 
-        where: { passwordResetToken: token } 
-      });
-      
-      if (!user) throw new BadRequestException('Jeton de réinitialisation invalide ou expiré');
+      user = await this.prisma.user.findFirst({ where: { passwordResetToken: token } });
+      if (!user) throw new BadRequestException('Lien de réinitialisation invalide ou expiré');
+      if (user.passwordResetTokenExpires && user.passwordResetTokenExpires < new Date())
+        throw new BadRequestException('Ce lien a expiré. Veuillez en demander un nouveau.');
     } else if (email) {
       user = await this.prisma.user.findUnique({ where: { email } });
     }
@@ -198,6 +197,26 @@ export class AuthService {
     await this.revokeAllUserSessions(user.id);
 
     return { message: 'Mot de passe réinitialisé avec succès. Connectez-vous avec votre nouveau mot de passe.' };
+  }
+
+  async forgotPassword(email: string) {
+    const user = await this.prisma.user.findUnique({ where: { email: email.trim().toLowerCase() } });
+    // Toujours répondre avec succès pour ne pas révéler si l'email existe
+    if (!user) return { message: 'Si ce compte existe, un email a été envoyé.' };
+
+    const token = uuidv4();
+    const expires = new Date(Date.now() + 3600 * 1000); // 1 heure
+
+    await this.prisma.user.update({
+      where: { id: user.id },
+      data: { passwordResetToken: token, passwordResetTokenExpires: expires },
+    });
+
+    const frontUrl = process.env.FRONTEND_URL || 'https://albourour.mr';
+    const resetLink = `${frontUrl}/reset-password?token=${token}`;
+    await this.email.sendPasswordResetEmail(user.email, resetLink);
+
+    return { message: 'Si ce compte existe, un email a été envoyé.' };
   }
 
   async checkGroupInvite(email: string) {

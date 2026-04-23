@@ -32,6 +32,12 @@ export class AuthController {
     return this.authService.refresh(dto.refreshToken, deviceId);
   }
 
+  @Post('forgot-password')
+  @HttpCode(200)
+  forgotPassword(@Body('email') email: string) {
+    return this.authService.forgotPassword(email);
+  }
+
   @Post('reset-password')
   @HttpCode(200)
   resetPassword(@Body() dto: ResetPasswordDto) {
