@@ -498,8 +498,8 @@ export default function LandingPage() {
           {/* Cheikh Ahmedou Bamba */}
           <div className="bg-white rounded-3xl border border-gray-100 p-8 shadow-sm">
             <p className="text-right text-gray-800 leading-loose text-base font-medium mb-4" dir="rtl">
-              ولا تكن في كل يوم تاركا&nbsp;&nbsp;&nbsp;تعلما واعمل به مداركا<br />
-              فالعلم يحيي قلب من تعلما&nbsp;&nbsp;&nbsp;ينوّر النفس يقيها الظّلما
+              ولا تكن في كل يوم تاركا <span className="text-violet-300 mx-2 select-none">‖</span> تعلما واعمل به مداركا<br />
+              فالعلم يحيي قلب من تعلما <span className="text-violet-300 mx-2 select-none">‖</span> ينوّر النفس يقيها الظّلما
             </p>
             <p className="text-sm text-gray-500 italic leading-relaxed border-t border-gray-100 pt-4">
               Ne cesse chaque jour d'apprendre, puis de mettre en pratique ce que tu as appris.
