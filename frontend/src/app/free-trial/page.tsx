@@ -87,6 +87,11 @@ function FreeTrialContent() {
       {/* Header */}
       <header className="sticky top-0 z-10 bg-white border-b border-gray-100 px-6 py-3 flex items-center justify-between">
         <div className="flex items-center gap-2.5">
+          <Link href="/" className="text-gray-400 hover:text-gray-600 transition" title={isAr ? 'الصفحة الرئيسية' : 'Accueil'}>
+            <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
+            </svg>
+          </Link>
           <div className="w-7 h-7 rounded-lg flex items-center justify-center"
             style={{ background: 'linear-gradient(135deg,#7c3aed,#6366f1)' }}>
             <BookOpen className="w-3.5 h-3.5 text-white" />
