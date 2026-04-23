@@ -59,7 +59,7 @@ export default function LandingPage() {
               style={{ background: 'linear-gradient(135deg,#7c3aed,#6366f1)' }}>
               <BookOpen className="w-4 h-4 text-white" />
             </div>
-            <span className="font-extrabold text-lg tracking-tight text-gray-900">{t('app.name')}</span>
+            <span className="font-extrabold text-sm md:text-lg tracking-tight text-gray-900">{t('app.name')}</span>
           </div>
           <div className="flex items-center gap-1 flex-nowrap flex-shrink-0">
             <LanguageSwitcherLight className="!text-gray-500 hover:!bg-gray-100 hover:!text-gray-900 flex-shrink-0" />
