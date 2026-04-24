@@ -122,7 +122,7 @@ export default function UserDetailPage() {
 
   const subEnd = user.subscriptionEnd ? new Date(user.subscriptionEnd) : null;
   const daysLeft = subEnd ? Math.ceil((subEnd.getTime() - Date.now()) / 86400000) : null;
-  const roleLabel = user.role === 'PREMIUM' ? 'Validé' : user.role === 'ADMIN' ? 'Admin' : 'En attente';
+  const roleLabel = user.role === 'PREMIUM' ? 'Premium' : user.role === 'ADMIN' ? 'Admin' : 'Gratuit';
   const roleCls = user.role === 'PREMIUM' ? 'bg-emerald-100 text-emerald-700' : user.role === 'ADMIN' ? 'bg-blue-100 text-blue-700' : 'bg-amber-100 text-amber-700';
   const act = user.activity;
 
