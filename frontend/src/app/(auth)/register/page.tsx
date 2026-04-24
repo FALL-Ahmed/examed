@@ -144,6 +144,26 @@ function RegisterContent() {
 
   async function handleSubmit() {
     setStep2Error('');
+
+    // Valider tout AVANT de créer le compte
+    if (!isGroupMember) {
+      if (!selectedOp) { setStep2Error(isAr ? 'اختر مشغلاً' : 'Choisissez un opérateur'); return; }
+      if (!receipt)    { setStep2Error(isAr ? 'يرجى رفع إيصالك' : 'Veuillez uploader votre reçu'); return; }
+      if (selectedPlan === 'GROUP') {
+        const emails = groupEmailsText.split('\n').map((e: string) => e.trim()).filter(Boolean);
+        const required = groupSize - 1;
+        if (emails.length !== required) {
+          setStep2Error(isAr ? `يجب إدخال ${required} بريد إلكتروني للأعضاء بالضبط.` : `Vous devez entrer exactement ${required} email${required > 1 ? 's' : ''} de membres.`);
+          return;
+        }
+        const invalid = emails.filter((e: string) => !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e));
+        if (invalid.length > 0) { setStep2Error((isAr ? 'بريد إلكتروني غير صالح: ' : 'Email invalide : ') + invalid[0]); return; }
+        const lowered = emails.map((e: string) => e.toLowerCase());
+        if (new Set(lowered).size !== emails.length) { setStep2Error(isAr ? 'بعض الإيميلات مكررة.' : 'Certains emails sont en double.'); return; }
+        if (lowered.includes(form.email.trim().toLowerCase())) { setStep2Error(isAr ? 'يجب ألا يظهر بريدك الإلكتروني في قائمة الأعضاء.' : 'Votre propre email ne doit pas figurer dans la liste.'); return; }
+      }
+    }
+
     setLoading(true);
     try {
       await authApi.register({
@@ -165,39 +185,6 @@ function RegisterContent() {
         sessionStorage.removeItem('register_state');
         window.location.href = '/dashboard';
         return;
-      }
-
-      if (!selectedOp) { setStep2Error(isAr ? 'اختر مشغلاً' : 'Choisissez un opérateur'); setLoading(false); return; }
-      if (!receipt)    { setStep2Error(isAr ? 'يرجى رفع إيصالك' : 'Veuillez uploader votre reçu'); setLoading(false); return; }
-
-      if (selectedPlan === 'GROUP') {
-        const emails = groupEmailsText.split('\n').map(e => e.trim()).filter(Boolean);
-        const required = groupSize - 1;
-        if (emails.length !== required) {
-          setStep2Error(isAr
-            ? `يجب إدخال ${required} بريد إلكتروني للأعضاء بالضبط.`
-            : `Vous devez entrer exactement ${required} email${required > 1 ? 's' : ''} de membres.`);
-          setLoading(false); return;
-        }
-        const invalid = emails.filter(e => !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e));
-        if (invalid.length > 0) {
-          setStep2Error((isAr ? 'بريد إلكتروني غير صالح: ' : 'Email invalide : ') + invalid[0]);
-          setLoading(false); return;
-        }
-        const lowered = emails.map(e => e.toLowerCase());
-        const unique = new Set(lowered);
-        if (unique.size !== emails.length) {
-          setStep2Error(isAr
-            ? 'بعض الإيميلات مكررة. يجب أن يكون لكل عضو بريد إلكتروني فريد.'
-            : 'Certains emails sont en double. Chaque membre doit avoir un email unique.');
-          setLoading(false); return;
-        }
-        if (lowered.includes(form.email.trim().toLowerCase())) {
-          setStep2Error(isAr
-            ? 'يجب ألا يظهر بريدك الإلكتروني في قائمة الأعضاء.'
-            : 'Votre propre email ne doit pas figurer dans la liste des membres.');
-          setLoading(false); return;
-        }
       }
 
       const fd = new FormData();
