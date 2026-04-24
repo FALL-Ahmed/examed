@@ -1,7 +1,10 @@
-/// <reference lib="webworker" />
+/// <reference lib="WebWorker" />
 
-self.addEventListener('push', (e) => {
-  const event = e as PushEvent;
+export {};
+
+declare const self: ServiceWorkerGlobalScope;
+
+self.addEventListener('push', (event: PushEvent) => {
   if (!event.data) return;
   const data = event.data.json();
   event.waitUntil(
@@ -14,8 +17,7 @@ self.addEventListener('push', (e) => {
   );
 });
 
-self.addEventListener('notificationclick', (e) => {
-  const event = e as NotificationEvent;
+self.addEventListener('notificationclick', (event: NotificationEvent) => {
   event.notification.close();
   event.waitUntil(
     self.clients.matchAll({ type: 'window' }).then((clients) => {
