@@ -32,7 +32,10 @@ export class PaymentsController {
     limits: { fileSize: 5 * 1024 * 1024 },
     fileFilter: (_req, file, cb) => {
       const allowed = ['image/jpeg', 'image/png', 'image/webp', 'application/pdf'];
-      cb(null, allowed.includes(file.mimetype));
+      if (!allowed.includes(file.mimetype)) {
+        return cb(new Error('Type de fichier non autorisé'), false);
+      }
+      cb(null, true);
     },
   }))
   @ApiConsumes('multipart/form-data')
