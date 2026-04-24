@@ -26,10 +26,8 @@ export class PaymentsService {
     },
     receipt?: Express.Multer.File,
   ) {
-    let receiptUrl: string | undefined;
-    if (receipt) {
-      receiptUrl = await this.storage.uploadReceipt(receipt);
-    }
+    if (!receipt) throw new BadRequestException('Le reçu de paiement est obligatoire.');
+    const receiptUrl = await this.storage.uploadReceipt(receipt);
 
     const payment = await this.prisma.payment.create({
       data: {
@@ -40,7 +38,7 @@ export class PaymentsService {
         operator: dto.operator,
         planType: dto.planType,
         groupSize: dto.groupSize ? Number(dto.groupSize) : undefined,
-        receiptUrl,
+        receiptUrl: receiptUrl,
       } as any,
     });
 
