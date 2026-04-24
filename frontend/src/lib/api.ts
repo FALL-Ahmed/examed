@@ -163,6 +163,7 @@ export const adminApi = {
   analytics: () => api.get('/admin/analytics'),
   getSettings: () => api.get('/admin/settings'),
   setSetting: (key: string, value: string) => api.put(`/admin/settings/${key}`, { value }),
+  grantPremium: (id: string, days: number) => api.put(`/admin/users/${id}/grant-premium`, { days }),
 };
 
 export const pushApi = {

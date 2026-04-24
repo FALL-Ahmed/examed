@@ -207,6 +207,15 @@ export class AdminService {
     });
   }
 
+  async grantPremium(userId: string, days: number) {
+    const subscriptionEnd = new Date();
+    subscriptionEnd.setDate(subscriptionEnd.getDate() + days);
+    return this.prisma.user.update({
+      where: { id: userId },
+      data: { role: 'PREMIUM', subscriptionEnd },
+    });
+  }
+
   async getQuestions(page = 1, limit = 20, themeId?: string, search?: string, subThemeId?: string, language?: string) {
     const where: any = {};
     if (subThemeId) {

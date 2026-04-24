@@ -95,6 +95,17 @@ export default function UserDetailPage() {
     setNewPwd('');
   }
 
+  async function grantPremium() {
+    const input = prompt('Durée en jours (ex: 30, 90) :');
+    if (!input) return;
+    const days = parseInt(input);
+    if (!days || days < 1) return;
+    setProcessing(true);
+    await adminApi.grantPremium(id, days).catch(() => {});
+    await load();
+    setProcessing(false);
+  }
+
   async function deleteUser() {
     if (!confirm(`Supprimer définitivement "${user.fullName}" ? Cette action est irréversible.`)) return;
     setProcessing(true);
@@ -132,6 +143,12 @@ export default function UserDetailPage() {
           <ArrowLeft className="w-4 h-4" /> Retour
         </button>
         <div className="flex items-center gap-2">
+          {user.role === 'FREE' && (
+            <button onClick={grantPremium} disabled={processing}
+              className="flex items-center gap-1.5 px-3 py-2 rounded-xl text-sm font-semibold border border-emerald-200 text-emerald-600 hover:bg-emerald-50 transition disabled:opacity-50">
+              <CheckCircle className="w-3.5 h-3.5" /> Activer Premium
+            </button>
+          )}
           {user.role === 'PREMIUM' && (
             <button onClick={resetSub} disabled={processing}
               className="flex items-center gap-1.5 px-3 py-2 rounded-xl text-sm font-semibold border border-amber-200 text-amber-600 hover:bg-amber-50 transition disabled:opacity-50">

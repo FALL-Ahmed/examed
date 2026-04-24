@@ -75,6 +75,11 @@ export class AdminController {
     return this.adminService.resetUserSubscription(id);
   }
 
+  @Put('users/:id/grant-premium')
+  grantPremium(@Param('id') id: string, @Body() body: { days: number }) {
+    return this.adminService.grantPremium(id, body.days ?? 30);
+  }
+
   @Put('users/:id/password')
   changePassword(@Param('id') id: string, @Body() body: { password: string }) {
     return this.adminService.changeUserPassword(id, body.password);
