@@ -1,4 +1,4 @@
-declare const self: ServiceWorkerGlobalScope;
+/// <reference lib="webworker" />
 
 self.addEventListener('push', (event) => {
   if (!event.data) return;
