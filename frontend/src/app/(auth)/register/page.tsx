@@ -198,7 +198,7 @@ function RegisterContent() {
         const emails = groupEmailsText.split('\n').map(e => e.trim()).filter(Boolean);
         fd.append('groupEmails', JSON.stringify(emails));
       }
-      fd.append('receipt', receipt);
+      fd.append('receipt', receipt!);
       await paymentsApi.submit(fd);
       sessionStorage.removeItem('register_state');
       window.location.href = '/pending';
