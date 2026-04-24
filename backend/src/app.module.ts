@@ -12,6 +12,7 @@ import { PaymentsModule } from './payments/payments.module';
 import { AdminModule } from './admin/admin.module';
 import { PdfModule } from './pdf/pdf.module';
 import { KeepaliveService } from './common/keepalive.service';
+import { PushModule } from './push/push.module';
 
 @Module({
   imports: [
@@ -30,6 +31,7 @@ import { KeepaliveService } from './common/keepalive.service';
     PaymentsModule,
     AdminModule,
     PdfModule,
+    PushModule,
   ],
   providers: [KeepaliveService],
 })

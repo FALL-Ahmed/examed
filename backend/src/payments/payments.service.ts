@@ -2,12 +2,14 @@ import 'multer';
 import { Injectable, BadRequestException, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { StorageService } from '../storage/storage.service';
+import { PushService } from '../push/push.service';
 
 @Injectable()
 export class PaymentsService {
   constructor(
     private prisma: PrismaService,
     private storage: StorageService,
+    private push: PushService,
   ) {}
 
   async submitPayment(
@@ -49,6 +51,8 @@ export class PaymentsService {
         skipDuplicates: true,
       });
     }
+
+    this.push.notifyAdmins('💳 Nouveau paiement', `Un paiement de ${dto.amount} MRU est en attente de validation.`).catch(() => {});
 
     return payment;
   }

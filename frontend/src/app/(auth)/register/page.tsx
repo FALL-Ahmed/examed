@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { authApi, paymentsApi, settingsApi } from '@/lib/api';
 import { useLang } from '@/components/LanguageProvider';
 import { BookOpen, Loader2, Eye, EyeOff, ChevronRight, Copy, CheckCheck, Upload, X } from 'lucide-react';
+import { LanguageSwitcherLight } from '@/components/LanguageSwitcher';
 
 const PROFESSIONS = [
   { value: 'etudiant_infirmier',  fr: 'Étudiant en sciences infirmières', ar: 'طالب علوم التمريض' },
@@ -303,7 +304,10 @@ function RegisterContent() {
       </div>
 
       {/* Right form */}
-      <div className="flex-1 flex items-start justify-center p-6 bg-gray-50 overflow-y-auto">
+      <div className="flex-1 flex items-start justify-center p-6 bg-gray-50 overflow-y-auto relative">
+        <div className="absolute top-4 right-4">
+          <LanguageSwitcherLight />
+        </div>
         <div className="w-full max-w-lg py-8">
 
           <div className="lg:hidden flex items-center gap-2 mb-8">

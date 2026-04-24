@@ -3,7 +3,7 @@ import { useEffect, useState } from 'react';
 import { useParams } from 'next/navigation';
 import Link from 'next/link';
 import { attemptsApi } from '@/lib/api';
-import { CheckCircle, XCircle, ChevronDown, ChevronUp, RotateCcw, RefreshCw, Trophy, Clock, Target } from 'lucide-react';
+import { CheckCircle, XCircle, ChevronDown, ChevronUp, RotateCcw, RefreshCw, Clock, Target } from 'lucide-react';
 import { useLang } from '@/components/LanguageProvider';
 import { sentenceCase, resolveImageUrl } from '@/lib/utils';
 
@@ -11,7 +11,8 @@ export default function ResultsPage() {
   const { attemptId } = useParams<{ attemptId: string }>();
   const [review, setReview] = useState<any>(null);
   const [expanded, setExpanded] = useState<string | null>(null);
-  const { t } = useLang();
+  const { t, lang } = useLang();
+  const isAr = lang === 'ar';
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState<'all' | 'correct' | 'wrong'>('all');
 
@@ -24,11 +25,15 @@ export default function ResultsPage() {
       <div className="w-5 h-5 border-2 border-primary border-t-transparent rounded-full animate-spin" />
     </div>
   );
-  if (!review) return <p className="text-center text-muted-foreground">Résultats non trouvés</p>;
+  if (!review) return <p className="text-center text-muted-foreground">{isAr ? 'النتائج غير موجودة' : 'Résultats non trouvés'}</p>;
 
   const score = review.score;
   const scoreColor = score >= 70 ? '#10b981' : score >= 50 ? '#f59e0b' : '#ef4444';
-  const scoreLabel = score >= 70 ? 'Excellent !' : score >= 50 ? 'Bien joué !' : 'Continuez les efforts !';
+  const scoreLabel = score >= 70
+    ? (isAr ? 'ممتاز !' : 'Excellent !')
+    : score >= 50
+    ? (isAr ? 'أحسنت !' : 'Bien joué !')
+    : (isAr ? 'واصل المجهود !' : 'Continuez les efforts !');
 
   const correct = review.questions.filter((q: any) => q.isCorrect).length;
   const total = review.questions.length;

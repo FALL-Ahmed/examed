@@ -164,3 +164,9 @@ export const adminApi = {
   getSettings: () => api.get('/admin/settings'),
   setSetting: (key: string, value: string) => api.put(`/admin/settings/${key}`, { value }),
 };
+
+export const pushApi = {
+  vapidKey: () => api.get('/push/vapid-public-key'),
+  subscribe: (sub: { endpoint: string; p256dh: string; auth: string }) => api.post('/push/subscribe', sub),
+  unsubscribe: (endpoint: string) => api.delete('/push/unsubscribe', { data: { endpoint } }),
+};

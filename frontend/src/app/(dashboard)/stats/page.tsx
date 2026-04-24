@@ -84,7 +84,9 @@ export default function StatsPage() {
     score: h.score,
   }));
 
-  const qualifiedThemes = stats.themeStats.filter((th: any) => th.total >= 3);
+  const langCode = isAr ? 'AR' : 'FR';
+  const langThemeStats = stats.themeStats.filter((th: any) => th.language === langCode);
+  const qualifiedThemes = langThemeStats.filter((th: any) => th.total >= 3);
   const strengths = qualifiedThemes.filter((th: any) => th.score >= 70).sort((a: any, b: any) => b.score - a.score).slice(0, 4);
   const weaknesses = qualifiedThemes.filter((th: any) => th.score < 70).sort((a: any, b: any) => a.score - b.score).slice(0, 4);
 
@@ -203,7 +205,7 @@ export default function StatsPage() {
       )}
 
       {/* Theme scores bar chart */}
-      {stats.themeStats.length > 0 && (
+      {langThemeStats.length > 0 && (
         <div className="bg-card border border-border rounded-2xl p-6">
           <div className="flex items-center gap-2 mb-6">
             <div className="w-8 h-8 rounded-lg gradient-info flex items-center justify-center">
@@ -211,14 +213,14 @@ export default function StatsPage() {
             </div>
             <h2 className="font-bold">{isAr ? 'النتيجة حسب الموضوع' : 'Score par thème'}</h2>
           </div>
-          <ResponsiveContainer width="100%" height={Math.max(200, stats.themeStats.length * 44)}>
-            <BarChart data={stats.themeStats} layout="vertical" margin={{ left: 8, right: 40, top: 0, bottom: 0 }}>
+          <ResponsiveContainer width="100%" height={Math.max(200, langThemeStats.length * 44)}>
+            <BarChart data={langThemeStats} layout="vertical" margin={{ left: 8, right: 40, top: 0, bottom: 0 }}>
               <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" horizontal={false} />
               <XAxis type="number" domain={[0, 100]} tick={{ fontSize: 11, fill: 'hsl(var(--muted-foreground))' }} axisLine={false} tickLine={false} tickFormatter={(v) => `${v}%`} />
               <YAxis type="category" dataKey="name" tickFormatter={sentenceCase} tick={{ fontSize: 11, fill: 'hsl(var(--muted-foreground))' }} width={130} axisLine={false} tickLine={false} />
               <Tooltip content={<CustomTooltip />} />
               <Bar dataKey="score" radius={[0, 6, 6, 0]} maxBarSize={20}>
-                {stats.themeStats.map((entry: any) => (
+                {langThemeStats.map((entry: any) => (
                   <Cell
                     key={entry.name}
                     fill={entry.score >= 70 ? '#10b981' : entry.score >= 50 ? '#f59e0b' : '#ef4444'}

@@ -7,6 +7,7 @@ import { useAuthStore } from '@/lib/auth-store';
 import { useLang } from '@/components/LanguageProvider';
 import { BookOpen, Eye, EyeOff, Loader2, Stethoscope, Activity, Shield, Users, Smartphone } from 'lucide-react';
 import { authApi } from '@/lib/api';
+import { LanguageSwitcherLight } from '@/components/LanguageSwitcher';
 
 export default function LoginPage() {
   const router = useRouter();
@@ -142,7 +143,10 @@ export default function LoginPage() {
       </div>
 
       {/* ── RIGHT form panel ── */}
-      <div className="flex-1 flex items-center justify-center p-6 bg-background">
+      <div className="flex-1 flex items-center justify-center p-6 bg-background relative">
+        <div className="absolute top-4 right-4">
+          <LanguageSwitcherLight />
+        </div>
         <div className={`w-full max-w-md transition-all duration-700 delay-150 ${mounted ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'}`}>
 
           {/* Mobile logo */}

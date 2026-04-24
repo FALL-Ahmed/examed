@@ -46,13 +46,13 @@ export class UsersService {
     const globalScore = totalQuestions > 0 ? Math.round((totalCorrect / totalQuestions) * 100) : 0;
 
     // Stats par thème
-    const themeMap: Record<string, { name: string; total: number; correct: number }> = {};
+    const themeMap: Record<string, { name: string; language: string; total: number; correct: number }> = {};
     for (const attempt of attempts) {
       for (const answer of attempt.answers) {
-        const themeName = answer.question.subTheme.theme.name;
-        if (!themeMap[themeName]) themeMap[themeName] = { name: themeName, total: 0, correct: 0 };
-        themeMap[themeName].total++;
-        if (answer.isCorrect) themeMap[themeName].correct++;
+        const theme = answer.question.subTheme.theme;
+        if (!themeMap[theme.name]) themeMap[theme.name] = { name: theme.name, language: theme.language, total: 0, correct: 0 };
+        themeMap[theme.name].total++;
+        if (answer.isCorrect) themeMap[theme.name].correct++;
       }
     }
 

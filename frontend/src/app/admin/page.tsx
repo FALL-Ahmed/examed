@@ -1,9 +1,9 @@
 'use client';
 import { useEffect, useState } from 'react';
-import { adminApi, settingsApi } from '@/lib/api';
+import { adminApi, settingsApi, pushApi } from '@/lib/api';
 import {
   Users, FileText, CreditCard, AlertCircle, Settings, Loader2, CheckCircle,
-  Smartphone, MessageCircle, UserPlus, TrendingUp, Target, Zap,
+  Smartphone, MessageCircle, UserPlus, TrendingUp, Zap,
   Star, BarChart2, ArrowUpRight, Activity, DollarSign,
 } from 'lucide-react';
 import Link from 'next/link';
@@ -48,8 +48,15 @@ export default function AdminDashboard() {
   const [savingEmail, setSavingEmail] = useState(false);
   const [savedEmail, setSavedEmail] = useState(false);
   const [deviceVerif, setDeviceVerif] = useState(false);
+  const [pushEnabled, setPushEnabled] = useState(false);
+  const [pushLoading, setPushLoading] = useState(false);
 
   useEffect(() => {
+    if ('serviceWorker' in navigator && 'PushManager' in window) {
+      navigator.serviceWorker.ready.then((reg) =>
+        reg.pushManager.getSubscription().then((sub) => setPushEnabled(!!sub))
+      ).catch(() => {});
+    }
     adminApi.stats().then((r) => setStats(r.data)).catch(() => {});
     adminApi.getSettings().then((r) => {
       setPriceInput(r.data.PREMIUM_PRICE ?? '500');
@@ -102,6 +109,37 @@ export default function AdminDashboard() {
     setSavedEmail(true); setTimeout(() => setSavedEmail(false), 3000);
     setSavingEmail(false);
   }
+  async function togglePush() {
+    if (pushLoading) return;
+    setPushLoading(true);
+    try {
+      if (pushEnabled) {
+        const reg = await navigator.serviceWorker.ready;
+        const sub = await reg.pushManager.getSubscription();
+        if (sub) {
+          await pushApi.unsubscribe(sub.endpoint).catch(() => {});
+          await sub.unsubscribe();
+        }
+        setPushEnabled(false);
+      } else {
+        const { data } = await pushApi.vapidKey();
+        const reg = await navigator.serviceWorker.ready;
+        const sub = await reg.pushManager.subscribe({
+          userVisibleOnly: true,
+          applicationServerKey: data.publicKey,
+        });
+        const json = sub.toJSON();
+        await pushApi.subscribe({
+          endpoint: sub.endpoint,
+          p256dh: json.keys!.p256dh,
+          auth: json.keys!.auth,
+        });
+        setPushEnabled(true);
+      }
+    } catch { /* permission refusée ou erreur */ }
+    setPushLoading(false);
+  }
+
   async function toggleDeviceVerif() {
     const next = !deviceVerif;
     setDeviceVerif(next);
@@ -141,13 +179,11 @@ export default function AdminDashboard() {
       {/* Utilisateurs */}
       <section>
         <p className="text-xs font-bold uppercase tracking-widest text-muted-foreground mb-3">Utilisateurs</p>
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-          <KpiCard icon={Users}       label="Total utilisateurs"     value={s?.totalUsers}         color="bg-blue-500"    href="/admin/users" />
-          <KpiCard icon={CheckCircle} label="Membres premium"        value={s?.premiumUsers}       color="bg-emerald-500" href="/admin/users"
-            sub={s ? `${s.conversionRate}% de conversion FREE→PRO` : undefined} />
-          <KpiCard icon={TrendingUp}  label="Inscrits 7 derniers j." value={s?.weekRegistrations}  color="bg-violet-500"
+        <div className="grid grid-cols-2 lg:grid-cols-3 gap-4">
+          <KpiCard icon={Users}      label="Total utilisateurs"     value={s?.totalUsers}        color="bg-blue-500"   href="/admin/users" />
+          <KpiCard icon={TrendingUp} label="Inscrits 7 derniers j." value={s?.weekRegistrations} color="bg-violet-500"
             sub={s ? `dont ${s.todayRegistrations} aujourd'hui` : undefined} />
-          <KpiCard icon={Activity}    label="Actifs 7 derniers j."   value={s?.activeUsersWeek}   color="bg-sky-500"
+          <KpiCard icon={Activity}   label="Actifs 7 derniers j."   value={s?.activeUsersWeek}  color="bg-sky-500"
             sub={s && s.totalUsers ? `${Math.round((s.activeUsersWeek / s.totalUsers) * 100)}% de la base` : undefined} />
         </div>
       </section>
@@ -155,10 +191,9 @@ export default function AdminDashboard() {
       {/* Revenus */}
       <section>
         <p className="text-xs font-bold uppercase tracking-widest text-muted-foreground mb-3">Revenus</p>
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+        <div className="grid grid-cols-2 lg:grid-cols-3 gap-4">
           <KpiCard icon={DollarSign}   label="Revenus totaux"       value={s ? `${s.revenueTotal.toLocaleString()} MRU` : '—'} color="bg-emerald-600" />
           <KpiCard icon={ArrowUpRight} label="Revenus ce mois"      value={s ? `${s.revenueMonth.toLocaleString()} MRU` : '—'} color="bg-teal-500" />
-          <KpiCard icon={Target}       label="Taux de conversion"   value={s ? `${s.conversionRate}%` : '—'} color="bg-orange-500" sub="FREE → PREMIUM" />
           <KpiCard icon={CreditCard}   label="Paiements en attente" value={s?.pendingPayments}
             color={s?.pendingPayments > 0 ? 'bg-red-500' : 'bg-slate-400'} href="/admin/payments" />
         </div>
@@ -224,6 +259,18 @@ export default function AdminDashboard() {
           </div>
           <button type="button" onClick={toggleDeviceVerif} className={`relative w-11 h-6 rounded-full transition-colors flex-shrink-0 ${deviceVerif ? 'bg-primary' : 'bg-border'}`}>
             <span className={`absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full shadow transition-transform ${deviceVerif ? 'translate-x-5' : 'translate-x-0'}`} />
+          </button>
+        </div>
+        <div className="border-t border-border pt-4 mt-2 flex items-center justify-between">
+          <div>
+            <p className="text-sm font-semibold flex items-center gap-1.5">🔔 Notifications paiements</p>
+            <p className="text-xs text-muted-foreground mt-0.5">{pushEnabled ? 'Activées sur cet appareil.' : 'Recevoir un push à chaque paiement en attente.'}</p>
+          </div>
+          <button type="button" onClick={togglePush} disabled={pushLoading}
+            className={`relative w-11 h-6 rounded-full transition-colors flex-shrink-0 disabled:opacity-60 ${pushEnabled ? 'bg-primary' : 'bg-border'}`}>
+            {pushLoading
+              ? <Loader2 className="absolute top-1 left-2.5 w-4 h-4 animate-spin text-muted-foreground" />
+              : <span className={`absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full shadow transition-transform ${pushEnabled ? 'translate-x-5' : 'translate-x-0'}`} />}
           </button>
         </div>
       </div>
