@@ -1,6 +1,7 @@
 /// <reference lib="webworker" />
 
-self.addEventListener('push', (event) => {
+self.addEventListener('push', (e) => {
+  const event = e as PushEvent;
   if (!event.data) return;
   const data = event.data.json();
   event.waitUntil(
@@ -13,7 +14,8 @@ self.addEventListener('push', (event) => {
   );
 });
 
-self.addEventListener('notificationclick', (event) => {
+self.addEventListener('notificationclick', (e) => {
+  const event = e as NotificationEvent;
   event.notification.close();
   event.waitUntil(
     self.clients.matchAll({ type: 'window' }).then((clients) => {
