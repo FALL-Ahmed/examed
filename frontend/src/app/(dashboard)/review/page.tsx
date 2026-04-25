@@ -28,8 +28,8 @@ export default function ReviewPage() {
     } catch (err: any) {
       setError(
         err.response?.data?.message?.includes('Aucune erreur')
-          ? "Pas d'erreurs à réviser pour l'instant. Faites des exercices d'abord !"
-          : err.response?.data?.message || 'Erreur'
+          ? t('review.noErrors')
+          : err.response?.data?.message || t('common.error')
       );
     } finally {
       setLoading(false);
@@ -49,7 +49,7 @@ export default function ReviewPage() {
             <div>
               <p className="font-semibold text-amber-900 text-sm">{t('review.title')}</p>
               <p className="text-xs text-amber-600">
-                {Object.keys(savedReview.answers || {}).length} / {savedReview.session?.questions?.length || '?'} répondues
+                {Object.keys(savedReview.answers || {}).length} / {savedReview.session?.questions?.length || '?'} {t('review.answered')}
               </p>
             </div>
           </div>
@@ -65,7 +65,7 @@ export default function ReviewPage() {
               onClick={() => router.push(`/exam/${savedReview.attemptId}`)}
               className="flex items-center gap-1.5 bg-amber-500 text-white px-4 py-2 rounded-xl text-sm font-semibold hover:bg-amber-600 transition"
             >
-              <Play className="w-3.5 h-3.5 fill-white" /> Reprendre
+              <Play className="w-3.5 h-3.5 fill-white" /> {t('review.resume')}
             </button>
           </div>
         </div>
@@ -88,7 +88,7 @@ export default function ReviewPage() {
           <div className="flex gap-3 items-start p-4 bg-amber-500/8 border border-amber-500/20 rounded-xl">
             <AlertCircle className="w-4 h-4 text-amber-500 flex-shrink-0 mt-0.5" />
             <p className="text-sm text-muted-foreground leading-relaxed">
-              Ce mode reprend toutes les questions auxquelles vous avez répondu incorrectement, classées des plus récentes aux plus anciennes.
+              {t('review.desc')}
             </p>
           </div>
 

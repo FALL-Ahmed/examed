@@ -162,6 +162,10 @@ export const translations = {
     'review.empty': 'Aucune erreur à réviser !',
     'review.correct': 'Réponse correcte',
     'review.yourAnswer': 'Votre réponse',
+    'review.desc': 'Ce mode reprend toutes les questions auxquelles vous avez répondu incorrectement, classées des plus récentes aux plus anciennes.',
+    'review.resume': 'Reprendre',
+    'review.answered': 'répondues',
+    'review.noErrors': "Pas d'erreurs à réviser pour l'instant. Faites des exercices d'abord !",
 
     // ─── Favorites ─────────────────────────────────────────────────────────
     'favorites.title': 'Mes favoris',
@@ -462,6 +466,10 @@ export const translations = {
     'review.empty': 'لا أخطاء للمراجعة!',
     'review.correct': 'الإجابة الصحيحة',
     'review.yourAnswer': 'إجابتك',
+    'review.desc': 'يشمل هذا الوضع جميع الأسئلة التي أجبت عليها بشكل خاطئ، مرتّبةً من الأحدث إلى الأقدم.',
+    'review.resume': 'استئناف',
+    'review.answered': 'مُجاب عليها',
+    'review.noErrors': 'لا توجد أخطاء للمراجعة الآن. أكمل بعض التمارين أولاً!',
 
     // ─── Favorites ─────────────────────────────────────────────────────────
     'favorites.title': 'المفضلة',
