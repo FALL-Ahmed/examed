@@ -16,7 +16,7 @@ export default function LandingPage() {
   const { loadUser } = useAuthStore();
   const { t, lang } = useLang();
   const [pricing, setPricing] = useState<any>(null);
-  const promoActive = new Date() <= new Date('2026-04-27T23:59:59');
+  const promoActive = new Date() <= new Date('2026-04-29T23:59:59');
   const promo = (p: number) => Math.round(p / 2);
 
   const FEATURES = [
@@ -364,8 +364,8 @@ export default function LandingPage() {
                 </p>
                 <p className="text-white/80 text-base mb-4">
                   {lang === 'ar'
-                    ? <>عرض الإطلاق — صالح حتى <strong className="text-white text-lg underline decoration-2">الاثنين 27 أبريل 2026</strong></>
-                    : <>Offre de lancement — valable jusqu'au <strong className="text-white text-lg underline decoration-2">lundi 27 avril 2026</strong></>}
+                    ? <>عرض الإطلاق — صالح حتى <strong className="text-white text-lg underline decoration-2">الأربعاء 29 أبريل 2026</strong></>
+                    : <>Offre de lancement — valable jusqu'au <strong className="text-white text-lg underline decoration-2">mercredi 29 avril 2026</strong></>}
                 </p>
                 <div className="inline-flex items-center gap-2 bg-white/20 border border-white/30 text-white text-sm font-bold px-4 py-2 rounded-full backdrop-blur-sm">
                   ⏳ {lang === 'ar' ? 'الأسعار الأصلية مشطوبة أدناه' : 'Les prix barrés ci-dessous sont les prix normaux'}

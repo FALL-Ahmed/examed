@@ -94,7 +94,7 @@ function RegisterContent() {
     }).catch(() => {});
   }, []);
 
-  const promoActive = new Date() <= new Date('2026-04-27T23:59:59');
+  const promoActive = new Date() <= new Date('2026-04-29T23:59:59');
   const promo = (p: number) => Math.round(p / 2);
 
   const solo1mBase  = pricing.solo1m?.price ?? 500;
@@ -481,8 +481,8 @@ function RegisterContent() {
                     </p>
                     <p className="text-xs text-red-500 mt-0.5">
                       {isAr
-                        ? 'حتى 27 أبريل 2026 · الأسعار المشطوبة هي الأسعار العادية'
-                        : 'Jusqu\'au 27 avril 2026 · Les prix barrés sont les prix normaux'}
+                        ? 'حتى 29 أبريل 2026 · الأسعار المشطوبة هي الأسعار العادية'
+                        : 'Jusqu\'au 29 avril 2026 · Les prix barrés sont les prix normaux'}
                     </p>
                   </div>
                 </div>
