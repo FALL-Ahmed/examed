@@ -192,8 +192,8 @@ export default function AdminDashboard() {
       <section>
         <p className="text-xs font-bold uppercase tracking-widest text-muted-foreground mb-3">Revenus</p>
         <div className="grid grid-cols-2 lg:grid-cols-3 gap-4">
-          <KpiCard icon={DollarSign}   label="Revenus totaux"       value={s ? `${s.revenueTotal.toLocaleString()} MRU` : '—'} color="bg-emerald-600" />
-          <KpiCard icon={ArrowUpRight} label="Revenus ce mois"      value={s ? `${s.revenueMonth.toLocaleString()} MRU` : '—'} color="bg-teal-500" />
+          <KpiCard icon={DollarSign}   label="Revenus totaux"       value={s ? `${Math.max(0, s.revenueTotal - 8 * 500).toLocaleString()} MRU` : '—'} color="bg-emerald-600" />
+          <KpiCard icon={ArrowUpRight} label="Revenus ce mois"      value={s ? `${Math.max(0, s.revenueMonth - 8 * 500).toLocaleString()} MRU` : '—'} color="bg-teal-500" />
           <KpiCard icon={CreditCard}   label="Paiements en attente" value={s?.pendingPayments}
             color={s?.pendingPayments > 0 ? 'bg-red-500' : 'bg-slate-400'} href="/admin/payments" />
         </div>

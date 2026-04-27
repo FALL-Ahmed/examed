@@ -360,7 +360,7 @@ export class AdminService {
   }
 
   async getUserAnalytics() {
-    const [users, operatorStats] = await Promise.all([
+    const [users, operatorStats, langStats] = await Promise.all([
       this.prisma.user.findMany({
         where: { role: { not: 'ADMIN' } },
         select: { role: true, gender: true, wilaya: true, profession: true } as any,
@@ -371,6 +371,16 @@ export class AdminService {
         _count: { _all: true },
         _sum: { amount: true },
       }),
+      this.prisma.$queryRaw<{ language: string; users: bigint; answers: bigint }[]>`
+        SELECT th.language,
+               COUNT(DISTINCT ua."userId") AS users,
+               COUNT(ua.id) AS answers
+        FROM "UserAnswer" ua
+        JOIN "Question" q  ON ua."questionId" = q.id
+        JOIN "SubTheme" st ON q."subThemeId"  = st.id
+        JOIN "Theme"    th ON st."themeId"    = th.id
+        GROUP BY th.language
+      `,
     ]);
 
     const group = (field: string) => {
@@ -389,12 +399,19 @@ export class AdminService {
       .map((o) => ({ operator: o.operator, count: o._count._all, total: o._sum.amount ?? 0 }))
       .sort((a, b) => b.count - a.count);
 
+    const byLanguage = langStats.map((r) => ({
+      language: r.language,
+      users: Number(r.users),
+      answers: Number(r.answers),
+    }));
+
     return {
       byGender:     group('gender'),
       byWilaya:     group('wilaya').slice(0, 10),
       byProfession: group('profession').slice(0, 10),
       byRole:       group('role'),
       byOperator,
+      byLanguage,
     };
   }
 

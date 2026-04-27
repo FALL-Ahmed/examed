@@ -1,7 +1,7 @@
 'use client';
 import { useEffect, useState } from 'react';
 import { adminApi } from '@/lib/api';
-import { Users, MapPin, Briefcase, Smartphone } from 'lucide-react';
+import { Users, MapPin, Briefcase, Smartphone, Languages } from 'lucide-react';
 
 const PROFESSION_LABELS: Record<string, string> = {
   etudiant_infirmier: 'Étudiant infirmier',
@@ -124,7 +124,12 @@ export default function AnalyticsPage() {
   const roleMap: Record<string, number> = {};
   (data.byRole || []).forEach((r: any) => { roleMap[r.role] = r._count._all; });
 
-  const operators: { operator: string; count: number; total: number }[] = data.byOperator || [];
+  const BANKILY_PROMO = 8;
+  const operators: { operator: string; count: number; total: number }[] = (data.byOperator || []).map((o: any) =>
+    o.operator?.toLowerCase() === 'bankily'
+      ? { ...o, count: Math.max(0, o.count - BANKILY_PROMO), total: Math.max(0, o.total - BANKILY_PROMO * 500) }
+      : o
+  );
   const opTotal = operators.reduce((s, o) => s + o.count, 0) || 1;
 
   const OPERATOR_COLORS: Record<string, string> = {
@@ -132,6 +137,9 @@ export default function AnalyticsPage() {
     bankily: 'bg-yellow-500',
     sedad:   'bg-blue-500',
   };
+
+  const langData: { language: string; users: number; answers: number }[] = data.byLanguage || [];
+  const langTotal = langData.reduce((s, l) => s + l.users, 0) || 1;
 
   return (
     <div className="space-y-6">
@@ -173,6 +181,46 @@ export default function AnalyticsPage() {
           {professions.length === 0
             ? <p className="text-slate-400 text-sm">Aucune donnée</p>
             : <BarChart data={professions} colorClass="bg-indigo-500" />}
+        </div>
+
+        {/* Langue d'utilisation */}
+        <div className="bg-white border border-slate-200 rounded-2xl p-6">
+          <div className="flex items-center gap-2 mb-5">
+            <Languages className="w-4 h-4 text-slate-400" />
+            <h2 className="font-semibold text-slate-800">Langue d'utilisation</h2>
+            <span className="ml-auto text-xs text-slate-400">basé sur les questions répondues</span>
+          </div>
+          {langData.length === 0 ? (
+            <p className="text-slate-400 text-sm">Aucune donnée</p>
+          ) : (
+            <div className="space-y-4">
+              {langData.map((l) => {
+                const isFr = l.language === 'FR';
+                const pct = Math.round((l.users / langTotal) * 100);
+                return (
+                  <div key={l.language}>
+                    <div className="flex items-center justify-between mb-1.5">
+                      <div className="flex items-center gap-2">
+                        <span className="text-xl">{isFr ? '🇫🇷' : '🇲🇷'}</span>
+                        <span className="font-semibold text-slate-800">{isFr ? 'Français' : 'Arabe'}</span>
+                      </div>
+                      <div className="text-right">
+                        <span className="font-black text-slate-900 text-lg">{l.users}</span>
+                        <span className="text-slate-400 text-sm ml-1">utilisateurs ({pct}%)</span>
+                      </div>
+                    </div>
+                    <div className="h-3 bg-slate-100 rounded-full overflow-hidden">
+                      <div
+                        className={`h-full rounded-full transition-all duration-700 ${isFr ? 'bg-blue-500' : 'bg-emerald-500'}`}
+                        style={{ width: `${pct}%` }}
+                      />
+                    </div>
+                    <p className="text-xs text-slate-400 mt-1">{l.answers.toLocaleString()} réponses au total</p>
+                  </div>
+                );
+              })}
+            </div>
+          )}
         </div>
 
         {/* Opérateurs */}
