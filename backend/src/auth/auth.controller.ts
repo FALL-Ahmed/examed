@@ -114,10 +114,11 @@ export class AuthController {
 
   @Post('group-setup')
   @HttpCode(200)
-  groupSetup(@Body() body: { token: string; fullName: string; password: string }, @Req() req: any) {
+  groupSetup(@Body() body: { token: string; fullName: string; password: string; gender?: string; phone?: string; wilaya?: string; profession?: string }, @Req() req: any) {
     const deviceId = req.headers['x-device-id'] || 'unknown';
     const userAgent = req.headers['user-agent'] || 'unknown';
     const ip = req.ip || req.connection?.remoteAddress || 'unknown';
-    return this.authService.groupSetup(body.token, body.fullName, body.password, { deviceId, userAgent, ip });
+    const { token, fullName, password, ...extra } = body;
+    return this.authService.groupSetup(token, fullName, password, { deviceId, userAgent, ip }, extra);
   }
 }

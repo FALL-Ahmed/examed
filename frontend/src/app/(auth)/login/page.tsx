@@ -9,6 +9,24 @@ import { BookOpen, Eye, EyeOff, Loader2, Stethoscope, Activity, Shield, Users, S
 import { authApi } from '@/lib/api';
 import { LanguageSwitcherLight } from '@/components/LanguageSwitcher';
 
+const PROFESSIONS = [
+  { value: 'etudiant_infirmier',  label: 'Étudiant en sciences infirmières' },
+  { value: 'etudiant_medecine',   label: 'Étudiant en médecine' },
+  { value: 'etudiant_pharmacie',  label: 'Étudiant en pharmacie' },
+  { value: 'infirmier_diplome',   label: 'Infirmier diplômé' },
+  { value: 'aide_soignant',       label: 'Aide-soignant' },
+  { value: 'medecin',             label: 'Médecin' },
+  { value: 'sage_femme',          label: 'Sage-femme' },
+  { value: 'technicien_labo',     label: 'Technicien de laboratoire' },
+  { value: 'autre',               label: 'Autre professionnel de santé' },
+];
+
+const WILAYAS = [
+  'Hodh Ech Chargui','Hodh El Gharbi','Assaba','Gorgol','Brakna',
+  'Trarza','Adrar','Dakhlet Nouadhibou','Tagant','Guidimaka',
+  'Tiris Zemmour','Inchiri','Nouakchott Ouest','Nouakchott Nord','Nouakchott Sud',
+];
+
 export default function LoginPage() {
   const router = useRouter();
   const { login } = useAuthStore();
@@ -29,6 +47,10 @@ export default function LoginPage() {
   const [groupAccessToken, setGroupAccessToken] = useState('');
   const [setupFullName, setSetupFullName] = useState('');
   const [setupPassword, setSetupPassword] = useState('');
+  const [setupGender, setSetupGender] = useState('');
+  const [setupPhone, setSetupPhone] = useState('');
+  const [setupWilaya, setSetupWilaya] = useState('');
+  const [setupProfession, setSetupProfession] = useState('');
   const [showSetupPwd, setShowSetupPwd] = useState(false);
   const [groupLoading, setGroupLoading] = useState(false);
   const [groupError, setGroupError] = useState('');
@@ -80,10 +102,16 @@ export default function LoginPage() {
   async function handleGroupSetup(e: React.FormEvent) {
     e.preventDefault();
     if (!setupFullName.trim()) { setGroupError('Nom complet requis'); return; }
+    if (!setupGender) { setGroupError('Veuillez sélectionner votre sexe'); return; }
+    if (!setupProfession) { setGroupError('Veuillez sélectionner votre profession'); return; }
     if (setupPassword.length < 8) { setGroupError('Mot de passe minimum 8 caractères'); return; }
     setGroupLoading(true); setGroupError('');
     try {
-      const { data } = await authApi.groupSetup({ token: groupAccessToken, fullName: setupFullName, password: setupPassword });
+      const { data } = await authApi.groupSetup({
+        token: groupAccessToken, fullName: setupFullName, password: setupPassword,
+        gender: setupGender, phone: setupPhone || undefined,
+        wilaya: setupWilaya || undefined, profession: setupProfession,
+      });
       const { default: Cookies } = await import('js-cookie');
       Cookies.set('access_token', data.accessToken, { expires: 1 });
       Cookies.set('refresh_token', data.refreshToken, { expires: 7 });
@@ -298,7 +326,7 @@ export default function LoginPage() {
                   {groupError}
                 </div>
               )}
-              <form onSubmit={handleGroupSetup} className="space-y-5">
+              <form onSubmit={handleGroupSetup} className="space-y-4">
                 <div>
                   <label className="block text-sm font-semibold mb-2">Nom complet</label>
                   <input
@@ -307,6 +335,42 @@ export default function LoginPage() {
                     className="w-full px-4 py-3 bg-secondary border border-border rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition text-sm placeholder:text-muted-foreground"
                     placeholder="Prénom Nom" required autoFocus
                   />
+                </div>
+                <div>
+                  <label className="block text-sm font-semibold mb-2">Sexe</label>
+                  <div className="flex gap-3">
+                    {[{ v: 'male', l: 'Homme' }, { v: 'female', l: 'Femme' }].map(({ v, l }) => (
+                      <button key={v} type="button"
+                        onClick={() => setSetupGender(v)}
+                        className={`flex-1 py-2.5 rounded-xl border text-sm font-medium transition ${setupGender === v ? 'border-primary bg-primary/10 text-primary' : 'border-border bg-secondary text-muted-foreground hover:border-primary/50'}`}>
+                        {l}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+                <div>
+                  <label className="block text-sm font-semibold mb-2">Profession</label>
+                  <select value={setupProfession} onChange={(e) => setSetupProfession(e.target.value)}
+                    className="w-full px-4 py-3 bg-secondary border border-border rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition text-sm" required>
+                    <option value="">Sélectionner...</option>
+                    {PROFESSIONS.map((p) => <option key={p.value} value={p.value}>{p.label}</option>)}
+                  </select>
+                </div>
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className="block text-sm font-semibold mb-2">Téléphone <span className="text-muted-foreground font-normal">(optionnel)</span></label>
+                    <input type="tel" value={setupPhone} onChange={(e) => setSetupPhone(e.target.value)}
+                      className="w-full px-4 py-3 bg-secondary border border-border rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition text-sm placeholder:text-muted-foreground"
+                      placeholder="ex: 22000000" />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-semibold mb-2">Wilaya <span className="text-muted-foreground font-normal">(optionnel)</span></label>
+                    <select value={setupWilaya} onChange={(e) => setSetupWilaya(e.target.value)}
+                      className="w-full px-4 py-3 bg-secondary border border-border rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition text-sm">
+                      <option value="">Sélectionner...</option>
+                      {WILAYAS.map((w) => <option key={w} value={w}>{w}</option>)}
+                    </select>
+                  </div>
                 </div>
                 <div>
                   <label className="block text-sm font-semibold mb-2">Mot de passe</label>

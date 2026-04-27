@@ -70,7 +70,7 @@ export const authApi = {
   resetPassword: (data: any) => api.post('/auth/reset-password', data),
   checkGroupInvite: (email: string) => api.get(`/auth/check-invite?email=${encodeURIComponent(email)}`),
   groupAccess: (email: string) => api.post('/auth/group-access', { email }),
-  groupSetup: (data: { token: string; fullName: string; password: string }) => api.post('/auth/group-setup', data),
+  groupSetup: (data: { token: string; fullName: string; password: string; gender?: string; phone?: string; wilaya?: string; profession?: string }) => api.post('/auth/group-setup', data),
 };
 
 // User

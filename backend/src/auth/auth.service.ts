@@ -287,6 +287,7 @@ export class AuthService {
     fullName: string,
     password: string,
     deviceInfo: { deviceId: string; userAgent: string; ip: string },
+    extra?: { gender?: string; phone?: string; wilaya?: string; profession?: string },
   ) {
     let payload: any;
     try {
@@ -312,7 +313,11 @@ export class AuthService {
 
     const user = await this.prisma.$transaction(async (tx) => {
       const u = await tx.user.create({
-        data: { email, passwordHash: hash, fullName: fullName.trim(), role: 'PREMIUM', subscriptionEnd } as any,
+        data: {
+          email, passwordHash: hash, fullName: fullName.trim(), role: 'PREMIUM', subscriptionEnd,
+          gender: extra?.gender || null, phone: extra?.phone || null,
+          wilaya: extra?.wilaya || null, profession: extra?.profession || null,
+        } as any,
       });
       await (tx as any).groupInvite.update({
         where: { id: inviteId },
