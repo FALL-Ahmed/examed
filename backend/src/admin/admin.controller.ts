@@ -35,6 +35,12 @@ export class AdminController {
     return this.adminService.getUserAnalytics();
   }
 
+  @Get('leaderboard')
+  getLeaderboard(@Query('sortBy') sortBy?: string, @Query('limit') limit?: string) {
+    const sort = ['accuracy', 'total', 'score'].includes(sortBy!) ? sortBy as any : 'accuracy';
+    return this.adminService.getLeaderboard(sort, limit ? parseInt(limit) : 100);
+  }
+
   @Get('users')
   getUsers(
     @Query('page') page?: string,

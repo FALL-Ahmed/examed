@@ -4,7 +4,7 @@ import { useRouter, usePathname } from 'next/navigation';
 import Link from 'next/link';
 import { useAuthStore } from '@/lib/auth-store';
 import { adminApi } from '@/lib/api';
-import { Users, FileText, CreditCard, Upload, BarChart2, LogOut, Shield, PieChart, Sun, Moon, Menu, X } from 'lucide-react';
+import { Users, FileText, CreditCard, Upload, BarChart2, LogOut, Shield, PieChart, Sun, Moon, Menu, X, Trophy } from 'lucide-react';
 import { useTheme } from '@/components/ThemeProvider';
 import { useLang } from '@/components/LanguageProvider';
 import { LanguageSwitcherLight } from '@/components/LanguageSwitcher';
@@ -24,7 +24,8 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     { href: '/admin/upload',    icon: Upload,    label: t('admin.nav.upload'),    badge: false },
     { href: '/admin/questions', icon: FileText,  label: t('admin.nav.questions'), badge: false },
     { href: '/admin/users',     icon: Users,     label: t('admin.nav.users'),     badge: false },
-    { href: '/admin/payments',  icon: CreditCard,label: t('admin.nav.payments'),  badge: true  },
+    { href: '/admin/payments',    icon: CreditCard, label: t('admin.nav.payments'),    badge: true  },
+    { href: '/admin/leaderboard', icon: Trophy,     label: 'Classement',               badge: false },
   ];
 
   useEffect(() => {

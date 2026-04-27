@@ -313,6 +313,52 @@ export class AdminService {
     }));
   }
 
+  async getLeaderboard(sortBy: 'accuracy' | 'total' | 'score' = 'accuracy', limit = 100) {
+    const [totalByUser, correctByUser, attemptsByUser, users] = await Promise.all([
+      this.prisma.userAnswer.groupBy({ by: ['userId'], _count: { _all: true } }),
+      this.prisma.userAnswer.groupBy({ by: ['userId'], where: { isCorrect: true }, _count: { _all: true } }),
+      this.prisma.attempt.groupBy({
+        by: ['userId'],
+        where: { isCompleted: true },
+        _count: { _all: true },
+        _avg: { score: true },
+      }),
+      this.prisma.user.findMany({
+        where: { role: { not: 'ADMIN' } },
+        select: { id: true, fullName: true, email: true, role: true, createdAt: true },
+      }),
+    ]);
+
+    const totalMap   = Object.fromEntries(totalByUser.map((r) => [r.userId, r._count._all]));
+    const correctMap = Object.fromEntries(correctByUser.map((r) => [r.userId, r._count._all]));
+    const attemptMap = Object.fromEntries(attemptsByUser.map((r) => [r.userId, { count: r._count._all, avg: r._avg.score ?? 0 }]));
+
+    const ranked = users
+      .map((u) => {
+        const total   = totalMap[u.id]   ?? 0;
+        const correct = correctMap[u.id] ?? 0;
+        const att     = attemptMap[u.id] ?? { count: 0, avg: 0 };
+        return {
+          ...u,
+          totalAnswers:      total,
+          correctAnswers:    correct,
+          accuracyRate:      total > 0 ? Math.round((correct / total) * 100) : 0,
+          completedAttempts: att.count,
+          avgScore:          Math.round(att.avg * 10) / 10,
+        };
+      })
+      .filter((u) => u.totalAnswers > 0)
+      .sort((a, b) => {
+        if (sortBy === 'total') return b.totalAnswers - a.totalAnswers;
+        if (sortBy === 'score') return b.avgScore - a.avgScore;
+        if (b.accuracyRate !== a.accuracyRate) return b.accuracyRate - a.accuracyRate;
+        return b.totalAnswers - a.totalAnswers;
+      })
+      .slice(0, limit);
+
+    return ranked.map((u, i) => ({ ...u, rank: i + 1 }));
+  }
+
   async getUserAnalytics() {
     const users = await this.prisma.user.findMany({
       where: { role: { not: 'ADMIN' } },
