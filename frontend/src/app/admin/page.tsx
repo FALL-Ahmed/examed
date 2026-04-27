@@ -180,7 +180,7 @@ export default function AdminDashboard() {
       <section>
         <p className="text-xs font-bold uppercase tracking-widest text-muted-foreground mb-3">Utilisateurs</p>
         <div className="grid grid-cols-2 lg:grid-cols-3 gap-4">
-          <KpiCard icon={Users}      label="Total utilisateurs"     value={s?.totalUsers}        color="bg-blue-500"   href="/admin/users" />
+          <KpiCard icon={Users}      label="Total utilisateurs"     value={s ? Math.max(0, s.totalUsers - 7) : undefined} color="bg-blue-500" href="/admin/users" />
           <KpiCard icon={TrendingUp} label="Inscrits 7 derniers j." value={s?.weekRegistrations} color="bg-violet-500"
             sub={s ? `dont ${s.todayRegistrations} aujourd'hui` : undefined} />
           <KpiCard icon={Activity}   label="Actifs 7 derniers j."   value={s?.activeUsersWeek}  color="bg-sky-500"
