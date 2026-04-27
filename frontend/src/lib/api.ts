@@ -69,6 +69,8 @@ export const authApi = {
   forgotPassword: (email: string) => api.post('/auth/forgot-password', { email }),
   resetPassword: (data: any) => api.post('/auth/reset-password', data),
   checkGroupInvite: (email: string) => api.get(`/auth/check-invite?email=${encodeURIComponent(email)}`),
+  groupAccess: (email: string) => api.post('/auth/group-access', { email }),
+  groupSetup: (data: { token: string; fullName: string; password: string }) => api.post('/auth/group-setup', data),
 };
 
 // User

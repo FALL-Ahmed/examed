@@ -105,4 +105,19 @@ export class AuthController {
   checkGroupInvite(@Query('email') email: string) {
     return this.authService.checkGroupInvite(email);
   }
+
+  @Post('group-access')
+  @HttpCode(200)
+  groupAccess(@Body('email') email: string) {
+    return this.authService.groupAccess(email);
+  }
+
+  @Post('group-setup')
+  @HttpCode(200)
+  groupSetup(@Body() body: { token: string; fullName: string; password: string }, @Req() req: any) {
+    const deviceId = req.headers['x-device-id'] || 'unknown';
+    const userAgent = req.headers['user-agent'] || 'unknown';
+    const ip = req.ip || req.connection?.remoteAddress || 'unknown';
+    return this.authService.groupSetup(body.token, body.fullName, body.password, { deviceId, userAgent, ip });
+  }
 }

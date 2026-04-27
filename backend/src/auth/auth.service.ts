@@ -264,6 +264,82 @@ export class AuthService {
     return { isInvited: !!invite, durationDays: invite?.payment?.durationDays ?? 30 };
   }
 
+  async groupAccess(email: string) {
+    email = email.trim().toLowerCase();
+    const invite = await (this.prisma as any).groupInvite.findFirst({
+      where: { email, isActive: true, isUsed: false },
+      include: { payment: { select: { durationDays: true } } },
+    });
+    if (!invite) throw new UnauthorizedException('Aucune invitation de groupe active pour cet email');
+
+    const existing = await this.prisma.user.findUnique({ where: { email } });
+    if (existing) throw new BadRequestException('Ce compte existe déjà. Connectez-vous normalement.');
+
+    const token = this.jwt.sign(
+      { inviteId: invite.id, email, durationDays: invite.payment?.durationDays ?? 30, type: 'group_access' },
+      { secret: process.env.JWT_SECRET, expiresIn: '15m' },
+    );
+    return { groupAccessToken: token };
+  }
+
+  async groupSetup(
+    token: string,
+    fullName: string,
+    password: string,
+    deviceInfo: { deviceId: string; userAgent: string; ip: string },
+  ) {
+    let payload: any;
+    try {
+      payload = this.jwt.verify(token, { secret: process.env.JWT_SECRET } as any);
+    } catch {
+      throw new UnauthorizedException('Lien expiré, recommencez.');
+    }
+    if (payload.type !== 'group_access') throw new UnauthorizedException('Token invalide');
+
+    const { inviteId, email, durationDays } = payload;
+
+    const invite = await (this.prisma as any).groupInvite.findFirst({
+      where: { id: inviteId, isActive: true, isUsed: false },
+    });
+    if (!invite) throw new UnauthorizedException('Invitation déjà utilisée ou invalide.');
+
+    const existing = await this.prisma.user.findUnique({ where: { email } });
+    if (existing) throw new BadRequestException('Compte déjà créé. Connectez-vous normalement.');
+
+    const hash = await bcrypt.hash(password, 12);
+    const subscriptionEnd = new Date();
+    subscriptionEnd.setDate(subscriptionEnd.getDate() + durationDays);
+
+    const user = await this.prisma.$transaction(async (tx) => {
+      const u = await tx.user.create({
+        data: { email, passwordHash: hash, fullName: fullName.trim(), role: 'PREMIUM', subscriptionEnd } as any,
+      });
+      await (tx as any).groupInvite.update({
+        where: { id: inviteId },
+        data: { isUsed: true, usedAt: new Date() },
+      });
+      return u;
+    });
+
+    await this.enforceSessionLimit(user.id, deviceInfo.deviceId);
+    await this.prisma.session.create({
+      data: {
+        userId: user.id,
+        deviceId: deviceInfo.deviceId,
+        deviceInfo: deviceInfo.userAgent,
+        ipAddress: deviceInfo.ip,
+        isActive: true,
+      },
+    });
+
+    const tokens = await this.generateTokens(user.id, user.role, deviceInfo.deviceId);
+    return {
+      accessToken: tokens.accessToken,
+      refreshToken: tokens.refreshToken,
+      user: { id: user.id, email: user.email, fullName: user.fullName, role: user.role, subscriptionEnd: user.subscriptionEnd },
+    };
+  }
+
   async logout(userId: string, deviceId: string) {
     const session = await this.prisma.session.findFirst({
       where: { userId, deviceId },
