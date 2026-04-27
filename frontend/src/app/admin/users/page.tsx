@@ -170,6 +170,7 @@ export default function AdminUsersPage() {
                           <div>
                             <p className="font-medium">{u.fullName}</p>
                             <p className="text-xs text-muted-foreground">{u.email}</p>
+                            {u.phone && <p className="text-xs text-muted-foreground/70">{u.phone}</p>}
                           </div>
                         </div>
                       </td>
