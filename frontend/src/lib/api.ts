@@ -129,6 +129,7 @@ export const adminApi = {
   toggleUser: (id: string) => api.put(`/admin/users/${id}/toggle`),
   resetSubscription: (id: string) => api.put(`/admin/users/${id}/reset-subscription`),
   changePassword: (id: string, password: string) => api.put(`/admin/users/${id}/password`, { password }),
+  changeEmail: (id: string, email: string) => api.put(`/admin/users/${id}/email`, { email }),
   getUser: (id: string) => api.get(`/admin/users/${id}`),
   deleteUser: (id: string) => api.delete(`/admin/users/${id}`),
   revokeDevice: (deviceId: string) => api.delete(`/admin/devices/${deviceId}`),

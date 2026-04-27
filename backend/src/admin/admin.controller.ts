@@ -91,6 +91,11 @@ export class AdminController {
     return this.adminService.changeUserPassword(id, body.password);
   }
 
+  @Put('users/:id/email')
+  changeEmail(@Param('id') id: string, @Body() body: { email: string }) {
+    return this.adminService.changeUserEmail(id, body.email);
+  }
+
   @Delete('devices/:deviceId')
   revokeDevice(@Param('deviceId') deviceId: string) {
     return this.adminService.revokeUserDevice(deviceId);

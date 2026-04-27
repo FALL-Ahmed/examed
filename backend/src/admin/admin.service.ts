@@ -206,6 +206,13 @@ export class AdminService {
     return this.prisma.user.update({ where: { id: userId }, data: { passwordHash: hash } });
   }
 
+  async changeUserEmail(userId: string, newEmail: string) {
+    const email = newEmail.trim().toLowerCase();
+    const existing = await this.prisma.user.findUnique({ where: { email } });
+    if (existing && existing.id !== userId) throw new Error('Email déjà utilisé');
+    return this.prisma.user.update({ where: { id: userId }, data: { email } });
+  }
+
   async resetUserSubscription(userId: string) {
     return this.prisma.user.update({
       where: { id: userId },
