@@ -124,7 +124,7 @@ export default function AnalyticsPage() {
   const roleMap: Record<string, number> = {};
   (data.byRole || []).forEach((r: any) => { roleMap[r.role] = r._count._all; });
 
-  const BANKILY_PROMO = 8;
+  const BANKILY_PROMO = 7;
   const operators: { operator: string; count: number; total: number }[] = (data.byOperator || []).map((o: any) =>
     o.operator?.toLowerCase() === 'bankily'
       ? { ...o, count: Math.max(0, o.count - BANKILY_PROMO), total: Math.max(0, o.total - BANKILY_PROMO * 500) }

@@ -150,6 +150,7 @@ export default function AdminUsersPage() {
                 <tr>
                   <th className="text-left px-4 py-3 font-medium text-muted-foreground">Utilisateur</th>
                   <th className="text-left px-4 py-3 font-medium text-muted-foreground hidden md:table-cell">Statut</th>
+                  <th className="text-left px-4 py-3 font-medium text-muted-foreground hidden xl:table-cell">Opérateur</th>
                   <th className="text-left px-4 py-3 font-medium text-muted-foreground hidden lg:table-cell">Expiration</th>
                   <th className="text-left px-4 py-3 font-medium text-muted-foreground hidden md:table-cell">Inscription</th>
                   <th className="text-right px-4 py-3 font-medium text-muted-foreground">Actions</th>
@@ -176,6 +177,22 @@ export default function AdminUsersPage() {
                         {(() => { const r = roleLabel(u.role); return (
                           <span className={`px-2 py-1 rounded-full text-xs font-medium ${r.cls}`}>{r.label}</span>
                         ); })()}
+                      </td>
+                      <td className="px-4 py-3 hidden xl:table-cell">
+                        {(() => {
+                          const op = u.payments?.[0]?.operator?.toLowerCase();
+                          if (!op) return <span className="text-slate-300 text-xs">—</span>;
+                          const colors: Record<string, string> = {
+                            bankily: 'bg-yellow-100 text-yellow-700',
+                            masrivi: 'bg-green-100 text-green-700',
+                            sedad:   'bg-blue-100 text-blue-700',
+                          };
+                          return (
+                            <span className={`px-2 py-1 rounded-full text-xs font-medium capitalize ${colors[op] ?? 'bg-slate-100 text-slate-600'}`}>
+                              {op}
+                            </span>
+                          );
+                        })()}
                       </td>
                       <td className="px-4 py-3 hidden lg:table-cell text-xs">
                         {subEnd ? (

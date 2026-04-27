@@ -80,6 +80,12 @@ export class AdminService {
           id: true, email: true, fullName: true, phone: true,
           role: true, subscriptionEnd: true, isActive: true, createdAt: true,
           _count: { select: { attempts: true } },
+          payments: {
+            where: { status: 'VALIDATED' },
+            orderBy: { validatedAt: 'desc' },
+            take: 1,
+            select: { operator: true, planType: true },
+          },
         },
       }),
       this.prisma.user.count({ where }),
