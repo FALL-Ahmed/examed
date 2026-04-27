@@ -2,7 +2,7 @@
 import { Suspense, useState, useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
-import { authApi, paymentsApi, settingsApi } from '@/lib/api';
+import { authApi, settingsApi } from '@/lib/api';
 import { useLang } from '@/components/LanguageProvider';
 import { BookOpen, Loader2, Eye, EyeOff, ChevronRight, Copy, CheckCheck, Upload, X } from 'lucide-react';
 import { LanguageSwitcherLight } from '@/components/LanguageSwitcher';
@@ -166,42 +166,38 @@ function RegisterContent() {
 
     setLoading(true);
     try {
-      await authApi.register({
-        fullName: `${form.firstName.trim()} ${form.lastName.trim()}`,
-        pseudo: form.pseudo.trim() || undefined,
-        gender: form.gender || undefined,
-        email: form.email.trim(),
-        phone: form.phone.trim() || undefined,
-        profession: form.profession || undefined,
-        wilaya: form.wilaya || undefined,
-        password: form.password,
-      });
-      const { data: loginData } = await authApi.login({ email: form.email.trim(), password: form.password });
-      const { default: Cookies } = await import('js-cookie');
-      Cookies.set('access_token', loginData.accessToken, { expires: 1 });
-      Cookies.set('refresh_token', loginData.refreshToken, { expires: 7 });
-
-      if (isGroupMember) {
-        sessionStorage.removeItem('register_state');
-        window.location.href = '/dashboard';
-        return;
-      }
-
       const fd = new FormData();
-      fd.append('operator', selectedOp);
-      fd.append('amount', String(computedAmount));
-      fd.append('paymentMethod', 'MOBILE_MONEY');
-      fd.append('planType', selectedPlan);
-      fd.append('durationDays', String(computedDuration));
-      if (selectedPlan === 'GROUP') {
-        fd.append('groupSize', String(groupSize));
-        const emails = groupEmailsText.split('\n').map(e => e.trim()).filter(Boolean);
-        fd.append('groupEmails', JSON.stringify(emails));
+      fd.append('fullName', `${form.firstName.trim()} ${form.lastName.trim()}`);
+      fd.append('email', form.email.trim());
+      fd.append('password', form.password);
+      if (form.pseudo.trim()) fd.append('pseudo', form.pseudo.trim());
+      if (form.gender)        fd.append('gender', form.gender);
+      if (form.phone.trim())  fd.append('phone', form.phone.trim());
+      if (form.profession)    fd.append('profession', form.profession);
+      if (form.wilaya)        fd.append('wilaya', form.wilaya);
+
+      if (!isGroupMember) {
+        fd.append('operator', selectedOp);
+        fd.append('amount', String(computedAmount));
+        fd.append('paymentMethod', 'MOBILE_MONEY');
+        fd.append('planType', selectedPlan);
+        fd.append('durationDays', String(computedDuration));
+        if (selectedPlan === 'GROUP') {
+          fd.append('groupSize', String(groupSize));
+          const emails = groupEmailsText.split('\n').map((e: string) => e.trim()).filter(Boolean);
+          fd.append('groupEmails', JSON.stringify(emails));
+        }
+        fd.append('receipt', receipt!);
       }
-      fd.append('receipt', receipt!);
-      await paymentsApi.submit(fd);
+
+      await authApi.register(fd);
+      const { data: ld } = await authApi.login({ email: form.email.trim(), password: form.password });
+      const { default: Cookies } = await import('js-cookie');
+      Cookies.set('access_token', ld.accessToken, { expires: 1 });
+      Cookies.set('refresh_token', ld.refreshToken, { expires: 7 });
+
       sessionStorage.removeItem('register_state');
-      window.location.href = '/pending';
+      window.location.href = isGroupMember ? '/dashboard' : '/pending';
     } catch (err: any) {
       setStep2Error(err.response?.data?.message || (isAr ? 'حدث خطأ' : 'Une erreur est survenue'));
       setLoading(false);

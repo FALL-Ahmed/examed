@@ -1,10 +1,14 @@
+import 'multer';
 import {
   Controller, Post, Get, Delete, Body, Req, Param, Query, UseGuards, HttpCode,
+  UseInterceptors, UploadedFile,
 } from '@nestjs/common';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { memoryStorage } from 'multer';
 import { ApiTags, ApiBearerAuth } from '@nestjs/swagger';
 import { AuthService } from './auth.service';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
-import { RegisterDto, LoginDto, RefreshDto, ResetPasswordDto, VerifyDeviceDto } from './dto/auth.dto';
+import { LoginDto, RefreshDto, ResetPasswordDto, VerifyDeviceDto } from './dto/auth.dto';
 
 @ApiTags('Auth')
 @Controller('auth')
@@ -12,8 +16,19 @@ export class AuthController {
   constructor(private authService: AuthService) {}
 
   @Post('register')
-  register(@Body() dto: RegisterDto) {
-    return this.authService.register(dto);
+  @UseInterceptors(FileInterceptor('receipt', {
+    storage: memoryStorage(),
+    limits: { fileSize: 5 * 1024 * 1024 },
+    fileFilter: (_req, file, cb) => {
+      const allowed = ['image/jpeg', 'image/png', 'image/webp', 'application/pdf'];
+      allowed.includes(file.mimetype) ? cb(null, true) : cb(new Error('Type de fichier non autorisé'), false);
+    },
+  }))
+  register(@Body() dto: any, @UploadedFile() receipt?: Express.Multer.File) {
+    if (dto.groupEmails) {
+      try { dto.groupEmails = JSON.parse(dto.groupEmails); } catch { dto.groupEmails = []; }
+    }
+    return this.authService.register(dto, receipt);
   }
 
   @Post('login')

@@ -10,6 +10,8 @@ import * as bcrypt from 'bcryptjs';
 import { v4 as uuidv4 } from 'uuid';
 import { PrismaService } from '../prisma/prisma.service';
 import { EmailService } from '../common/services/email.service';
+import { StorageService } from '../storage/storage.service';
+import { PushService } from '../push/push.service';
 import { generateDeviceFingerprint, generateVerificationCode, generateDeviceName, DeviceInfo } from '../common/utils/device.utils';
 
 const MAX_ACTIVE_SESSIONS = 2;
@@ -20,19 +22,21 @@ export class AuthService {
     private prisma: PrismaService,
     private jwt: JwtService,
     private email: EmailService,
+    private storage: StorageService,
+    private push: PushService,
   ) {}
 
-  async register(dto: {
-    email: string;
-    password: string;
-    fullName: string;
-    pseudo?: string;
-    gender?: string;
-    profession?: string;
-    wilaya?: string;
-    phone?: string;
-  }) {
+  async register(
+    dto: {
+      email: string; password: string; fullName: string;
+      pseudo?: string; gender?: string; profession?: string; wilaya?: string; phone?: string;
+      amount?: number; paymentMethod?: string; operator?: string;
+      planType?: string; durationDays?: number; groupSize?: number; groupEmails?: string[];
+    },
+    receipt?: Express.Multer.File,
+  ) {
     dto.email = dto.email.trim().toLowerCase();
+
     const existing = await this.prisma.user.findUnique({ where: { email: dto.email } });
     if (existing) throw new BadRequestException('Email déjà utilisé');
 
@@ -41,16 +45,24 @@ export class AuthService {
       if (pseudoTaken) throw new BadRequestException('Ce pseudo est déjà utilisé');
     }
 
-    // Check if this email has an active group invite
     const invite = await (this.prisma as any).groupInvite.findFirst({
-      where: { email: dto.email.trim().toLowerCase(), isActive: true, isUsed: false },
+      where: { email: dto.email, isActive: true, isUsed: false },
       include: { payment: { select: { durationDays: true } } },
     });
 
-    const hash = await bcrypt.hash(dto.password, 12);
+    if (!invite && !receipt) {
+      throw new BadRequestException('Le reçu de paiement est obligatoire.');
+    }
 
-    let userData: any = {
-      email: dto.email.trim().toLowerCase(),
+    // Upload receipt before creating anything — if it fails, no orphan user
+    let receiptUrl: string | null = null;
+    if (receipt) {
+      receiptUrl = await this.storage.uploadReceipt(receipt);
+    }
+
+    const hash = await bcrypt.hash(dto.password, 12);
+    const userData: any = {
+      email: dto.email,
       passwordHash: hash,
       fullName: dto.fullName,
       phone: dto.phone || null,
@@ -67,13 +79,37 @@ export class AuthService {
       userData.subscriptionEnd = subscriptionEnd;
     }
 
-    const user = await this.prisma.user.create({ data: userData });
+    // Atomic: create user + payment in one transaction
+    const user = await this.prisma.$transaction(async (tx) => {
+      const u = await tx.user.create({ data: userData });
+      if (invite) {
+        await (tx as any).groupInvite.update({ where: { id: invite.id }, data: { isUsed: true, usedAt: new Date() } });
+      } else {
+        const payment = await tx.payment.create({
+          data: {
+            userId: u.id,
+            amount: Number(dto.amount) || 0,
+            durationDays: Number(dto.durationDays) || 30,
+            paymentMethod: dto.paymentMethod || 'MOBILE_MONEY',
+            operator: dto.operator || null,
+            planType: dto.planType || 'SOLO_1M',
+            groupSize: dto.groupSize ? Number(dto.groupSize) : undefined,
+            receiptUrl,
+          } as any,
+        });
+        if (dto.planType === 'GROUP' && dto.groupEmails?.length) {
+          const emails = [...new Set(dto.groupEmails.map((e) => e.trim().toLowerCase()).filter(Boolean))];
+          await (tx as any).groupInvite.createMany({
+            data: emails.map((email) => ({ email, paymentId: payment.id })),
+            skipDuplicates: true,
+          });
+        }
+      }
+      return u;
+    });
 
-    if (invite) {
-      await (this.prisma as any).groupInvite.update({
-        where: { id: invite.id },
-        data: { isUsed: true, usedAt: new Date() },
-      });
+    if (!invite) {
+      this.push.notifyAdmins('💳 Nouveau paiement', `Paiement de ${dto.amount ?? 0} MRU en attente de validation.`).catch(() => {});
     }
 
     return { message: 'Compte créé avec succès', userId: user.id, groupActivated: !!invite };

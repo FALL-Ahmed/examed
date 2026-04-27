@@ -6,6 +6,8 @@ import { AuthController } from './auth.controller';
 import { JwtStrategy } from './strategies/jwt.strategy';
 import { UsersModule } from '../users/users.module';
 import { EmailService } from '../common/services/email.service';
+import { StorageModule } from '../storage/storage.module';
+import { PushModule } from '../push/push.module';
 
 @Module({
   imports: [
@@ -15,6 +17,8 @@ import { EmailService } from '../common/services/email.service';
       signOptions: { expiresIn: process.env.JWT_EXPIRES_IN || '15m' },
     }),
     UsersModule,
+    StorageModule,
+    PushModule,
   ],
   providers: [AuthService, JwtStrategy, EmailService],
   controllers: [AuthController],

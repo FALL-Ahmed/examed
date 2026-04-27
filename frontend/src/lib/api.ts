@@ -57,7 +57,9 @@ api.interceptors.response.use(
 
 // Auth
 export const authApi = {
-  register: (data: any) => api.post('/auth/register', data),
+  register: (data: FormData | any) => api.post('/auth/register', data, {
+    headers: data instanceof FormData ? { 'Content-Type': 'multipart/form-data' } : {},
+  }),
   login: (data: any) => api.post('/auth/login', data),
   verifyDevice: (data: { email: string; verificationCode: string; deviceFingerprint: string; deviceName?: string }) =>
     api.post('/auth/devices/verify', data),
