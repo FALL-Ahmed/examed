@@ -360,10 +360,18 @@ export class AdminService {
   }
 
   async getUserAnalytics() {
-    const users = await this.prisma.user.findMany({
-      where: { role: { not: 'ADMIN' } },
-      select: { role: true, gender: true, wilaya: true, profession: true } as any,
-    });
+    const [users, operatorStats] = await Promise.all([
+      this.prisma.user.findMany({
+        where: { role: { not: 'ADMIN' } },
+        select: { role: true, gender: true, wilaya: true, profession: true } as any,
+      }),
+      this.prisma.payment.groupBy({
+        by: ['operator'],
+        where: { status: 'VALIDATED' },
+        _count: { _all: true },
+        _sum: { amount: true },
+      }),
+    ]);
 
     const group = (field: string) => {
       const map: Record<string, number> = {};
@@ -376,11 +384,17 @@ export class AdminService {
         .sort((a, b) => b._count._all - a._count._all);
     };
 
+    const byOperator = operatorStats
+      .filter((o) => o.operator)
+      .map((o) => ({ operator: o.operator, count: o._count._all, total: o._sum.amount ?? 0 }))
+      .sort((a, b) => b.count - a.count);
+
     return {
       byGender:     group('gender'),
       byWilaya:     group('wilaya').slice(0, 10),
       byProfession: group('profession').slice(0, 10),
       byRole:       group('role'),
+      byOperator,
     };
   }
 

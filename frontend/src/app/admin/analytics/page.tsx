@@ -1,7 +1,7 @@
 'use client';
 import { useEffect, useState } from 'react';
 import { adminApi } from '@/lib/api';
-import { Users, MapPin, Briefcase } from 'lucide-react';
+import { Users, MapPin, Briefcase, Smartphone } from 'lucide-react';
 
 const PROFESSION_LABELS: Record<string, string> = {
   etudiant_infirmier: 'Étudiant infirmier',
@@ -124,6 +124,15 @@ export default function AnalyticsPage() {
   const roleMap: Record<string, number> = {};
   (data.byRole || []).forEach((r: any) => { roleMap[r.role] = r._count._all; });
 
+  const operators: { operator: string; count: number; total: number }[] = data.byOperator || [];
+  const opTotal = operators.reduce((s, o) => s + o.count, 0) || 1;
+
+  const OPERATOR_COLORS: Record<string, string> = {
+    masrivi: 'bg-green-500',
+    bankily: 'bg-yellow-500',
+    sedad:   'bg-blue-500',
+  };
+
   return (
     <div className="space-y-6">
       <div>
@@ -164,6 +173,39 @@ export default function AnalyticsPage() {
           {professions.length === 0
             ? <p className="text-slate-400 text-sm">Aucune donnée</p>
             : <BarChart data={professions} colorClass="bg-indigo-500" />}
+        </div>
+
+        {/* Opérateurs */}
+        <div className="bg-white border border-slate-200 rounded-2xl p-6 lg:col-span-2">
+          <div className="flex items-center gap-2 mb-5">
+            <Smartphone className="w-4 h-4 text-slate-400" />
+            <h2 className="font-semibold text-slate-800">Paiements validés par opérateur</h2>
+          </div>
+          {operators.length === 0 ? (
+            <p className="text-slate-400 text-sm">Aucun paiement validé</p>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              {operators.map((op) => {
+                const color = OPERATOR_COLORS[op.operator.toLowerCase()] ?? 'bg-slate-400';
+                const pct = Math.round((op.count / opTotal) * 100);
+                return (
+                  <div key={op.operator} className="border border-slate-100 rounded-xl p-4">
+                    <div className="flex items-center gap-2 mb-3">
+                      <div className={`w-3 h-3 rounded-full ${color}`} />
+                      <span className="font-semibold text-slate-800 capitalize">{op.operator}</span>
+                      <span className="ml-auto text-slate-400 text-xs">{pct}%</span>
+                    </div>
+                    <p className="text-3xl font-black text-slate-900">{op.count}</p>
+                    <p className="text-slate-400 text-xs mt-0.5">paiements</p>
+                    <p className="text-sm font-semibold text-slate-600 mt-2">{op.total.toLocaleString()} MRU</p>
+                    <div className="mt-3 h-1.5 bg-slate-100 rounded-full overflow-hidden">
+                      <div className={`h-full rounded-full ${color}`} style={{ width: `${pct}%` }} />
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          )}
         </div>
 
         {/* Wilaya */}
