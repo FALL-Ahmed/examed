@@ -1,7 +1,7 @@
 'use client';
 import { useEffect, useState } from 'react';
 import { adminApi } from '@/lib/api';
-import { Users, MapPin, Briefcase, Smartphone, Languages } from 'lucide-react';
+import { Users, MapPin, Briefcase, Smartphone, Languages, BarChart2 } from 'lucide-react';
 
 const PROFESSION_LABELS: Record<string, string> = {
   etudiant_infirmier: 'Étudiant infirmier',
@@ -140,6 +140,10 @@ export default function AnalyticsPage() {
 
   const langData: { language: string; users: number; answers: number }[] = data.byLanguage || [];
   const langTotal = langData.reduce((s, l) => s + l.users, 0) || 1;
+
+  type ThemeRow = { subtheme: string; theme: string; language: string; totalAnswers: number; distinctUsers: number; avgScore: number; sessions: number; avgPerSession: number };
+  const themeData: ThemeRow[] = data.byTheme || [];
+  const themeMax = Math.max(...themeData.map((t) => t.totalAnswers), 1);
 
   return (
     <div className="space-y-6">
@@ -285,6 +289,64 @@ export default function AnalyticsPage() {
             )}
         </div>
       </div>
+
+      {/* Sous-thématiques les plus utilisées */}
+      {themeData.length > 0 && (
+        <div className="bg-white border border-slate-200 rounded-2xl p-6">
+          <div className="flex items-center gap-2 mb-5">
+            <BarChart2 className="w-4 h-4 text-slate-400" />
+            <h2 className="font-semibold text-slate-800">Sous-thématiques les plus utilisées (top 20)</h2>
+          </div>
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="border-b border-slate-100 text-xs text-slate-400 uppercase tracking-wider">
+                  <th className="text-left pb-2 pr-4">#</th>
+                  <th className="text-left pb-2 pr-4">Sous-thème</th>
+                  <th className="text-left pb-2 pr-4 hidden md:table-cell">Thème</th>
+                  <th className="text-left pb-2 pr-4 hidden sm:table-cell">Langue</th>
+                  <th className="text-right pb-2 pr-4">Réponses</th>
+                  <th className="text-right pb-2 pr-4 hidden lg:table-cell">Utilisateurs</th>
+                  <th className="text-right pb-2 pr-4 hidden lg:table-cell">Moy./session</th>
+                  <th className="text-right pb-2">Score moy.</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-slate-50">
+                {themeData.map((t, i) => (
+                  <tr key={i} className="hover:bg-slate-50 transition">
+                    <td className="py-2.5 pr-4 text-slate-400 font-medium">{i + 1}</td>
+                    <td className="py-2.5 pr-4">
+                      <div className="flex items-center gap-2">
+                        <div className="flex-1">
+                          <p className="font-medium text-slate-800 text-xs leading-tight">{t.subtheme}</p>
+                          <div className="mt-1 h-1.5 bg-slate-100 rounded-full overflow-hidden w-24">
+                            <div className="h-full rounded-full bg-indigo-500 transition-all duration-700"
+                              style={{ width: `${(t.totalAnswers / themeMax) * 100}%` }} />
+                          </div>
+                        </div>
+                      </div>
+                    </td>
+                    <td className="py-2.5 pr-4 hidden md:table-cell text-xs text-slate-500 max-w-[140px] truncate">{t.theme}</td>
+                    <td className="py-2.5 pr-4 hidden sm:table-cell">
+                      <span className={`text-xs font-medium px-1.5 py-0.5 rounded ${t.language === 'AR' ? 'bg-emerald-100 text-emerald-700' : 'bg-blue-100 text-blue-700'}`}>
+                        {t.language === 'AR' ? 'AR' : 'FR'}
+                      </span>
+                    </td>
+                    <td className="py-2.5 pr-4 text-right font-bold text-slate-800">{t.totalAnswers.toLocaleString()}</td>
+                    <td className="py-2.5 pr-4 hidden lg:table-cell text-right text-slate-500">{t.distinctUsers}</td>
+                    <td className="py-2.5 pr-4 hidden lg:table-cell text-right text-slate-500">{t.avgPerSession}</td>
+                    <td className="py-2.5 text-right">
+                      <span className={`font-semibold ${t.avgScore >= 70 ? 'text-emerald-600' : t.avgScore >= 50 ? 'text-amber-600' : 'text-red-500'}`}>
+                        {t.avgScore}%
+                      </span>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

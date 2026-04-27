@@ -411,6 +411,40 @@ export class AdminService {
       answers: Number(r.answers),
     }));
 
+    const themeStats = await this.prisma.$queryRaw<{
+      subtheme: string; theme: string; language: string; total_answers: bigint;
+      distinct_users: bigint; avg_score: number; sessions: bigint;
+    }[]>`
+      SELECT st.name        AS subtheme,
+             th.name        AS theme,
+             th.language,
+             COUNT(ua.id)                AS total_answers,
+             COUNT(DISTINCT ua."userId") AS distinct_users,
+             COALESCE(AVG(a.score), 0)   AS avg_score,
+             COUNT(DISTINCT a.id)        AS sessions
+      FROM "UserAnswer" ua
+      JOIN "Question" q  ON ua."questionId" = q.id
+      JOIN "SubTheme" st ON q."subThemeId"  = st.id
+      JOIN "Theme"    th ON st."themeId"    = th.id
+      LEFT JOIN "Attempt" a ON ua."attemptId" = a.id AND a."isCompleted" = true
+      GROUP BY st.id, st.name, th.name, th.language
+      ORDER BY total_answers DESC
+      LIMIT 20
+    `;
+
+    const byTheme = themeStats.map((r) => ({
+      subtheme:      r.subtheme,
+      theme:         r.theme,
+      language:      r.language,
+      totalAnswers:  Number(r.total_answers),
+      distinctUsers: Number(r.distinct_users),
+      avgScore:      Math.round(Number(r.avg_score) * 10) / 10,
+      sessions:      Number(r.sessions),
+      avgPerSession: Number(r.sessions) > 0
+        ? Math.round(Number(r.total_answers) / Number(r.sessions))
+        : Number(r.total_answers),
+    }));
+
     return {
       byGender:     group('gender'),
       byWilaya:     group('wilaya').slice(0, 10),
@@ -418,6 +452,7 @@ export class AdminService {
       byRole:       group('role'),
       byOperator,
       byLanguage,
+      byTheme,
     };
   }
 
