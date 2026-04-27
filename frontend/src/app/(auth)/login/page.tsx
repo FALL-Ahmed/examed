@@ -30,7 +30,7 @@ const WILAYAS = [
 export default function LoginPage() {
   const router = useRouter();
   const { login } = useAuthStore();
-  const { t, lang } = useLang();
+  const { t, lang, setLang } = useLang();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPwd, setShowPwd] = useState(false);
@@ -327,6 +327,18 @@ export default function LoginPage() {
                 </div>
               )}
               <form onSubmit={handleGroupSetup} className="space-y-4">
+                <div>
+                  <label className="block text-sm font-semibold mb-2">Langue préférée</label>
+                  <div className="flex gap-3">
+                    {[{ v: 'fr', l: 'Français 🇫🇷' }, { v: 'ar', l: 'العربية 🇲🇷' }].map(({ v, l }) => (
+                      <button key={v} type="button"
+                        onClick={() => setLang(v as 'fr' | 'ar')}
+                        className={`flex-1 py-2.5 rounded-xl border text-sm font-medium transition ${lang === v ? 'border-primary bg-primary/10 text-primary' : 'border-border bg-secondary text-muted-foreground hover:border-primary/50'}`}>
+                        {l}
+                      </button>
+                    ))}
+                  </div>
+                </div>
                 <div>
                   <label className="block text-sm font-semibold mb-2">Nom complet</label>
                   <input
