@@ -17,6 +17,7 @@ type UserRow = {
   accuracyRate: number;
   completedAttempts: number;
   avgScore: number;
+  bayesianScore: number;
 };
 
 const SORT_OPTIONS: { key: SortKey; label: string; icon: React.ElementType }[] = [
@@ -108,8 +109,8 @@ export default function LeaderboardPage() {
                 <p className="text-muted-foreground text-xs truncate mb-3">{u.email}</p>
                 <div className="grid grid-cols-2 gap-2">
                   <div className="bg-background/60 rounded-lg p-2">
-                    <p className={`text-lg font-black ${medal.text}`}>{u.accuracyRate}%</p>
-                    <p className="text-muted-foreground text-xs">précision</p>
+                    <p className={`text-lg font-black ${medal.text}`}>{u.bayesianScore}%</p>
+                    <p className="text-muted-foreground text-xs">score</p>
                   </div>
                   <div className="bg-background/60 rounded-lg p-2">
                     <p className="text-lg font-black text-foreground">{u.totalAnswers}</p>
@@ -174,13 +175,13 @@ export default function LeaderboardPage() {
                       <td className="px-4 py-3 text-right text-emerald-600 dark:text-emerald-400 font-semibold">{u.correctAnswers}</td>
                       <td className="px-4 py-3 text-right">
                         <span className={`font-bold ${
-                          u.accuracyRate >= 70
+                          u.bayesianScore >= 70
                             ? 'text-emerald-600 dark:text-emerald-400'
-                            : u.accuracyRate >= 50
+                            : u.bayesianScore >= 50
                             ? 'text-amber-600 dark:text-amber-400'
                             : 'text-red-600 dark:text-red-400'
                         }`}>
-                          {u.accuracyRate}%
+                          {u.bayesianScore}%
                         </span>
                       </td>
                       <td className="px-4 py-3 text-right text-muted-foreground">{u.avgScore}%</td>

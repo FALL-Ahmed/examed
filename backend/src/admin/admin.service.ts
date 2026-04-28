@@ -346,7 +346,7 @@ export class AdminService {
     const correctMap = Object.fromEntries(correctByUser.map((r) => [r.userId, r._count._all]));
     const attemptMap = Object.fromEntries(attemptsByUser.map((r) => [r.userId, { count: r._count._all, avg: r._avg.score ?? 0 }]));
 
-    const ranked = users
+    const withStats = users
       .map((u) => {
         const total   = totalMap[u.id]   ?? 0;
         const correct = correctMap[u.id] ?? 0;
@@ -360,12 +360,30 @@ export class AdminService {
           avgScore:          Math.round(att.avg * 10) / 10,
         };
       })
-      .filter((u) => u.totalAnswers > 0)
+      .filter((u) => u.totalAnswers > 0);
+
+    // Bayesian Average : score = (avgScore × sessions + globalMoy × C) / (sessions + C)
+    // C = 5 (poids de méfiance — équivaut à 5 sessions fictives à la moyenne globale)
+    const C = 5;
+    const usersWithSessions = withStats.filter((u) => u.completedAttempts > 0);
+    const globalAvg = usersWithSessions.length > 0
+      ? usersWithSessions.reduce((sum, u) => sum + u.avgScore, 0) / usersWithSessions.length
+      : 50;
+
+    const ranked = withStats
+      .map((u) => ({
+        ...u,
+        bayesianScore: Math.round(
+          ((u.avgScore * u.completedAttempts + globalAvg * C) / (u.completedAttempts + C)) * 10,
+        ) / 10,
+      }))
       .sort((a, b) => {
         if (sortBy === 'total') return b.totalAnswers - a.totalAnswers;
         if (sortBy === 'score') return b.avgScore - a.avgScore;
-        if (b.accuracyRate !== a.accuracyRate) return b.accuracyRate - a.accuracyRate;
-        return b.totalAnswers - a.totalAnswers;
+        // Par défaut : Bayesian score, égalité résolue par nombre de sessions puis de bonnes réponses
+        if (b.bayesianScore !== a.bayesianScore) return b.bayesianScore - a.bayesianScore;
+        if (b.completedAttempts !== a.completedAttempts) return b.completedAttempts - a.completedAttempts;
+        return b.correctAnswers - a.correctAnswers;
       })
       .slice(0, limit);
 
