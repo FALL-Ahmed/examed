@@ -1,11 +1,43 @@
 'use client';
-import { Suspense, useState, useEffect } from 'react';
+import { Suspense, useState, useEffect, memo } from 'react';
 import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { authApi, settingsApi } from '@/lib/api';
 import { useLang } from '@/components/LanguageProvider';
 import { BookOpen, Loader2, Eye, EyeOff, Copy, CheckCheck, Upload, X } from 'lucide-react';
 import { LanguageSwitcherLight } from '@/components/LanguageSwitcher';
+
+const pad = (n: number) => String(n).padStart(2, '0');
+
+const CountdownTimer = memo(({ isAr }: { isAr: boolean }) => {
+  const [t, setT] = useState({ h: 0, m: 0, s: 0 });
+  useEffect(() => {
+    const target = new Date('2026-04-29T23:59:59').getTime();
+    const tick = () => {
+      const diff = target - Date.now();
+      if (diff <= 0) { setT({ h: 0, m: 0, s: 0 }); return; }
+      setT({ h: Math.floor(diff / 3600000), m: Math.floor((diff % 3600000) / 60000), s: Math.floor((diff % 60000) / 1000) });
+    };
+    tick();
+    const id = setInterval(tick, 1000);
+    return () => clearInterval(id);
+  }, []);
+  return (
+    <div className="flex items-center gap-1.5 mt-1">
+      {[
+        { v: pad(t.h), l: isAr ? 'س' : 'h' },
+        { v: pad(t.m), l: isAr ? 'د' : 'm' },
+        { v: pad(t.s), l: isAr ? 'ث' : 's' },
+      ].map(({ v, l }, i) => (
+        <div key={i} className="flex items-center gap-1">
+          <span className="bg-red-700 text-white font-extrabold text-sm px-2 py-0.5 rounded-md tabular-nums">{v}</span>
+          <span className="text-red-400 text-xs font-semibold">{l}</span>
+          {i < 2 && <span className="text-red-400 font-bold mx-0.5">:</span>}
+        </div>
+      ))}
+    </div>
+  );
+});
 
 const PROFESSIONS = [
   { value: 'etudiant_infirmier',  fr: 'Étudiant en sciences infirmières', ar: 'طالب علوم التمريض' },
@@ -354,8 +386,9 @@ function RegisterContent() {
                     {isAr ? 'عرض إطلاق — خصم 50% على جميع الخطط !' : 'Offre de lancement — -50% sur tous les plans !'}
                   </p>
                   <p className="text-xs text-red-500 mt-0.5">
-                    {isAr ? 'حتى 29 أبريل 2026' : "Jusqu'au 29 avril 2026"}
+                    {isAr ? 'ينتهي خلال' : 'Expire dans'}
                   </p>
+                  <CountdownTimer isAr={isAr} />
                 </div>
               </div>
             )}

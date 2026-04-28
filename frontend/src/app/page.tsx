@@ -63,14 +63,14 @@ export default function LandingPage() {
           </div>
           <div className="flex items-center gap-1 flex-nowrap flex-shrink-0">
             <LanguageSwitcherLight className="!text-gray-500 hover:!bg-gray-100 hover:!text-gray-900 flex-shrink-0" />
-            <Link href="/login"
-              className="text-sm font-semibold text-gray-500 hover:text-gray-900 px-3 py-2 rounded-lg hover:bg-gray-100 transition whitespace-nowrap flex-shrink-0">
-              {t('auth.login.submit')}
-            </Link>
             <Link href="/register"
               className="text-sm font-semibold text-white px-3 py-2 rounded-xl transition hover:opacity-90 shadow-md shadow-violet-200 whitespace-nowrap flex-shrink-0"
               style={{ background: 'linear-gradient(135deg,#7c3aed,#6366f1)' }}>
               {t('auth.register.submit')} →
+            </Link>
+            <Link href="/login"
+              className="text-sm font-semibold text-gray-500 hover:text-gray-900 px-3 py-2 rounded-lg hover:bg-gray-100 transition whitespace-nowrap flex-shrink-0">
+              {t('auth.login.submit')}
             </Link>
           </div>
         </div>
