@@ -7,11 +7,13 @@ export class PushService implements OnModuleInit {
   constructor(private prisma: PrismaService) {}
 
   onModuleInit() {
-    webpush.setVapidDetails(
-      process.env.VAPID_EMAIL!,
-      process.env.VAPID_PUBLIC_KEY!,
-      process.env.VAPID_PRIVATE_KEY!,
-    );
+    if (process.env.VAPID_PUBLIC_KEY && process.env.VAPID_PRIVATE_KEY && process.env.VAPID_EMAIL) {
+      webpush.setVapidDetails(
+        process.env.VAPID_EMAIL,
+        process.env.VAPID_PUBLIC_KEY,
+        process.env.VAPID_PRIVATE_KEY,
+      );
+    }
   }
 
   getPublicKey() {

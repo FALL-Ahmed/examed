@@ -20,6 +20,9 @@ async function bootstrap() {
       const allowed = [
         ...(process.env.FRONTEND_URL ?? '').split(',').map(s => s.trim()),
         'http://localhost:3000',
+        'http://localhost:3001',
+        'http://localhost:3002',
+        'http://localhost:3003',
       ].filter(Boolean);
 
       if (
