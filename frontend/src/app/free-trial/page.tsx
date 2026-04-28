@@ -97,7 +97,7 @@ function FreeTrialContent() {
 
   useEffect(() => {
     setLoading(true);
-    setIndex(0); setSelected([]); setRevealed(false); setScore(0); setDone(false); setError('');
+    setIndex(0); setSelected([]); setRevealed(false); setScore(0); setDone(false); setError(''); setShowMobilePromo(false); setPromoPopupDismissed(false);
     publicApi.freeTrial(themeKey, lang)
       .then((r) => { setQuestions(r.data); setLoading(false); })
       .catch(() => { setError('Impossible de charger les questions.'); setLoading(false); });
