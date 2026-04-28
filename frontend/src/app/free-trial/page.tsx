@@ -272,11 +272,15 @@ function FreeTrialContent() {
     <div className="lg:sticky lg:top-6 space-y-3">
 
       {/* Compact header */}
-      <div className="rounded-2xl p-4 shadow-lg shadow-violet-200/50"
+      <div className="rounded-2xl p-4 shadow-lg shadow-violet-200/50 text-center"
         style={{ background: 'linear-gradient(135deg,#7c3aed,#6366f1)' }}>
-        {promoActive && <CountdownTimer isAr={isAr} />}
+        {promoActive && (
+          <div className="flex justify-center mb-2">
+            <CountdownTimer isAr={isAr} />
+          </div>
+        )}
         <p className="text-white font-extrabold text-base leading-snug">
-          {isAr ? 'هل أنت مستعد للذهاب أبعد؟' : 'Prêt à aller plus loin ?'}
+          {isAr ? 'مستعد لرؤية جميع الأسئلة؟' : 'Prêt à voir toutes les questions ?'}
         </p>
         <p className="text-white/65 text-xs mt-0.5">
           {isAr ? '+350 سؤال · جميع المواضيع · تتبع التقدم' : '+350 questions · tous les thèmes · suivi de progression'}
@@ -315,6 +319,22 @@ function FreeTrialContent() {
             </div>
           </Link>
         ))}
+      </div>
+
+      {/* Payment methods */}
+      <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-3">
+        <p className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2.5 text-center">
+          {isAr ? 'طرق الدفع المقبولة' : 'Paiement accepté via'}
+        </p>
+        <div className="flex items-center justify-center gap-3">
+          {[
+            { name: 'Bankily', src: '/images/bankily.png' },
+            { name: 'Masrivi', src: '/images/masrivi.png' },
+            { name: 'Sedad',   src: '/images/sedad.png'   },
+          ].map(({ name, src }) => (
+            <img key={name} src={src} alt={name} className="h-7 w-auto object-contain" />
+          ))}
+        </div>
       </div>
 
       <p className="text-center text-xs text-gray-400">
