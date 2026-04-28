@@ -7,6 +7,11 @@ import { useLang } from '@/components/LanguageProvider';
 import { BookOpen, Loader2, Eye, EyeOff, Copy, CheckCheck, Upload, X } from 'lucide-react';
 import { LanguageSwitcherLight } from '@/components/LanguageSwitcher';
 
+declare function gtag(...args: any[]): void;
+const gtrack = (event: string, params?: Record<string, any>) => {
+  if (typeof gtag !== 'undefined') gtag('event', event, params);
+};
+
 const pad = (n: number) => String(n).padStart(2, '0');
 
 const CountdownTimer = memo(({ isAr }: { isAr: boolean }) => {
@@ -87,6 +92,7 @@ function RegisterContent() {
   const [copied, setCopied] = useState(false);
   const [receipt, setReceipt] = useState<File | null>(null);
   const [loading, setLoading] = useState(false);
+  const [started, setStarted] = useState(false);
 
   useEffect(() => {
     settingsApi.operators().then((r) => {
@@ -116,40 +122,42 @@ function RegisterContent() {
   const computedDuration = selectedPlan === 'SOLO_3M' ? 90 : 30;
 
   function set(key: string, value: string) {
+    if (!started) { setStarted(true); gtrack('register_start', { lang }); }
     setForm((p) => ({ ...p, [key]: value }));
   }
 
   async function handleSubmit() {
     setFormError('');
+    gtrack('register_submit_attempt', { plan: selectedPlan, lang });
 
     if (!form.firstName.trim() || !form.lastName.trim())
-      return setFormError(isAr ? 'الاسم الأول والأخير مطلوبان' : 'Prénom et nom requis');
+      return (setFormError(isAr ? 'الاسم الأول والأخير مطلوبان' : 'Prénom et nom requis'), gtrack('register_error', { reason: 'missing_name' }));
     if (!form.gender)
-      return setFormError(isAr ? 'يرجى تحديد جنسك' : 'Veuillez sélectionner votre sexe');
+      return (setFormError(isAr ? 'يرجى تحديد جنسك' : 'Veuillez sélectionner votre sexe'), gtrack('register_error', { reason: 'missing_gender' }));
     if (!form.email.trim())
-      return setFormError(isAr ? 'البريد الإلكتروني مطلوب' : 'Email requis');
+      return (setFormError(isAr ? 'البريد الإلكتروني مطلوب' : 'Email requis'), gtrack('register_error', { reason: 'missing_email' }));
     if (!form.profession)
-      return setFormError(isAr ? 'يرجى تحديد مهنتك' : 'Veuillez sélectionner votre profession');
+      return (setFormError(isAr ? 'يرجى تحديد مهنتك' : 'Veuillez sélectionner votre profession'), gtrack('register_error', { reason: 'missing_profession' }));
     if (!form.password || form.password.length < 8)
-      return setFormError(isAr ? 'كلمة المرور 8 أحرف على الأقل' : 'Mot de passe minimum 8 caractères');
+      return (setFormError(isAr ? 'كلمة المرور 8 أحرف على الأقل' : 'Mot de passe minimum 8 caractères'), gtrack('register_error', { reason: 'weak_password' }));
     if (!selectedOp)
-      return setFormError(isAr ? 'اختر مشغل الدفع' : 'Choisissez un opérateur de paiement');
+      return (setFormError(isAr ? 'اختر مشغل الدفع' : 'Choisissez un opérateur de paiement'), gtrack('register_error', { reason: 'missing_operator' }));
     if (!receipt)
-      return setFormError(isAr ? 'يرجى رفع إيصال الدفع' : 'Veuillez uploader votre reçu de paiement');
+      return (setFormError(isAr ? 'يرجى رفع إيصال الدفع' : 'Veuillez uploader votre reçu de paiement'), gtrack('register_error', { reason: 'missing_receipt' }));
 
     if (selectedPlan === 'GROUP') {
       const emails = groupEmailsText.split('\n').map((e: string) => e.trim()).filter(Boolean);
       const required = groupSize - 1;
       if (emails.length !== required)
-        return setFormError(isAr ? `يجب إدخال ${required} بريد إلكتروني بالضبط.` : `Vous devez entrer exactement ${required} email${required > 1 ? 's' : ''}.`);
+        return (setFormError(isAr ? `يجب إدخال ${required} بريد إلكتروني بالضبط.` : `Vous devez entrer exactement ${required} email${required > 1 ? 's' : ''}.`), gtrack('register_error', { reason: 'group_emails_count' }));
       const invalid = emails.filter((e: string) => !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e));
       if (invalid.length > 0)
-        return setFormError((isAr ? 'بريد غير صالح: ' : 'Email invalide : ') + invalid[0]);
+        return (setFormError((isAr ? 'بريد غير صالح: ' : 'Email invalide : ') + invalid[0]), gtrack('register_error', { reason: 'invalid_email' }));
       const lowered = emails.map((e: string) => e.toLowerCase());
       if (new Set(lowered).size !== emails.length)
-        return setFormError(isAr ? 'بعض الإيميلات مكررة.' : 'Certains emails sont en double.');
+        return (setFormError(isAr ? 'بعض الإيميلات مكررة.' : 'Certains emails sont en double.'), gtrack('register_error', { reason: 'duplicate_emails' }));
       if (lowered.includes(form.email.trim().toLowerCase()))
-        return setFormError(isAr ? 'بريدك لا يجب أن يظهر في قائمة الأعضاء.' : 'Votre email ne doit pas figurer dans la liste des membres.');
+        return (setFormError(isAr ? 'بريدك لا يجب أن يظهر في قائمة الأعضاء.' : 'Votre email ne doit pas figurer dans la liste des membres.'), gtrack('register_error', { reason: 'organizer_in_members' }));
     }
 
     setLoading(true);
@@ -180,9 +188,12 @@ function RegisterContent() {
       Cookies.set('access_token', ld.accessToken, { expires: 1 });
       Cookies.set('refresh_token', ld.refreshToken, { expires: 7 });
 
+      gtrack('register_success', { plan: selectedPlan, operator: selectedOp, lang });
       window.location.href = '/pending';
     } catch (err: any) {
-      setFormError(err.response?.data?.message || (isAr ? 'حدث خطأ' : 'Une erreur est survenue'));
+      const msg = err.response?.data?.message || 'server_error';
+      setFormError(msg || (isAr ? 'حدث خطأ' : 'Une erreur est survenue'));
+      gtrack('register_error', { reason: 'server_error', message: msg });
       setLoading(false);
     }
   }
@@ -396,7 +407,7 @@ function RegisterContent() {
             {/* Plans */}
             <div className="space-y-3 mb-5">
               {/* Solo 1 mois */}
-              <button type="button" onClick={() => setSelectedPlan('SOLO_1M')}
+              <button type="button" onClick={() => { setSelectedPlan('SOLO_1M'); gtrack('register_plan_selected', { plan: 'SOLO_1M' }); }}
                 className={`relative w-full flex items-center justify-between p-4 rounded-2xl border-2 transition-all text-left
                   ${selectedPlan === 'SOLO_1M' ? 'border-violet-500 bg-violet-50' : 'border-gray-200 bg-white hover:border-gray-300'}`}>
                 <div>
@@ -414,7 +425,7 @@ function RegisterContent() {
               </button>
 
               {/* Solo 3 mois */}
-              <button type="button" onClick={() => setSelectedPlan('SOLO_3M')}
+              <button type="button" onClick={() => { setSelectedPlan('SOLO_3M'); gtrack('register_plan_selected', { plan: 'SOLO_3M' }); }}
                 className={`relative w-full flex items-center justify-between p-4 rounded-2xl border-2 transition-all text-left
                   ${selectedPlan === 'SOLO_3M' ? 'border-violet-500 bg-violet-50' : 'border-gray-200 bg-white hover:border-gray-300'}`}>
                 <div>
@@ -437,7 +448,7 @@ function RegisterContent() {
               </button>
 
               {/* Groupe */}
-              <button type="button" onClick={() => setSelectedPlan('GROUP')}
+              <button type="button" onClick={() => { setSelectedPlan('GROUP'); gtrack('register_plan_selected', { plan: 'GROUP' }); }}
                 className={`relative w-full flex flex-col p-4 rounded-2xl border-2 transition-all text-left
                   ${selectedPlan === 'GROUP' ? 'border-violet-500 bg-violet-50' : 'border-gray-200 bg-white hover:border-gray-300'}`}>
                 <div className="flex items-center justify-between w-full">
@@ -500,7 +511,7 @@ function RegisterContent() {
               <p className={labelClass}>{isAr ? 'مشغل الدفع' : 'Opérateur de paiement'} <span className="text-red-400">*</span></p>
               <div className="grid grid-cols-3 gap-3">
                 {OPERATORS.map((op) => (
-                  <button key={op.id} type="button" onClick={() => setSelectedOp(op.id)}
+                  <button key={op.id} type="button" onClick={() => { setSelectedOp(op.id); gtrack('register_operator_selected', { operator: op.id }); }}
                     className={`relative flex flex-col items-center gap-2 p-4 rounded-2xl border-2 transition-all
                       ${selectedOp === op.id ? 'border-violet-500 bg-violet-50 shadow-md shadow-violet-100' : 'border-gray-200 bg-white hover:border-gray-300'}`}>
                     {selectedOp === op.id && (
@@ -570,7 +581,7 @@ function RegisterContent() {
                     <p className="text-xs text-gray-400 mt-1">PNG, JPG {isAr ? 'حتى 10 MB' : "jusqu'à 10 MB"}</p>
                   </div>
                   <input type="file" accept="image/*" className="hidden"
-                    onChange={(e) => setReceipt(e.target.files?.[0] || null)} />
+                    onChange={(e) => { const f = e.target.files?.[0] || null; setReceipt(f); if (f) gtrack('register_receipt_uploaded'); }} />
                 </label>
               )}
             </div>
