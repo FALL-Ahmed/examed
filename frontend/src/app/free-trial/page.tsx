@@ -204,7 +204,7 @@ function FreeTrialContent() {
         <div className="relative w-full max-w-lg bg-white rounded-t-3xl p-6 pb-8 animate-slide-up shadow-2xl">
           {/* Close */}
           <button onClick={() => { setShowMobilePromo(false); setPromoPopupDismissed(true); }}
-            className="absolute top-4 right-4 w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center text-gray-400 hover:text-gray-600 transition text-lg font-bold">
+            className="absolute top-4 right-4 w-9 h-9 rounded-full bg-red-100 flex items-center justify-center text-red-500 hover:bg-red-500 hover:text-white transition text-xl font-bold shadow-sm">
             ×
           </button>
 
