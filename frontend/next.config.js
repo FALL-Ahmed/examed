@@ -16,7 +16,8 @@ const nextConfig = {
   env: {
     NEXT_PUBLIC_API_URL: process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001',
   },
-  outputFileTracing: false,
+  // Désactivé localement pour éviter EPERM .next/trace sur Windows, mais requis sur Netlify
+  outputFileTracing: process.env.NETLIFY ? true : false,
 };
 
 module.exports = withPWA(nextConfig);
