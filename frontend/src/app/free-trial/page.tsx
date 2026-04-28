@@ -122,7 +122,7 @@ function FreeTrialContent() {
     setRevealed(true);
     const isCorrect = correctAnswers.length === selected.length && correctAnswers.every((c) => selected.includes(c));
     if (isCorrect) setScore((s) => s + 1);
-    if (index === 1 && !promoPopupDismissed) {
+    if (index === 1 && !promoPopupDismissed && themeKey !== 'Paludisme') {
       setTimeout(() => setShowMobilePromo(true), 900);
     }
   }
