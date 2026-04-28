@@ -258,6 +258,16 @@ function FreeTrialContent() {
             <ArrowRight className="w-4 h-4" />
           </Link>
 
+          <div className="flex items-center justify-center gap-4 mt-4">
+            {[
+              { name: 'Bankily', src: '/images/bankily.png' },
+              { name: 'Masrivi', src: '/images/masrivi.png' },
+              { name: 'Sedad',   src: '/images/sedad.png'   },
+            ].map(({ name, src }) => (
+              <img key={name} src={src} alt={name} className="h-6 w-auto object-contain opacity-70" />
+            ))}
+          </div>
+
           <button onClick={() => { setShowMobilePromo(false); setPromoPopupDismissed(true); }}
             className="w-full text-center text-xs text-gray-400 mt-3 hover:text-gray-600 transition">
             {isAr ? 'ربما لاحقاً' : 'Plus tard'}
