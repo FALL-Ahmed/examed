@@ -613,8 +613,26 @@ export class AdminService {
       if (s.lastActive > entry.lastActive) entry.lastActive = s.lastActive;
     }
 
+    const getDeviceFamily = (deviceInfo: string): string => {
+      const info = (deviceInfo || '').toLowerCase();
+      if (info.includes('ios') || info.includes('iphone') || info.includes('ipad')) return 'iOS';
+      if (info.includes('android')) return 'Android';
+      if (info.includes('windows')) return 'Windows';
+      if (info.includes('mac')) return 'Mac';
+      if (info.includes('linux')) return 'Linux';
+      return 'other';
+    };
+
     const users = Array.from(userMap.values())
-      .map((entry) => ({
+      .map((entry) => {
+        const activeSessions = entry.sessions.filter((s) => s.isActive).length;
+        // Familles d'appareils vus dans les 7 derniers jours
+        const cutoff7d = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
+        const recentSessions = entry.sessions.filter((s) => s.lastActive > cutoff7d);
+        const deviceFamilies = new Set(recentSessions.map((s) => getDeviceFamily(s.deviceInfo || '')));
+        // Suspect = 3 familles distinctes (iOS + Android + Windows) récemment actives
+        const suspicious = deviceFamilies.size >= 3 && activeSessions >= 1;
+        return {
         userId: entry.user.id,
         fullName: entry.user.fullName,
         email: entry.user.email,
@@ -622,8 +640,8 @@ export class AdminService {
         sessionCount: entry.sessions.length,
         uniqueDeviceCount: entry.uniqueDeviceIds.size,
         uniqueIpCount: entry.allUniqueIps.size,
-        activeSessions: entry.sessions.filter((s) => s.isActive).length,
-        suspicious: entry.sessions.filter((s) => s.isActive).length > 1, // 2+ sessions actives simultanément = partage probable
+        activeSessions,
+        suspicious,
         lastActive: entry.lastActive,
         uniqueIpList: [...entry.allUniqueIps].map((ip) => ({
           ip,
@@ -643,7 +661,8 @@ export class AdminService {
             isActive: s.isActive,
           };
         }),
-      }))
+        };
+      })
       .sort((a, b) => b.uniqueDeviceCount - a.uniqueDeviceCount);
 
     return {
