@@ -51,6 +51,18 @@ function parseUA(ua: string) {
   return { icon: Monitor, label: ua.slice(0, 25) };
 }
 
+function privateLabel(ip: string): string {
+  const parts = ip.split('.').map(Number);
+  if (parts.length !== 4) return 'CGNAT';
+  const [a, b] = parts;
+  if (a === 100 && b >= 64 && b <= 127) return 'CGNAT';
+  if (a === 192 && b === 168) return 'Réseau local';
+  if (a === 10) return 'Réseau local';
+  if (a === 172 && b >= 16 && b <= 31) return 'Réseau local';
+  if (a === 127) return 'Localhost';
+  return 'IP privée';
+}
+
 function timeAgo(date: string) {
   const diff = Date.now() - new Date(date).getTime();
   const m = Math.floor(diff / 60000);
@@ -71,7 +83,7 @@ function IpBadge({ ip, geo }: { ip: string; geo: Geo }) {
           {geo.city}, {geo.country}
         </span>
       ) : (
-        <span className="text-xs text-amber-500 border-l border-border pl-2">réseau opérateur</span>
+        <span className="text-xs text-amber-500 border-l border-border pl-2">{privateLabel(ip)}</span>
       )}
     </div>
   );
@@ -149,7 +161,7 @@ function SuspectCard({ u, expanded, onToggle }: {
                     <div className="flex items-center gap-2 flex-wrap">
                       <span className="font-mono font-semibold text-foreground text-xs">{s.ipAddress || '—'}</span>
                       {s.geo && <span className="text-xs text-muted-foreground">{s.geo.city}, {s.geo.country}</span>}
-                      {s.isPrivate && <span className="text-xs text-amber-500 bg-amber-50 dark:bg-amber-500/10 px-1.5 py-0.5 rounded-md">réseau opérateur (CGNAT)</span>}
+                      {s.isPrivate && <span className="text-xs text-amber-500 bg-amber-50 dark:bg-amber-500/10 px-1.5 py-0.5 rounded-md">{privateLabel(s.ipAddress)}</span>}
                     </div>
                     <div className="flex items-center gap-2 mt-0.5">
                       <Icon className="w-3 h-3 text-muted-foreground" />
@@ -362,7 +374,7 @@ export default function SecuritePage() {
                             <span className="text-base leading-none">{u.recentSessions[0].isPrivate ? '📡' : flag(u.recentSessions[0].geo?.countryCode)}</span>
                             <span className="font-mono text-foreground">{u.recentSessions[0].ipAddress}</span>
                             {u.recentSessions[0].geo && <span className="text-muted-foreground">· {u.recentSessions[0].geo.city}</span>}
-                            {u.recentSessions[0].isPrivate && <span className="text-amber-500">CGNAT</span>}
+                            {u.recentSessions[0].isPrivate && <span className="text-amber-500">{privateLabel(u.recentSessions[0].ipAddress)}</span>}
                           </span>
                         ) : <span className="text-muted-foreground text-xs">—</span>}
                       </td>
@@ -449,7 +461,7 @@ export default function SecuritePage() {
                                               <span className="text-base leading-none">{s.isPrivate ? '📡' : flag(s.geo?.countryCode)}</span>
                                               <span className="font-mono font-semibold text-foreground">{s.ipAddress || '—'}</span>
                                               {s.geo && <span className="text-muted-foreground">{s.geo.city}, {s.geo.country}</span>}
-                                              {s.isPrivate && <span className="text-amber-500 text-xs bg-amber-50 dark:bg-amber-500/10 px-1.5 py-0.5 rounded-md">CGNAT</span>}
+                                              {s.isPrivate && <span className="text-amber-500 text-xs bg-amber-50 dark:bg-amber-500/10 px-1.5 py-0.5 rounded-md">{privateLabel(s.ipAddress)}</span>}
                                             </span>
                                           </td>
                                           <td className="px-3 py-2">
