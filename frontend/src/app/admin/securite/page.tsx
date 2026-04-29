@@ -1,13 +1,21 @@
 'use client';
 import { useState, useEffect, useCallback } from 'react';
+import dynamic from 'next/dynamic';
 import { adminApi } from '@/lib/api';
 import Link from 'next/link';
 import {
   Globe, AlertTriangle, Users, ShieldCheck, ChevronDown, ChevronUp,
   RefreshCw, MapPin, ExternalLink, Monitor, Smartphone, Clock,
 } from 'lucide-react';
+import type { MapMarker } from './MapView';
 
-type Geo = { country: string; city: string; countryCode: string } | null;
+const MapView = dynamic(() => import('./MapView'), { ssr: false, loading: () => (
+  <div className="w-full h-full flex items-center justify-center bg-muted/30 rounded-2xl text-muted-foreground text-sm">
+    Chargement de la carte…
+  </div>
+)});
+
+type Geo = { country: string; city: string; countryCode: string; lat?: number; lon?: number } | null;
 
 type Session = {
   id: string;
@@ -24,11 +32,12 @@ type UserRow = {
   userId: string;
   fullName: string;
   email: string;
+  uniqueDeviceCount: number;
   uniqueIpCount: number;
   suspicious: boolean;
   sessionCount: number;
   lastActive: string;
-  uniqueIpList: { ip: string; geo: Geo }[];
+  uniqueIpList: { ip: string; isPrivate: boolean; geo: Geo }[];
   recentSessions: Session[];
 };
 
@@ -93,7 +102,7 @@ function SuspectCard({ u, expanded, onToggle }: {
           <div className="flex items-center gap-2 flex-wrap">
             <p className="font-bold text-foreground">{u.fullName}</p>
             <span className="bg-red-100 dark:bg-red-500/20 text-red-600 dark:text-red-400 text-xs font-bold px-2 py-0.5 rounded-full">
-              {u.uniqueIpCount} IP différentes
+              {u.uniqueDeviceCount} appareils différents
             </span>
           </div>
           <p className="text-xs text-muted-foreground">{u.email}</p>
@@ -128,7 +137,7 @@ function SuspectCard({ u, expanded, onToggle }: {
             Toutes les IP ({u.uniqueIpList.length})
           </p>
           <div className="flex flex-wrap gap-2 mb-4">
-            {u.uniqueIpList.map(({ ip, geo }) => (
+            {u.uniqueIpList.map(({ ip, geo, isPrivate }) => (
               <IpBadge key={ip} ip={ip} geo={geo} />
             ))}
           </div>
@@ -201,6 +210,22 @@ export default function SecuritePage() {
   const rows = data
     ? (filter === 'suspicious' ? suspects : data.users)
     : [];
+
+  const mapMarkers: MapMarker[] = (data?.users ?? []).flatMap((u) =>
+    u.uniqueIpList
+      .filter((ip) => !ip.isPrivate && ip.geo?.lat && ip.geo?.lon)
+      .map((ip) => ({
+        lat: ip.geo!.lat!,
+        lon: ip.geo!.lon!,
+        label: u.fullName,
+        email: u.email,
+        ip: ip.ip,
+        city: ip.geo!.city,
+        country: ip.geo!.country,
+        suspicious: u.suspicious,
+        deviceCount: u.uniqueDeviceCount,
+      }))
+  );
 
   return (
     <div className="space-y-6">
@@ -278,6 +303,35 @@ export default function SecuritePage() {
         </div>
       )}
 
+      {/* Carte interactive */}
+      <div className="bg-card border border-border rounded-2xl overflow-hidden">
+        <div className="flex items-center justify-between px-4 py-3 border-b border-border">
+          <div className="flex items-center gap-2">
+            <MapPin className="w-4 h-4 text-blue-500" />
+            <p className="font-semibold text-foreground text-sm">Carte des connexions</p>
+          </div>
+          <div className="flex items-center gap-3 text-xs text-muted-foreground">
+            <span className="flex items-center gap-1.5">
+              <span className="w-3 h-3 rounded-full bg-red-500 inline-block" /> Suspect
+            </span>
+            <span className="flex items-center gap-1.5">
+              <span className="w-3 h-3 rounded-full bg-emerald-500 inline-block" /> Normal
+            </span>
+            {mapMarkers.length === 0 && !loading && (
+              <span className="text-amber-500">Aucune IP publique géolocalisable</span>
+            )}
+          </div>
+        </div>
+        <div className="h-96">
+          {!loading && <MapView markers={mapMarkers} />}
+          {loading && (
+            <div className="w-full h-full flex items-center justify-center bg-muted/20 text-muted-foreground text-sm">
+              Chargement…
+            </div>
+          )}
+        </div>
+      </div>
+
       {/* Section suspects en cartes */}
       {!loading && suspects.length > 0 && (
         <div className="space-y-3">
@@ -335,7 +389,7 @@ export default function SecuritePage() {
                 <tr className="border-b border-border text-muted-foreground text-xs uppercase tracking-wider bg-muted/30">
                   <th className="text-left px-4 py-3">Utilisateur</th>
                   <th className="text-left px-4 py-3">Dernière IP</th>
-                  <th className="text-right px-4 py-3">IP uniques</th>
+                  <th className="text-right px-4 py-3">Appareils</th>
                   <th className="text-right px-4 py-3">Sessions</th>
                   <th className="text-right px-4 py-3">Dernière activité</th>
                   <th className="text-center px-4 py-3">Statut</th>
@@ -365,13 +419,16 @@ export default function SecuritePage() {
                         ) : <span className="text-muted-foreground text-xs">—</span>}
                       </td>
                       <td className="px-4 py-3 text-right">
-                        <span className={`text-lg font-black ${
-                          u.uniqueIpCount > 3 ? 'text-red-500'
-                          : u.uniqueIpCount > 1 ? 'text-amber-500'
-                          : 'text-emerald-600 dark:text-emerald-400'
-                        }`}>
-                          {u.uniqueIpCount}
-                        </span>
+                        <div className="flex flex-col items-end gap-0.5">
+                          <span className={`text-lg font-black ${
+                            u.uniqueDeviceCount > 2 ? 'text-red-500'
+                            : u.uniqueDeviceCount > 1 ? 'text-amber-500'
+                            : 'text-emerald-600 dark:text-emerald-400'
+                          }`}>
+                            {u.uniqueDeviceCount}
+                          </span>
+                          <span className="text-xs text-muted-foreground">{u.uniqueIpCount} IP</span>
+                        </div>
                       </td>
                       <td className="px-4 py-3 text-right text-muted-foreground">{u.sessionCount}</td>
                       <td className="px-4 py-3 text-right text-muted-foreground text-xs">{timeAgo(u.lastActive)}</td>

@@ -581,7 +581,7 @@ export class AdminService {
         const controller = new AbortController();
         const timeout = setTimeout(() => controller.abort(), 5000);
         const resp = await fetch(
-          'http://ip-api.com/batch?fields=status,country,countryCode,city,query',
+          'http://ip-api.com/batch?fields=status,country,countryCode,city,lat,lon,query',
           {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -594,7 +594,7 @@ export class AdminService {
           const geoData: any[] = await resp.json();
           for (const r of geoData) {
             if (r.status === 'success') {
-              geoMap.set(r.query, { country: r.country, city: r.city, countryCode: r.countryCode });
+              geoMap.set(r.query, { country: r.country, city: r.city, countryCode: r.countryCode, lat: r.lat, lon: r.lon });
             }
           }
         }
@@ -604,19 +604,21 @@ export class AdminService {
     const userMap = new Map<string, {
       user: { id: string; fullName: string; email: string; role: string };
       sessions: typeof sessions;
-      publicUniqueIps: Set<string>;
+      uniqueDeviceIds: Set<string>;
+      allUniqueIps: Set<string>;
       lastActive: Date;
     }>();
 
     for (const s of sessions) {
       if (!s.userId || !s.user || s.user.role === 'ADMIN') continue;
       if (!userMap.has(s.userId)) {
-        userMap.set(s.userId, { user: s.user, sessions: [], publicUniqueIps: new Set(), lastActive: s.lastActive });
+        userMap.set(s.userId, { user: s.user, sessions: [], uniqueDeviceIds: new Set(), allUniqueIps: new Set(), lastActive: s.lastActive });
       }
       const entry = userMap.get(s.userId)!;
       entry.sessions.push(s);
+      if (s.deviceId) entry.uniqueDeviceIds.add(s.deviceId);
       const n = normalizeIp(s.ipAddress);
-      if (isPublicIp(n)) entry.publicUniqueIps.add(n);
+      if (n && n !== 'unknown') entry.allUniqueIps.add(n);
       if (s.lastActive > entry.lastActive) entry.lastActive = s.lastActive;
     }
 
@@ -627,11 +629,13 @@ export class AdminService {
         email: entry.user.email,
         role: entry.user.role,
         sessionCount: entry.sessions.length,
-        uniqueIpCount: entry.publicUniqueIps.size,
-        suspicious: entry.publicUniqueIps.size > 3,
+        uniqueDeviceCount: entry.uniqueDeviceIds.size,
+        uniqueIpCount: entry.allUniqueIps.size,
+        suspicious: entry.uniqueDeviceIds.size > 2, // >2 appareils distincts = suspect
         lastActive: entry.lastActive,
-        uniqueIpList: [...entry.publicUniqueIps].map((ip) => ({
+        uniqueIpList: [...entry.allUniqueIps].map((ip) => ({
           ip,
+          isPrivate: !isPublicIp(ip),
           geo: geoMap.get(ip) ?? null,
         })),
         recentSessions: entry.sessions.slice(0, 10).map((s) => {
@@ -648,7 +652,7 @@ export class AdminService {
           };
         }),
       }))
-      .sort((a, b) => b.uniqueIpCount - a.uniqueIpCount);
+      .sort((a, b) => b.uniqueDeviceCount - a.uniqueDeviceCount);
 
     return {
       total: users.length,

@@ -167,23 +167,13 @@ export class AuthService {
     // Détecter le partage de compte (fire-and-forget, ne bloque pas le login)
     this.prisma.session.findMany({
       where: { userId: user.id },
-      select: { ipAddress: true },
+      select: { deviceId: true },
     }).then((rows) => {
-      const normalize = (ip: string) => ip?.startsWith('::ffff:') ? ip.slice(7) : ip;
-      const isPublic = (ip: string) => {
-        const n = normalize(ip);
-        if (!n || n === 'unknown' || n === '::1') return false;
-        const p = n.split('.').map(Number);
-        if (p.length !== 4 || p.some(isNaN)) return false;
-        const [a, b] = p;
-        return !(a === 127 || a === 10 || (a === 172 && b >= 16 && b <= 31) ||
-          (a === 192 && b === 168) || (a === 100 && b >= 64 && b <= 127) || (a === 169 && b === 254));
-      };
-      const publicIps = new Set(rows.map((s) => normalize(s.ipAddress)).filter(isPublic));
-      if (publicIps.size === 4) {
+      const uniqueDevices = new Set(rows.map((s) => s.deviceId).filter(Boolean));
+      if (uniqueDevices.size === 3) {
         this.push.notifyAdmins(
           '⚠️ Compte suspect détecté',
-          `${user.fullName} (${user.email}) utilise maintenant 4 IP publiques différentes`,
+          `${user.fullName} (${user.email}) se connecte depuis 3 appareils différents`,
           '/admin/securite',
         );
       }
