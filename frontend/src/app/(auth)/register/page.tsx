@@ -531,6 +531,9 @@ function RegisterContent() {
                     )}
                     <img src={op.image} alt={op.name} className="h-10 w-auto object-contain" />
                     <span className="text-xs font-bold text-gray-700">{op.name}</span>
+                    {operators[op.id] && (
+                      <span className="text-xs font-black text-violet-600 tracking-wider" dir="ltr">{operators[op.id]}</span>
+                    )}
                   </button>
                 ))}
               </div>
