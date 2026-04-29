@@ -4,7 +4,7 @@ import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { authApi, settingsApi } from '@/lib/api';
 import { useLang } from '@/components/LanguageProvider';
-import { BookOpen, Loader2, Eye, EyeOff, Copy, CheckCheck, Upload, X } from 'lucide-react';
+import { BookOpen, Loader2, Eye, EyeOff, Copy, CheckCheck, Upload, X, MessageCircle } from 'lucide-react';
 import { LanguageSwitcherLight } from '@/components/LanguageSwitcher';
 
 declare function gtag(...args: any[]): void;
@@ -93,8 +93,10 @@ function RegisterContent() {
   const [receipt, setReceipt] = useState<File | null>(null);
   const [loading, setLoading] = useState(false);
   const [started, setStarted] = useState(false);
+  const [waPhone, setWaPhone] = useState<string | null>(null);
 
   useEffect(() => {
+    settingsApi.whatsapp().then((r) => setWaPhone(r.data.phone)).catch(() => {});
     settingsApi.operators().then((r) => {
       const map: Record<string, string> = {};
       r.data.forEach((op: any) => { map[op.id] = op.phone; });
@@ -126,38 +128,48 @@ function RegisterContent() {
     setForm((p) => ({ ...p, [key]: value }));
   }
 
+  function scrollTo(id: string) {
+    setTimeout(() => document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'center' }), 50);
+  }
+
+  function fail(msg: string, fieldId: string, reason: string) {
+    setFormError(msg);
+    scrollTo(fieldId);
+    gtrack('register_error', { reason });
+  }
+
   async function handleSubmit() {
     setFormError('');
     gtrack('register_submit_attempt', { plan: selectedPlan, lang });
 
     if (!form.firstName.trim() || !form.lastName.trim())
-      return (setFormError(isAr ? 'الاسم الأول والأخير مطلوبان' : 'Prénom et nom requis'), gtrack('register_error', { reason: 'missing_name' }));
+      return fail(isAr ? 'الاسم الأول والأخير مطلوبان' : 'Prénom et nom requis', 'field-name', 'missing_name');
     if (!form.gender)
-      return (setFormError(isAr ? 'يرجى تحديد جنسك' : 'Veuillez sélectionner votre sexe'), gtrack('register_error', { reason: 'missing_gender' }));
+      return fail(isAr ? 'يرجى تحديد جنسك' : 'Veuillez sélectionner votre sexe', 'field-gender', 'missing_gender');
     if (!form.email.trim())
-      return (setFormError(isAr ? 'البريد الإلكتروني مطلوب' : 'Email requis'), gtrack('register_error', { reason: 'missing_email' }));
+      return fail(isAr ? 'البريد الإلكتروني مطلوب' : 'Email requis', 'field-email', 'missing_email');
     if (!form.profession)
-      return (setFormError(isAr ? 'يرجى تحديد مهنتك' : 'Veuillez sélectionner votre profession'), gtrack('register_error', { reason: 'missing_profession' }));
+      return fail(isAr ? 'يرجى تحديد مهنتك' : 'Veuillez sélectionner votre profession', 'field-profession', 'missing_profession');
     if (!form.password || form.password.length < 8)
-      return (setFormError(isAr ? 'كلمة المرور 8 أحرف على الأقل' : 'Mot de passe minimum 8 caractères'), gtrack('register_error', { reason: 'weak_password' }));
+      return fail(isAr ? 'كلمة المرور 8 أحرف على الأقل' : 'Mot de passe minimum 8 caractères', 'field-password', 'weak_password');
     if (!selectedOp)
-      return (setFormError(isAr ? 'اختر مشغل الدفع' : 'Choisissez un opérateur de paiement'), gtrack('register_error', { reason: 'missing_operator' }));
+      return fail(isAr ? 'اختر مشغل الدفع' : 'Choisissez un opérateur de paiement', 'field-operator', 'missing_operator');
     if (!receipt)
-      return (setFormError(isAr ? 'يرجى رفع إيصال الدفع' : 'Veuillez uploader votre reçu de paiement'), gtrack('register_error', { reason: 'missing_receipt' }));
+      return fail(isAr ? 'يرجى رفع إيصال الدفع' : 'Veuillez uploader votre reçu de paiement', 'field-receipt', 'missing_receipt');
 
     if (selectedPlan === 'GROUP') {
       const emails = groupEmailsText.split('\n').map((e: string) => e.trim()).filter(Boolean);
       const required = groupSize - 1;
       if (emails.length !== required)
-        return (setFormError(isAr ? `يجب إدخال ${required} بريد إلكتروني بالضبط.` : `Vous devez entrer exactement ${required} email${required > 1 ? 's' : ''}.`), gtrack('register_error', { reason: 'group_emails_count' }));
+        return fail(isAr ? `يجب إدخال ${required} بريد إلكتروني بالضبط.` : `Vous devez entrer exactement ${required} email${required > 1 ? 's' : ''}.`, 'field-group-emails', 'group_emails_count');
       const invalid = emails.filter((e: string) => !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e));
       if (invalid.length > 0)
-        return (setFormError((isAr ? 'بريد غير صالح: ' : 'Email invalide : ') + invalid[0]), gtrack('register_error', { reason: 'invalid_email' }));
+        return fail((isAr ? 'بريد غير صالح: ' : 'Email invalide : ') + invalid[0], 'field-group-emails', 'invalid_email');
       const lowered = emails.map((e: string) => e.toLowerCase());
       if (new Set(lowered).size !== emails.length)
-        return (setFormError(isAr ? 'بعض الإيميلات مكررة.' : 'Certains emails sont en double.'), gtrack('register_error', { reason: 'duplicate_emails' }));
+        return fail(isAr ? 'بعض الإيميلات مكررة.' : 'Certains emails sont en double.', 'field-group-emails', 'duplicate_emails');
       if (lowered.includes(form.email.trim().toLowerCase()))
-        return (setFormError(isAr ? 'بريدك لا يجب أن يظهر في قائمة الأعضاء.' : 'Votre email ne doit pas figurer dans la liste des membres.'), gtrack('register_error', { reason: 'organizer_in_members' }));
+        return fail(isAr ? 'بريدك لا يجب أن يظهر في قائمة الأعضاء.' : 'Votre email ne doit pas figurer dans la liste des membres.', 'field-group-emails', 'organizer_in_members');
     }
 
     setLoading(true);
@@ -304,7 +316,7 @@ function RegisterContent() {
             </p>
             <div className="space-y-4">
 
-              <div className="grid grid-cols-2 gap-3">
+              <div id="field-name" className="grid grid-cols-2 gap-3">
                 <div>
                   <label className={labelClass}>{isAr ? 'الاسم الأول' : 'Prénom'} <span className="text-red-400">*</span></label>
                   <input type="text" value={form.firstName} onChange={(e) => set('firstName', e.target.value)}
@@ -317,7 +329,7 @@ function RegisterContent() {
                 </div>
               </div>
 
-              <div>
+              <div id="field-gender">
                 <label className={labelClass}>{isAr ? 'الجنس' : 'Sexe'} <span className="text-red-400">*</span></label>
                 <div className="grid grid-cols-2 gap-3">
                   {[
@@ -335,13 +347,13 @@ function RegisterContent() {
                 </div>
               </div>
 
-              <div>
+              <div id="field-email">
                 <label className={labelClass}>{isAr ? 'البريد الإلكتروني' : 'Email'} <span className="text-red-400">*</span></label>
                 <input type="email" value={form.email} onChange={(e) => set('email', e.target.value)}
                   className={inputClass} placeholder="votre@email.com" dir="ltr" />
               </div>
 
-              <div>
+              <div id="field-profession">
                 <label className={labelClass}>{isAr ? 'المهنة' : 'Profession'} <span className="text-red-400">*</span></label>
                 <select value={form.profession} onChange={(e) => set('profession', e.target.value)}
                   className={`${inputClass} cursor-pointer`}>
@@ -366,7 +378,7 @@ function RegisterContent() {
                 </div>
               </div>
 
-              <div>
+              <div id="field-password">
                 <label className={labelClass}>{isAr ? 'كلمة المرور' : 'Mot de passe'} <span className="text-red-400">*</span></label>
                 <div className="relative">
                   <input type={showPwd ? 'text' : 'password'} value={form.password}
@@ -485,7 +497,7 @@ function RegisterContent() {
 
             {/* Emails membres groupe */}
             {selectedPlan === 'GROUP' && (
-              <div className="mb-5">
+              <div id="field-group-emails" className="mb-5">
                 <label className={labelClass}>
                   {isAr ? 'إيميلات الأعضاء' : 'Emails des membres'} <span className="text-red-400">*</span>
                   <span className="text-gray-400 font-normal ml-1 text-xs">
@@ -507,7 +519,7 @@ function RegisterContent() {
             )}
 
             {/* Opérateur */}
-            <div className="mb-5">
+            <div id="field-operator" className="mb-5">
               <p className={labelClass}>{isAr ? 'مشغل الدفع' : 'Opérateur de paiement'} <span className="text-red-400">*</span></p>
               <div className="grid grid-cols-3 gap-3">
                 {OPERATORS.map((op) => (
@@ -554,7 +566,7 @@ function RegisterContent() {
             )}
 
             {/* Upload reçu */}
-            <div>
+            <div id="field-receipt">
               <p className={labelClass}>{isAr ? 'إيصال الدفع' : 'Reçu de paiement'} <span className="text-red-400">*</span></p>
               {receipt ? (
                 <div className="flex items-center gap-3 p-4 rounded-2xl border-2 border-emerald-300 bg-emerald-50">
@@ -585,6 +597,21 @@ function RegisterContent() {
                 </label>
               )}
             </div>
+
+            {/* WhatsApp support */}
+            {waPhone && (
+              <a
+                href={`https://wa.me/${waPhone.replace(/\D/g, '')}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center justify-center gap-2.5 w-full py-3 rounded-xl font-bold text-sm text-white hover:opacity-90 transition shadow-md mt-5"
+                style={{ background: 'linear-gradient(135deg,#25d366,#128c7e)' }}
+              >
+                <MessageCircle className="w-4 h-4" />
+                {isAr ? 'تواصل مع الدعم' : 'Contacter le support'}
+                <span className="font-normal opacity-80 text-xs ml-1">· {waPhone}</span>
+              </a>
+            )}
           </div>
 
           {/* Submit */}
