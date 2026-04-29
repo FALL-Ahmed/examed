@@ -1,7 +1,7 @@
 'use client';
 import { useEffect, useState } from 'react';
 import { adminApi } from '@/lib/api';
-import { FlaskConical, Users, TrendingDown, CheckCircle, Globe, Phone } from 'lucide-react';
+import { FlaskConical, Users, Trophy, TrendingDown, Phone, Globe, Zap } from 'lucide-react';
 
 export default function FreeTrialStatsPage() {
   const [data, setData] = useState<any>(null);
@@ -13,168 +13,216 @@ export default function FreeTrialStatsPage() {
 
   if (loading) return (
     <div className="flex items-center justify-center py-32">
-      <div className="w-6 h-6 border-2 border-blue-500 border-t-transparent rounded-full animate-spin" />
+      <div className="w-6 h-6 border-2 border-violet-500 border-t-transparent rounded-full animate-spin" />
     </div>
   );
-
-  if (!data) return <p className="text-center text-muted-foreground">Aucune donnée disponible.</p>;
+  if (!data) return <p className="text-center text-muted-foreground py-16">Aucune donnée.</p>;
 
   const { byTheme, globalFunnel, totalSessions, period, leads } = data;
+  const totalCompleted = globalFunnel.length > 0
+    ? globalFunnel[globalFunnel.length - 1].count : 0;
+  const completionRate = totalSessions > 0 ? Math.round((totalCompleted / totalSessions) * 100) : 0;
+  const q1Count = globalFunnel[0]?.count ?? 0;
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-6 max-w-5xl">
 
-      {/* Header */}
+      {/* ── Header ── */}
       <div className="flex items-center gap-3">
-        <div className="w-10 h-10 rounded-xl bg-violet-600 flex items-center justify-center">
+        <div className="w-10 h-10 rounded-xl bg-violet-600 flex items-center justify-center flex-shrink-0">
           <FlaskConical className="w-5 h-5 text-white" />
         </div>
         <div>
           <h1 className="text-xl font-bold">Analyse Free Trial</h1>
-          <p className="text-sm text-muted-foreground">{period} · {totalSessions} sessions au total</p>
+          <p className="text-xs text-muted-foreground">{period}</p>
         </div>
       </div>
 
-      {/* Global funnel */}
-      <div className="bg-card border border-border rounded-2xl p-6">
-        <h2 className="font-semibold mb-4">Entonnoir global — jusqu'où vont-ils ?</h2>
-        <div className="space-y-3">
-          {globalFunnel.map((f: any, i: number) => {
-            const pct = globalFunnel[0].count > 0 ? Math.round((f.count / globalFunnel[0].count) * 100) : 0;
-            const dropped = i > 0 ? globalFunnel[i - 1].count - f.count : 0;
-            return (
-              <div key={f.q}>
-                <div className="flex items-center justify-between text-sm mb-1">
-                  <span className="font-medium">Question {f.q}</span>
-                  <div className="flex items-center gap-4">
-                    {dropped > 0 && (
-                      <span className="text-red-500 text-xs flex items-center gap-1">
-                        <TrendingDown className="w-3 h-3" /> {dropped} abandon{dropped > 1 ? 's' : ''}
-                      </span>
-                    )}
-                    <span className="font-bold">{f.count} sessions ({pct}%)</span>
+      {/* ── KPIs globaux ── */}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+        {[
+          { icon: Users,        label: 'Sessions totales', value: totalSessions,     color: '#6366f1', bg: '#6366f115' },
+          { icon: Zap,          label: 'Ont commencé',     value: q1Count,            color: '#0ea5e9', bg: '#0ea5e915' },
+          { icon: Trophy,       label: 'Ont tout fini',    value: totalCompleted,     color: '#10b981', bg: '#10b98115' },
+          { icon: TrendingDown, label: 'Taux complétion',  value: `${completionRate}%`, color: completionRate >= 50 ? '#10b981' : completionRate >= 25 ? '#f59e0b' : '#ef4444', bg: completionRate >= 50 ? '#10b98115' : completionRate >= 25 ? '#f59e0b15' : '#ef444415' },
+        ].map((k) => (
+          <div key={k.label} className="bg-card border border-border rounded-2xl p-4 flex items-center gap-3">
+            <div className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0" style={{ background: k.bg }}>
+              <k.icon className="w-5 h-5" style={{ color: k.color }} />
+            </div>
+            <div>
+              <p className="text-2xl font-extrabold">{k.value}</p>
+              <p className="text-xs text-muted-foreground">{k.label}</p>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {/* ── Leads WhatsApp ── */}
+      <div className="bg-card border border-border rounded-2xl overflow-hidden">
+        <div className="flex items-center justify-between px-5 py-4 border-b border-border">
+          <div className="flex items-center gap-2">
+            <Phone className="w-4 h-4 text-green-500" />
+            <h2 className="font-bold">Leads WhatsApp</h2>
+          </div>
+          <span className="text-2xl font-extrabold text-green-600">{leads?.length ?? 0}</span>
+        </div>
+        {leads?.length > 0 ? (
+          <div className="divide-y divide-border">
+            {leads.map((lead: any, i: number) => (
+              <div key={i} className="flex items-center justify-between px-5 py-3 hover:bg-secondary/40 transition">
+                <div className="flex items-center gap-3">
+                  <div className="w-8 h-8 rounded-full bg-green-500/10 flex items-center justify-center">
+                    <Phone className="w-3.5 h-3.5 text-green-500" />
                   </div>
+                  <span className="font-mono font-bold text-sm">{lead.phone}</span>
                 </div>
-                <div className="h-3 bg-secondary rounded-full overflow-hidden">
-                  <div
-                    className="h-full rounded-full transition-all"
-                    style={{
-                      width: `${pct}%`,
-                      background: pct >= 60 ? '#10b981' : pct >= 30 ? '#f59e0b' : '#ef4444',
-                    }}
-                  />
+                <div className="flex items-center gap-3 text-xs text-muted-foreground">
+                  <span className="px-2 py-0.5 rounded-full bg-secondary font-medium">{lead.theme}</span>
+                  <span>{lead.lang === 'ar' ? '🇲🇷 AR' : '🇫🇷 FR'}</span>
+                  <span>{new Date(lead.createdAt).toLocaleDateString('fr-FR', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' })}</span>
                 </div>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <div className="px-5 py-8 text-center">
+            <Phone className="w-8 h-8 mx-auto mb-2 text-muted-foreground/30" />
+            <p className="text-sm text-muted-foreground">Aucun numéro collecté pour l'instant.</p>
+          </div>
+        )}
+      </div>
+
+      {/* ── Entonnoir global ── */}
+      <div className="bg-card border border-border rounded-2xl overflow-hidden">
+        <div className="px-5 py-4 border-b border-border">
+          <h2 className="font-bold">Entonnoir global</h2>
+          <p className="text-xs text-muted-foreground mt-0.5">Jusqu'où vont les visiteurs ?</p>
+        </div>
+        <div className="p-5 space-y-2">
+          {globalFunnel.map((f: any, i: number) => {
+            const pct = q1Count > 0 ? Math.round((f.count / q1Count) * 100) : 0;
+            const dropped = i > 0 ? globalFunnel[i - 1].count - f.count : 0;
+            const color = pct >= 70 ? '#10b981' : pct >= 40 ? '#f59e0b' : '#ef4444';
+            return (
+              <div key={f.q} className="flex items-center gap-3">
+                <span className="text-xs font-bold text-muted-foreground w-5 text-right flex-shrink-0">Q{f.q}</span>
+                <div className="flex-1 h-7 bg-secondary rounded-lg overflow-hidden relative">
+                  <div className="h-full rounded-lg transition-all duration-500 flex items-center px-3"
+                    style={{ width: `${Math.max(pct, 2)}%`, background: color }}>
+                    {pct >= 20 && <span className="text-white text-xs font-bold">{pct}%</span>}
+                  </div>
+                  {pct < 20 && <span className="absolute left-2 top-1/2 -translate-y-1/2 text-xs font-bold" style={{ color }}>{pct}%</span>}
+                </div>
+                <span className="text-xs font-semibold w-16 flex-shrink-0 text-right">{f.count} sess.</span>
+                {dropped > 0 && (
+                  <span className="text-xs text-red-500 flex-shrink-0 w-20 text-right">-{dropped} ici</span>
+                )}
               </div>
             );
           })}
         </div>
       </div>
 
-      {/* Leads WhatsApp */}
-      <div className="bg-card border border-border rounded-2xl p-6">
-        <div className="flex items-center gap-2 mb-4">
-          <Phone className="w-4 h-4 text-green-500" />
-          <h2 className="font-semibold">Leads WhatsApp ({leads?.length ?? 0})</h2>
-        </div>
-        {leads?.length > 0 ? (
-          <div className="overflow-x-auto">
-            <table className="w-full text-sm">
-              <thead>
-                <tr className="text-left text-xs text-muted-foreground border-b border-border">
-                  <th className="pb-2 pr-4">Numéro</th>
-                  <th className="pb-2 pr-4">Thème</th>
-                  <th className="pb-2 pr-4">Langue</th>
-                  <th className="pb-2">Date</th>
-                </tr>
-              </thead>
-              <tbody>
-                {leads.map((lead: any, i: number) => (
-                  <tr key={i} className="border-b border-border/50 hover:bg-secondary/30">
-                    <td className="py-2 pr-4 font-mono font-semibold text-green-600">{lead.phone}</td>
-                    <td className="py-2 pr-4">{lead.theme}</td>
-                    <td className="py-2 pr-4">{lead.lang === 'ar' ? '🇲🇷 AR' : '🇫🇷 FR'}</td>
-                    <td className="py-2 text-muted-foreground text-xs">
-                      {new Date(lead.createdAt).toLocaleDateString('fr-FR', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' })}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        ) : (
-          <p className="text-sm text-muted-foreground">Aucun numéro WhatsApp collecté pour l'instant.</p>
-        )}
-      </div>
-
-      {/* Par thème */}
-      <div className="grid grid-cols-1 gap-6">
+      {/* ── Par thème ── */}
+      <div className="space-y-4">
         {byTheme.map((t: any) => (
-          <div key={t.theme} className="bg-card border border-border rounded-2xl p-6">
+          <div key={t.theme} className="bg-card border border-border rounded-2xl overflow-hidden">
 
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
-              <h2 className="text-lg font-bold">{t.theme}</h2>
-              <div className="flex flex-wrap gap-3">
-                <Stat icon={Users} label="Sessions" value={t.totalSessions} color="#6366f1" />
-                <Stat icon={CheckCircle} label="Taux réussite" value={`${t.successRate}%`} color="#10b981" />
-                <Stat icon={TrendingDown} label="Complétion" value={`${t.completionRate}%`} color={t.completionRate >= 50 ? '#10b981' : t.completionRate >= 25 ? '#f59e0b' : '#ef4444'} />
-                <Stat icon={Globe} label="Moy. questions" value={t.avgQuestions} color="#f59e0b" />
+            {/* Thème header */}
+            <div className="px-5 py-4 border-b border-border flex items-center justify-between flex-wrap gap-3">
+              <div className="flex items-center gap-2">
+                <Globe className="w-4 h-4 text-violet-500" />
+                <h3 className="font-bold text-base">{t.theme}</h3>
+              </div>
+              <div className="flex items-center gap-2 flex-wrap">
+                <Badge value={t.totalSessions} label="sessions" color="#6366f1" />
+                <Badge value={`${t.avgQuestions} q.`} label="en moy." color="#f59e0b" />
+                <Badge value={`${t.successRate}%`} label="réussite" color="#10b981" />
+                <Badge
+                  value={`${t.completionRate}%`}
+                  label="complétion"
+                  color={t.completionRate >= 50 ? '#10b981' : t.completionRate >= 25 ? '#f59e0b' : '#ef4444'}
+                />
               </div>
             </div>
 
-            {/* Langue */}
-            <div className="flex gap-3 mb-5">
-              {[
-                { key: 'fr', label: '🇫🇷 Français', count: t.langSplit.fr },
-                { key: 'ar', label: '🇲🇷 Arabe', count: t.langSplit.ar },
-              ].map((l) => (
-                <div key={l.key} className="flex-1 bg-secondary rounded-xl p-3 text-center">
-                  <p className="text-xs text-muted-foreground">{l.label}</p>
-                  <p className="font-bold mt-0.5">{l.count} sessions</p>
-                  <p className="text-xs text-muted-foreground">
-                    {t.totalSessions > 0 ? Math.round((l.count / t.totalSessions) * 100) : 0}%
-                  </p>
-                </div>
-              ))}
-            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-0 md:divide-x divide-border">
 
-            {/* Entonnoir par thème */}
-            <h3 className="text-sm font-semibold text-muted-foreground mb-3">Entonnoir de progression</h3>
-            <div className="space-y-2">
-              {t.funnel.map((f: any, i: number) => {
-                const pct = t.funnel[0].count > 0 ? Math.round((f.count / t.funnel[0].count) * 100) : 0;
-                const dropped = i > 0 ? t.funnel[i - 1].count - f.count : 0;
-                return (
-                  <div key={f.q}>
-                    <div className="flex items-center justify-between text-xs mb-0.5">
-                      <span>Q{f.q}</span>
-                      <div className="flex items-center gap-3">
+              {/* Entonnoir */}
+              <div className="p-5">
+                <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-3">Entonnoir</p>
+                <div className="space-y-1.5">
+                  {t.funnel.map((f: any, i: number) => {
+                    const base = t.funnel[0].count;
+                    const pct = base > 0 ? Math.round((f.count / base) * 100) : 0;
+                    const dropped = i > 0 ? t.funnel[i - 1].count - f.count : 0;
+                    const color = pct >= 70 ? '#10b981' : pct >= 40 ? '#f59e0b' : '#ef4444';
+                    return (
+                      <div key={f.q} className="flex items-center gap-2">
+                        <span className="text-xs text-muted-foreground w-5 text-right flex-shrink-0">Q{f.q}</span>
+                        <div className="flex-1 h-5 bg-secondary rounded overflow-hidden relative">
+                          <div className="h-full rounded transition-all duration-300"
+                            style={{ width: `${Math.max(pct, 2)}%`, background: color }} />
+                        </div>
+                        <span className="text-xs font-bold w-8 flex-shrink-0" style={{ color }}>{pct}%</span>
                         {dropped > 0 && (
-                          <span className="text-red-500">{dropped} abandon{dropped > 1 ? 's' : ''} ({100 - pct}%)</span>
+                          <span className="text-[10px] text-red-500 w-12 flex-shrink-0">-{dropped}</span>
                         )}
-                        <span className="font-semibold">{f.count} · {pct}%</span>
                       </div>
-                    </div>
-                    <div className="h-2 bg-secondary rounded-full overflow-hidden">
-                      <div
-                        className="h-full rounded-full"
-                        style={{
-                          width: `${pct}%`,
-                          background: pct >= 60 ? '#10b981' : pct >= 30 ? '#f59e0b' : '#ef4444',
-                        }}
-                      />
-                    </div>
+                    );
+                  })}
+                </div>
+              </div>
+
+              {/* Langue + point de chute */}
+              <div className="p-5 space-y-4">
+                <div>
+                  <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-3">Langue</p>
+                  <div className="space-y-2">
+                    {[
+                      { flag: '🇫🇷', label: 'Français', count: t.langSplit.fr },
+                      { flag: '🇲🇷', label: 'Arabe',    count: t.langSplit.ar },
+                    ].map((l) => {
+                      const pct = t.totalSessions > 0 ? Math.round((l.count / t.totalSessions) * 100) : 0;
+                      return (
+                        <div key={l.label} className="flex items-center gap-2">
+                          <span className="text-sm">{l.flag}</span>
+                          <div className="flex-1 h-4 bg-secondary rounded overflow-hidden">
+                            <div className="h-full rounded bg-violet-500/70" style={{ width: `${pct}%` }} />
+                          </div>
+                          <span className="text-xs font-semibold w-16 text-right">{l.count} ({pct}%)</span>
+                        </div>
+                      );
+                    })}
                   </div>
-                );
-              })}
+                </div>
+
+                {/* Point de chute principal */}
+                {(() => {
+                  const biggestDrop = t.funnel.reduce((acc: any, f: any, i: number) => {
+                    if (i === 0) return acc;
+                    const dropped = t.funnel[i - 1].count - f.count;
+                    return dropped > (acc?.dropped ?? 0) ? { q: f.q, dropped } : acc;
+                  }, null);
+                  if (!biggestDrop || biggestDrop.dropped === 0) return null;
+                  return (
+                    <div className="bg-red-500/10 border border-red-500/20 rounded-xl p-3">
+                      <p className="text-xs font-semibold text-red-600">⚠️ Point de chute principal</p>
+                      <p className="text-sm font-bold mt-0.5">Question {biggestDrop.q} — {biggestDrop.dropped} abandon{biggestDrop.dropped > 1 ? 's' : ''}</p>
+                    </div>
+                  );
+                })()}
+              </div>
             </div>
           </div>
         ))}
 
         {byTheme.length === 0 && (
-          <div className="text-center py-16 text-muted-foreground">
-            <FlaskConical className="w-10 h-10 mx-auto mb-3 opacity-30" />
-            <p>Aucune session free trial enregistrée.</p>
-            <p className="text-xs mt-1">Les données apparaîtront dès qu'un utilisateur répond à une question.</p>
+          <div className="text-center py-16 text-muted-foreground bg-card border border-border rounded-2xl">
+            <FlaskConical className="w-10 h-10 mx-auto mb-3 opacity-20" />
+            <p className="font-medium">Aucune session enregistrée</p>
+            <p className="text-xs mt-1">Les données apparaissent dès qu'un visiteur répond à une question.</p>
           </div>
         )}
       </div>
@@ -182,14 +230,11 @@ export default function FreeTrialStatsPage() {
   );
 }
 
-function Stat({ icon: Icon, label, value, color }: { icon: any; label: string; value: any; color: string }) {
+function Badge({ value, label, color }: { value: any; label: string; color: string }) {
   return (
-    <div className="bg-secondary rounded-xl px-4 py-2.5 flex items-center gap-2.5 min-w-[110px]">
-      <Icon className="w-4 h-4 flex-shrink-0" style={{ color }} />
-      <div>
-        <p className="font-bold text-sm">{value}</p>
-        <p className="text-xs text-muted-foreground">{label}</p>
-      </div>
+    <div className="flex flex-col items-center px-3 py-1.5 rounded-xl border border-border bg-secondary/50 min-w-[60px]">
+      <span className="text-sm font-extrabold" style={{ color }}>{value}</span>
+      <span className="text-[10px] text-muted-foreground">{label}</span>
     </div>
   );
 }
