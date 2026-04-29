@@ -541,18 +541,43 @@ export class AdminService {
       orderBy: { createdAt: 'desc' },
     });
 
-    // Collecter toutes les IP uniques pour la géolocalisation
-    const allIps = new Set<string>();
+    const normalizeIp = (ip: string): string => {
+      if (!ip) return ip;
+      // Convertir IPv4-mappée-en-IPv6 : ::ffff:1.2.3.4 → 1.2.3.4
+      if (ip.startsWith('::ffff:')) return ip.slice(7);
+      return ip;
+    };
+
+    const isPublicIp = (ip: string): boolean => {
+      const n = normalizeIp(ip);
+      if (!n || n === 'unknown' || n === '::1' || n === 'localhost') return false;
+      const parts = n.split('.').map(Number);
+      if (parts.length !== 4 || parts.some(isNaN)) return false; // IPv6 pur = traité comme privé
+      const [a, b] = parts;
+      // Exclure toutes les plages privées / CGNAT / spéciales
+      return !(
+        a === 127 ||                           // loopback
+        a === 10 ||                            // RFC 1918
+        (a === 172 && b >= 16 && b <= 31) ||   // RFC 1918
+        (a === 192 && b === 168) ||            // RFC 1918
+        (a === 100 && b >= 64 && b <= 127) ||  // RFC 6598 CGNAT (opérateurs mobiles)
+        (a === 169 && b === 254) ||            // link-local
+        a === 0
+      );
+    };
+
+    // Collecter uniquement les IP publiques pour la géolocalisation
+    const publicIps = new Set<string>();
     for (const s of sessions) {
-      if (s.ipAddress && s.ipAddress !== 'unknown' && s.user?.role !== 'ADMIN') {
-        allIps.add(s.ipAddress);
-      }
+      if (s.user?.role === 'ADMIN') continue;
+      const n = normalizeIp(s.ipAddress);
+      if (isPublicIp(n)) publicIps.add(n);
     }
 
     const geoMap = new Map<string, { country: string; city: string; countryCode: string }>();
-    if (allIps.size > 0) {
+    if (publicIps.size > 0) {
       try {
-        const ipList = [...allIps].slice(0, 100);
+        const ipList = [...publicIps].slice(0, 100);
         const controller = new AbortController();
         const timeout = setTimeout(() => controller.abort(), 5000);
         const resp = await fetch(
@@ -579,18 +604,19 @@ export class AdminService {
     const userMap = new Map<string, {
       user: { id: string; fullName: string; email: string; role: string };
       sessions: typeof sessions;
-      uniqueIps: Set<string>;
+      publicUniqueIps: Set<string>;
       lastActive: Date;
     }>();
 
     for (const s of sessions) {
       if (!s.userId || !s.user || s.user.role === 'ADMIN') continue;
       if (!userMap.has(s.userId)) {
-        userMap.set(s.userId, { user: s.user, sessions: [], uniqueIps: new Set(), lastActive: s.lastActive });
+        userMap.set(s.userId, { user: s.user, sessions: [], publicUniqueIps: new Set(), lastActive: s.lastActive });
       }
       const entry = userMap.get(s.userId)!;
       entry.sessions.push(s);
-      if (s.ipAddress && s.ipAddress !== 'unknown') entry.uniqueIps.add(s.ipAddress);
+      const n = normalizeIp(s.ipAddress);
+      if (isPublicIp(n)) entry.publicUniqueIps.add(n);
       if (s.lastActive > entry.lastActive) entry.lastActive = s.lastActive;
     }
 
@@ -601,22 +627,26 @@ export class AdminService {
         email: entry.user.email,
         role: entry.user.role,
         sessionCount: entry.sessions.length,
-        uniqueIpCount: entry.uniqueIps.size,
-        suspicious: entry.uniqueIps.size > 3,
+        uniqueIpCount: entry.publicUniqueIps.size,
+        suspicious: entry.publicUniqueIps.size > 3,
         lastActive: entry.lastActive,
-        uniqueIpList: [...entry.uniqueIps].map((ip) => ({
+        uniqueIpList: [...entry.publicUniqueIps].map((ip) => ({
           ip,
           geo: geoMap.get(ip) ?? null,
         })),
-        recentSessions: entry.sessions.slice(0, 10).map((s) => ({
-          id: s.id,
-          ipAddress: s.ipAddress,
-          geo: geoMap.get(s.ipAddress) ?? null,
-          deviceInfo: s.deviceInfo,
-          createdAt: s.createdAt,
-          lastActive: s.lastActive,
-          isActive: s.isActive,
-        })),
+        recentSessions: entry.sessions.slice(0, 10).map((s) => {
+          const n = normalizeIp(s.ipAddress);
+          return {
+            id: s.id,
+            ipAddress: n,
+            isPrivate: !isPublicIp(n),
+            geo: geoMap.get(n) ?? null,
+            deviceInfo: s.deviceInfo,
+            createdAt: s.createdAt,
+            lastActive: s.lastActive,
+            isActive: s.isActive,
+          };
+        }),
       }))
       .sort((a, b) => b.uniqueIpCount - a.uniqueIpCount);
 

@@ -12,6 +12,7 @@ type Geo = { country: string; city: string; countryCode: string } | null;
 type Session = {
   id: string;
   ipAddress: string;
+  isPrivate: boolean;
   geo: Geo;
   deviceInfo: string;
   createdAt: string;
@@ -63,10 +64,12 @@ function IpBadge({ ip, geo }: { ip: string; geo: Geo }) {
     <div className="flex items-center gap-2 px-3 py-1.5 bg-white dark:bg-slate-800 border border-border rounded-xl text-sm">
       <span className="text-lg leading-none">{flag(geo?.countryCode)}</span>
       <span className="font-mono font-semibold text-foreground">{ip}</span>
-      {geo && (
+      {geo ? (
         <span className="text-xs text-muted-foreground border-l border-border pl-2">
           {geo.city}, {geo.country}
         </span>
+      ) : (
+        <span className="text-xs text-amber-500 border-l border-border pl-2">réseau opérateur</span>
       )}
     </div>
   );
@@ -139,11 +142,12 @@ function SuspectCard({ u, expanded, onToggle }: {
               const Icon = ua.icon;
               return (
                 <div key={s.id} className="flex items-center gap-3 p-3 rounded-xl bg-muted/30 border border-border text-sm">
-                  <span className="text-lg leading-none flex-shrink-0">{flag(s.geo?.countryCode)}</span>
+                  <span className="text-lg leading-none flex-shrink-0">{s.isPrivate ? '📡' : flag(s.geo?.countryCode)}</span>
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 flex-wrap">
                       <span className="font-mono font-semibold text-foreground text-xs">{s.ipAddress || '—'}</span>
                       {s.geo && <span className="text-xs text-muted-foreground">{s.geo.city}, {s.geo.country}</span>}
+                      {s.isPrivate && <span className="text-xs text-amber-500 bg-amber-50 dark:bg-amber-500/10 px-1.5 py-0.5 rounded-md">réseau opérateur (CGNAT)</span>}
                     </div>
                     <div className="flex items-center gap-2 mt-0.5">
                       <Icon className="w-3 h-3 text-muted-foreground" />
@@ -351,13 +355,12 @@ export default function SecuritePage() {
                         <p className="text-xs text-muted-foreground">{u.email}</p>
                       </td>
                       <td className="px-4 py-3">
-                        {u.uniqueIpList[0] ? (
+                        {u.recentSessions[0] ? (
                           <span className="flex items-center gap-1.5 text-xs">
-                            <span className="text-base">{flag(u.uniqueIpList[0].geo?.countryCode)}</span>
-                            <span className="font-mono text-foreground">{u.uniqueIpList[0].ip}</span>
-                            {u.uniqueIpList[0].geo && (
-                              <span className="text-muted-foreground">· {u.uniqueIpList[0].geo.city}</span>
-                            )}
+                            <span className="text-base leading-none">{u.recentSessions[0].isPrivate ? '📡' : flag(u.recentSessions[0].geo?.countryCode)}</span>
+                            <span className="font-mono text-foreground">{u.recentSessions[0].ipAddress}</span>
+                            {u.recentSessions[0].geo && <span className="text-muted-foreground">· {u.recentSessions[0].geo.city}</span>}
+                            {u.recentSessions[0].isPrivate && <span className="text-amber-500">CGNAT</span>}
                           </span>
                         ) : <span className="text-muted-foreground text-xs">—</span>}
                       </td>
@@ -436,10 +439,11 @@ export default function SecuritePage() {
                                       return (
                                         <tr key={s.id}>
                                           <td className="px-3 py-2">
-                                            <span className="flex items-center gap-1.5">
-                                              <span className="text-base">{flag(s.geo?.countryCode)}</span>
+                                            <span className="flex items-center gap-1.5 flex-wrap">
+                                              <span className="text-base leading-none">{s.isPrivate ? '📡' : flag(s.geo?.countryCode)}</span>
                                               <span className="font-mono font-semibold text-foreground">{s.ipAddress || '—'}</span>
-                                              {s.geo && <span className="text-muted-foreground">{s.geo.city}</span>}
+                                              {s.geo && <span className="text-muted-foreground">{s.geo.city}, {s.geo.country}</span>}
+                                              {s.isPrivate && <span className="text-amber-500 text-xs bg-amber-50 dark:bg-amber-500/10 px-1.5 py-0.5 rounded-md">CGNAT</span>}
                                             </span>
                                           </td>
                                           <td className="px-3 py-2">
