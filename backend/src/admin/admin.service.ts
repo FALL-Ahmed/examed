@@ -709,11 +709,12 @@ export class AdminService {
       const avgQuestions = totalSessions > 0
         ? Math.round((sessions.reduce((sum, s) => sum + s.maxQ, 0) / totalSessions) * 10) / 10
         : 0;
-      const completions = sessions.filter((s) => s.maxQ >= 5).length;
+      const maxQ = Math.max(...themeEvents.map((e) => e.questionN), 1);
+      const completions = sessions.filter((s) => s.maxQ >= maxQ).length;
 
-      const funnel = [1, 2, 3, 4, 5].map((n) => ({
-        q: n,
-        count: sessions.filter((s) => s.maxQ >= n).length,
+      const funnel = Array.from({ length: maxQ }, (_, i) => ({
+        q: i + 1,
+        count: sessions.filter((s) => s.maxQ >= i + 1).length,
       }));
 
       const totalAnswers = themeEvents.length;
@@ -741,9 +742,10 @@ export class AdminService {
       if (e.questionN > cur) allBySession.set(e.sessionId, e.questionN);
     }
     const allSessions = [...allBySession.values()];
-    const globalFunnel = [1, 2, 3, 4, 5].map((n) => ({
-      q: n,
-      count: allSessions.filter((m) => m >= n).length,
+    const globalMaxQ = events.length > 0 ? Math.max(...events.map((e) => e.questionN)) : 10;
+    const globalFunnel = Array.from({ length: globalMaxQ }, (_, i) => ({
+      q: i + 1,
+      count: allSessions.filter((m) => m >= i + 1).length,
     }));
 
     return { byTheme, globalFunnel, totalSessions: allBySession.size, period: '30 derniers jours' };

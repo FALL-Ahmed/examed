@@ -49,7 +49,7 @@ export default function FreeTrialStatsPage() {
                   <div className="flex items-center gap-4">
                     {dropped > 0 && (
                       <span className="text-red-500 text-xs flex items-center gap-1">
-                        <TrendingDown className="w-3 h-3" /> -{dropped} abandons
+                        <TrendingDown className="w-3 h-3" /> {dropped} abandon{dropped > 1 ? 's' : ''}
                       </span>
                     )}
                     <span className="font-bold">{f.count} sessions ({pct}%)</span>
@@ -113,7 +113,7 @@ export default function FreeTrialStatsPage() {
                       <span>Q{f.q}</span>
                       <div className="flex items-center gap-3">
                         {dropped > 0 && (
-                          <span className="text-red-500">-{dropped} ({100 - pct}% arrêtent ici)</span>
+                          <span className="text-red-500">{dropped} abandon{dropped > 1 ? 's' : ''} ({100 - pct}%)</span>
                         )}
                         <span className="font-semibold">{f.count} · {pct}%</span>
                       </div>
