@@ -464,7 +464,7 @@ export default function PaymentPage() {
       <div>
         <div className="text-center mb-8">
           <h2 className="text-xl font-bold">Choisissez votre opérateur</h2>
-          <p className="text-sm text-muted-foreground mt-1">Sélectionnez pour voir les instructions et soumettre votre reçu</p>
+          <p className="text-sm text-muted-foreground mt-1">Cliquez pour soumettre votre reçu</p>
         </div>
         <div className="grid grid-cols-3 gap-5">
           {operators.map((op) => (
@@ -480,6 +480,9 @@ export default function PaymentPage() {
               />
               <div className="text-center">
                 <p className="font-bold text-sm">{op.name}</p>
+                {op.phone && (
+                  <p className="text-base font-black text-primary tracking-widest mt-1">{op.phone}</p>
+                )}
                 <p className="text-xs text-muted-foreground mt-0.5">Mobile Money</p>
               </div>
             </button>
