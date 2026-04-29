@@ -164,16 +164,14 @@ export class AuthService {
       });
     }
 
-    // Détecter le partage de compte (fire-and-forget, ne bloque pas le login)
-    this.prisma.session.findMany({
-      where: { userId: user.id },
-      select: { deviceId: true },
-    }).then((rows) => {
-      const uniqueDevices = new Set(rows.map((s) => s.deviceId).filter(Boolean));
-      if (uniqueDevices.size === 3) {
+    // Détecter le partage de compte via sessions actives simultanées (fire-and-forget)
+    this.prisma.session.count({
+      where: { userId: user.id, isActive: true },
+    }).then((activeSessions) => {
+      if (activeSessions >= 2) {
         this.push.notifyAdmins(
-          '⚠️ Compte suspect détecté',
-          `${user.fullName} (${user.email}) se connecte depuis 3 appareils différents`,
+          '⚠️ Compte suspect — sessions simultanées',
+          `${user.fullName} (${user.email}) a ${activeSessions} sessions actives en même temps`,
           '/admin/securite',
         );
       }

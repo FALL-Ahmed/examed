@@ -34,6 +34,7 @@ type UserRow = {
   email: string;
   uniqueDeviceCount: number;
   uniqueIpCount: number;
+  activeSessions: number;
   suspicious: boolean;
   sessionCount: number;
   lastActive: string;
@@ -102,7 +103,7 @@ function SuspectCard({ u, expanded, onToggle }: {
           <div className="flex items-center gap-2 flex-wrap">
             <p className="font-bold text-foreground">{u.fullName}</p>
             <span className="bg-red-100 dark:bg-red-500/20 text-red-600 dark:text-red-400 text-xs font-bold px-2 py-0.5 rounded-full">
-              {u.uniqueDeviceCount} appareils différents
+              {u.activeSessions} sessions actives en même temps
             </span>
           </div>
           <p className="text-xs text-muted-foreground">{u.email}</p>
@@ -389,8 +390,8 @@ export default function SecuritePage() {
                 <tr className="border-b border-border text-muted-foreground text-xs uppercase tracking-wider bg-muted/30">
                   <th className="text-left px-4 py-3">Utilisateur</th>
                   <th className="text-left px-4 py-3">Dernière IP</th>
+                  <th className="text-right px-4 py-3">Actives</th>
                   <th className="text-right px-4 py-3">Appareils</th>
-                  <th className="text-right px-4 py-3">Sessions</th>
                   <th className="text-right px-4 py-3">Dernière activité</th>
                   <th className="text-center px-4 py-3">Statut</th>
                   <th className="px-4 py-3 w-10" />
@@ -419,18 +420,19 @@ export default function SecuritePage() {
                         ) : <span className="text-muted-foreground text-xs">—</span>}
                       </td>
                       <td className="px-4 py-3 text-right">
+                        <span className={`text-lg font-black ${
+                          u.activeSessions > 1 ? 'text-red-500'
+                          : 'text-emerald-600 dark:text-emerald-400'
+                        }`}>
+                          {u.activeSessions}
+                        </span>
+                      </td>
+                      <td className="px-4 py-3 text-right">
                         <div className="flex flex-col items-end gap-0.5">
-                          <span className={`text-lg font-black ${
-                            u.uniqueDeviceCount > 2 ? 'text-red-500'
-                            : u.uniqueDeviceCount > 1 ? 'text-amber-500'
-                            : 'text-emerald-600 dark:text-emerald-400'
-                          }`}>
-                            {u.uniqueDeviceCount}
-                          </span>
+                          <span className="font-semibold text-foreground">{u.uniqueDeviceCount}</span>
                           <span className="text-xs text-muted-foreground">{u.uniqueIpCount} IP</span>
                         </div>
                       </td>
-                      <td className="px-4 py-3 text-right text-muted-foreground">{u.sessionCount}</td>
                       <td className="px-4 py-3 text-right text-muted-foreground text-xs">{timeAgo(u.lastActive)}</td>
                       <td className="px-4 py-3 text-center">
                         {u.suspicious ? (

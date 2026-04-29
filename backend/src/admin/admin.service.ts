@@ -622,7 +622,8 @@ export class AdminService {
         sessionCount: entry.sessions.length,
         uniqueDeviceCount: entry.uniqueDeviceIds.size,
         uniqueIpCount: entry.allUniqueIps.size,
-        suspicious: entry.uniqueDeviceIds.size > 2, // >2 appareils distincts = suspect
+        activeSessions: entry.sessions.filter((s) => s.isActive).length,
+        suspicious: entry.sessions.filter((s) => s.isActive).length > 1, // 2+ sessions actives simultanément = partage probable
         lastActive: entry.lastActive,
         uniqueIpList: [...entry.allUniqueIps].map((ip) => ({
           ip,
