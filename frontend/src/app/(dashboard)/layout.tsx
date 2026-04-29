@@ -1,5 +1,5 @@
 'use client';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, Suspense } from 'react';
 import { useRouter, usePathname, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { useAuthStore } from '@/lib/auth-store';
@@ -10,25 +10,51 @@ import {
   BookOpen, RefreshCw, Home, LogOut, Zap, Menu, X, TrendingUp, Sun, Moon, HeadphonesIcon, Heart,
 } from 'lucide-react';
 
+const NAV_ITEMS = [
+  { href: '/dashboard',  icon: Home,           label_key: 'nav.dashboard', color: '#818cf8' },
+  { href: '/practice',   icon: BookOpen,       label_key: 'nav.practice',  color: '#0ea5e9' },
+  { href: '/exam',       icon: Zap,            label_key: 'nav.exam',      color: '#a78bfa' },
+  { href: '/review',     icon: RefreshCw,      label_key: 'nav.review',    color: '#fbbf24' },
+  { href: '/favorites',  icon: Heart,          label_key: 'nav.favorites', color: '#f43f5e' },
+  { href: '/stats',      icon: TrendingUp,     label_key: 'nav.stats',     color: '#38bdf8' },
+  { href: '/support',    icon: HeadphonesIcon, label_key: 'nav.support',   color: '#34d399' },
+];
+
+function NavItems({ onNav }: { onNav?: () => void }) {
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+  const { t } = useLang();
+  const isPracticeResults = pathname.startsWith('/exam/') && searchParams.get('from') === 'practice';
+
+  return (
+    <nav className="flex-1 px-3 py-3 space-y-0.5 overflow-hidden">
+      <p className="text-white/20 text-xs font-semibold uppercase tracking-wider px-3 mb-2">Menu</p>
+      {NAV_ITEMS.map((item) => {
+        const active = isPracticeResults
+          ? item.href === '/practice'
+          : pathname === item.href || pathname.startsWith(item.href + '/');
+        return (
+          <Link key={item.href} href={item.href} onClick={onNav}
+            className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-150
+              ${active ? 'text-white' : 'text-white/50 hover:text-white hover:bg-white/5'}`}
+            style={active ? { background: `${item.color}18`, borderInlineStart: `3px solid ${item.color}` } : {}}
+          >
+            <item.icon className="w-4 h-4 flex-shrink-0" style={{ color: active ? item.color : undefined }} />
+            {t(item.label_key as any)}
+          </Link>
+        );
+      })}
+    </nav>
+  );
+}
+
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   const router = useRouter();
-  const pathname = usePathname();
   const { user, loadUser, logout } = useAuthStore();
   const { theme, toggle } = useTheme();
   const { t, isRTL } = useLang();
-  const searchParams = useSearchParams();
   const [mobileOpen, setMobileOpen] = useState(false);
   const [ready, setReady] = useState(false);
-
-  const navItems = [
-    { href: '/dashboard',  icon: Home,           label: t('nav.dashboard'), color: '#818cf8' },
-    { href: '/practice',   icon: BookOpen,       label: t('nav.practice'),  color: '#0ea5e9' },
-    { href: '/exam',       icon: Zap,            label: t('nav.exam'),      color: '#a78bfa' },
-    { href: '/review',     icon: RefreshCw,      label: t('nav.review'),    color: '#fbbf24' },
-    { href: '/favorites',  icon: Heart,          label: t('nav.favorites'), color: '#f43f5e' },
-    { href: '/stats',      icon: TrendingUp,     label: t('nav.stats'),     color: '#38bdf8' },
-    { href: '/support',    icon: HeadphonesIcon, label: t('nav.support'),   color: '#34d399' },
-  ];
 
   useEffect(() => {
     loadUser().then(() => {
@@ -81,31 +107,10 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         </div>
       </div>
 
-      {/* Nav */}
-      <nav className="flex-1 px-3 py-3 space-y-0.5 overflow-hidden">
-        <p className="text-white/20 text-xs font-semibold uppercase tracking-wider px-3 mb-2">Menu</p>
-        {navItems.map((item) => {
-          const isPracticeResults = pathname.startsWith('/exam/') && searchParams.get('from') === 'practice';
-          const active = isPracticeResults
-            ? item.href === '/practice'
-            : pathname === item.href || pathname.startsWith(item.href + '/');
-          return (
-            <Link key={item.href} href={item.href} onClick={onNav}
-              className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-150 group
-                ${active
-                  ? 'text-white'
-                  : 'text-white/50 hover:text-white hover:bg-white/5'}`}
-              style={active ? {
-                background: `${item.color}18`,
-                borderInlineStart: `3px solid ${item.color}`,
-              } : {}}
-            >
-              <item.icon className="w-4 h-4 flex-shrink-0" style={{ color: active ? item.color : undefined }} />
-              {item.label}
-            </Link>
-          );
-        })}
-      </nav>
+      {/* Nav — isolé dans Suspense pour useSearchParams */}
+      <Suspense fallback={<div className="flex-1" />}>
+        <NavItems onNav={onNav} />
+      </Suspense>
 
       {/* Bottom actions */}
       <div className="px-3 pb-4 border-t border-white/10 pt-3 space-y-1">
