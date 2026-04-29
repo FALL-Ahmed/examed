@@ -1,19 +1,11 @@
 'use client';
 import { useState, useEffect, useCallback } from 'react';
-import dynamic from 'next/dynamic';
 import { adminApi } from '@/lib/api';
 import Link from 'next/link';
 import {
   Globe, AlertTriangle, Users, ShieldCheck, ChevronDown, ChevronUp,
   RefreshCw, MapPin, ExternalLink, Monitor, Smartphone, Clock,
 } from 'lucide-react';
-import type { MapMarker } from './MapView';
-
-const MapView = dynamic(() => import('./MapView'), { ssr: false, loading: () => (
-  <div className="w-full h-full flex items-center justify-center bg-muted/30 rounded-2xl text-muted-foreground text-sm">
-    Chargement de la carte…
-  </div>
-)});
 
 type Geo = { country: string; city: string; countryCode: string; lat?: number; lon?: number } | null;
 
@@ -212,22 +204,6 @@ export default function SecuritePage() {
     ? (filter === 'suspicious' ? suspects : data.users)
     : [];
 
-  const mapMarkers: MapMarker[] = (data?.users ?? []).flatMap((u) =>
-    u.uniqueIpList
-      .filter((ip) => !ip.isPrivate && ip.geo?.lat && ip.geo?.lon)
-      .map((ip) => ({
-        lat: ip.geo!.lat!,
-        lon: ip.geo!.lon!,
-        label: u.fullName,
-        email: u.email,
-        ip: ip.ip,
-        city: ip.geo!.city,
-        country: ip.geo!.country,
-        suspicious: u.suspicious,
-        deviceCount: u.uniqueDeviceCount,
-      }))
-  );
-
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -303,35 +279,6 @@ export default function SecuritePage() {
           </div>
         </div>
       )}
-
-      {/* Carte interactive */}
-      <div className="bg-card border border-border rounded-2xl overflow-hidden">
-        <div className="flex items-center justify-between px-4 py-3 border-b border-border">
-          <div className="flex items-center gap-2">
-            <MapPin className="w-4 h-4 text-blue-500" />
-            <p className="font-semibold text-foreground text-sm">Carte des connexions</p>
-          </div>
-          <div className="flex items-center gap-3 text-xs text-muted-foreground">
-            <span className="flex items-center gap-1.5">
-              <span className="w-3 h-3 rounded-full bg-red-500 inline-block" /> Suspect
-            </span>
-            <span className="flex items-center gap-1.5">
-              <span className="w-3 h-3 rounded-full bg-emerald-500 inline-block" /> Normal
-            </span>
-            {mapMarkers.length === 0 && !loading && (
-              <span className="text-amber-500">Aucune IP publique géolocalisable</span>
-            )}
-          </div>
-        </div>
-        <div className="h-96">
-          {!loading && <MapView markers={mapMarkers} />}
-          {loading && (
-            <div className="w-full h-full flex items-center justify-center bg-muted/20 text-muted-foreground text-sm">
-              Chargement…
-            </div>
-          )}
-        </div>
-      </div>
 
       {/* Section suspects en cartes */}
       {!loading && suspects.length > 0 && (
