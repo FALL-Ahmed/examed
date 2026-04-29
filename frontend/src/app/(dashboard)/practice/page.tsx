@@ -54,6 +54,19 @@ export default function PracticePage() {
     }, 300);
   }, [session, currentIndex, answers]);
 
+  const maxAvailable = (() => {
+    if (config.subThemeId) {
+      const theme = themes.find((t) => t.id === config.themeId);
+      const sub = theme?.subThemes?.find((s: any) => s.id === config.subThemeId);
+      return sub?._count?.questions ?? 50;
+    }
+    if (config.themeId) {
+      const theme = themes.find((t) => t.id === config.themeId);
+      return theme?.subThemes?.reduce((sum: number, s: any) => sum + (s._count?.questions ?? 0), 0) ?? 50;
+    }
+    return 50;
+  })();
+
   async function startSession() {
     setLoading(true);
     setError('');
@@ -62,7 +75,7 @@ export default function PracticePage() {
         mode: 'PRACTICE',
         themeId: config.themeId || undefined,
         subThemeId: config.subThemeId || undefined,
-        count: config.count,
+        count: Math.min(config.count, maxAvailable),
         language: lang.toUpperCase(),
       });
       setSession(data);
@@ -169,12 +182,12 @@ export default function PracticePage() {
                 <span className="text-2xl font-bold text-primary">{config.count}</span>
               </div>
               <input
-                type="range" min={1} max={50} value={config.count}
+                type="range" min={1} max={Math.min(50, maxAvailable)} value={Math.min(config.count, maxAvailable)}
                 onChange={(e) => setConfig({ ...config, count: parseInt(e.target.value) })}
                 className="w-full h-2 rounded-full appearance-none cursor-pointer accent-primary bg-secondary"
               />
               <div className="flex gap-2 flex-wrap mt-4">
-                {[5, 10, 20, 30, 50].map((n) => (
+                {[5, 10, 20, 30, 50].filter((n) => n <= maxAvailable).map((n) => (
                   <button
                     key={n}
                     onClick={() => setConfig({ ...config, count: n })}
