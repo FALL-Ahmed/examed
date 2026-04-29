@@ -68,6 +68,11 @@ const FEATURES_AR = [
   { icon: Zap,           text: 'وصول فوري بعد الدفع' },
 ];
 
+declare function gtag(...args: any[]): void;
+const gtrack = (event: string, params?: Record<string, any>) => {
+  if (typeof gtag !== 'undefined') gtag('event', event, params);
+};
+
 function FreeTrialContent() {
   const searchParams = useSearchParams();
   const themeKey = searchParams.get('theme') || 'Paludisme';
@@ -134,13 +139,15 @@ function FreeTrialContent() {
     publicApi.trackFreeTrialEvent({ sessionId, theme: themeKey, lang, questionN: index + 1, isCorrect });
     if (index === 4 && !waCaptured) {
       setTimeout(() => setShowWaCapture(true), 800);
-    } else if (index === 1 && !promoPopupDismissed && themeKey !== 'Paludisme') {
-      setTimeout(() => setShowMobilePromo(true), 900);
     }
   }
 
   function next() {
-    if (index + 1 >= questions.length) { setDone(true); return; }
+    if (index + 1 >= questions.length) {
+      setDone(true);
+      if (!promoPopupDismissed) setTimeout(() => setShowMobilePromo(true), 600);
+      return;
+    }
     setIndex((i) => i + 1);
     setSelected([]);
     setRevealed(false);
