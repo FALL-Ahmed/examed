@@ -233,6 +233,17 @@ model AdminPushSubscription {
   createdAt DateTime @default(now())
 }
 
+model FreeTrialLead {
+  id        String   @id @default(cuid())
+  sessionId String
+  phone     String
+  theme     String
+  lang      String   @default("fr")
+  createdAt DateTime @default(now())
+
+  @@index([createdAt])
+}
+
 model FreeTrialEvent {
   id        String   @id @default(cuid())
   sessionId String

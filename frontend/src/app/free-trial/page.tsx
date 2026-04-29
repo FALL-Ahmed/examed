@@ -219,6 +219,7 @@ function FreeTrialContent() {
       if (waNumber.trim()) {
         gtrack('lead_whatsapp_captured', { whatsapp: waNumber.trim(), theme: themeKey, lang });
         localStorage.setItem('_wa_lead', waNumber.trim());
+        publicApi.saveFreeTrialLead({ sessionId, phone: waNumber.trim(), theme: themeKey, lang });
       }
       setWaCaptured(true);
       setShowWaCapture(false);

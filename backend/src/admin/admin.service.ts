@@ -748,6 +748,12 @@ export class AdminService {
       count: allSessions.filter((m) => m >= i + 1).length,
     }));
 
-    return { byTheme, globalFunnel, totalSessions: allBySession.size, period: '30 derniers jours' };
+    const leads = await this.prisma.freeTrialLead.findMany({
+      where: { createdAt: { gte: since } },
+      orderBy: { createdAt: 'desc' },
+      select: { phone: true, theme: true, lang: true, createdAt: true },
+    });
+
+    return { byTheme, globalFunnel, totalSessions: allBySession.size, period: '30 derniers jours', leads };
   }
 }

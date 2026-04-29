@@ -170,6 +170,11 @@ export class QuestionsService {
     return { ok: true };
   }
 
+  async saveFreeTrialLead(dto: { sessionId: string; phone: string; theme: string; lang: string }) {
+    await this.prisma.freeTrialLead.create({ data: dto });
+    return { ok: true };
+  }
+
   async getFreeTrialStats() {
     // Toutes les sessions des 30 derniers jours
     const since = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);

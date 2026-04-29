@@ -1,7 +1,7 @@
 'use client';
 import { useEffect, useState } from 'react';
 import { adminApi } from '@/lib/api';
-import { FlaskConical, Users, TrendingDown, CheckCircle, Globe } from 'lucide-react';
+import { FlaskConical, Users, TrendingDown, CheckCircle, Globe, Phone } from 'lucide-react';
 
 export default function FreeTrialStatsPage() {
   const [data, setData] = useState<any>(null);
@@ -19,7 +19,7 @@ export default function FreeTrialStatsPage() {
 
   if (!data) return <p className="text-center text-muted-foreground">Aucune donnée disponible.</p>;
 
-  const { byTheme, globalFunnel, totalSessions, period } = data;
+  const { byTheme, globalFunnel, totalSessions, period, leads } = data;
 
   return (
     <div className="space-y-8">
@@ -68,6 +68,42 @@ export default function FreeTrialStatsPage() {
             );
           })}
         </div>
+      </div>
+
+      {/* Leads WhatsApp */}
+      <div className="bg-card border border-border rounded-2xl p-6">
+        <div className="flex items-center gap-2 mb-4">
+          <Phone className="w-4 h-4 text-green-500" />
+          <h2 className="font-semibold">Leads WhatsApp ({leads?.length ?? 0})</h2>
+        </div>
+        {leads?.length > 0 ? (
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="text-left text-xs text-muted-foreground border-b border-border">
+                  <th className="pb-2 pr-4">Numéro</th>
+                  <th className="pb-2 pr-4">Thème</th>
+                  <th className="pb-2 pr-4">Langue</th>
+                  <th className="pb-2">Date</th>
+                </tr>
+              </thead>
+              <tbody>
+                {leads.map((lead: any, i: number) => (
+                  <tr key={i} className="border-b border-border/50 hover:bg-secondary/30">
+                    <td className="py-2 pr-4 font-mono font-semibold text-green-600">{lead.phone}</td>
+                    <td className="py-2 pr-4">{lead.theme}</td>
+                    <td className="py-2 pr-4">{lead.lang === 'ar' ? '🇲🇷 AR' : '🇫🇷 FR'}</td>
+                    <td className="py-2 text-muted-foreground text-xs">
+                      {new Date(lead.createdAt).toLocaleDateString('fr-FR', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' })}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        ) : (
+          <p className="text-sm text-muted-foreground">Aucun numéro WhatsApp collecté pour l'instant.</p>
+        )}
       </div>
 
       {/* Par thème */}
