@@ -532,4 +532,98 @@ export class AdminService {
 
     return { themesCreated, subThemesCreated, questionsCreated, questionsSkipped };
   }
+
+  async getSessions() {
+    const sessions = await this.prisma.session.findMany({
+      include: {
+        user: { select: { id: true, fullName: true, email: true, role: true } },
+      },
+      orderBy: { createdAt: 'desc' },
+    });
+
+    // Collecter toutes les IP uniques pour la géolocalisation
+    const allIps = new Set<string>();
+    for (const s of sessions) {
+      if (s.ipAddress && s.ipAddress !== 'unknown' && s.user?.role !== 'ADMIN') {
+        allIps.add(s.ipAddress);
+      }
+    }
+
+    const geoMap = new Map<string, { country: string; city: string; countryCode: string }>();
+    if (allIps.size > 0) {
+      try {
+        const ipList = [...allIps].slice(0, 100);
+        const controller = new AbortController();
+        const timeout = setTimeout(() => controller.abort(), 5000);
+        const resp = await fetch(
+          'http://ip-api.com/batch?fields=status,country,countryCode,city,query',
+          {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(ipList.map((ip) => ({ query: ip }))),
+            signal: controller.signal,
+          },
+        );
+        clearTimeout(timeout);
+        if (resp.ok) {
+          const geoData: any[] = await resp.json();
+          for (const r of geoData) {
+            if (r.status === 'success') {
+              geoMap.set(r.query, { country: r.country, city: r.city, countryCode: r.countryCode });
+            }
+          }
+        }
+      } catch {} // ip-api.com est optionnel
+    }
+
+    const userMap = new Map<string, {
+      user: { id: string; fullName: string; email: string; role: string };
+      sessions: typeof sessions;
+      uniqueIps: Set<string>;
+      lastActive: Date;
+    }>();
+
+    for (const s of sessions) {
+      if (!s.userId || !s.user || s.user.role === 'ADMIN') continue;
+      if (!userMap.has(s.userId)) {
+        userMap.set(s.userId, { user: s.user, sessions: [], uniqueIps: new Set(), lastActive: s.lastActive });
+      }
+      const entry = userMap.get(s.userId)!;
+      entry.sessions.push(s);
+      if (s.ipAddress && s.ipAddress !== 'unknown') entry.uniqueIps.add(s.ipAddress);
+      if (s.lastActive > entry.lastActive) entry.lastActive = s.lastActive;
+    }
+
+    const users = Array.from(userMap.values())
+      .map((entry) => ({
+        userId: entry.user.id,
+        fullName: entry.user.fullName,
+        email: entry.user.email,
+        role: entry.user.role,
+        sessionCount: entry.sessions.length,
+        uniqueIpCount: entry.uniqueIps.size,
+        suspicious: entry.uniqueIps.size > 3,
+        lastActive: entry.lastActive,
+        uniqueIpList: [...entry.uniqueIps].map((ip) => ({
+          ip,
+          geo: geoMap.get(ip) ?? null,
+        })),
+        recentSessions: entry.sessions.slice(0, 10).map((s) => ({
+          id: s.id,
+          ipAddress: s.ipAddress,
+          geo: geoMap.get(s.ipAddress) ?? null,
+          deviceInfo: s.deviceInfo,
+          createdAt: s.createdAt,
+          lastActive: s.lastActive,
+          isActive: s.isActive,
+        })),
+      }))
+      .sort((a, b) => b.uniqueIpCount - a.uniqueIpCount);
+
+    return {
+      total: users.length,
+      suspicious: users.filter((u) => u.suspicious).length,
+      users,
+    };
+  }
 }

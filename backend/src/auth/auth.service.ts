@@ -164,6 +164,22 @@ export class AuthService {
       });
     }
 
+    // Détecter le partage de compte (fire-and-forget, ne bloque pas le login)
+    this.prisma.session.findMany({
+      where: { userId: user.id },
+      select: { ipAddress: true },
+      distinct: ['ipAddress'],
+    }).then((rows) => {
+      const realIpCount = rows.filter((s) => s.ipAddress && s.ipAddress !== 'unknown').length;
+      if (realIpCount === 4) {
+        this.push.notifyAdmins(
+          '⚠️ Compte suspect détecté',
+          `${user.fullName} (${user.email}) utilise maintenant 4 IP différentes`,
+          '/admin/securite',
+        );
+      }
+    }).catch(() => {});
+
     const tokens = await this.generateTokens(user.id, user.role, deviceInfo.deviceId);
     return {
       requiresDeviceVerification: false,

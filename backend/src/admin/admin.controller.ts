@@ -162,6 +162,11 @@ export class AdminController {
     return this.adminService.importFromParser(body);
   }
 
+  @Get('sessions')
+  getSessions() {
+    return this.adminService.getSessions();
+  }
+
   @Get('settings')
   getSettings() {
     return this.adminService.getSettings();
