@@ -3,27 +3,33 @@ import Cookies from 'js-cookie';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:3001';
 
-// Générer un deviceId stable côté client
-function getDeviceId(): string {
-  if (typeof window === 'undefined') return 'server';
-  let id = localStorage.getItem('_did');
-  if (!id) {
-    id = `${Date.now()}-${Math.random().toString(36).slice(2)}`;
-    localStorage.setItem('_did', id);
-  }
-  return id;
-}
+// Empreinte stable via FingerprintJS (résiste au vidage du cache/localStorage)
+const fpReady: Promise<string> = typeof window === 'undefined'
+  ? Promise.resolve('server')
+  : (async () => {
+      try {
+        const FP = await import('@fingerprintjs/fingerprintjs');
+        const fp = await FP.default.load();
+        const result = await fp.get();
+        localStorage.setItem('_did', result.visitorId);
+        return result.visitorId;
+      } catch {
+        let id = localStorage.getItem('_did');
+        if (!id) { id = `${Date.now()}-${Math.random().toString(36).slice(2)}`; localStorage.setItem('_did', id); }
+        return id!;
+      }
+    })();
 
 export const api = axios.create({
   baseURL: API_URL,
   headers: { 'Content-Type': 'application/json' },
 });
 
-// Injecter token + deviceId dans chaque requête
-api.interceptors.request.use((config) => {
+// Injecter token + fingerprint dans chaque requête
+api.interceptors.request.use(async (config) => {
   const token = Cookies.get('access_token');
   if (token) config.headers.Authorization = `Bearer ${token}`;
-  config.headers['X-Device-ID'] = getDeviceId();
+  config.headers['X-Device-ID'] = await fpReady;
   return config;
 });
 
@@ -38,7 +44,7 @@ api.interceptors.response.use(
       if (refreshToken) {
         try {
           const { data } = await axios.post(`${API_URL}/auth/refresh`, { refreshToken }, {
-            headers: { 'X-Device-ID': getDeviceId() },
+            headers: { 'X-Device-ID': await fpReady },
           });
           Cookies.set('access_token', data.accessToken, { expires: 1 });
           Cookies.set('refresh_token', data.refreshToken, { expires: 7 });
