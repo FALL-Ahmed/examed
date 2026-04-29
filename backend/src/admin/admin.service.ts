@@ -110,7 +110,7 @@ export class AdminService {
             select: {
               id: true, mode: true, score: true, totalQ: true, correctQ: true,
               timeTaken: true, isCompleted: true, startedAt: true, completedAt: true,
-              subThemeId: true,
+              subThemeId: true, themeId: true,
             },
           },
           payments: {
@@ -142,19 +142,29 @@ export class AdminService {
       }),
     ]);
 
-    // Enrichir les sous-thèmes (pour les attempts et le top)
+    // Enrichir les sous-thèmes et thèmes (pour les attempts et le top)
     const allSubThemeIds = [
       ...attemptsByTheme.map((a) => a.subThemeId),
       ...(user?.attempts ?? []).map((a: any) => a.subThemeId),
     ].filter(Boolean) as string[];
-    const uniqueIds = [...new Set(allSubThemeIds)];
-    const subThemes = uniqueIds.length
-      ? await this.prisma.subTheme.findMany({
-          where: { id: { in: uniqueIds } },
-          select: { id: true, name: true, theme: { select: { name: true } } },
-        })
-      : [];
+    const allThemeIds = (user?.attempts ?? []).map((a: any) => a.themeId).filter(Boolean) as string[];
+
+    const [subThemes, themes] = await Promise.all([
+      allSubThemeIds.length
+        ? this.prisma.subTheme.findMany({
+            where: { id: { in: [...new Set(allSubThemeIds)] } },
+            select: { id: true, name: true, theme: { select: { id: true, name: true, language: true } } },
+          })
+        : [],
+      allThemeIds.length
+        ? this.prisma.theme.findMany({
+            where: { id: { in: [...new Set(allThemeIds)] } },
+            select: { id: true, name: true, language: true },
+          })
+        : [],
+    ]);
     const subThemeMap = Object.fromEntries(subThemes.map((s) => [s.id, s]));
+    const themeMap = Object.fromEntries(themes.map((t) => [t.id, t]));
 
     const avgScore = (user?.attempts ?? []).filter((a: any) => a.isCompleted && a.totalQ > 0)
       .reduce((acc: any, a: any, _: any, arr: any) => acc + a.score / arr.length, 0) ?? 0;
@@ -162,6 +172,7 @@ export class AdminService {
     const attempts = (user?.attempts ?? []).map((a: any) => ({
       ...a,
       subTheme: subThemeMap[a.subThemeId] ?? null,
+      theme: a.subThemeId ? (subThemeMap[a.subThemeId]?.theme ?? null) : (themeMap[a.themeId] ?? null),
     }));
 
     return {

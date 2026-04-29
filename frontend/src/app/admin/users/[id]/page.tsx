@@ -206,6 +206,18 @@ export default function UserDetailPage() {
               <h1 className="text-xl font-bold text-slate-900">{user.fullName}</h1>
               <span className={`px-2.5 py-0.5 rounded-full text-xs font-semibold ${roleCls}`}>{roleLabel}</span>
               {!user.isActive && <span className="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-slate-100 text-slate-500">Désactivé</span>}
+              {(() => {
+                const langs = (user.attempts ?? []).map((a: any) => a.theme?.language).filter(Boolean);
+                const arCount = langs.filter((l: string) => l === 'AR').length;
+                const frCount = langs.filter((l: string) => l === 'FR').length;
+                if (!langs.length) return null;
+                const dominant = arCount >= frCount ? 'AR' : 'FR';
+                return (
+                  <span className="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-indigo-100 text-indigo-700">
+                    🌐 {dominant}
+                  </span>
+                );
+              })()}
             </div>
             {user.pseudo && <p className="text-slate-400 text-sm">@{user.pseudo}</p>}
             {act?.lastSeen && (
@@ -334,7 +346,12 @@ export default function UserDetailPage() {
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2 flex-wrap mb-0.5">
                           <span className={`text-xs font-semibold px-2 py-0.5 rounded-full ${mode.color}`}>{mode.label}</span>
-                          {a.subTheme && <span className="text-xs text-slate-500 truncate">{a.subTheme.theme?.name} › {a.subTheme.name}</span>}
+                          {a.subTheme
+                            ? <span className="text-xs text-slate-500 truncate">{a.subTheme.theme?.name} › {a.subTheme.name}</span>
+                            : a.theme
+                            ? <span className="text-xs text-slate-500 truncate">{a.theme.name}</span>
+                            : null}
+                          {a.theme?.language && <span className="text-xs font-bold px-1.5 py-0.5 rounded bg-slate-100 text-slate-500">{a.theme.language}</span>}
                         </div>
                         <p className="text-xs text-slate-400">{new Date(a.startedAt).toLocaleDateString('fr-FR', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' })}</p>
                       </div>
