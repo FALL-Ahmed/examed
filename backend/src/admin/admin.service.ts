@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import * as bcrypt from 'bcryptjs';
+import axios from 'axios';
 import { PrismaService } from '../prisma/prisma.service';
 
 @Injectable()
@@ -574,28 +575,18 @@ export class AdminService {
       if (isPublicIp(n)) publicIps.add(n);
     }
 
-    const geoMap = new Map<string, { country: string; city: string; countryCode: string }>();
+    const geoMap = new Map<string, { country: string; city: string; countryCode: string; lat: number; lon: number }>();
     if (publicIps.size > 0) {
       try {
         const ipList = [...publicIps].slice(0, 100);
-        const controller = new AbortController();
-        const timeout = setTimeout(() => controller.abort(), 5000);
-        const resp = await fetch(
+        const { data: geoData } = await axios.post<any[]>(
           'http://ip-api.com/batch?fields=status,country,countryCode,city,lat,lon,query',
-          {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(ipList.map((ip) => ({ query: ip }))),
-            signal: controller.signal,
-          },
+          ipList.map((ip) => ({ query: ip })),
+          { timeout: 5000 },
         );
-        clearTimeout(timeout);
-        if (resp.ok) {
-          const geoData: any[] = await resp.json();
-          for (const r of geoData) {
-            if (r.status === 'success') {
-              geoMap.set(r.query, { country: r.country, city: r.city, countryCode: r.countryCode, lat: r.lat, lon: r.lon });
-            }
+        for (const r of geoData) {
+          if (r.status === 'success') {
+            geoMap.set(r.query, { country: r.country, city: r.city, countryCode: r.countryCode, lat: r.lat, lon: r.lon });
           }
         }
       } catch {} // ip-api.com est optionnel
