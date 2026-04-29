@@ -12,6 +12,8 @@ const withPWA = require('@ducanh2912/next-pwa').default({
 const nextConfig = {
   images: {
     remotePatterns: [{ hostname: 'localhost' }],
+    formats: ['image/webp'],
+    minimumCacheTTL: 604800, // 7 jours
   },
   env: {
     NEXT_PUBLIC_API_URL: process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001',
