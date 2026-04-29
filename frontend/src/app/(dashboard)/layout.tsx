@@ -1,6 +1,6 @@
 'use client';
 import { useEffect, useState } from 'react';
-import { useRouter, usePathname } from 'next/navigation';
+import { useRouter, usePathname, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { useAuthStore } from '@/lib/auth-store';
 import { useTheme } from '@/components/ThemeProvider';
@@ -16,6 +16,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   const { user, loadUser, logout } = useAuthStore();
   const { theme, toggle } = useTheme();
   const { t, isRTL } = useLang();
+  const searchParams = useSearchParams();
   const [mobileOpen, setMobileOpen] = useState(false);
   const [ready, setReady] = useState(false);
 
@@ -84,7 +85,10 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
       <nav className="flex-1 px-3 py-3 space-y-0.5 overflow-hidden">
         <p className="text-white/20 text-xs font-semibold uppercase tracking-wider px-3 mb-2">Menu</p>
         {navItems.map((item) => {
-          const active = pathname === item.href || pathname.startsWith(item.href + '/');
+          const isPracticeResults = pathname.startsWith('/exam/') && searchParams.get('from') === 'practice';
+          const active = isPracticeResults
+            ? item.href === '/practice'
+            : pathname === item.href || pathname.startsWith(item.href + '/');
           return (
             <Link key={item.href} href={item.href} onClick={onNav}
               className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-150 group

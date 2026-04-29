@@ -104,7 +104,11 @@ export default function PracticePage() {
     if (currentIndex + 1 >= session.questions.length) {
       localStorage.removeItem(PRACTICE_KEY);
       attemptsApi.finish(session.attemptId).catch(() => {});
-      router.push(`/exam/${session.attemptId}/results`);
+      const params = new URLSearchParams({ from: 'practice' });
+      if (config.themeId) params.set('themeId', config.themeId);
+      if (config.subThemeId) params.set('subThemeId', config.subThemeId);
+      params.set('count', String(Math.min(config.count, maxAvailable)));
+      router.push(`/exam/${session.attemptId}/results?${params}`);
     } else {
       setCurrentIndex((i) => i + 1);
     }

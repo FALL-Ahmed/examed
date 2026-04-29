@@ -233,6 +233,19 @@ model AdminPushSubscription {
   createdAt DateTime @default(now())
 }
 
+model FreeTrialEvent {
+  id        String   @id @default(cuid())
+  sessionId String
+  theme     String
+  lang      String   @default("fr")
+  questionN Int
+  isCorrect Boolean
+  createdAt DateTime @default(now())
+
+  @@index([theme, createdAt])
+  @@index([sessionId])
+}
+
 model DeviceVerification {
   id                String   @id @default(cuid())
   userId            String

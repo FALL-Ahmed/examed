@@ -682,4 +682,70 @@ export class AdminService {
       users,
     };
   }
+
+  async getFreeTrialStats() {
+    const since = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
+    const events = await this.prisma.freeTrialEvent.findMany({
+      where: { createdAt: { gte: since } },
+      orderBy: { createdAt: 'asc' },
+    });
+
+    const themeKeys = [...new Set(events.map((e) => e.theme))].sort();
+
+    const byTheme = themeKeys.map((theme) => {
+      const themeEvents = events.filter((e) => e.theme === theme);
+      const bySession = new Map<string, { maxQ: number; correct: number; total: number }>();
+
+      for (const e of themeEvents) {
+        const s = bySession.get(e.sessionId) ?? { maxQ: 0, correct: 0, total: 0 };
+        if (e.questionN > s.maxQ) s.maxQ = e.questionN;
+        s.total++;
+        if (e.isCorrect) s.correct++;
+        bySession.set(e.sessionId, s);
+      }
+
+      const sessions = [...bySession.values()];
+      const totalSessions = sessions.length;
+      const avgQuestions = totalSessions > 0
+        ? Math.round((sessions.reduce((sum, s) => sum + s.maxQ, 0) / totalSessions) * 10) / 10
+        : 0;
+      const completions = sessions.filter((s) => s.maxQ >= 5).length;
+
+      const funnel = [1, 2, 3, 4, 5].map((n) => ({
+        q: n,
+        count: sessions.filter((s) => s.maxQ >= n).length,
+      }));
+
+      const totalAnswers = themeEvents.length;
+      const correctAnswers = themeEvents.filter((e) => e.isCorrect).length;
+      const successRate = totalAnswers > 0 ? Math.round((correctAnswers / totalAnswers) * 100) : 0;
+
+      return {
+        theme,
+        totalSessions,
+        avgQuestions,
+        completionRate: totalSessions > 0 ? Math.round((completions / totalSessions) * 100) : 0,
+        successRate,
+        funnel,
+        langSplit: {
+          fr: new Set(themeEvents.filter((e) => e.lang === 'fr').map((e) => e.sessionId)).size,
+          ar: new Set(themeEvents.filter((e) => e.lang === 'ar').map((e) => e.sessionId)).size,
+        },
+      };
+    });
+
+    // Entonnoir global (tous thèmes)
+    const allBySession = new Map<string, number>();
+    for (const e of events) {
+      const cur = allBySession.get(e.sessionId) ?? 0;
+      if (e.questionN > cur) allBySession.set(e.sessionId, e.questionN);
+    }
+    const allSessions = [...allBySession.values()];
+    const globalFunnel = [1, 2, 3, 4, 5].map((n) => ({
+      q: n,
+      count: allSessions.filter((m) => m >= n).length,
+    }));
+
+    return { byTheme, globalFunnel, totalSessions: allBySession.size, period: '30 derniers jours' };
+  }
 }

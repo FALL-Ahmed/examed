@@ -35,9 +35,16 @@ export class AttemptsService {
         language: dto.language,
       });
     } else if (dto.mode === 'REVIEW') {
-      questions = await this.questionsService.getMistakes(userId);
-      if (!questions.length) throw new BadRequestException('Aucune erreur à réviser');
-      questions = questions.slice(0, dto.count || 20);
+      if (dto.questionIds?.length) {
+        questions = await this.prisma.question.findMany({
+          where: { id: { in: dto.questionIds }, isActive: true },
+          include: { subTheme: { include: { theme: true } } },
+        });
+      } else {
+        questions = await this.questionsService.getMistakes(userId);
+        if (!questions.length) throw new BadRequestException('Aucune erreur à réviser');
+        questions = questions.slice(0, dto.count || 20);
+      }
     } else {
       // PRACTICE
       if (userRole === 'FREE') {

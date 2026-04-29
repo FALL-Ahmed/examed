@@ -164,4 +164,66 @@ export class QuestionsService {
     });
     return favs.map((f: any) => f.questionId);
   }
+
+  async trackFreeTrialEvent(dto: { sessionId: string; theme: string; lang: string; questionN: number; isCorrect: boolean }) {
+    await this.prisma.freeTrialEvent.create({ data: dto });
+    return { ok: true };
+  }
+
+  async getFreeTrialStats() {
+    // Toutes les sessions des 30 derniers jours
+    const since = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
+    const events = await this.prisma.freeTrialEvent.findMany({
+      where: { createdAt: { gte: since } },
+      orderBy: { createdAt: 'asc' },
+    });
+
+    const themes = [...new Set(events.map((e) => e.theme))];
+
+    return themes.map((theme) => {
+      const themeEvents = events.filter((e) => e.theme === theme);
+      const bySession = new Map<string, { maxQ: number; correct: number; total: number }>();
+
+      for (const e of themeEvents) {
+        const s = bySession.get(e.sessionId) ?? { maxQ: 0, correct: 0, total: 0 };
+        if (e.questionN > s.maxQ) s.maxQ = e.questionN;
+        s.total++;
+        if (e.isCorrect) s.correct++;
+        bySession.set(e.sessionId, s);
+      }
+
+      const sessions = [...bySession.values()];
+      const totalSessions = sessions.length;
+      const avgQuestions = totalSessions > 0
+        ? Math.round((sessions.reduce((sum, s) => sum + s.maxQ, 0) / totalSessions) * 10) / 10
+        : 0;
+      const completions = sessions.filter((s) => s.maxQ >= 5).length;
+
+      // Entonnoir : combien de sessions ont atteint chaque question
+      const funnel = [1, 2, 3, 4, 5].map((n) => ({
+        q: n,
+        count: sessions.filter((s) => s.maxQ >= n).length,
+      }));
+
+      const totalAnswers = themeEvents.length;
+      const correctAnswers = themeEvents.filter((e) => e.isCorrect).length;
+      const successRate = totalAnswers > 0 ? Math.round((correctAnswers / totalAnswers) * 100) : 0;
+
+      const frSessions = themeEvents.filter((e) => e.lang === 'fr').map((e) => e.sessionId);
+      const arSessions = themeEvents.filter((e) => e.lang === 'ar').map((e) => e.sessionId);
+
+      return {
+        theme,
+        totalSessions,
+        avgQuestions,
+        completionRate: totalSessions > 0 ? Math.round((completions / totalSessions) * 100) : 0,
+        successRate,
+        funnel,
+        langSplit: {
+          fr: new Set(frSessions).size,
+          ar: new Set(arSessions).size,
+        },
+      };
+    });
+  }
 }

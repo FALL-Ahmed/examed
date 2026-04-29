@@ -1,6 +1,6 @@
 'use client';
 import { useEffect, useState } from 'react';
-import { useParams } from 'next/navigation';
+import { useParams, useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { attemptsApi } from '@/lib/api';
 import { CheckCircle, XCircle, ChevronDown, ChevronUp, RotateCcw, RefreshCw, Clock, Target } from 'lucide-react';
@@ -9,12 +9,20 @@ import { sentenceCase, resolveImageUrl } from '@/lib/utils';
 
 export default function ResultsPage() {
   const { attemptId } = useParams<{ attemptId: string }>();
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const fromPractice = searchParams.get('from') === 'practice';
+  const practiceThemeId = searchParams.get('themeId') ?? undefined;
+  const practiceSubThemeId = searchParams.get('subThemeId') ?? undefined;
+  const practiceCount = parseInt(searchParams.get('count') || '10');
   const [review, setReview] = useState<any>(null);
   const [expanded, setExpanded] = useState<string | null>(null);
   const { t, lang } = useLang();
   const isAr = lang === 'ar';
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState<'all' | 'correct' | 'wrong'>('all');
+  const [reviewLoading, setReviewLoading] = useState(false);
+  const [retryLoading, setRetryLoading] = useState(false);
 
   useEffect(() => {
     attemptsApi.review(attemptId).then((r) => setReview(r.data)).finally(() => setLoading(false));
@@ -37,8 +45,37 @@ export default function ResultsPage() {
 
   const correct = review.questions.filter((q: any) => q.isCorrect).length;
   const total = review.questions.length;
+  const wrongIds = review.questions.filter((q: any) => !q.isCorrect).map((q: any) => q.questionId);
   const mins = Math.floor(review.timeTaken / 60);
   const secs = review.timeTaken % 60;
+
+  async function startPracticeRetry() {
+    setRetryLoading(true);
+    try {
+      const { data } = await attemptsApi.start({
+        mode: 'PRACTICE',
+        themeId: practiceThemeId,
+        subThemeId: practiceSubThemeId,
+        count: practiceCount,
+        language: lang.toUpperCase(),
+      });
+      localStorage.setItem('practice_state', JSON.stringify({
+        session: data,
+        currentIndex: 0,
+        answers: Array(data.questions.length).fill(null),
+      }));
+      router.push('/practice');
+    } catch {} finally { setRetryLoading(false); }
+  }
+
+  async function startSessionReview() {
+    if (!wrongIds.length) return;
+    setReviewLoading(true);
+    try {
+      const { data } = await attemptsApi.start({ mode: 'REVIEW', questionIds: wrongIds });
+      router.push(`/exam/${data.attemptId}?data=${encodeURIComponent(JSON.stringify(data))}`);
+    } catch {} finally { setReviewLoading(false); }
+  }
 
   const filtered = review.questions.filter((q: any) =>
     filter === 'all' ? true : filter === 'correct' ? q.isCorrect : !q.isCorrect
@@ -68,7 +105,7 @@ export default function ResultsPage() {
           {[
             { icon: Target, label: t('results.score'), value: `${score}%`, color: scoreColor },
             { icon: CheckCircle, label: t('results.correct'), value: `${correct}/${total}`, color: '#10b981' },
-            { icon: Clock, label: t('exam.timeLeft'), value: `${mins}m ${secs}s`, color: '#6366f1' },
+            { icon: Clock, label: isAr ? 'الوقت المستغرق' : 'Temps utilisé', value: `${mins}m ${secs}s`, color: '#6366f1' },
           ].map((s) => (
             <div key={s.label} className="bg-secondary rounded-xl p-3 text-center">
               <s.icon className="w-4 h-4 mx-auto mb-2" style={{ color: s.color }} />
@@ -81,14 +118,31 @@ export default function ResultsPage() {
 
       {/* ── Actions ── */}
       <div className="grid grid-cols-2 gap-3">
-        <Link href={review.mode === 'REVIEW' ? '/review' : '/exam'}
-          className="flex items-center justify-center gap-2 py-3 rounded-xl border border-border bg-card text-sm font-semibold hover:bg-secondary transition">
-          <RotateCcw className="w-4 h-4" /> {t('results.retry')}
-        </Link>
-        <Link href="/review"
-          className="flex items-center justify-center gap-2 py-3 rounded-xl gradient-warning text-white text-sm font-semibold hover:opacity-90 transition shadow-md shadow-amber-500/20">
-          <RefreshCw className="w-4 h-4" /> {t('review.title')}
-        </Link>
+        {fromPractice ? (
+          <button
+            onClick={startPracticeRetry}
+            disabled={retryLoading}
+            className="flex items-center justify-center gap-2 py-3 rounded-xl border border-border bg-card text-sm font-semibold hover:bg-secondary transition disabled:opacity-40">
+            {retryLoading
+              ? <div className="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin" />
+              : <RotateCcw className="w-4 h-4" />}
+            {t('results.retry')}
+          </button>
+        ) : (
+          <Link href={review.mode === 'REVIEW' ? '/review' : '/exam'}
+            className="flex items-center justify-center gap-2 py-3 rounded-xl border border-border bg-card text-sm font-semibold hover:bg-secondary transition">
+            <RotateCcw className="w-4 h-4" /> {t('results.retry')}
+          </Link>
+        )}
+        <button
+          onClick={startSessionReview}
+          disabled={reviewLoading || !wrongIds.length}
+          className="flex items-center justify-center gap-2 py-3 rounded-xl gradient-warning text-white text-sm font-semibold hover:opacity-90 transition shadow-md shadow-amber-500/20 disabled:opacity-40 disabled:cursor-not-allowed">
+          {reviewLoading
+            ? <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+            : <RefreshCw className="w-4 h-4" />}
+          {t('review.title')}
+        </button>
       </div>
 
       {/* ── Filter tabs ── */}

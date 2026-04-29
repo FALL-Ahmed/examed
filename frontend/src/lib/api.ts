@@ -94,6 +94,8 @@ export const themesApi = {
 // Questions
 export const publicApi = {
   freeTrial: (theme: string, lang: string) => axios.get(`${API_URL}/questions/free-trial`, { params: { theme, lang } }),
+  trackFreeTrialEvent: (data: { sessionId: string; theme: string; lang: string; questionN: number; isCorrect: boolean }) =>
+    axios.post(`${API_URL}/questions/free-trial/event`, data).catch(() => {}),
 };
 
 export const questionsApi = {
@@ -177,6 +179,7 @@ export const adminApi = {
   grantPremium: (id: string, days: number) => api.put(`/admin/users/${id}/grant-premium`, { days }),
   leaderboard: (sortBy?: string) => api.get('/admin/leaderboard', { params: { sortBy } }),
   sessions: () => api.get('/admin/sessions'),
+  freeTrialStats: () => api.get('/admin/free-trial-stats'),
 };
 
 export const pushApi = {
