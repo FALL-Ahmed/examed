@@ -724,7 +724,7 @@ export class AdminService {
       // Répartition par source (par session unique)
       const sourceMap = new Map<string, Set<string>>();
       for (const e of themeEvents) {
-        if (!e.source) continue;
+        if (!e.source || e.source === 'direct') continue;
         if (!sourceMap.has(e.source)) sourceMap.set(e.source, new Set());
         sourceMap.get(e.source)!.add(e.sessionId);
       }
