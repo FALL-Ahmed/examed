@@ -3,7 +3,7 @@ import { PrismaService } from '../prisma/prisma.service';
 import { QuestionsService } from '../questions/questions.service';
 import { UsersService } from '../users/users.service';
 
-// +1/c pour chaque bonne réponse cochée (somme max = +1), -1/w pour chaque mauvaise cochée (somme max = -1)
+// +1/c par bonne réponse cochée, -1/w par mauvaise cochée, score par question peut être négatif (conforme barème officiel)
 function computePartialScore(userAnswer: string, question: {
   correctAnswer: string; choiceA: string; choiceB: string;
   choiceC: string; choiceD: string; choiceE: string;
@@ -19,7 +19,7 @@ function computePartialScore(userAnswer: string, question: {
   const wrongSelected = selected.filter(o => wrong.includes(o)).length;
 
   const raw = (c > 0 ? correctSelected / c : 0) - (w > 0 ? wrongSelected / w : 0);
-  return Math.max(0, Math.round(raw * 1000) / 1000);
+  return Math.round(raw * 1000) / 1000;
 }
 
 @Injectable()
