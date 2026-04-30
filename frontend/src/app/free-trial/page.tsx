@@ -75,7 +75,7 @@ const gtrack = (event: string, params?: Record<string, any>) => {
 
 function FreeTrialContent() {
   const searchParams = useSearchParams();
-  const themeKey = searchParams.get('theme') || 'Paludisme';
+  const themeKey = searchParams.get('theme') || 'Pédiatrie';
   const langParam = searchParams.get('lang') === 'ar' ? 'ar' : 'fr';
   const utmSource = searchParams.get('utm_source') || '';
 
