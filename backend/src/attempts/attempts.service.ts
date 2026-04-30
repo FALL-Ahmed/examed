@@ -9,7 +9,7 @@ function computePartialScore(userAnswer: string, question: {
   choiceC: string; choiceD: string; choiceE: string;
 }): number {
   const correct = question.correctAnswer.toUpperCase().split(',').map(s => s.trim());
-  const allOptions = (['A', 'B', 'C', 'D', 'E'] as const).filter(o => question[`choice${o}`] !== '');
+  const allOptions = ['A', 'B', 'C', 'D', 'E'].filter(o => question[`choice${o}` as keyof typeof question] !== '');
   const wrong = allOptions.filter(o => !correct.includes(o));
   const selected = userAnswer.toUpperCase().split(',').map(s => s.trim());
 
