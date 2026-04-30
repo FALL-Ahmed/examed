@@ -284,7 +284,7 @@ export default function PaymentPage() {
   const [operators, setOperators]           = useState<Operator[]>(OPERATOR_BASE.map((o) => ({ ...o, phone: '' })));
   const [selectedOperator, setSelectedOperator] = useState<Operator | null>(null);
   const [history, setHistory]               = useState<any[]>([]);
-  const [promoSettings, setPromoSettings]   = useState<{ active: boolean; discount: number } | null>(null);
+  const [promoSettings, setPromoSettings]   = useState<{ active: boolean; discount: number; endDate?: string | null } | null>(null);
 
   const promoActive   = promoSettings?.active ?? false;
   const promoDiscount = promoSettings?.discount ?? 30;

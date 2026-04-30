@@ -16,7 +16,7 @@ export default function LandingPage() {
   const { loadUser } = useAuthStore();
   const { t, lang } = useLang();
   const [pricing, setPricing] = useState<any>(null);
-  const [promoSettings, setPromoSettings] = useState<{ active: boolean; discount: number } | null>(null);
+  const [promoSettings, setPromoSettings] = useState<{ active: boolean; discount: number; endDate?: string | null } | null>(null);
   const promoActive = promoSettings?.active ?? false;
   const promoDiscount = promoSettings?.discount ?? 30;
   const promoEndDate = promoSettings?.endDate ?? null;

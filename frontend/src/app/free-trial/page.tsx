@@ -89,7 +89,7 @@ function FreeTrialContent() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [pricing, setPricing] = useState<any>(null);
-  const [promoSettings, setPromoSettings] = useState<{ active: boolean; discount: number } | null>(null);
+  const [promoSettings, setPromoSettings] = useState<{ active: boolean; discount: number; endDate?: string | null } | null>(null);
   const [showMobilePromo, setShowMobilePromo] = useState(false);
   const [promoPopupDismissed, setPromoPopupDismissed] = useState(false);
   const [showWaCapture, setShowWaCapture] = useState(false);
