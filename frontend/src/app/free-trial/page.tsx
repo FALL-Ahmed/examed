@@ -77,7 +77,7 @@ function FreeTrialContent() {
   const searchParams = useSearchParams();
   const themeKey = searchParams.get('theme') || 'Paludisme';
   const langParam = searchParams.get('lang') === 'ar' ? 'ar' : 'fr';
-  const utmSource = searchParams.get('utm_source') || 'direct';
+  const utmSource = searchParams.get('utm_source') || '';
 
   const [lang, setLang] = useState<'fr' | 'ar'>(langParam);
   const [questions, setQuestions] = useState<any[]>([]);
