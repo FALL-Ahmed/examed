@@ -84,21 +84,21 @@ export default function DashboardPage() {
 
 
       {/* ── Annonce barème officiel ── */}
-      <div className={`relative overflow-hidden rounded-2xl border border-violet-500/30 bg-gradient-to-r from-violet-500/10 via-indigo-500/10 to-violet-500/10 p-5 flex gap-4 items-center ${isAr ? 'flex-row-reverse text-right' : ''}`}>
-        <img src="/correction.png" alt="Nouvelle méthode de correction" className="w-20 h-20 rounded-xl object-cover flex-shrink-0 shadow-md" />
-        <div className="flex-1 min-w-0">
-          <span className="inline-block bg-violet-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full mb-1.5 uppercase tracking-wider">
+      <div className={`overflow-hidden rounded-2xl border border-violet-500/30 bg-gradient-to-b from-violet-500/10 to-indigo-500/10 ${isAr ? 'text-right' : ''}`}>
+        <img src="/correction.png" alt="Méthode de correction" className="w-full h-auto object-contain" />
+        <div className="p-5 flex flex-col gap-2">
+          <span className={`inline-block w-fit bg-violet-500 text-white text-[10px] font-bold px-2.5 py-0.5 rounded-full uppercase tracking-wider ${isAr ? 'self-end' : ''}`}>
             {isAr ? 'جديد' : 'Nouveau'}
           </span>
-          <p className="font-bold text-sm leading-snug">
+          <p className="font-bold text-base leading-snug">
             {isAr
               ? 'طريقة تصحيح جديدة مطابقة لمسابقة التوظيف الوطنية'
               : 'Nouvelle méthode de correction adaptée au concours national de recrutement'}
           </p>
-          <p className="text-xs text-muted-foreground mt-1 leading-relaxed">
+          <p className="text-sm text-muted-foreground leading-relaxed">
             {isAr
-              ? 'يُطبَّق الآن نظام التنقيط الجزئي الرسمي : +1/c لكل إجابة صحيحة، −1/w لكل إجابة خاطئة محددة. تُحسب نقاطك بالضبط كما في الامتحان.'
-              : 'Le barème partiel officiel est désormais appliqué : +1/c par bonne réponse, −1/w par mauvaise réponse cochée. Vos notes sont calculées exactement comme à l\'examen.'}
+              ? 'يتم التقييم دون أي تدخل بشري. تُمنح نقطة كاملة لكل إجابة صحيحة تماماً. ويُعتمد نظام التنقيط الجزئي التناسبي مع تطبيق غرامة على كل إجابة خاطئة محددة.'
+              : "L'évaluation se fait sans intervention humaine. Un point complet est attribué pour chaque réponse entièrement correcte. Un système d'évaluation partielle proportionnelle est utilisé, avec pénalité pour chaque mauvaise réponse sélectionnée."}
           </p>
         </div>
       </div>
