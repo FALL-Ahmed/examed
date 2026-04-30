@@ -43,9 +43,7 @@ export class UsersService {
     const totalAttempts = attempts.length;
     const totalQuestions = attempts.reduce((s, a) => s + a.totalQ, 0);
     const totalCorrect = attempts.reduce((s, a) => s + a.correctQ, 0);
-    const totalRaw = attempts.reduce((s, a) => s + a.answers.reduce((sum, ans) =>
-      sum + (ans.partialScore > 0 ? ans.partialScore : (ans.isCorrect ? 1 : 0)), 0), 0);
-    const globalScore = totalQuestions > 0 ? Math.round((totalRaw / totalQuestions) * 1000) / 10 : 0;
+    const globalScore = totalQuestions > 0 ? Math.round((totalCorrect / totalQuestions) * 100) : 0;
 
     // Stats par thème (barème partiel)
     const themeMap: Record<string, { name: string; language: string; total: number; rawScore: number }> = {};
