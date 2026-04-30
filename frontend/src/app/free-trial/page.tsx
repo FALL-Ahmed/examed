@@ -8,10 +8,10 @@ import { publicApi, settingsApi } from '@/lib/api';
 const pad = (n: number) => String(n).padStart(2, '0');
 
 /* Composant isolé pour le compte à rebours — re-rend seul, sans toucher au parent */
-const CountdownTimer = memo(({ isAr, discount }: { isAr: boolean; discount: number }) => {
+const CountdownTimer = memo(({ isAr, discount, endDate }: { isAr: boolean; discount: number; endDate?: string | null }) => {
   const [t, setT] = useState({ h: 0, m: 0, s: 0 });
   useEffect(() => {
-    const target = Date.now() + 24 * 3600 * 1000;
+    const target = endDate ? new Date(endDate).getTime() + 86400000 : Date.now() + 24 * 3600 * 1000;
     const tick = () => {
       const diff = target - Date.now();
       if (diff <= 0) { setT({ h: 0, m: 0, s: 0 }); return; }
@@ -20,7 +20,7 @@ const CountdownTimer = memo(({ isAr, discount }: { isAr: boolean; discount: numb
     tick();
     const id = setInterval(tick, 1000);
     return () => clearInterval(id);
-  }, []);
+  }, [endDate]);
 
   return (
     <div>
@@ -105,7 +105,11 @@ function FreeTrialContent() {
   const isAr = lang === 'ar';
   const promoActive = promoSettings?.active ?? false;
   const promoDiscount = promoSettings?.discount ?? 30;
+  const promoEndDate = promoSettings?.endDate ?? null;
   const promo = (p: number) => Math.round(p * (1 - promoDiscount / 100));
+  const formattedEndDate = promoEndDate
+    ? new Date(promoEndDate).toLocaleDateString(isAr ? 'ar-TN' : 'fr-FR', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })
+    : null;
 
   useEffect(() => {
     settingsApi.pricing().then((r) => setPricing(r.data)).catch(() => {});
@@ -236,7 +240,7 @@ function FreeTrialContent() {
         style={{ background: 'linear-gradient(135deg,#7c3aed,#6366f1)' }}>
         {promoActive && (
           <div className="flex justify-center mb-2">
-            <CountdownTimer isAr={isAr} discount={promoDiscount} />
+            <CountdownTimer isAr={isAr} discount={promoDiscount} endDate={promoEndDate} />
           </div>
         )}
         <p className="text-white font-extrabold text-base leading-snug">
@@ -385,7 +389,9 @@ function FreeTrialContent() {
                 {isAr ? `خصم ${promoDiscount}% على جميع الخطط!` : `-${promoDiscount}% sur tous les plans !`}
               </h3>
               <p className="text-xs text-gray-400 mt-1">
-                {isAr ? '⏳ ينتهي الأربعاء 29 أبريل 2026' : '⏳ Valable jusqu\'au mercredi 29 avril 2026'}
+                {formattedEndDate
+                  ? `⏳ ${isAr ? 'صالح حتى' : 'Valable jusqu\'au'} ${formattedEndDate}`
+                  : `⏳ ${isAr ? 'عرض محدود المدة' : 'Offre à durée limitée'}`}
               </p>
             </div>
             <div className="space-y-2.5 mb-5">
@@ -408,7 +414,7 @@ function FreeTrialContent() {
             </div>
             {promoActive && (
               <div className="mb-4 flex justify-center p-3 rounded-2xl" style={{ background: 'linear-gradient(135deg,#7c3aed,#6366f1)' }}>
-                <CountdownTimer isAr={isAr} discount={promoDiscount} />
+                <CountdownTimer isAr={isAr} discount={promoDiscount} endDate={promoEndDate} />
               </div>
             )}
             <Link href="/register" onClick={() => setShowMobilePromo(false)}
@@ -515,7 +521,7 @@ function FreeTrialContent() {
                   </Link>
                   {promoActive && (
                     <div className="mt-3 flex justify-center p-3 rounded-2xl" style={{ background: 'linear-gradient(135deg,#7c3aed,#6366f1)' }}>
-                      <CountdownTimer isAr={isAr} discount={promoDiscount} />
+                      <CountdownTimer isAr={isAr} discount={promoDiscount} endDate={promoEndDate} />
                     </div>
                   )}
                   <button onClick={() => { setIndex(0); setSelected([]); setRevealed(false); setScore(0); setDone(false); }}

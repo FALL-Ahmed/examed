@@ -14,10 +14,10 @@ const gtrack = (event: string, params?: Record<string, any>) => {
 
 const pad = (n: number) => String(n).padStart(2, '0');
 
-const CountdownTimer = memo(({ isAr }: { isAr: boolean }) => {
+const CountdownTimer = memo(({ isAr, endDate }: { isAr: boolean; endDate?: string | null }) => {
   const [t, setT] = useState({ h: 0, m: 0, s: 0 });
   useEffect(() => {
-    const target = new Date('2026-04-29T23:59:59').getTime();
+    const target = endDate ? new Date(endDate).getTime() + 86400000 : Date.now() + 24 * 3600 * 1000;
     const tick = () => {
       const diff = target - Date.now();
       if (diff <= 0) { setT({ h: 0, m: 0, s: 0 }); return; }
@@ -26,7 +26,7 @@ const CountdownTimer = memo(({ isAr }: { isAr: boolean }) => {
     tick();
     const id = setInterval(tick, 1000);
     return () => clearInterval(id);
-  }, []);
+  }, [endDate]);
   return (
     <div className="flex items-center gap-1.5 mt-1">
       {[
@@ -82,6 +82,7 @@ function RegisterContent() {
 
   const [operators, setOperators] = useState<Record<string, string>>({});
   const [pricing, setPricing] = useState<any>({ solo1m: { price: 500 }, solo3m: { price: 1200 }, groupPerP: { price: 400 }, groupMin: 5 });
+  const [promoSettings, setPromoSettings] = useState<{ active: boolean; discount: number } | null>(null);
   const planParam = searchParams.get('plan');
   const [selectedPlan, setSelectedPlan] = useState<'SOLO_1M' | 'SOLO_3M' | 'GROUP'>(
     planParam === 'SOLO_3M' ? 'SOLO_3M' : planParam === 'GROUP' ? 'GROUP' : 'SOLO_1M'
@@ -106,10 +107,13 @@ function RegisterContent() {
       setPricing(r.data);
       setGroupSize(r.data.groupMin ?? 5);
     }).catch(() => {});
+    settingsApi.promo().then((r) => setPromoSettings(r.data)).catch(() => {});
   }, []);
 
-  const promoActive = new Date() <= new Date('2026-04-29T23:59:59');
-  const promo = (p: number) => Math.round(p / 2);
+  const promoActive = promoSettings?.active ?? false;
+  const promoDiscount = promoSettings?.discount ?? 30;
+  const promoEndDate = promoSettings?.endDate ?? null;
+  const promo = (p: number) => Math.round(p * (1 - promoDiscount / 100));
 
   const solo1mBase = pricing.solo1m?.price ?? 500;
   const solo3mBase = pricing.solo3m?.price ?? 1200;
@@ -406,12 +410,12 @@ function RegisterContent() {
                 <span className="text-xl flex-shrink-0">🎉</span>
                 <div>
                   <p className="text-sm font-bold text-red-700">
-                    {isAr ? 'عرض إطلاق — خصم 50% على جميع الخطط !' : 'Offre de lancement — -50% sur tous les plans !'}
+                    {isAr ? `عرض إطلاق — خصم ${promoDiscount}% على جميع الخطط !` : `Offre de lancement — -${promoDiscount}% sur tous les plans !`}
                   </p>
                   <p className="text-xs text-red-500 mt-0.5">
                     {isAr ? 'ينتهي خلال' : 'Expire dans'}
                   </p>
-                  <CountdownTimer isAr={isAr} />
+                  <CountdownTimer isAr={isAr} endDate={promoEndDate} />
                 </div>
               </div>
             )}
@@ -429,7 +433,7 @@ function RegisterContent() {
                 <div className="text-right flex-shrink-0 ml-4">
                   {promoActive && <p className="text-xs text-gray-400 line-through">{solo1mBase} MRU</p>}
                   <p className="font-extrabold text-violet-700 text-lg">{solo1mPrice} <span className="text-sm font-semibold">MRU</span></p>
-                  {promoActive && <span className="text-xs font-bold bg-red-100 text-red-600 px-1.5 py-0.5 rounded-full">-50%</span>}
+                  {promoActive && <span className="text-xs font-bold bg-red-100 text-red-600 px-1.5 py-0.5 rounded-full">-{promoDiscount}%</span>}
                 </div>
                 {selectedPlan === 'SOLO_1M' && (
                   <div className="absolute top-3 right-3 w-4 h-4 rounded-full bg-violet-500 flex items-center justify-center">{checkIcon}</div>
@@ -452,7 +456,7 @@ function RegisterContent() {
                 <div className="text-right flex-shrink-0 ml-4">
                   {promoActive && <p className="text-xs text-gray-400 line-through">{solo3mBase} MRU</p>}
                   <p className="font-extrabold text-violet-700 text-lg">{solo3mPrice} <span className="text-sm font-semibold">MRU</span></p>
-                  {promoActive && <span className="text-xs font-bold bg-red-100 text-red-600 px-1.5 py-0.5 rounded-full">-50%</span>}
+                  {promoActive && <span className="text-xs font-bold bg-red-100 text-red-600 px-1.5 py-0.5 rounded-full">-{promoDiscount}%</span>}
                 </div>
                 {selectedPlan === 'SOLO_3M' && (
                   <div className="absolute top-3 right-3 w-4 h-4 rounded-full bg-violet-500 flex items-center justify-center">{checkIcon}</div>
@@ -475,7 +479,7 @@ function RegisterContent() {
                   <div className="text-right flex-shrink-0 ml-4">
                     {promoActive && <p className="text-xs text-gray-400 line-through">{groupBase} MRU</p>}
                     <p className="font-extrabold text-violet-700 text-lg">{groupPrice} <span className="text-sm font-semibold">MRU</span></p>
-                    {promoActive && <span className="text-xs font-bold bg-red-100 text-red-600 px-1.5 py-0.5 rounded-full">-50%</span>}
+                    {promoActive && <span className="text-xs font-bold bg-red-100 text-red-600 px-1.5 py-0.5 rounded-full">-{promoDiscount}%</span>}
                   </div>
                   {selectedPlan === 'GROUP' && (
                     <div className="absolute top-3 right-3 w-4 h-4 rounded-full bg-violet-500 flex items-center justify-center">{checkIcon}</div>

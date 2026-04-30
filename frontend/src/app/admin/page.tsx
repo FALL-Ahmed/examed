@@ -52,6 +52,7 @@ export default function AdminDashboard() {
   const [pushLoading, setPushLoading] = useState(false);
   const [promoEnabled, setPromoEnabled] = useState(false);
   const [promoDiscount, setPromoDiscount] = useState('30');
+  const [promoEndDate, setPromoEndDate] = useState('');
   const [savingPromo, setSavingPromo] = useState(false);
   const [savedPromo, setSavedPromo] = useState(false);
 
@@ -70,6 +71,7 @@ export default function AdminDashboard() {
       setDeviceVerif(r.data.DEVICE_VERIFICATION === 'true');
       setPromoEnabled(r.data.PROMO_ACTIVE === 'true');
       setPromoDiscount(r.data.PROMO_DISCOUNT ?? '30');
+      setPromoEndDate(r.data.PROMO_END_DATE ?? '');
     }).catch(() => {});
     settingsApi.operators().then((r) => {
       const map: Record<string, string> = {};
@@ -158,7 +160,10 @@ export default function AdminDashboard() {
   }
   async function savePromoDiscount() {
     setSavingPromo(true);
-    await adminApi.setSetting('PROMO_DISCOUNT', promoDiscount).catch(() => {});
+    await Promise.all([
+      adminApi.setSetting('PROMO_DISCOUNT', promoDiscount),
+      adminApi.setSetting('PROMO_END_DATE', promoEndDate),
+    ]).catch(() => {});
     setSavedPromo(true); setTimeout(() => setSavedPromo(false), 3000);
     setSavingPromo(false);
   }
@@ -300,7 +305,7 @@ export default function AdminDashboard() {
               <span className={`absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full shadow transition-transform ${promoEnabled ? 'translate-x-5' : 'translate-x-0'}`} />
             </button>
           </div>
-          <div className="flex gap-2">
+          <div className="flex gap-2 mb-2">
             <div className="flex items-center border border-border rounded-xl overflow-hidden flex-1 bg-background">
               <input type="number" min={1} max={90} value={promoDiscount}
                 onChange={(e) => setPromoDiscount(e.target.value)}
@@ -313,6 +318,8 @@ export default function AdminDashboard() {
               {savedPromo ? 'OK' : 'Sauv.'}
             </button>
           </div>
+          <input type="date" value={promoEndDate} onChange={(e) => setPromoEndDate(e.target.value)}
+            className="w-full px-3 py-2 bg-background border border-border rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 text-muted-foreground" />
         </div>
       </div>
 

@@ -16,8 +16,14 @@ export default function LandingPage() {
   const { loadUser } = useAuthStore();
   const { t, lang } = useLang();
   const [pricing, setPricing] = useState<any>(null);
-  const promoActive = new Date() <= new Date('2026-04-29T23:59:59');
-  const promo = (p: number) => Math.round(p / 2);
+  const [promoSettings, setPromoSettings] = useState<{ active: boolean; discount: number } | null>(null);
+  const promoActive = promoSettings?.active ?? false;
+  const promoDiscount = promoSettings?.discount ?? 30;
+  const promoEndDate = promoSettings?.endDate ?? null;
+  const promo = (p: number) => Math.round(p * (1 - promoDiscount / 100));
+  const formattedEndDate = promoEndDate
+    ? new Date(promoEndDate).toLocaleDateString(lang === 'ar' ? 'ar-TN' : 'fr-FR', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })
+    : null;
 
   const FEATURES = [
     { icon: BookOpen,   title: t('landing.feat1.title'), subtitle: t('landing.feat1.subtitle'), desc: t('landing.feat1.desc'), color: '#818cf8' },
@@ -40,6 +46,7 @@ export default function LandingPage() {
 
   useEffect(() => {
     settingsApi.pricing().then((r) => setPricing(r.data)).catch(() => {});
+    settingsApi.promo().then((r) => setPromoSettings(r.data)).catch(() => {});
     loadUser().then(() => {
       const u = useAuthStore.getState().user;
       if (u) router.replace(u.role === 'ADMIN' ? '/admin' : '/dashboard');
@@ -360,12 +367,12 @@ export default function LandingPage() {
                 style={{ background: 'radial-gradient(circle,#fbbf24,transparent)' }} />
               <div className="relative px-8 py-8">
                 <p className="text-3xl md:text-4xl font-black mb-2 tracking-tight">
-                  {lang === 'ar' ? '-50% على جميع الخطط !' : '-50% sur tous les plans !'}
+                  {lang === 'ar' ? `-${promoDiscount}% على جميع الخطط !` : `-${promoDiscount}% sur tous les plans !`}
                 </p>
                 <p className="text-white/80 text-base mb-4">
-                  {lang === 'ar'
-                    ? <>عرض الإطلاق — صالح حتى <strong className="text-white text-lg underline decoration-2">الأربعاء 29 أبريل 2026</strong></>
-                    : <>Offre de lancement — valable jusqu'au <strong className="text-white text-lg underline decoration-2">mercredi 29 avril 2026</strong></>}
+                  {formattedEndDate
+                    ? (lang === 'ar' ? `عرض الإطلاق — صالح حتى ${formattedEndDate}` : `Offre de lancement — valable jusqu'au ${formattedEndDate}`)
+                    : (lang === 'ar' ? 'عرض الإطلاق — أسعار محدودة المدة' : 'Offre de lancement — prix à durée limitée')}
                 </p>
                 <div className="inline-flex items-center gap-2 bg-white/20 border border-white/30 text-white text-sm font-bold px-4 py-2 rounded-full backdrop-blur-sm">
                   ⏳ {lang === 'ar' ? 'الأسعار الأصلية مشطوبة أدناه' : 'Les prix barrés ci-dessous sont les prix normaux'}
@@ -389,7 +396,7 @@ export default function LandingPage() {
                   {promoActive ? promo(pricing?.solo1m?.price ?? 500) : (pricing?.solo1m?.price ?? 500)}
                   <span className="text-lg font-semibold text-gray-400 ml-1">MRU</span>
                 </p>
-                {promoActive && <span className="inline-flex items-center gap-1 mt-2 bg-red-500 text-white text-sm font-black px-3 py-1.5 rounded-full">-50%</span>}
+                {promoActive && <span className="inline-flex items-center gap-1 mt-2 bg-red-500 text-white text-sm font-black px-3 py-1.5 rounded-full">-{promoDiscount}%</span>}
               </div>
               <Link href="/register?plan=SOLO_1M"
                 className="block w-full text-center py-3 rounded-2xl font-bold text-sm border-2 border-gray-200 text-gray-700 hover:border-indigo-400 hover:text-indigo-600 transition">
@@ -413,7 +420,7 @@ export default function LandingPage() {
                   {promoActive ? promo(pricing?.solo3m?.price ?? 1200) : (pricing?.solo3m?.price ?? 1200)}
                   <span className="text-lg font-semibold text-gray-400 ml-1">MRU</span>
                 </p>
-                {promoActive && <span className="inline-flex items-center gap-1 mt-2 bg-red-500 text-white text-sm font-black px-3 py-1.5 rounded-full">-50%</span>}
+                {promoActive && <span className="inline-flex items-center gap-1 mt-2 bg-red-500 text-white text-sm font-black px-3 py-1.5 rounded-full">-{promoDiscount}%</span>}
               </div>
               <p className="text-xs text-violet-500 font-semibold mb-6">
                 ≈ {promoActive ? promo(pricing ? Math.round(pricing.solo3m.price / 3) : 400) : (pricing ? Math.round(pricing.solo3m.price / 3) : 400)} MRU/{lang === 'ar' ? 'شهر' : 'mois'}
@@ -438,7 +445,7 @@ export default function LandingPage() {
                   {promoActive ? promo((pricing?.groupPerP?.price ?? 400) * (pricing?.groupMin ?? 5)) : (pricing?.groupPerP?.price ?? 400) * (pricing?.groupMin ?? 5)}
                   <span className="text-lg font-semibold text-gray-400 ml-1">MRU</span>
                 </p>
-                {promoActive && <span className="inline-flex items-center gap-1 mt-2 bg-red-500 text-white text-sm font-black px-3 py-1.5 rounded-full">-50%</span>}
+                {promoActive && <span className="inline-flex items-center gap-1 mt-2 bg-red-500 text-white text-sm font-black px-3 py-1.5 rounded-full">-{promoDiscount}%</span>}
               </div>
               <p className="text-xs text-emerald-600 font-semibold mb-6">
                 {promoActive ? promo(pricing?.groupPerP?.price ?? 400) : (pricing?.groupPerP?.price ?? 400)} MRU / {lang === 'ar' ? 'شخص' : 'personne'}

@@ -278,22 +278,22 @@ function PaymentModal({
 
 // ─── Main page ─────────────────────────────────────────────────────────────────
 
-const PROMO_END = new Date('2026-04-27T23:59:59');
-const isPromoActive = () => new Date() <= PROMO_END;
-
 export default function PaymentPage() {
   const { user }                            = useAuthStore();
   const [price, setPrice]                   = useState(500);
   const [operators, setOperators]           = useState<Operator[]>(OPERATOR_BASE.map((o) => ({ ...o, phone: '' })));
   const [selectedOperator, setSelectedOperator] = useState<Operator | null>(null);
   const [history, setHistory]               = useState<any[]>([]);
+  const [promoSettings, setPromoSettings]   = useState<{ active: boolean; discount: number } | null>(null);
 
-  const promoActive = isPromoActive();
-  const finalPrice  = promoActive ? Math.round(price / 2) : price;
+  const promoActive   = promoSettings?.active ?? false;
+  const promoDiscount = promoSettings?.discount ?? 30;
+  const finalPrice    = promoActive ? Math.round(price * (1 - promoDiscount / 100)) : price;
 
   useEffect(() => {
     settingsApi.price().then((r) => setPrice(r.data.price)).catch(() => {});
     settingsApi.operators().then((r) => setOperators(r.data)).catch(() => {});
+    settingsApi.promo().then((r) => setPromoSettings(r.data)).catch(() => {});
     paymentsApi.myPayments().then((r) => setHistory(r.data)).catch(() => {});
   }, []);
 
@@ -364,7 +364,7 @@ export default function PaymentPage() {
           <div className="absolute inset-0 opacity-10"
             style={{ backgroundImage: 'radial-gradient(circle at 1px 1px,white 1px,transparent 0)', backgroundSize: '20px 20px' }} />
           <div className="relative">
-            <p className="text-lg font-extrabold tracking-tight">🎉 -50% de réduction — Offre de lancement !</p>
+            <p className="text-lg font-extrabold tracking-tight">🎉 -{promoDiscount}% de réduction — Offre de lancement !</p>
             <p className="text-sm text-white/80 mt-0.5">Valable jusqu'au <strong className="text-white">lundi 27 avril 2026</strong> · Ne manquez pas cette opportunité</p>
           </div>
         </div>
@@ -412,7 +412,7 @@ export default function PaymentPage() {
             <p className="text-xl font-black text-white">{finalPrice}</p>
             <p className="text-xs text-white/40">MRU / mois</p>
             {promoActive && (
-              <span className="inline-block mt-1 bg-red-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full">-50%</span>
+              <span className="inline-block mt-1 bg-red-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full">-{promoDiscount}%</span>
             )}
           </div>
         </div>
