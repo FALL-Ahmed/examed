@@ -11,12 +11,12 @@ export class PublicQuestionsController {
   }
 
   @Post('event')
-  trackEvent(@Body() dto: { sessionId: string; theme: string; lang: string; questionN: number; isCorrect: boolean }) {
+  trackEvent(@Body() dto: { sessionId: string; theme: string; lang: string; source: string; questionN: number; isCorrect: boolean }) {
     return this.questionsService.trackFreeTrialEvent(dto);
   }
 
   @Post('lead')
-  saveLead(@Body() dto: { sessionId: string; phone: string; theme: string; lang: string }) {
+  saveLead(@Body() dto: { sessionId: string; phone: string; theme: string; lang: string; source: string }) {
     return this.questionsService.saveFreeTrialLead(dto);
   }
 }

@@ -239,6 +239,7 @@ model FreeTrialLead {
   phone     String
   theme     String
   lang      String   @default("fr")
+  source    String   @default("direct")
   createdAt DateTime @default(now())
 
   @@index([createdAt])
@@ -249,6 +250,7 @@ model FreeTrialEvent {
   sessionId String
   theme     String
   lang      String   @default("fr")
+  source    String   @default("direct")
   questionN Int
   isCorrect Boolean
   createdAt DateTime @default(now())

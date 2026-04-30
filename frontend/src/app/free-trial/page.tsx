@@ -77,6 +77,7 @@ function FreeTrialContent() {
   const searchParams = useSearchParams();
   const themeKey = searchParams.get('theme') || 'Paludisme';
   const langParam = searchParams.get('lang') === 'ar' ? 'ar' : 'fr';
+  const utmSource = searchParams.get('utm_source') || 'direct';
 
   const [lang, setLang] = useState<'fr' | 'ar'>(langParam);
   const [questions, setQuestions] = useState<any[]>([]);
@@ -136,7 +137,7 @@ function FreeTrialContent() {
     setRevealed(true);
     const isCorrect = correctAnswers.length === selected.length && correctAnswers.every((c) => selected.includes(c));
     if (isCorrect) setScore((s) => s + 1);
-    publicApi.trackFreeTrialEvent({ sessionId, theme: themeKey, lang, questionN: index + 1, isCorrect });
+    publicApi.trackFreeTrialEvent({ sessionId, theme: themeKey, lang, source: utmSource, questionN: index + 1, isCorrect });
     if (index === 4 && !waCaptured) {
       setTimeout(() => setShowWaCapture(true), 800);
     }
@@ -216,7 +217,7 @@ function FreeTrialContent() {
     if (waNumber.trim()) {
       gtrack('lead_whatsapp_captured', { whatsapp: waNumber.trim(), theme: themeKey, lang });
       localStorage.setItem('_wa_lead', waNumber.trim());
-      publicApi.saveFreeTrialLead({ sessionId, phone: waNumber.trim(), theme: themeKey, lang });
+      publicApi.saveFreeTrialLead({ sessionId, phone: waNumber.trim(), theme: themeKey, lang, source: utmSource });
     }
     setWaCaptured(true);
     setShowWaCapture(false);

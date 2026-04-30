@@ -175,8 +175,38 @@ export default function FreeTrialStatsPage() {
                 </div>
               </div>
 
-              {/* Langue + point de chute */}
-              <div className="p-5 space-y-4">
+              {/* Droite : source + langue + point de chute */}
+              <div className="p-5 space-y-5">
+
+                {/* Sources */}
+                {t.sourceSplit?.length > 0 && (
+                  <div>
+                    <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-3">Source</p>
+                    <div className="space-y-2">
+                      {t.sourceSplit.map((s: any) => {
+                        const pct = t.totalSessions > 0 ? Math.round((s.count / t.totalSessions) * 100) : 0;
+                        const srcColor = s.source === 'facebook' ? '#1877f2'
+                          : s.source === 'tiktok' ? '#000000'
+                          : s.source === 'google' ? '#ea4335'
+                          : s.source === 'instagram' ? '#e1306c'
+                          : '#6366f1';
+                        return (
+                          <div key={s.source} className="flex items-center gap-2">
+                            <span className="text-xs font-bold w-20 truncate flex-shrink-0" style={{ color: srcColor }}>
+                              {s.source}
+                            </span>
+                            <div className="flex-1 h-4 bg-secondary rounded overflow-hidden">
+                              <div className="h-full rounded transition-all" style={{ width: `${pct}%`, background: srcColor + '99' }} />
+                            </div>
+                            <span className="text-xs font-semibold w-16 text-right flex-shrink-0">{s.count} ({pct}%)</span>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+                )}
+
+                {/* Langue */}
                 <div>
                   <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-3">Langue</p>
                   <div className="space-y-2">
@@ -198,7 +228,7 @@ export default function FreeTrialStatsPage() {
                   </div>
                 </div>
 
-                {/* Point de chute principal */}
+                {/* Point de chute */}
                 {(() => {
                   const biggestDrop = t.funnel.reduce((acc: any, f: any, i: number) => {
                     if (i === 0) return acc;

@@ -721,6 +721,17 @@ export class AdminService {
       const correctAnswers = themeEvents.filter((e) => e.isCorrect).length;
       const successRate = totalAnswers > 0 ? Math.round((correctAnswers / totalAnswers) * 100) : 0;
 
+      // Répartition par source (par session unique)
+      const sourceMap = new Map<string, Set<string>>();
+      for (const e of themeEvents) {
+        const src = e.source || 'direct';
+        if (!sourceMap.has(src)) sourceMap.set(src, new Set());
+        sourceMap.get(src)!.add(e.sessionId);
+      }
+      const sourceSplit = [...sourceMap.entries()]
+        .map(([source, sessions]) => ({ source, count: sessions.size }))
+        .sort((a, b) => b.count - a.count);
+
       return {
         theme,
         totalSessions,
@@ -732,6 +743,7 @@ export class AdminService {
           fr: new Set(themeEvents.filter((e) => e.lang === 'fr').map((e) => e.sessionId)).size,
           ar: new Set(themeEvents.filter((e) => e.lang === 'ar').map((e) => e.sessionId)).size,
         },
+        sourceSplit,
       };
     });
 

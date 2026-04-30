@@ -165,12 +165,12 @@ export class QuestionsService {
     return favs.map((f: any) => f.questionId);
   }
 
-  async trackFreeTrialEvent(dto: { sessionId: string; theme: string; lang: string; questionN: number; isCorrect: boolean }) {
+  async trackFreeTrialEvent(dto: { sessionId: string; theme: string; lang: string; source: string; questionN: number; isCorrect: boolean }) {
     await this.prisma.freeTrialEvent.create({ data: dto });
     return { ok: true };
   }
 
-  async saveFreeTrialLead(dto: { sessionId: string; phone: string; theme: string; lang: string }) {
+  async saveFreeTrialLead(dto: { sessionId: string; phone: string; theme: string; lang: string; source: string }) {
     await this.prisma.freeTrialLead.create({ data: dto });
     return { ok: true };
   }
