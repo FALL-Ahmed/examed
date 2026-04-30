@@ -38,6 +38,7 @@ export default function ResultsPage() {
   const score = review.score;
   const rawScore: number = review.rawScore ?? review.correctQ;
   const total = review.questions.length;
+  const noteOn10 = total > 0 ? Math.round((rawScore / total) * 100) / 10 : 0;
   const scoreColor = score >= 70 ? '#10b981' : score >= 50 ? '#f59e0b' : '#ef4444';
   const scoreLabel = score >= 70
     ? (isAr ? 'ممتاز !' : 'Excellent !')
@@ -97,7 +98,7 @@ export default function ResultsPage() {
           <div className="w-28 h-28 rounded-full flex flex-col items-center justify-center mb-4 border-4"
             style={{ borderColor: scoreColor, background: `${scoreColor}12` }}>
             <span className="text-2xl font-extrabold leading-tight" style={{ color: scoreColor }}>
-              {rawScore.toFixed(1)}<span className="text-base font-semibold">/{total}</span>
+              {noteOn10.toFixed(1)}<span className="text-base font-semibold">/10</span>
             </span>
             <span className="text-xs font-medium mt-0.5" style={{ color: scoreColor }}>{score.toFixed(1)}%</span>
           </div>
@@ -107,7 +108,7 @@ export default function ResultsPage() {
 
         <div className="grid grid-cols-3 gap-3">
           {[
-            { icon: Target, label: isAr ? 'النقطة' : 'Note', value: `${rawScore.toFixed(1)}/${total}`, color: scoreColor },
+            { icon: Target, label: isAr ? 'النقطة' : 'Note', value: `${noteOn10.toFixed(1)}/10`, color: scoreColor },
             { icon: CheckCircle, label: isAr ? 'صحيح تام' : 'Parfaites', value: `${correct}/${total}`, color: '#10b981' },
             { icon: Clock, label: isAr ? 'الوقت المستغرق' : 'Temps utilisé', value: `${mins}m ${secs}s`, color: '#6366f1' },
           ].map((s) => (
