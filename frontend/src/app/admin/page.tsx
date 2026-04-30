@@ -50,6 +50,10 @@ export default function AdminDashboard() {
   const [deviceVerif, setDeviceVerif] = useState(false);
   const [pushEnabled, setPushEnabled] = useState(false);
   const [pushLoading, setPushLoading] = useState(false);
+  const [promoEnabled, setPromoEnabled] = useState(false);
+  const [promoDiscount, setPromoDiscount] = useState('30');
+  const [savingPromo, setSavingPromo] = useState(false);
+  const [savedPromo, setSavedPromo] = useState(false);
 
   useEffect(() => {
     if ('serviceWorker' in navigator && 'PushManager' in window) {
@@ -64,6 +68,8 @@ export default function AdminDashboard() {
       setSupportEmail(r.data.SUPPORT_EMAIL ?? '');
       setPrices({ p1m: r.data.PRICE_1M ?? '500', p3m: r.data.PRICE_3M ?? '1200', pGroup: r.data.PRICE_GROUP_PER_PERSON ?? '400', groupMin: r.data.GROUP_MIN_MEMBERS ?? '5' });
       setDeviceVerif(r.data.DEVICE_VERIFICATION === 'true');
+      setPromoEnabled(r.data.PROMO_ACTIVE === 'true');
+      setPromoDiscount(r.data.PROMO_DISCOUNT ?? '30');
     }).catch(() => {});
     settingsApi.operators().then((r) => {
       const map: Record<string, string> = {};
@@ -144,6 +150,17 @@ export default function AdminDashboard() {
     const next = !deviceVerif;
     setDeviceVerif(next);
     await adminApi.setSetting('DEVICE_VERIFICATION', String(next)).catch(() => setDeviceVerif(!next));
+  }
+  async function togglePromo() {
+    const next = !promoEnabled;
+    setPromoEnabled(next);
+    await adminApi.setSetting('PROMO_ACTIVE', String(next)).catch(() => setPromoEnabled(!next));
+  }
+  async function savePromoDiscount() {
+    setSavingPromo(true);
+    await adminApi.setSetting('PROMO_DISCOUNT', promoDiscount).catch(() => {});
+    setSavedPromo(true); setTimeout(() => setSavedPromo(false), 3000);
+    setSavingPromo(false);
   }
 
   const { t } = useLang();
@@ -272,6 +289,30 @@ export default function AdminDashboard() {
               ? <Loader2 className="absolute top-1 left-2.5 w-4 h-4 animate-spin text-muted-foreground" />
               : <span className={`absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full shadow transition-transform ${pushEnabled ? 'translate-x-5' : 'translate-x-0'}`} />}
           </button>
+        </div>
+        <div className="border-t border-border pt-4 mt-2">
+          <div className="flex items-center justify-between mb-3">
+            <div>
+              <p className="text-sm font-semibold flex items-center gap-1.5">🏷️ Promotion Free Trial</p>
+              <p className="text-xs text-muted-foreground mt-0.5">{promoEnabled ? `Promo active — ${promoDiscount}% de réduction` : 'Aucune promo affichée.'}</p>
+            </div>
+            <button type="button" onClick={togglePromo} className={`relative w-11 h-6 rounded-full transition-colors flex-shrink-0 ${promoEnabled ? 'bg-orange-500' : 'bg-border'}`}>
+              <span className={`absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full shadow transition-transform ${promoEnabled ? 'translate-x-5' : 'translate-x-0'}`} />
+            </button>
+          </div>
+          <div className="flex gap-2">
+            <div className="flex items-center border border-border rounded-xl overflow-hidden flex-1 bg-background">
+              <input type="number" min={1} max={90} value={promoDiscount}
+                onChange={(e) => setPromoDiscount(e.target.value)}
+                className="flex-1 px-3 py-2 bg-transparent text-sm focus:outline-none" placeholder="30" />
+              <span className="px-3 py-2 text-sm text-muted-foreground bg-secondary">%</span>
+            </div>
+            <button onClick={savePromoDiscount} disabled={savingPromo}
+              className="px-4 py-2 gradient-primary text-white rounded-xl text-sm font-semibold hover:opacity-90 transition disabled:opacity-60 flex items-center gap-1.5">
+              {savingPromo ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : savedPromo ? <CheckCircle className="w-3.5 h-3.5" /> : null}
+              {savedPromo ? 'OK' : 'Sauv.'}
+            </button>
+          </div>
         </div>
       </div>
 

@@ -58,4 +58,16 @@ export class SettingsController {
       phone: values[i] ?? OPERATOR_DEFAULTS[id].phone,
     }));
   }
+
+  @Get('promo')
+  async getPromo() {
+    const [active, discount] = await Promise.all([
+      this.adminService.getSetting('PROMO_ACTIVE'),
+      this.adminService.getSetting('PROMO_DISCOUNT'),
+    ]);
+    return {
+      active: active === 'true',
+      discount: discount ? parseInt(discount) : 30,
+    };
+  }
 }

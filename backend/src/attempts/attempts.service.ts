@@ -3,6 +3,25 @@ import { PrismaService } from '../prisma/prisma.service';
 import { QuestionsService } from '../questions/questions.service';
 import { UsersService } from '../users/users.service';
 
+// +1/c pour chaque bonne réponse cochée (somme max = +1), -1/w pour chaque mauvaise cochée (somme max = -1)
+function computePartialScore(userAnswer: string, question: {
+  correctAnswer: string; choiceA: string; choiceB: string;
+  choiceC: string; choiceD: string; choiceE: string;
+}): number {
+  const correct = question.correctAnswer.toUpperCase().split(',').map(s => s.trim());
+  const allOptions = (['A', 'B', 'C', 'D', 'E'] as const).filter(o => question[`choice${o}`] !== '');
+  const wrong = allOptions.filter(o => !correct.includes(o));
+  const selected = userAnswer.toUpperCase().split(',').map(s => s.trim());
+
+  const c = correct.length;
+  const w = wrong.length;
+  const correctSelected = selected.filter(o => correct.includes(o)).length;
+  const wrongSelected = selected.filter(o => wrong.includes(o)).length;
+
+  const raw = (c > 0 ? correctSelected / c : 0) - (w > 0 ? wrongSelected / w : 0);
+  return Math.max(0, Math.round(raw * 1000) / 1000);
+}
+
 @Injectable()
 export class AttemptsService {
   constructor(
@@ -115,11 +134,11 @@ export class AttemptsService {
     const question = await this.prisma.question.findUnique({ where: { id: dto.questionId } });
     if (!question) throw new NotFoundException('Question introuvable');
 
-    // Comparer les réponses (supporte réponses multiples "A,B,C")
     const normalize = (s: string) => s.toUpperCase().split(',').map(x => x.trim()).sort().join(',');
     const isCorrect = normalize(dto.answer) === normalize(question.correctAnswer);
+    const partialScore = computePartialScore(dto.answer, question);
 
-    const answer = await this.prisma.userAnswer.upsert({
+    await this.prisma.userAnswer.upsert({
       where: { attemptId_questionId: { attemptId, questionId: dto.questionId } },
       create: {
         userId,
@@ -127,10 +146,12 @@ export class AttemptsService {
         attemptId,
         userAnswer: dto.answer.toUpperCase(),
         isCorrect,
+        partialScore,
       },
       update: {
         userAnswer: dto.answer.toUpperCase(),
         isCorrect,
+        partialScore,
         answeredAt: new Date(),
       },
     });
@@ -145,6 +166,7 @@ export class AttemptsService {
 
     return {
       isCorrect,
+      partialScore,
       correctAnswer: question.correctAnswer,
       explanation: question.explanation,
       imageUrl: question.imageUrl,
@@ -160,7 +182,8 @@ export class AttemptsService {
 
     const correctQ = attempt.answers.filter((a) => a.isCorrect).length;
     const timeTaken = Math.floor((Date.now() - attempt.startedAt.getTime()) / 1000);
-    const score = attempt.totalQ > 0 ? Math.round((correctQ / attempt.totalQ) * 100) : 0;
+    const rawScore = attempt.answers.reduce((sum, a) => sum + a.partialScore, 0);
+    const score = attempt.totalQ > 0 ? Math.round((rawScore / attempt.totalQ) * 1000) / 10 : 0;
 
     return this.prisma.attempt.update({
       where: { id: attemptId },
@@ -184,10 +207,13 @@ export class AttemptsService {
     });
     if (!attempt) throw new NotFoundException('Tentative introuvable');
 
+    const rawScore = attempt.answers.reduce((sum, a) => sum + a.partialScore, 0);
+
     return {
       id: attempt.id,
       mode: attempt.mode,
       score: attempt.score,
+      rawScore: Math.round(rawScore * 100) / 100,
       correctQ: attempt.correctQ,
       totalQ: attempt.totalQ,
       timeTaken: attempt.timeTaken,
@@ -203,6 +229,7 @@ export class AttemptsService {
         userAnswer: a.userAnswer,
         correctAnswer: a.question.correctAnswer,
         isCorrect: a.isCorrect,
+        partialScore: a.partialScore,
         explanation: a.question.explanation,
         imageUrl: a.question.imageUrl,
         theme: a.question.subTheme.theme.name,

@@ -36,6 +36,8 @@ export default function ResultsPage() {
   if (!review) return <p className="text-center text-muted-foreground">{isAr ? 'النتائج غير موجودة' : 'Résultats non trouvés'}</p>;
 
   const score = review.score;
+  const rawScore: number = review.rawScore ?? review.correctQ;
+  const total = review.questions.length;
   const scoreColor = score >= 70 ? '#10b981' : score >= 50 ? '#f59e0b' : '#ef4444';
   const scoreLabel = score >= 70
     ? (isAr ? 'ممتاز !' : 'Excellent !')
@@ -44,7 +46,6 @@ export default function ResultsPage() {
     : (isAr ? 'واصل المجهود !' : 'Continuez les efforts !');
 
   const correct = review.questions.filter((q: any) => q.isCorrect).length;
-  const total = review.questions.length;
   const wrongIds = review.questions.filter((q: any) => !q.isCorrect).map((q: any) => q.questionId);
   const mins = Math.floor(review.timeTaken / 60);
   const secs = review.timeTaken % 60;
@@ -93,18 +94,21 @@ export default function ResultsPage() {
       {/* ── Score card ── */}
       <div className="bg-card border border-border rounded-2xl p-8">
         <div className="flex flex-col items-center text-center mb-6">
-          <div className="w-24 h-24 rounded-full flex items-center justify-center mb-4 border-4"
+          <div className="w-28 h-28 rounded-full flex flex-col items-center justify-center mb-4 border-4"
             style={{ borderColor: scoreColor, background: `${scoreColor}12` }}>
-            <span className="text-3xl font-extrabold" style={{ color: scoreColor }}>{score}%</span>
+            <span className="text-2xl font-extrabold leading-tight" style={{ color: scoreColor }}>
+              {rawScore.toFixed(1)}<span className="text-base font-semibold">/{total}</span>
+            </span>
+            <span className="text-xs font-medium mt-0.5" style={{ color: scoreColor }}>{score.toFixed(1)}%</span>
           </div>
           <h2 className="text-xl font-bold">{scoreLabel}</h2>
-          <p className="text-muted-foreground text-sm mt-1">{correct} {t('results.correct').toLowerCase()} / {total}</p>
+          <p className="text-muted-foreground text-sm mt-1">{correct} {isAr ? 'إجابة صحيحة تامة' : 'réponse(s) parfaite(s)'} / {total}</p>
         </div>
 
         <div className="grid grid-cols-3 gap-3">
           {[
-            { icon: Target, label: t('results.score'), value: `${score}%`, color: scoreColor },
-            { icon: CheckCircle, label: t('results.correct'), value: `${correct}/${total}`, color: '#10b981' },
+            { icon: Target, label: isAr ? 'النقطة' : 'Note', value: `${rawScore.toFixed(1)}/${total}`, color: scoreColor },
+            { icon: CheckCircle, label: isAr ? 'صحيح تام' : 'Parfaites', value: `${correct}/${total}`, color: '#10b981' },
             { icon: Clock, label: isAr ? 'الوقت المستغرق' : 'Temps utilisé', value: `${mins}m ${secs}s`, color: '#6366f1' },
           ].map((s) => (
             <div key={s.label} className="bg-secondary rounded-xl p-3 text-center">

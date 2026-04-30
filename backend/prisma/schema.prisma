@@ -158,6 +158,7 @@ model UserAnswer {
   attempt      Attempt   @relation(fields: [attemptId], references: [id], onDelete: Cascade)
   userAnswer   String       // "A" ou "A,B,C" pour réponses multiples
   isCorrect    Boolean
+  partialScore Float     @default(0)
   answeredAt   DateTime  @default(now())
 
   @@unique([attemptId, questionId])

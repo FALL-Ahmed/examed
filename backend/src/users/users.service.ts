@@ -43,22 +43,26 @@ export class UsersService {
     const totalAttempts = attempts.length;
     const totalQuestions = attempts.reduce((s, a) => s + a.totalQ, 0);
     const totalCorrect = attempts.reduce((s, a) => s + a.correctQ, 0);
-    const globalScore = totalQuestions > 0 ? Math.round((totalCorrect / totalQuestions) * 100) : 0;
+    const totalRaw = attempts.reduce((s, a) => s + a.answers.reduce((sum, ans) => sum + ans.partialScore, 0), 0);
+    const globalScore = totalQuestions > 0 ? Math.round((totalRaw / totalQuestions) * 1000) / 10 : 0;
 
-    // Stats par thème
-    const themeMap: Record<string, { name: string; language: string; total: number; correct: number }> = {};
+    // Stats par thème (barème partiel)
+    const themeMap: Record<string, { name: string; language: string; total: number; rawScore: number }> = {};
     for (const attempt of attempts) {
       for (const answer of attempt.answers) {
         const theme = answer.question.subTheme.theme;
-        if (!themeMap[theme.name]) themeMap[theme.name] = { name: theme.name, language: theme.language, total: 0, correct: 0 };
+        if (!themeMap[theme.name]) themeMap[theme.name] = { name: theme.name, language: theme.language, total: 0, rawScore: 0 };
         themeMap[theme.name].total++;
-        if (answer.isCorrect) themeMap[theme.name].correct++;
+        // Pour les anciennes réponses sans barème (partialScore=0), on utilise isCorrect comme fallback
+        themeMap[theme.name].rawScore += answer.partialScore > 0 ? answer.partialScore : (answer.isCorrect ? 1 : 0);
       }
     }
 
     const themeStats = Object.values(themeMap).map((t) => ({
-      ...t,
-      score: t.total > 0 ? Math.round((t.correct / t.total) * 100) : 0,
+      name: t.name,
+      language: t.language,
+      total: t.total,
+      score: t.total > 0 ? Math.round((t.rawScore / t.total) * 1000) / 10 : 0,
     }));
 
     // Historique des 30 derniers jours

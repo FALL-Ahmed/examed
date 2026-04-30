@@ -132,6 +132,7 @@ export const settingsApi = {
   whatsapp: () => api.get('/settings/whatsapp'),
   contact: () => api.get('/settings/contact'),
   pricing: () => api.get('/settings/pricing'),
+  promo: () => api.get('/settings/promo'),
 };
 
 // Admin

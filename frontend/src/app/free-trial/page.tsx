@@ -8,10 +8,10 @@ import { publicApi, settingsApi } from '@/lib/api';
 const pad = (n: number) => String(n).padStart(2, '0');
 
 /* Composant isolé pour le compte à rebours — re-rend seul, sans toucher au parent */
-const CountdownTimer = memo(({ isAr }: { isAr: boolean }) => {
+const CountdownTimer = memo(({ isAr, discount }: { isAr: boolean; discount: number }) => {
   const [t, setT] = useState({ h: 0, m: 0, s: 0 });
   useEffect(() => {
-    const target = new Date('2026-04-29T23:59:59').getTime();
+    const target = Date.now() + 24 * 3600 * 1000;
     const tick = () => {
       const diff = target - Date.now();
       if (diff <= 0) { setT({ h: 0, m: 0, s: 0 }); return; }
@@ -25,7 +25,7 @@ const CountdownTimer = memo(({ isAr }: { isAr: boolean }) => {
   return (
     <div>
       <p className="text-white/80 text-xs font-semibold mb-1.5">
-        ⏰ {isAr ? 'ينتهي العرض -50% خلال' : 'La promo -50% expire dans'}
+        ⏰ {isAr ? `ينتهي العرض -${discount}% خلال` : `La promo -${discount}% expire dans`}
       </p>
       <div className="flex items-end gap-1">
         {[
@@ -89,6 +89,7 @@ function FreeTrialContent() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [pricing, setPricing] = useState<any>(null);
+  const [promoSettings, setPromoSettings] = useState<{ active: boolean; discount: number } | null>(null);
   const [showMobilePromo, setShowMobilePromo] = useState(false);
   const [promoPopupDismissed, setPromoPopupDismissed] = useState(false);
   const [showWaCapture, setShowWaCapture] = useState(false);
@@ -102,11 +103,13 @@ function FreeTrialContent() {
   });
 
   const isAr = lang === 'ar';
-  const promoActive = new Date() <= new Date('2026-04-29T23:59:59');
-  const promo = (p: number) => Math.round(p / 2);
+  const promoActive = promoSettings?.active ?? false;
+  const promoDiscount = promoSettings?.discount ?? 30;
+  const promo = (p: number) => Math.round(p * (1 - promoDiscount / 100));
 
   useEffect(() => {
     settingsApi.pricing().then((r) => setPricing(r.data)).catch(() => {});
+    settingsApi.promo().then((r) => setPromoSettings(r.data)).catch(() => {});
   }, []);
 
 
@@ -233,7 +236,7 @@ function FreeTrialContent() {
         style={{ background: 'linear-gradient(135deg,#7c3aed,#6366f1)' }}>
         {promoActive && (
           <div className="flex justify-center mb-2">
-            <CountdownTimer isAr={isAr} />
+            <CountdownTimer isAr={isAr} discount={promoDiscount} />
           </div>
         )}
         <p className="text-white font-extrabold text-base leading-snug">
@@ -379,7 +382,7 @@ function FreeTrialContent() {
                 🔥 {isAr ? 'عرض إطلاق حصري' : 'Offre de lancement exclusive'}
               </div>
               <h3 className="text-lg font-extrabold text-gray-900 leading-tight">
-                {isAr ? 'خصم 50% على جميع الخطط!' : '-50% sur tous les plans !'}
+                {isAr ? `خصم ${promoDiscount}% على جميع الخطط!` : `-${promoDiscount}% sur tous les plans !`}
               </h3>
               <p className="text-xs text-gray-400 mt-1">
                 {isAr ? '⏳ ينتهي الأربعاء 29 أبريل 2026' : '⏳ Valable jusqu\'au mercredi 29 avril 2026'}
@@ -405,7 +408,7 @@ function FreeTrialContent() {
             </div>
             {promoActive && (
               <div className="mb-4 flex justify-center p-3 rounded-2xl" style={{ background: 'linear-gradient(135deg,#7c3aed,#6366f1)' }}>
-                <CountdownTimer isAr={isAr} />
+                <CountdownTimer isAr={isAr} discount={promoDiscount} />
               </div>
             )}
             <Link href="/register" onClick={() => setShowMobilePromo(false)}
@@ -512,7 +515,7 @@ function FreeTrialContent() {
                   </Link>
                   {promoActive && (
                     <div className="mt-3 flex justify-center p-3 rounded-2xl" style={{ background: 'linear-gradient(135deg,#7c3aed,#6366f1)' }}>
-                      <CountdownTimer isAr={isAr} />
+                      <CountdownTimer isAr={isAr} discount={promoDiscount} />
                     </div>
                   )}
                   <button onClick={() => { setIndex(0); setSelected([]); setRevealed(false); setScore(0); setDone(false); }}

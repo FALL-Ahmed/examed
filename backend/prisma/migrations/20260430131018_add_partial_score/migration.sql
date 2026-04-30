@@ -1,0 +1,2 @@
+-- AlterTable
+ALTER TABLE "UserAnswer" ADD COLUMN     "partialScore" DOUBLE PRECISION NOT NULL DEFAULT 0;
