@@ -14,6 +14,7 @@ export default function FreeTrialStatsPage() {
   const [compareMode, setCompareMode] = useState(false);
   const [compareStart, setCompareStart] = useState(daysAgo(13));
   const [compareEnd, setCompareEnd] = useState(daysAgo(7));
+  const [leadsPage, setLeadsPage] = useState(0);
 
   const [data, setData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
@@ -155,65 +156,115 @@ export default function FreeTrialStatsPage() {
             </div>
           </div>
           <div className="p-5">
-            <div className="flex items-end gap-1.5 h-36 overflow-x-auto pb-2">
-              {dailyStats.map((d: any, i: number) => {
-                const h = Math.round((d.sessions / maxSessions) * 100);
-                const cmpDay = compareDailyStats[i];
-                const cmpH = cmpDay ? Math.round((cmpDay.sessions / maxSessions) * 100) : 0;
-                return (
-                  <div key={d.date} className="flex flex-col items-center gap-1 flex-1 min-w-[32px] group relative">
-                    <div className="absolute bottom-8 left-1/2 -translate-x-1/2 bg-gray-900 text-white text-[10px] rounded px-2 py-1 whitespace-nowrap opacity-0 group-hover:opacity-100 transition z-10 pointer-events-none">
-                      {fmtDay(d.date)}: {d.sessions} sess.{d.leads > 0 ? `, ${d.leads} leads` : ''}
+            <div className="flex gap-2">
+              {/* Axe Y */}
+              <div className="flex flex-col justify-between items-end pb-6 flex-shrink-0" style={{ height: '160px' }}>
+                {[maxSessions, Math.round(maxSessions * 0.5), 0].map((v) => (
+                  <span key={v} className="text-[10px] text-muted-foreground font-medium">{v}</span>
+                ))}
+              </div>
+              {/* Barres + axe X */}
+              <div className="flex-1 overflow-x-auto">
+                <div className="flex items-end gap-1.5 min-w-0" style={{ height: '128px' }}>
+                  {dailyStats.map((d: any, i: number) => {
+                    const h = Math.round((d.sessions / maxSessions) * 100);
+                    const cmpDay = compareDailyStats[i];
+                    const cmpH = cmpDay ? Math.round((cmpDay.sessions / maxSessions) * 100) : 0;
+                    return (
+                      <div key={d.date} className="flex flex-col items-center flex-1 min-w-[36px] group relative h-full justify-end">
+                        <div className="absolute -top-7 left-1/2 -translate-x-1/2 bg-gray-900 text-white text-[10px] rounded px-2 py-1 whitespace-nowrap opacity-0 group-hover:opacity-100 transition z-10 pointer-events-none">
+                          {fmtDay(d.date)}: {d.sessions} sess.{d.leads > 0 ? `, ${d.leads} leads` : ''}
+                        </div>
+                        <div className="w-full flex items-end gap-0.5" style={{ height: '112px' }}>
+                          <div className="flex-1 bg-violet-500 rounded-t transition-all" style={{ height: `${Math.max(h, 2)}%` }} />
+                          {compareMode && (
+                            <div className="flex-1 bg-orange-400/70 rounded-t transition-all" style={{ height: `${Math.max(cmpH, 2)}%` }} />
+                          )}
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+                {/* Axe X — labels */}
+                <div className="flex gap-1.5 mt-1">
+                  {dailyStats.map((d: any, i: number) => (
+                    <div key={d.date} className="flex-1 min-w-[36px] text-center">
+                      <span className="text-[9px] text-muted-foreground">{fmtDay(d.date)}</span>
                     </div>
-                    <div className="w-full flex items-end gap-0.5" style={{ height: '112px' }}>
-                      <div className="flex-1 bg-violet-500 rounded-t transition-all" style={{ height: `${Math.max(h, 2)}%` }} />
-                      {compareMode && (
-                        <div className="flex-1 bg-orange-400/70 rounded-t transition-all" style={{ height: `${Math.max(cmpH, 2)}%` }} />
-                      )}
-                    </div>
-                    <span className="text-[9px] text-muted-foreground whitespace-nowrap">{fmtDay(d.date)}</span>
-                  </div>
-                );
-              })}
+                  ))}
+                </div>
+              </div>
             </div>
           </div>
         </div>
       )}
 
       {/* ── Leads WhatsApp ── */}
-      <div className="bg-card border border-border rounded-2xl overflow-hidden">
-        <div className="flex items-center justify-between px-5 py-4 border-b border-border">
-          <div className="flex items-center gap-2">
-            <Phone className="w-4 h-4 text-green-500" />
-            <h2 className="font-bold">Leads WhatsApp</h2>
-          </div>
-          <span className="text-2xl font-extrabold text-green-600">{leads?.length ?? 0}</span>
-        </div>
-        {leads?.length > 0 ? (
-          <div className="divide-y divide-border">
-            {leads.map((lead: any, i: number) => (
-              <div key={i} className="flex items-center justify-between px-5 py-3 hover:bg-secondary/40 transition">
-                <div className="flex items-center gap-3">
-                  <div className="w-8 h-8 rounded-full bg-green-500/10 flex items-center justify-center">
-                    <Phone className="w-3.5 h-3.5 text-green-500" />
-                  </div>
-                  <span className="font-mono font-bold text-sm">{lead.phone}</span>
-                </div>
-                <div className="flex items-center gap-3 text-xs text-muted-foreground">
-                  <span className="px-2 py-0.5 rounded-full bg-secondary font-medium">{lead.theme}</span>
-                  <span>{lead.lang === 'ar' ? '🇲🇷 AR' : '🇫🇷 FR'}</span>
-                  <span>{new Date(lead.createdAt).toLocaleDateString('fr-FR', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' })}</span>
-                </div>
+      {(() => {
+        const PAGE = 7;
+        const totalLeads = leads?.length ?? 0;
+        const totalPages = Math.ceil(totalLeads / PAGE);
+        const page = Math.min(leadsPage, Math.max(0, totalPages - 1));
+        const pageLeads = (leads ?? []).slice(page * PAGE, page * PAGE + PAGE);
+        return (
+          <div className="bg-card border border-border rounded-2xl overflow-hidden">
+            <div className="flex items-center justify-between px-5 py-4 border-b border-border">
+              <div className="flex items-center gap-2">
+                <Phone className="w-4 h-4 text-green-500" />
+                <h2 className="font-bold">Leads WhatsApp</h2>
               </div>
-            ))}
+              <span className="text-2xl font-extrabold text-green-600">{totalLeads}</span>
+            </div>
+            {totalLeads > 0 ? (
+              <>
+                <div className="divide-y divide-border">
+                  {pageLeads.map((lead: any, i: number) => (
+                    <div key={i} className="flex items-center justify-between px-5 py-3 hover:bg-secondary/40 transition">
+                      <div className="flex items-center gap-3">
+                        <div className="w-8 h-8 rounded-full bg-green-500/10 flex items-center justify-center">
+                          <Phone className="w-3.5 h-3.5 text-green-500" />
+                        </div>
+                        <span className="font-mono font-bold text-sm">{lead.phone}</span>
+                      </div>
+                      <div className="flex items-center gap-3 text-xs text-muted-foreground">
+                        <span className="px-2 py-0.5 rounded-full bg-secondary font-medium">{lead.theme}</span>
+                        <span>{lead.lang === 'ar' ? '🇲🇷 AR' : '🇫🇷 FR'}</span>
+                        <span>{new Date(lead.createdAt).toLocaleDateString('fr-FR', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' })}</span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+                {totalPages > 1 && (
+                  <div className="flex items-center justify-between px-5 py-3 border-t border-border">
+                    <span className="text-xs text-muted-foreground">{page * PAGE + 1}–{Math.min((page + 1) * PAGE, totalLeads)} sur {totalLeads}</span>
+                    <div className="flex gap-1">
+                      <button onClick={() => setLeadsPage((p) => Math.max(0, p - 1))} disabled={page === 0}
+                        className="px-3 py-1 rounded-lg border border-border text-xs font-semibold disabled:opacity-30 hover:border-violet-400 transition">
+                        ←
+                      </button>
+                      {Array.from({ length: totalPages }, (_, i) => (
+                        <button key={i} onClick={() => setLeadsPage(i)}
+                          className={`px-3 py-1 rounded-lg border text-xs font-semibold transition ${i === page ? 'border-violet-500 bg-violet-500/10 text-violet-600' : 'border-border hover:border-violet-400'}`}>
+                          {i + 1}
+                        </button>
+                      ))}
+                      <button onClick={() => setLeadsPage((p) => Math.min(totalPages - 1, p + 1))} disabled={page === totalPages - 1}
+                        className="px-3 py-1 rounded-lg border border-border text-xs font-semibold disabled:opacity-30 hover:border-violet-400 transition">
+                        →
+                      </button>
+                    </div>
+                  </div>
+                )}
+              </>
+            ) : (
+              <div className="px-5 py-8 text-center">
+                <Phone className="w-8 h-8 mx-auto mb-2 text-muted-foreground/30" />
+                <p className="text-sm text-muted-foreground">Aucun numéro collecté sur cette période.</p>
+              </div>
+            )}
           </div>
-        ) : (
-          <div className="px-5 py-8 text-center">
-            <Phone className="w-8 h-8 mx-auto mb-2 text-muted-foreground/30" />
-            <p className="text-sm text-muted-foreground">Aucun numéro collecté sur cette période.</p>
-          </div>
-        )}
-      </div>
+        );
+      })()}
 
       {/* ── Entonnoir global ── */}
       <div className="bg-card border border-border rounded-2xl overflow-hidden">
