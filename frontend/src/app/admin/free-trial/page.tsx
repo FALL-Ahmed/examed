@@ -21,6 +21,7 @@ export default function FreeTrialStatsPage() {
 
   const load = useCallback(() => {
     setLoading(true);
+    setLeadsPage(0);
     adminApi.freeTrialStats({
       startDate, endDate,
       ...(compareMode ? { compareStart, compareEnd } : {}),

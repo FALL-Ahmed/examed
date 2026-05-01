@@ -692,9 +692,10 @@ export class AdminService {
     };
 
     const main = parseRange(opts.startDate, opts.endDate);
+    const cmp = opts.compareStart ? parseRange(opts.compareStart, opts.compareEnd) : null;
     const [mainResult, compareResult] = await Promise.all([
       this.buildPeriodStats(main.from, main.to),
-      opts.compareStart ? this.buildPeriodStats(...Object.values(parseRange(opts.compareStart, opts.compareEnd)) as [Date, Date]) : null,
+      cmp ? this.buildPeriodStats(cmp.from, cmp.to) : Promise.resolve(null),
     ]);
 
     const fmt = (d: Date) => d.toLocaleDateString('fr-FR', { day: '2-digit', month: 'short' });
