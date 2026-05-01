@@ -165,33 +165,33 @@ export default function FreeTrialStatsPage() {
               </div>
               {/* Barres + axe X */}
               <div className="flex-1 overflow-x-auto">
-                <div className="flex items-end gap-1.5 min-w-0" style={{ height: '128px' }}>
+                <div className="flex items-end gap-1.5" style={{ height: '144px' }}>
                   {dailyStats.map((d: any, i: number) => {
                     const h = Math.round((d.sessions / maxSessions) * 100);
                     const cmpDay = compareDailyStats[i];
                     const cmpH = cmpDay ? Math.round((cmpDay.sessions / maxSessions) * 100) : 0;
                     return (
-                      <div key={d.date} className="flex flex-col items-center flex-1 min-w-[36px] group relative h-full justify-end">
-                        <div className="absolute -top-7 left-1/2 -translate-x-1/2 bg-gray-900 text-white text-[10px] rounded px-2 py-1 whitespace-nowrap opacity-0 group-hover:opacity-100 transition z-10 pointer-events-none">
-                          {fmtDay(d.date)}: {d.sessions} sess.{d.leads > 0 ? `, ${d.leads} leads` : ''}
+                      <div key={d.date} className="flex flex-col items-center flex-1 min-w-[36px] group h-full">
+                        {/* Valeur au survol */}
+                        <div className="h-5 flex items-center justify-center">
+                          <span className="text-[10px] font-bold text-violet-600 opacity-0 group-hover:opacity-100 transition whitespace-nowrap">
+                            {d.sessions}{d.leads > 0 ? ` · ${d.leads}💚` : ''}
+                          </span>
                         </div>
-                        <div className="w-full flex items-end gap-0.5" style={{ height: '112px' }}>
-                          <div className="flex-1 bg-violet-500 rounded-t transition-all" style={{ height: `${Math.max(h, 2)}%` }} />
+                        {/* Barres */}
+                        <div className="w-full flex items-end gap-0.5 flex-1">
+                          <div className="flex-1 bg-violet-500 rounded-t transition-all cursor-pointer hover:bg-violet-600"
+                            style={{ height: `${Math.max(h, 2)}%` }} />
                           {compareMode && (
-                            <div className="flex-1 bg-orange-400/70 rounded-t transition-all" style={{ height: `${Math.max(cmpH, 2)}%` }} />
+                            <div className="flex-1 bg-orange-400/70 rounded-t transition-all"
+                              style={{ height: `${Math.max(cmpH, 2)}%` }} />
                           )}
                         </div>
+                        {/* Label date */}
+                        <span className="text-[9px] text-muted-foreground mt-1 whitespace-nowrap">{fmtDay(d.date)}</span>
                       </div>
                     );
                   })}
-                </div>
-                {/* Axe X — labels */}
-                <div className="flex gap-1.5 mt-1">
-                  {dailyStats.map((d: any, i: number) => (
-                    <div key={d.date} className="flex-1 min-w-[36px] text-center">
-                      <span className="text-[9px] text-muted-foreground">{fmtDay(d.date)}</span>
-                    </div>
-                  ))}
                 </div>
               </div>
             </div>
