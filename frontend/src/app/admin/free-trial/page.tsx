@@ -1,28 +1,50 @@
 'use client';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { adminApi } from '@/lib/api';
-import { FlaskConical, Users, Trophy, TrendingDown, Phone, Globe, Zap } from 'lucide-react';
+import { FlaskConical, Users, Trophy, TrendingDown, Phone, Globe, Zap, GitCompare } from 'lucide-react';
+
+const toIso = (d: Date) => d.toISOString().slice(0, 10);
+const daysAgo = (n: number) => toIso(new Date(Date.now() - n * 86400000));
+const fmtDay = (iso: string) => new Date(iso).toLocaleDateString('fr-FR', { day: '2-digit', month: 'short' });
 
 export default function FreeTrialStatsPage() {
+  const today = toIso(new Date());
+  const [startDate, setStartDate] = useState(daysAgo(6));
+  const [endDate, setEndDate] = useState(today);
+  const [compareMode, setCompareMode] = useState(false);
+  const [compareStart, setCompareStart] = useState(daysAgo(13));
+  const [compareEnd, setCompareEnd] = useState(daysAgo(7));
+
   const [data, setData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    adminApi.freeTrialStats().then((r) => setData(r.data)).finally(() => setLoading(false));
-  }, []);
+  const load = useCallback(() => {
+    setLoading(true);
+    adminApi.freeTrialStats({
+      startDate, endDate,
+      ...(compareMode ? { compareStart, compareEnd } : {}),
+    })
+      .then((r) => setData(r.data))
+      .finally(() => setLoading(false));
+  }, [startDate, endDate, compareMode, compareStart, compareEnd]);
 
-  if (loading) return (
+  useEffect(() => { load(); }, [load]);
+
+  if (!data && loading) return (
     <div className="flex items-center justify-center py-32">
       <div className="w-6 h-6 border-2 border-violet-500 border-t-transparent rounded-full animate-spin" />
     </div>
   );
   if (!data) return <p className="text-center text-muted-foreground py-16">Aucune donnée.</p>;
 
-  const { byTheme, globalFunnel, totalSessions, period, leads } = data;
-  const totalCompleted = globalFunnel.length > 0
-    ? globalFunnel[globalFunnel.length - 1].count : 0;
+  const { byTheme, globalFunnel, totalSessions, period, leads, dailyStats, compare } = data;
+  const totalCompleted = globalFunnel.length > 0 ? globalFunnel[globalFunnel.length - 1].count : 0;
   const completionRate = totalSessions > 0 ? Math.round((totalCompleted / totalSessions) * 100) : 0;
   const q1Count = globalFunnel[0]?.count ?? 0;
+
+  const maxSessions = Math.max(...(dailyStats ?? []).map((d: any) => d.sessions), 1);
+  const compareDailyStats: any[] = compare?.dailyStats ?? [];
+  const compareTotalSessions: number = compare?.totalSessions ?? 0;
 
   return (
     <div className="space-y-6 max-w-5xl">
@@ -38,25 +60,125 @@ export default function FreeTrialStatsPage() {
         </div>
       </div>
 
-      {/* ── KPIs globaux ── */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-        {[
-          { icon: Users,        label: 'Sessions totales', value: totalSessions,     color: '#6366f1', bg: '#6366f115' },
-          { icon: Zap,          label: 'Ont commencé',     value: q1Count,            color: '#0ea5e9', bg: '#0ea5e915' },
-          { icon: Trophy,       label: 'Ont tout fini',    value: totalCompleted,     color: '#10b981', bg: '#10b98115' },
-          { icon: TrendingDown, label: 'Taux complétion',  value: `${completionRate}%`, color: completionRate >= 50 ? '#10b981' : completionRate >= 25 ? '#f59e0b' : '#ef4444', bg: completionRate >= 50 ? '#10b98115' : completionRate >= 25 ? '#f59e0b15' : '#ef444415' },
-        ].map((k) => (
-          <div key={k.label} className="bg-card border border-border rounded-2xl p-4 flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0" style={{ background: k.bg }}>
-              <k.icon className="w-5 h-5" style={{ color: k.color }} />
+      {/* ── Filtres ── */}
+      <div className="bg-card border border-border rounded-2xl p-5 space-y-4">
+        <div className="flex flex-wrap items-end gap-3">
+          <div className="flex flex-col gap-1">
+            <label className="text-xs font-semibold text-muted-foreground">Du</label>
+            <input type="date" value={startDate} max={endDate}
+              onChange={(e) => setStartDate(e.target.value)}
+              className="px-3 py-2 rounded-xl border border-border bg-secondary text-sm font-medium focus:outline-none focus:border-violet-400" />
+          </div>
+          <div className="flex flex-col gap-1">
+            <label className="text-xs font-semibold text-muted-foreground">Au</label>
+            <input type="date" value={endDate} min={startDate} max={today}
+              onChange={(e) => setEndDate(e.target.value)}
+              className="px-3 py-2 rounded-xl border border-border bg-secondary text-sm font-medium focus:outline-none focus:border-violet-400" />
+          </div>
+          <div className="flex gap-2">
+            {[7, 14, 30].map((n) => (
+              <button key={n} onClick={() => { setStartDate(daysAgo(n - 1)); setEndDate(today); }}
+                className="px-3 py-2 rounded-xl border border-border bg-secondary text-xs font-semibold hover:border-violet-400 transition">
+                {n}j
+              </button>
+            ))}
+          </div>
+          <button onClick={() => setCompareMode((v) => !v)}
+            className={`flex items-center gap-2 px-3 py-2 rounded-xl border text-xs font-semibold transition ${compareMode ? 'border-violet-500 bg-violet-500/10 text-violet-600' : 'border-border bg-secondary hover:border-violet-400'}`}>
+            <GitCompare className="w-3.5 h-3.5" />
+            Comparer
+          </button>
+          {loading && <div className="w-4 h-4 border-2 border-violet-500 border-t-transparent rounded-full animate-spin" />}
+        </div>
+
+        {compareMode && (
+          <div className="flex flex-wrap items-end gap-3 pt-2 border-t border-border">
+            <span className="text-xs font-semibold text-muted-foreground self-center">Période de comparaison :</span>
+            <div className="flex flex-col gap-1">
+              <label className="text-xs font-semibold text-muted-foreground">Du</label>
+              <input type="date" value={compareStart} max={compareEnd}
+                onChange={(e) => setCompareStart(e.target.value)}
+                className="px-3 py-2 rounded-xl border border-orange-400 bg-orange-500/5 text-sm font-medium focus:outline-none" />
             </div>
-            <div>
-              <p className="text-2xl font-extrabold">{k.value}</p>
-              <p className="text-xs text-muted-foreground">{k.label}</p>
+            <div className="flex flex-col gap-1">
+              <label className="text-xs font-semibold text-muted-foreground">Au</label>
+              <input type="date" value={compareEnd} min={compareStart} max={today}
+                onChange={(e) => setCompareEnd(e.target.value)}
+                className="px-3 py-2 rounded-xl border border-orange-400 bg-orange-500/5 text-sm font-medium focus:outline-none" />
             </div>
           </div>
-        ))}
+        )}
       </div>
+
+      {/* ── KPIs ── */}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+        {[
+          { icon: Users,        label: 'Sessions',      value: totalSessions,        cmp: compareTotalSessions, color: '#6366f1', bg: '#6366f115' },
+          { icon: Zap,          label: 'Ont commencé',  value: q1Count,              cmp: compare?.globalFunnel?.[0]?.count ?? 0, color: '#0ea5e9', bg: '#0ea5e915' },
+          { icon: Trophy,       label: 'Ont tout fini', value: totalCompleted,       cmp: compare ? compare.globalFunnel?.[compare.globalFunnel.length - 1]?.count ?? 0 : null, color: '#10b981', bg: '#10b98115' },
+          { icon: Phone,        label: 'Leads WA',      value: leads?.length ?? 0,   cmp: compare?.leads?.length ?? 0, color: '#22c55e', bg: '#22c55e15' },
+        ].map((k) => {
+          const diff = compareMode && k.cmp != null ? k.value - k.cmp : null;
+          return (
+            <div key={k.label} className="bg-card border border-border rounded-2xl p-4 flex items-center gap-3">
+              <div className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0" style={{ background: k.bg }}>
+                <k.icon className="w-5 h-5" style={{ color: k.color }} />
+              </div>
+              <div>
+                <p className="text-2xl font-extrabold">{k.value}</p>
+                <p className="text-xs text-muted-foreground">{k.label}</p>
+                {compareMode && diff != null && (
+                  <p className={`text-xs font-bold mt-0.5 ${diff > 0 ? 'text-emerald-500' : diff < 0 ? 'text-red-500' : 'text-muted-foreground'}`}>
+                    {diff > 0 ? `+${diff}` : diff} vs période préc.
+                  </p>
+                )}
+              </div>
+            </div>
+          );
+        })}
+      </div>
+
+      {/* ── Graphique évolution journalière ── */}
+      {dailyStats?.length > 0 && (
+        <div className="bg-card border border-border rounded-2xl overflow-hidden">
+          <div className="px-5 py-4 border-b border-border">
+            <h2 className="font-bold">Évolution journalière</h2>
+            <div className="flex items-center gap-4 mt-1">
+              <span className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                <span className="w-3 h-3 rounded-sm bg-violet-500 inline-block" /> Sessions (période principale)
+              </span>
+              {compareMode && compareDailyStats.length > 0 && (
+                <span className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                  <span className="w-3 h-3 rounded-sm bg-orange-400 inline-block" /> Sessions (comparaison)
+                </span>
+              )}
+            </div>
+          </div>
+          <div className="p-5">
+            <div className="flex items-end gap-1.5 h-36 overflow-x-auto pb-2">
+              {dailyStats.map((d: any, i: number) => {
+                const h = Math.round((d.sessions / maxSessions) * 100);
+                const cmpDay = compareDailyStats[i];
+                const cmpH = cmpDay ? Math.round((cmpDay.sessions / maxSessions) * 100) : 0;
+                return (
+                  <div key={d.date} className="flex flex-col items-center gap-1 flex-1 min-w-[32px] group relative">
+                    <div className="absolute bottom-8 left-1/2 -translate-x-1/2 bg-gray-900 text-white text-[10px] rounded px-2 py-1 whitespace-nowrap opacity-0 group-hover:opacity-100 transition z-10 pointer-events-none">
+                      {fmtDay(d.date)}: {d.sessions} sess.{d.leads > 0 ? `, ${d.leads} leads` : ''}
+                    </div>
+                    <div className="w-full flex items-end gap-0.5" style={{ height: '112px' }}>
+                      <div className="flex-1 bg-violet-500 rounded-t transition-all" style={{ height: `${Math.max(h, 2)}%` }} />
+                      {compareMode && (
+                        <div className="flex-1 bg-orange-400/70 rounded-t transition-all" style={{ height: `${Math.max(cmpH, 2)}%` }} />
+                      )}
+                    </div>
+                    <span className="text-[9px] text-muted-foreground whitespace-nowrap">{fmtDay(d.date)}</span>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* ── Leads WhatsApp ── */}
       <div className="bg-card border border-border rounded-2xl overflow-hidden">
@@ -88,7 +210,7 @@ export default function FreeTrialStatsPage() {
         ) : (
           <div className="px-5 py-8 text-center">
             <Phone className="w-8 h-8 mx-auto mb-2 text-muted-foreground/30" />
-            <p className="text-sm text-muted-foreground">Aucun numéro collecté pour l'instant.</p>
+            <p className="text-sm text-muted-foreground">Aucun numéro collecté sur cette période.</p>
           </div>
         )}
       </div>
@@ -115,9 +237,7 @@ export default function FreeTrialStatsPage() {
                   {pct < 20 && <span className="absolute left-2 top-1/2 -translate-y-1/2 text-xs font-bold" style={{ color }}>{pct}%</span>}
                 </div>
                 <span className="text-xs font-semibold w-16 flex-shrink-0 text-right">{f.count} sess.</span>
-                {dropped > 0 && (
-                  <span className="text-xs text-red-500 flex-shrink-0 w-20 text-right">-{dropped} ici</span>
-                )}
+                {dropped > 0 && <span className="text-xs text-red-500 flex-shrink-0 w-20 text-right">-{dropped} ici</span>}
               </div>
             );
           })}
@@ -128,8 +248,6 @@ export default function FreeTrialStatsPage() {
       <div className="space-y-4">
         {byTheme.map((t: any) => (
           <div key={t.theme} className="bg-card border border-border rounded-2xl overflow-hidden">
-
-            {/* Thème header */}
             <div className="px-5 py-4 border-b border-border flex items-center justify-between flex-wrap gap-3">
               <div className="flex items-center gap-2">
                 <Globe className="w-4 h-4 text-violet-500" />
@@ -139,17 +257,11 @@ export default function FreeTrialStatsPage() {
                 <Badge value={t.totalSessions} label="sessions" color="#6366f1" />
                 <Badge value={`${t.avgQuestions} q.`} label="en moy." color="#f59e0b" />
                 <Badge value={`${t.successRate}%`} label="réussite" color="#10b981" />
-                <Badge
-                  value={`${t.completionRate}%`}
-                  label="complétion"
-                  color={t.completionRate >= 50 ? '#10b981' : t.completionRate >= 25 ? '#f59e0b' : '#ef4444'}
-                />
+                <Badge value={`${t.completionRate}%`} label="complétion"
+                  color={t.completionRate >= 50 ? '#10b981' : t.completionRate >= 25 ? '#f59e0b' : '#ef4444'} />
               </div>
             </div>
-
             <div className="grid grid-cols-1 md:grid-cols-2 gap-0 md:divide-x divide-border">
-
-              {/* Entonnoir */}
               <div className="p-5">
                 <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-3">Entonnoir</p>
                 <div className="space-y-1.5">
@@ -162,39 +274,27 @@ export default function FreeTrialStatsPage() {
                       <div key={f.q} className="flex items-center gap-2">
                         <span className="text-xs text-muted-foreground w-5 text-right flex-shrink-0">Q{f.q}</span>
                         <div className="flex-1 h-5 bg-secondary rounded overflow-hidden relative">
-                          <div className="h-full rounded transition-all duration-300"
-                            style={{ width: `${Math.max(pct, 2)}%`, background: color }} />
+                          <div className="h-full rounded transition-all duration-300" style={{ width: `${Math.max(pct, 2)}%`, background: color }} />
                         </div>
                         <span className="text-xs font-bold w-8 flex-shrink-0" style={{ color }}>{pct}%</span>
-                        {dropped > 0 && (
-                          <span className="text-[10px] text-red-500 w-12 flex-shrink-0">-{dropped}</span>
-                        )}
+                        {dropped > 0 && <span className="text-[10px] text-red-500 w-12 flex-shrink-0">-{dropped}</span>}
                       </div>
                     );
                   })}
                 </div>
               </div>
-
-              {/* Droite : source + langue + point de chute */}
               <div className="p-5 space-y-5">
-
-                {/* Sources */}
                 {t.sourceSplit?.length > 0 && (
                   <div>
                     <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-3">Source</p>
                     <div className="space-y-2">
                       {t.sourceSplit.map((s: any) => {
                         const pct = t.totalSessions > 0 ? Math.round((s.count / t.totalSessions) * 100) : 0;
-                        const srcColor = s.source === 'facebook' ? '#1877f2'
-                          : s.source === 'tiktok' ? '#000000'
-                          : s.source === 'google' ? '#ea4335'
-                          : s.source === 'instagram' ? '#e1306c'
-                          : '#6366f1';
+                        const srcColor = s.source === 'facebook' ? '#1877f2' : s.source === 'tiktok' ? '#000000'
+                          : s.source === 'google' ? '#ea4335' : s.source === 'instagram' ? '#e1306c' : '#6366f1';
                         return (
                           <div key={s.source} className="flex items-center gap-2">
-                            <span className="text-xs font-bold w-20 truncate flex-shrink-0" style={{ color: srcColor }}>
-                              {s.source}
-                            </span>
+                            <span className="text-xs font-bold w-20 truncate flex-shrink-0" style={{ color: srcColor }}>{s.source}</span>
                             <div className="flex-1 h-4 bg-secondary rounded overflow-hidden">
                               <div className="h-full rounded transition-all" style={{ width: `${pct}%`, background: srcColor + '99' }} />
                             </div>
@@ -205,15 +305,10 @@ export default function FreeTrialStatsPage() {
                     </div>
                   </div>
                 )}
-
-                {/* Langue */}
                 <div>
                   <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-3">Langue</p>
                   <div className="space-y-2">
-                    {[
-                      { flag: '🇫🇷', label: 'Français', count: t.langSplit.fr },
-                      { flag: '🇲🇷', label: 'Arabe',    count: t.langSplit.ar },
-                    ].map((l) => {
+                    {[{ flag: '🇫🇷', label: 'Français', count: t.langSplit.fr }, { flag: '🇲🇷', label: 'Arabe', count: t.langSplit.ar }].map((l) => {
                       const pct = t.totalSessions > 0 ? Math.round((l.count / t.totalSessions) * 100) : 0;
                       return (
                         <div key={l.label} className="flex items-center gap-2">
@@ -227,8 +322,6 @@ export default function FreeTrialStatsPage() {
                     })}
                   </div>
                 </div>
-
-                {/* Point de chute */}
                 {(() => {
                   const biggestDrop = t.funnel.reduce((acc: any, f: any, i: number) => {
                     if (i === 0) return acc;
@@ -247,12 +340,10 @@ export default function FreeTrialStatsPage() {
             </div>
           </div>
         ))}
-
         {byTheme.length === 0 && (
           <div className="text-center py-16 text-muted-foreground bg-card border border-border rounded-2xl">
             <FlaskConical className="w-10 h-10 mx-auto mb-3 opacity-20" />
-            <p className="font-medium">Aucune session enregistrée</p>
-            <p className="text-xs mt-1">Les données apparaissent dès qu'un visiteur répond à une question.</p>
+            <p className="font-medium">Aucune session sur cette période</p>
           </div>
         )}
       </div>

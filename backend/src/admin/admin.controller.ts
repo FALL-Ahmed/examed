@@ -36,8 +36,13 @@ export class AdminController {
   }
 
   @Get('free-trial-stats')
-  getFreeTrialStats() {
-    return this.adminService.getFreeTrialStats();
+  getFreeTrialStats(
+    @Query('startDate') startDate?: string,
+    @Query('endDate') endDate?: string,
+    @Query('compareStart') compareStart?: string,
+    @Query('compareEnd') compareEnd?: string,
+  ) {
+    return this.adminService.getFreeTrialStats({ startDate, endDate, compareStart, compareEnd });
   }
 
   @Get('leaderboard')

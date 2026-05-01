@@ -683,12 +683,40 @@ export class AdminService {
     };
   }
 
-  async getFreeTrialStats() {
-    const since = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
-    const events = await this.prisma.freeTrialEvent.findMany({
-      where: { createdAt: { gte: since } },
-      orderBy: { createdAt: 'asc' },
-    });
+  async getFreeTrialStats(opts: { startDate?: string; endDate?: string; compareStart?: string; compareEnd?: string } = {}) {
+    const parseRange = (start?: string, end?: string) => {
+      const from = start ? new Date(start) : new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
+      const to = end ? new Date(end + 'T23:59:59.999Z') : new Date();
+      from.setHours(0, 0, 0, 0);
+      return { from, to };
+    };
+
+    const main = parseRange(opts.startDate, opts.endDate);
+    const [mainResult, compareResult] = await Promise.all([
+      this.buildPeriodStats(main.from, main.to),
+      opts.compareStart ? this.buildPeriodStats(...Object.values(parseRange(opts.compareStart, opts.compareEnd)) as [Date, Date]) : null,
+    ]);
+
+    const fmt = (d: Date) => d.toLocaleDateString('fr-FR', { day: '2-digit', month: 'short' });
+    return {
+      ...mainResult,
+      period: `${fmt(main.from)} → ${fmt(main.to)}`,
+      compare: compareResult,
+    };
+  }
+
+  private async buildPeriodStats(from: Date, to: Date) {
+    const [events, leads] = await Promise.all([
+      this.prisma.freeTrialEvent.findMany({
+        where: { createdAt: { gte: from, lte: to } },
+        orderBy: { createdAt: 'asc' },
+      }),
+      this.prisma.freeTrialLead.findMany({
+        where: { createdAt: { gte: from, lte: to } },
+        orderBy: { createdAt: 'desc' },
+        select: { phone: true, theme: true, lang: true, createdAt: true },
+      }),
+    ]);
 
     const themeKeys = [...new Set(events.map((e) => e.theme))].sort();
 
@@ -707,21 +735,17 @@ export class AdminService {
       const sessions = [...bySession.values()];
       const totalSessions = sessions.length;
       const avgQuestions = totalSessions > 0
-        ? Math.round((sessions.reduce((sum, s) => sum + s.maxQ, 0) / totalSessions) * 10) / 10
-        : 0;
+        ? Math.round((sessions.reduce((sum, s) => sum + s.maxQ, 0) / totalSessions) * 10) / 10 : 0;
       const maxQ = Math.max(...themeEvents.map((e) => e.questionN), 1);
       const completions = sessions.filter((s) => s.maxQ >= maxQ).length;
-
       const funnel = Array.from({ length: maxQ }, (_, i) => ({
         q: i + 1,
         count: sessions.filter((s) => s.maxQ >= i + 1).length,
       }));
-
       const totalAnswers = themeEvents.length;
       const correctAnswers = themeEvents.filter((e) => e.isCorrect).length;
       const successRate = totalAnswers > 0 ? Math.round((correctAnswers / totalAnswers) * 100) : 0;
 
-      // Répartition par source (par session unique)
       const sourceMap = new Map<string, Set<string>>();
       for (const e of themeEvents) {
         if (!e.source || e.source === 'direct') continue;
@@ -733,12 +757,9 @@ export class AdminService {
         .sort((a, b) => b.count - a.count);
 
       return {
-        theme,
-        totalSessions,
-        avgQuestions,
+        theme, totalSessions, avgQuestions,
         completionRate: totalSessions > 0 ? Math.round((completions / totalSessions) * 100) : 0,
-        successRate,
-        funnel,
+        successRate, funnel,
         langSplit: {
           fr: new Set(themeEvents.filter((e) => e.lang === 'fr').map((e) => e.sessionId)).size,
           ar: new Set(themeEvents.filter((e) => e.lang === 'ar').map((e) => e.sessionId)).size,
@@ -747,7 +768,7 @@ export class AdminService {
       };
     });
 
-    // Entonnoir global (tous thèmes)
+    // Entonnoir global
     const allBySession = new Map<string, number>();
     for (const e of events) {
       const cur = allBySession.get(e.sessionId) ?? 0;
@@ -760,12 +781,22 @@ export class AdminService {
       count: allSessions.filter((m) => m >= i + 1).length,
     }));
 
-    const leads = await this.prisma.freeTrialLead.findMany({
-      where: { createdAt: { gte: since } },
-      orderBy: { createdAt: 'desc' },
-      select: { phone: true, theme: true, lang: true, createdAt: true },
-    });
+    // Stats journalières
+    const dailyMap = new Map<string, { sessions: Set<string>; completions: number; leads: number }>();
+    for (const e of events) {
+      const day = e.createdAt.toISOString().slice(0, 10);
+      if (!dailyMap.has(day)) dailyMap.set(day, { sessions: new Set(), completions: 0, leads: 0 });
+      dailyMap.get(day)!.sessions.add(e.sessionId);
+    }
+    for (const lead of leads) {
+      const day = lead.createdAt.toISOString().slice(0, 10);
+      if (!dailyMap.has(day)) dailyMap.set(day, { sessions: new Set(), completions: 0, leads: 0 });
+      dailyMap.get(day)!.leads++;
+    }
+    const dailyStats = [...dailyMap.entries()]
+      .sort(([a], [b]) => a.localeCompare(b))
+      .map(([date, v]) => ({ date, sessions: v.sessions.size, leads: v.leads }));
 
-    return { byTheme, globalFunnel, totalSessions: allBySession.size, period: '30 derniers jours', leads };
+    return { byTheme, globalFunnel, totalSessions: allBySession.size, leads, dailyStats };
   }
 }

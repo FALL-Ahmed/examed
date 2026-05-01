@@ -182,7 +182,8 @@ export const adminApi = {
   grantPremium: (id: string, days: number) => api.put(`/admin/users/${id}/grant-premium`, { days }),
   leaderboard: (sortBy?: string) => api.get('/admin/leaderboard', { params: { sortBy } }),
   sessions: () => api.get('/admin/sessions'),
-  freeTrialStats: () => api.get('/admin/free-trial-stats'),
+  freeTrialStats: (params?: { startDate?: string; endDate?: string; compareStart?: string; compareEnd?: string }) =>
+    api.get('/admin/free-trial-stats', { params }),
 };
 
 export const pushApi = {
