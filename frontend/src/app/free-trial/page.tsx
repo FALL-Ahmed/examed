@@ -172,12 +172,12 @@ function FreeTrialContent() {
 
   const plans = [
     {
-      label: isAr ? 'فردي — شهر' : 'Solo — 1 mois',
+      label: isAr ? 'فردي — حتى المسابقة' : 'Solo — jusqu\'au concours',
       href: '/register?plan=SOLO_1M',
       price: promoActive ? promo(solo1m) : solo1m,
       oldPrice: promoActive ? solo1m : null,
       badge: null,
-      sub: isAr ? 'وصول كامل لمدة 30 يوماً' : 'Accès complet 30 jours',
+      sub: isAr ? 'صالح حتى يوم المسابقة' : 'Valable jusqu\'au concours',
     },
     {
       label: isAr ? 'فردي — 3 أشهر' : 'Solo — 3 mois',

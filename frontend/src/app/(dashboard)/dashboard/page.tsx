@@ -104,28 +104,21 @@ export default function DashboardPage() {
       </div>
 
       {/* ── Subscription expiry banner ── */}
-      {subEnd && daysLeft !== null && daysLeft <= 7 && (
-        <div className={`flex items-center gap-3 rounded-2xl px-5 py-4 border ${
-          daysLeft <= 3
-            ? 'bg-red-500/10 border-red-500/30 text-red-400'
-            : 'bg-amber-500/10 border-amber-500/30 text-amber-400'
-        }`}>
+      {subEnd && daysLeft !== null && daysLeft <= 0 && (
+        <div className="flex items-center gap-3 rounded-2xl px-5 py-4 border bg-red-500/10 border-red-500/30 text-red-400">
           <AlertTriangle className="w-5 h-5 flex-shrink-0" />
           <div className="flex-1 text-sm">
-            <span className="font-semibold">
-              {daysLeft <= 0 ? t('dash.sub.expired') : `${t('dash.sub.expires')} ${daysLeft} ${daysLeft > 1 ? t('dash.sub.days') : t('dash.sub.day')}`}
-            </span>
+            <span className="font-semibold">{t('dash.sub.expired')}</span>
             <span className="opacity-70 ml-2">— {t('dash.sub.renew')}</span>
           </div>
         </div>
       )}
 
-      {subEnd && daysLeft !== null && daysLeft > 7 && (
+      {subEnd && daysLeft !== null && daysLeft > 0 && (
         <div className="flex items-center gap-3 bg-emerald-500/10 border border-emerald-500/20 rounded-2xl px-5 py-3">
           <CalendarCheck className="w-4 h-4 text-emerald-400 flex-shrink-0" />
           <p className="text-sm text-emerald-400">
-            {t('dash.sub.valid')} <strong>{subEnd.toLocaleDateString(undefined, { day: 'numeric', month: 'long', year: 'numeric' })}</strong>
-            <span className="opacity-70 ml-1">({daysLeft} {daysLeft > 1 ? t('dash.sub.days') : t('dash.sub.day')})</span>
+            {isAr ? 'الاشتراك صالح حتى يوم المسابقة ✓' : 'Compte actif · valable jusqu\'au concours ✓'}
           </p>
         </div>
       )}

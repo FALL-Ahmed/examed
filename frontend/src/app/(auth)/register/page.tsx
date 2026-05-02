@@ -427,8 +427,8 @@ function RegisterContent() {
                 className={`relative w-full flex items-center justify-between p-4 rounded-2xl border-2 transition-all text-left
                   ${selectedPlan === 'SOLO_1M' ? 'border-violet-500 bg-violet-50' : 'border-gray-200 bg-white hover:border-gray-300'}`}>
                 <div>
-                  <p className="font-bold text-gray-900 text-sm">{isAr ? 'فردي · شهر' : 'Solo · 1 mois'}</p>
-                  <p className="text-xs text-gray-500 mt-0.5">{isAr ? 'وصول كامل 30 يوماً' : 'Accès complet 30 jours'}</p>
+                  <p className="font-bold text-gray-900 text-sm">{isAr ? 'فردي · حتى المسابقة' : 'Solo · jusqu\'au concours'}</p>
+                  <p className="text-xs text-gray-500 mt-0.5">{isAr ? 'صالح حتى يوم المسابقة' : 'Valable jusqu\'au concours'}</p>
                 </div>
                 <div className="text-right flex-shrink-0 ml-4">
                   {promoActive && <p className="text-xs text-gray-400 line-through">{solo1mBase} MRU</p>}
