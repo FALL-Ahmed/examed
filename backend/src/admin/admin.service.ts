@@ -59,10 +59,15 @@ export class AdminService {
     };
   }
 
-  async getUsers(page = 1, limit = 20, search?: string, planType?: string) {
+  async getUsers(page = 1, limit = 20, search?: string, planType?: string, expiringSoon?: boolean) {
     const where: any = { role: { not: 'ADMIN' } };
     if (planType) {
       where.payments = { some: { status: 'VALIDATED', planType } };
+    }
+    if (expiringSoon) {
+      const now = new Date();
+      const in7days = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000);
+      where.subscriptionEnd = { gte: now, lte: in7days };
     }
     if (search) {
       where.OR = [

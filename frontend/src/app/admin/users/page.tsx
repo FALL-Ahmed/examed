@@ -7,13 +7,14 @@ import {
   RotateCcw, Trash2, Users, Crown, UserCheck,
 } from 'lucide-react';
 
-type Tab = 'ALL' | 'SOLO_1M' | 'SOLO_3M' | 'GROUP';
+type Tab = 'ALL' | 'SOLO_1M' | 'SOLO_3M' | 'GROUP' | 'EXPIRING';
 
 const TABS: { id: Tab; label: string; icon: React.ReactNode; color: string }[] = [
-  { id: 'ALL',     label: 'Tous',        icon: <User className="w-4 h-4" />,    color: 'slate' },
-  { id: 'SOLO_1M', label: 'Solo 1 mois', icon: <UserCheck className="w-4 h-4" />, color: 'indigo' },
-  { id: 'SOLO_3M', label: 'Solo 3 mois', icon: <UserCheck className="w-4 h-4" />, color: 'violet' },
-  { id: 'GROUP',   label: 'Groupes',     icon: <Users className="w-4 h-4" />,   color: 'emerald' },
+  { id: 'ALL',      label: 'Tous',           icon: <User className="w-4 h-4" />,    color: 'slate' },
+  { id: 'SOLO_1M',  label: 'Solo 1 mois',    icon: <UserCheck className="w-4 h-4" />, color: 'indigo' },
+  { id: 'SOLO_3M',  label: 'Solo 3 mois',    icon: <UserCheck className="w-4 h-4" />, color: 'violet' },
+  { id: 'GROUP',    label: 'Groupes',         icon: <Users className="w-4 h-4" />,   color: 'emerald' },
+  { id: 'EXPIRING', label: '⚠️ Expire ≤7j',  icon: null,                             color: 'amber' },
 ];
 
 const COLOR_MAP: Record<string, string> = {
@@ -21,12 +22,14 @@ const COLOR_MAP: Record<string, string> = {
   indigo:  'bg-indigo-100 text-indigo-700 border-indigo-200',
   violet:  'bg-violet-100 text-violet-700 border-violet-200',
   emerald: 'bg-emerald-100 text-emerald-700 border-emerald-200',
+  amber:   'bg-amber-100 text-amber-700 border-amber-200',
 };
 const ACTIVE_MAP: Record<string, string> = {
   slate:   'bg-white border-slate-300 text-slate-800 shadow-sm',
   indigo:  'bg-indigo-500 border-indigo-500 text-white shadow-sm',
   violet:  'bg-violet-500 border-violet-500 text-white shadow-sm',
   emerald: 'bg-emerald-500 border-emerald-500 text-white shadow-sm',
+  amber:   'bg-amber-500 border-amber-500 text-white shadow-sm',
 };
 
 export default function AdminUsersPage() {
@@ -45,7 +48,11 @@ export default function AdminUsersPage() {
 
   async function load() {
     const params: any = { page, search };
-    if (tab !== 'ALL') params.planType = tab;
+    if (tab === 'EXPIRING') {
+      params.expiringSoon = 'true';
+    } else if (tab !== 'ALL') {
+      params.planType = tab;
+    }
     const { data: d } = await adminApi.users(params);
     setData(d);
   }
@@ -89,6 +96,8 @@ export default function AdminUsersPage() {
     setGroups([]);
   }
 
+  const expiringCount = tab === 'EXPIRING' ? data?.total : null;
+
   const roleIcon = (role: string) => {
     if (role === 'ADMIN') return <Shield className="w-4 h-4 text-blue-600" />;
     if (role === 'PREMIUM') return <CheckCircle className="w-4 h-4 text-emerald-500" />;
@@ -105,7 +114,14 @@ export default function AdminUsersPage() {
     <div className="space-y-6">
       <div>
         <h1 className="text-2xl font-bold">Utilisateurs</h1>
-        {tab !== 'GROUP' && data && (
+        {tab === 'EXPIRING' && data && (
+          <p className="text-amber-600 font-medium">
+            {data.total === 0
+              ? 'Aucun compte n\'expire dans les 7 prochains jours ✓'
+              : `⚠️ ${data.total} compte${data.total > 1 ? 's' : ''} expirent dans les 7 prochains jours`}
+          </p>
+        )}
+        {tab !== 'GROUP' && tab !== 'EXPIRING' && data && (
           <p className="text-muted-foreground">{data.total} au total</p>
         )}
         {tab === 'GROUP' && (
