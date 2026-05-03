@@ -37,6 +37,7 @@ interface Props {
   isLast?: boolean;
   isFavorited?: boolean;
   onFavoriteToggle?: (id: string, favorited: boolean) => void;
+  savedAnswer?: { userAnswer: string; result: AnswerResult };
 }
 
 const LETTERS = ['A', 'B', 'C', 'D', 'E'] as const;
@@ -65,13 +66,15 @@ const ROW_SELECTED: Record<string, string> = {
   E: 'border-rose-400 bg-rose-50 dark:bg-rose-900/30 dark:border-rose-500',
 };
 
-export function QuestionCard({ question, questionNumber, totalQuestions, onAnswer, onNext, isLast, isFavorited = false, onFavoriteToggle }: Props) {
+export function QuestionCard({ question, questionNumber, totalQuestions, onAnswer, onNext, isLast, isFavorited = false, onFavoriteToggle, savedAnswer }: Props) {
   const { lang } = useLang();
   const isAr = lang === 'ar';
   const displayLetter = (l: string) => isAr ? AR_LETTERS[l] ?? l : l;
 
-  const [selected, setSelected] = useState<Set<string>>(new Set());
-  const [result, setResult] = useState<AnswerResult | null>(null);
+  const [selected, setSelected] = useState<Set<string>>(
+    savedAnswer ? new Set(savedAnswer.userAnswer.split(',').map((s) => s.trim()).filter(Boolean)) : new Set()
+  );
+  const [result, setResult] = useState<AnswerResult | null>(savedAnswer?.result ?? null);
   const [loading, setLoading] = useState(false);
   const [favorited, setFavorited] = useState(isFavorited);
   const [favLoading, setFavLoading] = useState(false);
@@ -298,10 +301,14 @@ export function QuestionCard({ question, questionNumber, totalQuestions, onAnswe
             <button
               onClick={handleNext}
               className="w-full py-3 rounded-xl font-semibold text-sm text-white flex items-center justify-center gap-2 shadow-md shadow-violet-200 transition hover:opacity-90"
-              style={{ background: 'linear-gradient(135deg,#7c3aed,#6366f1)' }}
+              style={{ background: savedAnswer ? 'linear-gradient(135deg,#f59e0b,#d97706)' : 'linear-gradient(135deg,#7c3aed,#6366f1)' }}
             >
-              {isLast ? (isAr ? 'عرض النتائج' : 'Voir les résultats') : (isAr ? 'السؤال التالي' : 'Question suivante')}
-              <ChevronRight className={`w-4 h-4 ${isAr ? 'rotate-180' : ''}`} />
+              {savedAnswer
+                ? (isAr ? '↩ العودة للتقدم' : '↩ Reprendre la session')
+                : isLast
+                  ? (isAr ? 'عرض النتائج' : 'Voir les résultats')
+                  : (isAr ? 'السؤال التالي' : 'Question suivante')}
+              {!savedAnswer && <ChevronRight className={`w-4 h-4 ${isAr ? 'rotate-180' : ''}`} />}
             </button>
           </div>
         </div>

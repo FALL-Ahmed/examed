@@ -22,7 +22,8 @@ export default function PracticePage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [configured, setConfigured] = useState(false);
-  const [answers, setAnswers] = useState<Array<{ correct: boolean } | null>>([]);
+  const [answers, setAnswers] = useState<Array<{ correct: boolean; userAnswer: string; result: any } | null>>([]);
+  const [viewIndex, setViewIndex] = useState(0);
   const saveRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
@@ -39,6 +40,7 @@ export default function PracticePage() {
       if (saved?.session) {
         setSession(saved.session);
         setCurrentIndex(saved.currentIndex || 0);
+        setViewIndex(saved.currentIndex || 0);
         setAnswers(saved.answers || Array(saved.session.questions.length).fill(null));
         setConfigured(true);
       }
@@ -80,6 +82,7 @@ export default function PracticePage() {
       });
       setSession(data);
       setCurrentIndex(0);
+      setViewIndex(0);
       setAnswers(Array(data.questions.length).fill(null));
       setConfigured(true);
     } catch (err: any) {
@@ -94,13 +97,17 @@ export default function PracticePage() {
     const { data } = await attemptsApi.answer(session.attemptId, { questionId: q.id, answer });
     setAnswers((prev) => {
       const next = [...prev];
-      next[currentIndex] = { correct: data.isCorrect };
+      next[currentIndex] = { correct: data.isCorrect, userAnswer: answer, result: data };
       return next;
     });
     return data;
   }
 
   function handleNext() {
+    if (viewIndex < currentIndex) {
+      setViewIndex(currentIndex);
+      return;
+    }
     if (currentIndex + 1 >= session.questions.length) {
       localStorage.removeItem(PRACTICE_KEY);
       attemptsApi.finish(session.attemptId).catch(() => {});
@@ -110,7 +117,9 @@ export default function PracticePage() {
       params.set('count', String(Math.min(config.count, maxAvailable)));
       router.push(`/exam/${session.attemptId}/results?${params}`);
     } else {
-      setCurrentIndex((i) => i + 1);
+      const next = currentIndex + 1;
+      setCurrentIndex(next);
+      setViewIndex(next);
     }
   }
 
@@ -246,9 +255,10 @@ export default function PracticePage() {
     );
   }
 
-  const currentQ = session.questions[currentIndex];
+  const currentQ = session.questions[viewIndex];
   const answered = answers.filter(Boolean).length;
   const correctCount = answers.filter((a) => a?.correct).length;
+  const isReviewing = viewIndex < currentIndex;
 
   return (
     <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
@@ -263,13 +273,24 @@ export default function PracticePage() {
             {t('practice.stopSession')}
           </button>
         </div>
+        {isReviewing && (
+          <div className="flex items-center justify-between gap-3 bg-amber-50 border border-amber-200 rounded-xl px-4 py-2.5 mb-3 text-sm">
+            <span className="text-amber-700 font-medium">👁 Consultation — Q{viewIndex + 1}</span>
+            <button onClick={() => setViewIndex(currentIndex)}
+              className="text-xs font-semibold text-amber-600 hover:text-amber-800 underline underline-offset-2">
+              Reprendre →
+            </button>
+          </div>
+        )}
         <QuestionCard
+          key={currentQ.id}
           question={currentQ}
-          questionNumber={currentIndex + 1}
+          questionNumber={viewIndex + 1}
           totalQuestions={session.questions.length}
           onAnswer={handleAnswer}
           onNext={handleNext}
-          isLast={currentIndex + 1 === session.questions.length}
+          isLast={!isReviewing && currentIndex + 1 === session.questions.length}
+          savedAnswer={isReviewing && answers[viewIndex] ? { userAnswer: answers[viewIndex]!.userAnswer, result: answers[viewIndex]!.result } : undefined}
         />
       </div>
 
@@ -316,21 +337,27 @@ export default function PracticePage() {
           <div className="flex flex-wrap gap-1.5">
             {session.questions.map((_: any, i: number) => {
               const ans = answers[i];
+              const isView = i === viewIndex;
+              const isAccessible = i <= currentIndex;
               return (
-                <div
+                <button
                   key={i}
-                  className={`w-7 h-7 rounded-lg flex items-center justify-center text-xs font-bold transition-all ${
-                    i === currentIndex
-                      ? 'gradient-primary text-white shadow-md'
+                  onClick={() => isAccessible && setViewIndex(i)}
+                  disabled={!isAccessible}
+                  className={`w-7 h-7 rounded-lg flex items-center justify-center text-xs font-bold transition-all
+                    ${isView
+                      ? 'gradient-primary text-white shadow-md ring-2 ring-violet-400 ring-offset-1'
+                      : !isAccessible
+                      ? 'bg-secondary text-muted-foreground/40 cursor-not-allowed'
                       : ans === null
-                      ? 'bg-secondary text-muted-foreground'
+                      ? 'bg-secondary text-muted-foreground hover:bg-primary/10 cursor-pointer'
                       : ans.correct
-                      ? 'bg-emerald-500/15 text-emerald-600'
-                      : 'bg-red-500/15 text-red-500'
-                  }`}
+                      ? 'bg-emerald-500/15 text-emerald-600 hover:bg-emerald-500/25 cursor-pointer'
+                      : 'bg-red-500/15 text-red-500 hover:bg-red-500/25 cursor-pointer'
+                    }`}
                 >
                   {ans === null ? i + 1 : ans.correct ? '✓' : '✗'}
-                </div>
+                </button>
               );
             })}
           </div>
