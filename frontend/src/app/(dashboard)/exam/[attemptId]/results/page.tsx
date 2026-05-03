@@ -76,7 +76,9 @@ export default function ResultsPage() {
     try {
       const { data } = await attemptsApi.start({ mode: 'REVIEW', questionIds: wrongIds });
       router.push(`/exam/${data.attemptId}?data=${encodeURIComponent(JSON.stringify(data))}`);
-    } catch {} finally { setReviewLoading(false); }
+    } catch (err: any) {
+      alert(err?.response?.data?.message || 'Erreur lors du démarrage de la révision');
+    } finally { setReviewLoading(false); }
   }
 
   const filtered = review.questions.filter((q: any) =>

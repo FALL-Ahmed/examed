@@ -1,6 +1,6 @@
 import { Controller, Post, Get, Body, Param, Req, UseGuards } from '@nestjs/common';
 import { ApiTags, ApiBearerAuth } from '@nestjs/swagger';
-import { IsString, IsOptional, IsNumber, IsIn } from 'class-validator';
+import { IsString, IsOptional, IsNumber, IsIn, IsArray } from 'class-validator';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { AttemptsService } from './attempts.service';
 
@@ -22,6 +22,9 @@ class StartAttemptDto {
 
   @IsOptional() @IsString()
   language?: string;
+
+  @IsOptional() @IsArray() @IsString({ each: true })
+  questionIds?: string[];
 }
 
 class SubmitAnswerDto {
