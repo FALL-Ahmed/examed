@@ -93,22 +93,27 @@ export default function PracticePage() {
   }
 
   async function handleAnswer(answer: string) {
-    const q = session.questions[currentIndex];
+    const q = session.questions[viewIndex];
     const { data } = await attemptsApi.answer(session.attemptId, { questionId: q.id, answer });
     setAnswers((prev) => {
       const next = [...prev];
-      next[currentIndex] = { correct: data.isCorrect, userAnswer: answer, result: data };
+      next[viewIndex] = { correct: data.isCorrect, userAnswer: answer, result: data };
       return next;
     });
     return data;
   }
 
   function handleNext() {
-    if (viewIndex < currentIndex) {
+    if (answers[viewIndex] && viewIndex !== currentIndex) {
+      // Reviewing old answer → back to sequential progress
       setViewIndex(currentIndex);
       return;
     }
-    if (currentIndex + 1 >= session.questions.length) {
+    // Find next unanswered question
+    const nextUnanswered = answers.findIndex((a, i) => i > viewIndex && a === null);
+    // Check if all questions answered
+    const allAnswered = answers.every((a, i) => i === viewIndex || a !== null);
+    if (allAnswered || nextUnanswered === -1) {
       localStorage.removeItem(PRACTICE_KEY);
       attemptsApi.finish(session.attemptId).catch(() => {});
       const params = new URLSearchParams({ from: 'practice' });
@@ -117,9 +122,8 @@ export default function PracticePage() {
       params.set('count', String(Math.min(config.count, maxAvailable)));
       router.push(`/exam/${session.attemptId}/results?${params}`);
     } else {
-      const next = currentIndex + 1;
-      setCurrentIndex(next);
-      setViewIndex(next);
+      setCurrentIndex(nextUnanswered);
+      setViewIndex(nextUnanswered);
     }
   }
 
@@ -258,7 +262,7 @@ export default function PracticePage() {
   const currentQ = session.questions[viewIndex];
   const answered = answers.filter(Boolean).length;
   const correctCount = answers.filter((a) => a?.correct).length;
-  const isReviewing = viewIndex < currentIndex;
+  const isReviewing = answers[viewIndex] !== null && answers[viewIndex] !== undefined && viewIndex !== currentIndex;
 
   return (
     <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
@@ -338,17 +342,13 @@ export default function PracticePage() {
             {session.questions.map((_: any, i: number) => {
               const ans = answers[i];
               const isView = i === viewIndex;
-              const isAccessible = i <= currentIndex;
               return (
                 <button
                   key={i}
-                  onClick={() => isAccessible && setViewIndex(i)}
-                  disabled={!isAccessible}
+                  onClick={() => setViewIndex(i)}
                   className={`w-7 h-7 rounded-lg flex items-center justify-center text-xs font-bold transition-all
                     ${isView
                       ? 'gradient-primary text-white shadow-md ring-2 ring-violet-400 ring-offset-1'
-                      : !isAccessible
-                      ? 'bg-secondary text-muted-foreground/40 cursor-not-allowed'
                       : ans === null
                       ? 'bg-secondary text-muted-foreground hover:bg-primary/10 cursor-pointer'
                       : ans.correct
