@@ -77,7 +77,7 @@ export default function UploadPage() {
     try {
       let data: any;
       if (tab === 'pdf') {
-        ({ data } = await adminApi.previewPdf(file!));
+        ({ data } = await adminApi.previewPdf(file!, lang));
       } else if (tab === 'json') {
         ({ data } = await adminApi.previewJson(jsonData));
       } else {
@@ -99,7 +99,7 @@ export default function UploadPage() {
     try {
       let data: any;
       if (tab === 'pdf') {
-        ({ data } = await adminApi.importPdf(file!));
+        ({ data } = await adminApi.importPdf(file!, lang));
       } else if (tab === 'json') {
         ({ data } = await adminApi.importJson(jsonData));
       } else {
@@ -148,8 +148,8 @@ export default function UploadPage() {
         <p className="text-muted-foreground mt-1">Via JSON structuré, PDF ou en collant le texte</p>
       </div>
 
-      {/* Langue (only relevant for text tab) */}
-      {tab === 'text' && (
+      {/* Langue (text + pdf) */}
+      {(tab === 'text' || tab === 'pdf') && (
         <div className="flex items-center gap-3">
           <span className="text-sm font-medium text-muted-foreground">Langue du contenu :</span>
           <div className="flex rounded-xl border border-border overflow-hidden">

@@ -23,16 +23,17 @@ export class PdfController {
   @Post('preview')
   @ApiConsumes('multipart/form-data')
   @UseInterceptors(FileInterceptor('file', { limits: { fileSize: 50 * 1024 * 1024 } }))
-  async preview(@UploadedFile() file: Express.Multer.File) {
-    return this.pdfService.parseAndPreview(file.buffer, file.originalname);
+  async preview(@UploadedFile() file: Express.Multer.File, @Body('lang') lang?: string) {
+    return this.pdfService.parseAndPreview(file.buffer, file.originalname, lang?.toUpperCase() || 'FR');
   }
 
   @Post('import')
   @ApiConsumes('multipart/form-data')
   @UseInterceptors(FileInterceptor('file', { limits: { fileSize: 50 * 1024 * 1024 } }))
-  async importPdf(@UploadedFile() file: Express.Multer.File) {
-    const parsed = await this.pdfService.parseAndImport(file.buffer, file.originalname);
-    const imported = await this.adminService.importFromParser(parsed, 'FR');
+  async importPdf(@UploadedFile() file: Express.Multer.File, @Body('lang') lang?: string) {
+    const language = lang?.toUpperCase() || 'FR';
+    const parsed = await this.pdfService.parseAndImport(file.buffer, file.originalname, language);
+    const imported = await this.adminService.importFromParser(parsed, language);
     return { parsed: parsed.stats, imported };
   }
 

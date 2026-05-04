@@ -8,14 +8,19 @@ import { parseArText, limitPreviewAr } from './ar-text-parser';
 @Injectable()
 export class PdfService {
 
-  async parseAndPreview(fileBuffer: Buffer, filename: string) {
+  async parseAndPreview(fileBuffer: Buffer, filename: string, lang = 'FR') {
     const text = await this.extractText(fileBuffer);
+    if (lang === 'AR') {
+      const result = parseArText(text);
+      return limitPreviewAr(result);
+    }
     const result = parseText(text);
     return limitPreview(result);
   }
 
-  async parseAndImport(fileBuffer: Buffer, filename: string) {
+  async parseAndImport(fileBuffer: Buffer, filename: string, lang = 'FR') {
     const text = await this.extractText(fileBuffer);
+    if (lang === 'AR') return parseArText(text);
     return parseText(text);
   }
 
