@@ -374,14 +374,11 @@ export default function LandingPage() {
                     ? (lang === 'ar' ? `عرض الإطلاق — صالح حتى ${formattedEndDate}` : `Offre de lancement — valable jusqu'au ${formattedEndDate}`)
                     : (lang === 'ar' ? 'عرض الإطلاق — أسعار محدودة المدة' : 'Offre de lancement — prix à durée limitée')}
                 </p>
-                <div className="inline-flex items-center gap-2 bg-white/20 border border-white/30 text-white text-sm font-bold px-4 py-2 rounded-full backdrop-blur-sm">
-                  ⏳ {lang === 'ar' ? 'الأسعار الأصلية مشطوبة أدناه' : 'Les prix barrés ci-dessous sont les prix normaux'}
-                </div>
               </div>
             </div>
           )}
 
-          <p className="text-center text-gray-500 text-sm italic mb-8 max-w-xl mx-auto">
+          <p className="text-center text-gray-500 text-base md:text-lg max-w-2xl mx-auto leading-relaxed mb-10">
             {lang === 'ar'
               ? 'سجّل مرة واحدة، وذاكر حتى النهاية. آل بورور يرافقكم حتى باب قاعة الامتحان'
               : "Inscrivez-vous une fois, révisez jusqu'au bout. Al Bourour vous accompagne jusqu'à la porte de la salle d'examen"}
@@ -446,7 +443,8 @@ export default function LandingPage() {
                 })}
               </div>
               <Link href="/register?plan=GROUP"
-                className="block w-full text-center py-3 rounded-2xl font-bold text-sm border-2 border-gray-200 text-gray-700 hover:border-emerald-400 hover:text-emerald-600 transition">
+                className="block w-full text-center py-3 rounded-2xl font-bold text-sm text-white transition hover:opacity-90 shadow-md shadow-blue-200"
+                style={{ background: 'linear-gradient(135deg,#2563eb,#3b82f6)' }}>
                 {t('landing.pricing.group.create')}
               </Link>
             </div>
