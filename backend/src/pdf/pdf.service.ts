@@ -1,7 +1,5 @@
-import { Injectable } from '@nestjs/common';
-// eslint-disable-next-line @typescript-eslint/no-var-requires
-const pdfParseLib = require('pdf-parse');
-const pdfParse = pdfParseLib.default ?? pdfParseLib;
+import { Injectable, BadRequestException } from '@nestjs/common';
+import { PDFParse } from 'pdf-parse';
 import { parseText, limitPreview } from './text-parser';
 import { parseArText, limitPreviewAr } from './ar-text-parser';
 
@@ -108,7 +106,12 @@ export class PdfService {
   }
 
   private async extractText(fileBuffer: Buffer): Promise<string> {
-    const data = await pdfParse(fileBuffer);
-    return data.text;
+    try {
+      const parser = new PDFParse({ data: fileBuffer });
+      const result = await parser.getText();
+      return result.text;
+    } catch {
+      throw new BadRequestException('Impossible de lire le PDF. Vérifiez que le fichier est un PDF valide et non protégé.');
+    }
   }
 }
