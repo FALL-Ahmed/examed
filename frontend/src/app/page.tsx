@@ -358,31 +358,32 @@ export default function LandingPage() {
             <h2 className="text-3xl md:text-5xl font-extrabold text-gray-900">{t('landing.pricing.h2')}</h2>
           </div>
 
-          {promoActive && (
-            <div className="mb-12 relative overflow-hidden rounded-3xl text-white text-center shadow-2xl shadow-red-300"
-              style={{ background: 'linear-gradient(135deg,#b91c1c 0%,#dc2626 40%,#f97316 100%)' }}>
-              <div className="absolute inset-0 opacity-[0.07]"
-                style={{ backgroundImage: 'radial-gradient(circle at 1px 1px,white 1px,transparent 0)', backgroundSize: '24px 24px' }} />
-              <div className="absolute top-0 left-1/4 w-64 h-32 rounded-full blur-3xl opacity-20 pointer-events-none"
-                style={{ background: 'radial-gradient(circle,#fbbf24,transparent)' }} />
-              <div className="relative px-8 py-8">
-                <p className="text-3xl md:text-4xl font-black mb-2 tracking-tight">
-                  {lang === 'ar' ? `-${promoDiscount}% على جميع الخطط !` : `-${promoDiscount}% sur tous les plans !`}
-                </p>
-                <p className="text-white/80 text-base mb-4">
-                  {formattedEndDate
-                    ? (lang === 'ar' ? `عرض الإطلاق — صالح حتى ${formattedEndDate}` : `Offre de lancement — valable jusqu'au ${formattedEndDate}`)
-                    : (lang === 'ar' ? 'عرض الإطلاق — أسعار محدودة المدة' : 'Offre de lancement — prix à durée limitée')}
-                </p>
-              </div>
+          <div className="mb-12 relative overflow-hidden rounded-3xl text-white text-center shadow-2xl shadow-red-300"
+            style={{ background: 'linear-gradient(135deg,#b91c1c 0%,#dc2626 40%,#f97316 100%)' }}>
+            <div className="absolute inset-0 opacity-[0.07]"
+              style={{ backgroundImage: 'radial-gradient(circle at 1px 1px,white 1px,transparent 0)', backgroundSize: '24px 24px' }} />
+            <div className="absolute top-0 left-1/4 w-64 h-32 rounded-full blur-3xl opacity-20 pointer-events-none"
+              style={{ background: 'radial-gradient(circle,#fbbf24,transparent)' }} />
+            <div className="relative px-8 py-8">
+              {promoActive && (
+                <>
+                  <p className="text-3xl md:text-4xl font-black mb-2 tracking-tight">
+                    {lang === 'ar' ? `-${promoDiscount}% على جميع الخطط !` : `-${promoDiscount}% sur tous les plans !`}
+                  </p>
+                  <p className="text-white/80 text-base mb-4">
+                    {formattedEndDate
+                      ? (lang === 'ar' ? `عرض الإطلاق — صالح حتى ${formattedEndDate}` : `Offre de lancement — valable jusqu'au ${formattedEndDate}`)
+                      : (lang === 'ar' ? 'عرض الإطلاق — أسعار محدودة المدة' : 'Offre de lancement — prix à durée limitée')}
+                  </p>
+                </>
+              )}
+              <p className="text-white/90 text-base md:text-lg max-w-2xl mx-auto leading-relaxed">
+                {lang === 'ar'
+                  ? 'سجّل مرة واحدة، وذاكر حتى النهاية. آل بورور يرافقكم حتى باب قاعة الامتحان'
+                  : "Inscrivez-vous une fois, révisez jusqu'au bout. Al Bourour vous accompagne jusqu'à la porte de la salle d'examen"}
+              </p>
             </div>
-          )}
-
-          <p className="text-center text-gray-500 text-base md:text-lg max-w-2xl mx-auto leading-relaxed mb-10">
-            {lang === 'ar'
-              ? 'سجّل مرة واحدة، وذاكر حتى النهاية. آل بورور يرافقكم حتى باب قاعة الامتحان'
-              : "Inscrivez-vous une fois, révisez jusqu'au bout. Al Bourour vous accompagne jusqu'à la porte de la salle d'examen"}
-          </p>
+          </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-start max-w-2xl mx-auto w-full">
 
