@@ -282,7 +282,7 @@ export const translations = {
     'landing.pricing.group.create': 'Rejoindre le Pack',
     'landing.cta.badge': "Commencez aujourd'hui",
     'landing.cta.h2a': "Prêt à devenir le prochain",
-    'landing.cta.h2b': "infirmier de l'État ?",
+    'landing.cta.h2b': "infirmier d'État ?",
     'landing.cta.desc': "Rejoignez les candidats les plus sérieux de Mauritanie. Ne laissez pas votre place au hasard, révisez avec AlBourour.",
     'landing.cta.button': 'Obtenir mon Pass Succès maintenant',
     'landing.footer.tagline': 'Préparation aux concours de santé mauritaniens',
