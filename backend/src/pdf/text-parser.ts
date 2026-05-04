@@ -3,16 +3,22 @@
  * Gère plusieurs formats d'extraction PDF.
  */
 
-const ANSWER_RE = /^[•\-\*✓✔]?\s*(?:[Bb]onne(?:s|\(s\))?\s*)?[Rr][eé]ponse(?:s|\(s\))?\s*(?:[eé]xacte[s]?|correcte[s]?|juste[s]?)?\s*[:\-–\t]?\s*(.+)$/i;
+// Gère : "✓ Bonne(s) réponse(s)\tB,C" / "Réponses correctes\tA,B" / "✓\tA, C" / "Réponse(s): B"
+const ANSWER_RE = /^(?:[✓✔]\s*[\t:]\s*|[•\-\*✓✔]?\s*(?:[Bb]onne(?:s|\(s\))?\s*)?[Rr][eé]ponse(?:s|\(s\))?\s*(?:[eé]xacte[s]?|correcte[s]?|juste[s]?)?\s*[:\-–\t]?\s*)(.+)$/i;
+// Déclenche l'état "attente des lettres de réponse" (format multi-lignes Tome 2)
+// Exemples : "✓ Bonne(s)", "✓", "Bonne(s)", "Bonnes réponses", "Réponses", "correctes", "Réponses correctes"
+const ANSWER_TRIGGER_RE = /^(?:[✓✔](?:\s*[Bb]onne(?:s|\(s\))?)?|[Bb]onne(?:s|\(s\))?(?:\s+[Rr][eé]ponse(?:s|\(s\))?)?|[Rr][eé]ponse(?:s|\(s\))?(?:\s+correcte[s]?)?|correcte[s]?)\s*$/i;
+// Ligne contenant uniquement les lettres de réponse : "A, B, D, E" ou "B" ou "A, C"
+const ANSWER_LETTERS_RE = /^([A-E](?:\s*[,;]\s*[A-E])*)\s*$/;
 const QUESTION_NUM_RE = /^(\d{1,3})\s*[\.\)]\s*(.{3,})$/;
 const QUESTION_Q_RE = /^[Qq]\s*(\d{1,3})\s+(.{3,})$/;
 const QUESTION_WORD_RE = /^[Qq]uestion\s+(\d{1,3})\s*[:\.]?\s*(.*)$/;
 const CHOICE_RE: Record<string, RegExp> = {};
 for (const l of ['A', 'B', 'C', 'D', 'E', 'F']) {
-  CHOICE_RE[l] = new RegExp(`^(?:[•z\\s]*)?[${l.toLowerCase()}${l}]\\s*[\\.):\\t]?\\s{1,4}(.+)$`);
+  CHOICE_RE[l] = new RegExp(`^(?:[•z\\s]*)?[${l.toLowerCase()}${l}]\\s*[\\.):\\t]?\\s*(.+)$`);
 }
-// Choix sans contenu sur la même ligne ("E." ou "E:") — le texte est sur la ligne suivante
-const CHOICE_EMPTY_RE = /^(?:[•\s]*)?([A-Fa-f])\s*[\.):]\s*$/;
+// Choix sans contenu sur la même ligne ("E." / "E:" / "A" seul) — le texte est sur la ligne suivante
+const CHOICE_EMPTY_RE = /^(?:[•\s]*)?([A-Fa-f])\s*[\.):,]?\s*$/;
 const EXPL_RE = /^(?:commentaire[s]?|explication|justification|note)\s*[:\-–]?\s*(.*)/i;
 // Question naturelle : longue (≥15 chars après premier) ou se terminant par ? ou :
 const QUESTION_NATURAL_RE = /^[A-ZÀÂÄÉÈÊËÎÏÔÙÛÜŸ].{14,}[?:]\s*$|^[A-ZÀÂÄÉÈÊËÎÏÔÙÛÜŸ].{34,}$/;
@@ -29,6 +35,20 @@ function parseCorrectAnswers(raw: string): string {
   return result.join(',');
 }
 
+function looksLikeSubTheme(line: string): boolean {
+  const s = line.trim().toUpperCase();
+  // Les, La, Le, L', Du, De → article français → sous-thème probable
+  return /^(LES?\s+|L[''']|LA\s+|DES?\s+|DU\s+)/.test(s);
+}
+
+// Même premier mot que le sous-thème actif → section sœur (ex: "Platres manchettes" après "Platres bottes")
+function isSiblingSection(line: string, curSub: SubTheme | null): boolean {
+  if (!curSub) return false;
+  const first = (s: string) => s.trim().split(/[\s:,.()]+/)[0].toUpperCase();
+  const w = first(line);
+  return w.length > 3 && w === first(curSub.name);
+}
+
 function isThemeLine(line: string): boolean {
   const s = line.trim().replace(/\.$/, '');
   if (!s || s.length > 90) return false;
@@ -37,6 +57,8 @@ function isThemeLine(line: string): boolean {
   if (/^[A-Fa-f][\.\):]/.test(s)) return false;
   if (/^[Rr][eé]ponse|^[Ee]xplication|^[Jj]ustification/.test(s)) return false;
   if (/^[Qq]uestion\s+\d/.test(s)) return false;
+  if (/^[Qq]\s*\d/.test(s)) return false; // Q1, Q2, Q23... → questions, pas thèmes
+  if (/^[A-E]$/.test(s)) return false;   // lettre seule A-E → choix sans ponctuation, pas thème
   const words = s.split(/\s+/);
   if (words.length > 10) return false;
   if (!/^[A-ZÀÂÄÉÈÊËÎÏÔÙÛÜŸ]/.test(s)) return false;
@@ -71,6 +93,7 @@ export function parseText(rawText: string): any {
   let inExplanation = false;
   let waitingQText = false;
   let waitingChoiceLetter: string | null = null;
+  let waitingAnswerLetters = false;
   let positionalSlot = 0;
   let themeHasQuestions = false;
 
@@ -93,6 +116,7 @@ export function parseText(rawText: string): any {
     inExplanation = false;
     positionalSlot = 0;
     waitingChoiceLetter = null;
+    waitingAnswerLetters = false;
   }
 
   function newTheme(name: string) {
@@ -121,6 +145,7 @@ export function parseText(rawText: string): any {
     };
     positionalSlot = 0;
     waitingQText = false;
+    waitingAnswerLetters = false;
     inExplanation = false;
     explLines = [];
   }
@@ -131,7 +156,22 @@ export function parseText(rawText: string): any {
 
     if (waitingQText) { newQuestion(line); continue; }
 
-    // ── 0. Contenu d'un choix vide (ex: "E." suivi de sa valeur sur la ligne suivante) ──
+    // ── 0a. Attente des lettres de réponse (format multi-lignes Tome 2) ──
+    // Ex: "✓ Bonne(s)" → "réponse(s)" → "B, C, D, E"
+    if (waitingAnswerLetters) {
+      const alm = line.match(ANSWER_LETTERS_RE);
+      if (alm && curQuestion && !curQuestion.correctAnswer) {
+        const ans = parseCorrectAnswers(alm[1]);
+        if (ans) curQuestion.correctAnswer = ans;
+        waitingAnswerLetters = false;
+        inExplanation = false;
+        continue;
+      }
+      if (ANSWER_TRIGGER_RE.test(line)) continue; // autre mot-clé (ex: "réponse(s)"), on reste
+      waitingAnswerLetters = false; // ligne inattendue → réinitialiser
+    }
+
+    // ── 0b. Contenu d'un choix vide (ex: "E." suivi de sa valeur sur la ligne suivante) ──
     if (waitingChoiceLetter && curQuestion && !curQuestion.correctAnswer) {
       const key = waitingChoiceLetter;
       (curQuestion as any)[`choice${key}`] = line;
@@ -141,7 +181,7 @@ export function parseText(rawText: string): any {
       continue;
     }
 
-    // ── 1. Réponse ──
+    // ── 1. Réponse (format 1 ligne) ──
     const am = line.match(ANSWER_RE);
     if (am) {
       if (curQuestion && !curQuestion.correctAnswer) {
@@ -150,6 +190,15 @@ export function parseText(rawText: string): any {
       }
       inExplanation = false;
       waitingChoiceLetter = null;
+      continue;
+    }
+
+    // ── 1b. Déclencheur de réponse multi-lignes (Tome 2) ──
+    // Ex: "✓ Bonne(s)", "✓", "Bonnes", "Réponses", "correctes"
+    if (ANSWER_TRIGGER_RE.test(line)) {
+      if (curQuestion && !curQuestion.correctAnswer) {
+        waitingAnswerLetters = true;
+      }
       continue;
     }
 
@@ -163,8 +212,11 @@ export function parseText(rawText: string): any {
 
     // ── 3. Continuation de l'explication ──
     if (inExplanation && curQuestion) {
-      // une nouvelle question ou un thème sort de l'explication
-      if (isNewQuestionLine(line) || (curTheme && QUESTION_NATURAL_RE.test(line) && curQuestion.correctAnswer) || isThemeLine(line)) {
+      // Les "1. Pain..." dans un commentaire ne sont PAS de nouvelles questions
+      const isRealNewQ = QUESTION_Q_RE.test(line) || QUESTION_WORD_RE.test(line) ||
+        (QUESTION_NUM_RE.test(line) && !curQuestion.correctAnswer) ||
+        /^[Qq]\s*\d{1,3}\s*$/.test(line); // Q1 seul (Tome 2)
+      if (isRealNewQ || isThemeLine(line)) {
         inExplanation = false;
         // on laisse tomber dans la suite du parsing
       } else {
@@ -181,11 +233,17 @@ export function parseText(rawText: string): any {
       continue;
     }
 
-    // ── 4b. Question "Q1 texte" (format tableau) ──
+    // ── 4b. Question "Q1 texte" (format tableau avec texte sur même ligne) ──
     const qqm = line.match(QUESTION_Q_RE);
     if (qqm) {
       if (qqm[2].trim()) newQuestion(qqm[2].trim());
       else waitingQText = true;
+      continue;
+    }
+
+    // ── 4c. Question "Q1" seule (Tome 2 : texte sur la ligne suivante) ──
+    if (/^[Qq]\s*\d{1,3}\s*$/.test(line) && (!curQuestion || curQuestion.correctAnswer)) {
+      waitingQText = true;
       continue;
     }
 
@@ -253,21 +311,35 @@ export function parseText(rawText: string): any {
         inExplanation = false;
         positionalSlot = 0;
         waitingChoiceLetter = null;
+        waitingAnswerLetters = false;
       }
       const hasQs = curTheme?.subThemes.some(s => s.questions.length > 0) ?? false;
       if (!curTheme) {
         newTheme(line);
       } else if (curQuestion && (curQuestion.choiceA || curQuestion.correctAnswer)) {
-        if (hasQs) newTheme(line); else newSubTheme(line);
+        if (hasQs && !looksLikeSubTheme(line)) newTheme(line); else newSubTheme(line);
       } else if (!curQuestion) {
         // Entête tout en majuscules → forcément nouveau thème
         const isAllCaps = line.trim() === line.trim().toUpperCase() && /[A-Z]/.test(line);
-        if (themeHasQuestions && line.split(/\s+/).length <= 6 && !line.endsWith(':') && !isAllCaps) {
-          // Ligne courte, mixte, dans un thème avec questions → question sans numéro
+        if (line.endsWith('?') && (!curQuestion || curQuestion.correctAnswer)) {
+          // Ligne terminant par '?' → question sans numéro
           newQuestion(line);
-        } else if (hasQs || line.trim().endsWith(':')) {
-          // Thème avec questions ou ligne terminant par ':' → nouveau thème
-          newTheme(line);
+        } else if (line.trim().endsWith(':')) {
+          // "LES PANSEMENTS :" → sous-thème si article ou section sœur ET curSubTheme explicite
+          // Si curSubTheme est "Général" (auto-créé) ET c'est un article, créer un nouveau sous-thème
+          const curSubIsGeneral = curSubTheme?.name === 'Général';
+          if (curTheme && (looksLikeSubTheme(line) || (!curSubIsGeneral && isSiblingSection(line, curSubTheme)))) {
+            newSubTheme(line);
+          } else {
+            newTheme(line);
+          }
+        } else if (hasQs) {
+          // Thème avec sous-thèmes actifs : article, section sœur → sous-thème, sinon nouveau thème
+          if (curTheme && (looksLikeSubTheme(line) || isSiblingSection(line, curSubTheme))) {
+            newSubTheme(line);
+          } else {
+            newTheme(line);
+          }
         } else if (curTheme) {
           newSubTheme(line);
         } else {
@@ -299,20 +371,14 @@ export function parseText(rawText: string): any {
   };
 }
 
-export function limitPreview(result: any, max = 10): any {
-  let count = 0;
-  const previewThemes = [];
-  for (const theme of result.themes) {
-    if (count >= max) break;
-    const previewSubs = [];
-    for (const sub of theme.subThemes) {
-      const remaining = max - count;
-      const qs = sub.questions.slice(0, remaining);
-      count += qs.length;
-      if (qs.length) previewSubs.push({ ...sub, questions: qs });
-      if (count >= max) break;
-    }
-    if (previewSubs.length) previewThemes.push({ ...theme, subThemes: previewSubs });
-  }
+export function limitPreview(result: any): any {
+  const previewThemes = result.themes.map((theme: any) => ({
+    name: theme.name,
+    subThemes: theme.subThemes.map((sub: any) => ({
+      name: sub.name,
+      totalQuestions: sub.questions.length,
+      questions: sub.questions.slice(0, 2),
+    })),
+  }));
   return { ...result, themes: previewThemes, preview: true };
 }

@@ -30,6 +30,8 @@ export default function UploadPage() {
   const [result, setResult] = useState<any>(null);
   const [error, setError] = useState('');
   const [deleting, setDeleting] = useState(false);
+  const [expandedThemes, setExpandedThemes] = useState<Set<string>>(new Set());
+  const [expandedSubs, setExpandedSubs] = useState<Set<string>>(new Set());
 
   function handleFile(f: File) {
     if (!f.name.endsWith('.pdf')) { setError('Format PDF uniquement'); return; }
@@ -86,6 +88,8 @@ export default function UploadPage() {
           : await adminApi.previewText(rawText));
       }
       setPreview(data);
+      setExpandedThemes(new Set());
+      setExpandedSubs(new Set());
     } catch (err: any) {
       setError('Erreur analyse : ' + (err.response?.data?.detail || err.message));
     } finally {
@@ -316,43 +320,82 @@ export default function UploadPage() {
             ))}
           </div>
 
-          {preview.themes.slice(0, 2).map((theme: any) => (
-            <div key={theme.name} className="border rounded-xl p-4">
-              <p className="font-medium">{theme.name}</p>
-              {theme.subThemes.slice(0, 1).map((sub: any) => (
-                <div key={sub.name} className="mt-2 ml-4">
-                  <p className="text-sm text-muted-foreground">
-                    {sub.name}
-                    {sub.totalQuestions !== undefined && (
-                      <span className="ml-2 text-xs bg-secondary px-2 py-0.5 rounded-full">
-                        {sub.totalQuestions} questions
-                      </span>
-                    )}
-                  </p>
-                  {(sub.questions ?? []).slice(0, 2).map((q: any, i: number) => {
-                    const isAr = preview.stats.language === 'AR';
-                    const arLetters: Record<string,string> = { A:'أ', B:'ب', C:'ج', D:'د', E:'هـ' };
-                    const dl = (l: string) => isAr ? arLetters[l] ?? l : l;
-                    return (
-                      <div key={i} className="mt-2 ml-4 text-xs bg-secondary p-3 rounded-lg" dir={isAr ? 'rtl' : 'ltr'}>
-                        <p className="font-medium">{q.text}</p>
-                        <div className="mt-1 space-y-0.5">
-                          {['A','B','C','D','E'].filter(l => q[`choice${l}`]).map(l => (
-                            <p key={l} className="text-muted-foreground">{dl(l)}: {q[`choice${l}`]}</p>
-                          ))}
-                        </div>
-                        {q.correctAnswer && (
-                          <p className="text-green-600 mt-1 font-medium">
-                            {isAr ? 'الإجابة:' : 'Réponse(s):'} {q.correctAnswer.split(',').map((l: string) => dl(l.trim())).join(', ')}
-                          </p>
-                        )}
-                      </div>
-                    );
-                  })}
+          <div className="space-y-1.5 max-h-[520px] overflow-y-auto pr-1">
+            {preview.themes.map((theme: any) => {
+              const themeTotal = theme.subThemes.reduce((a: number, s: any) => a + (s.totalQuestions ?? s.questions?.length ?? 0), 0);
+              const themeOpen = expandedThemes.has(theme.name);
+              return (
+                <div key={theme.name} className="border rounded-xl overflow-hidden">
+                  <button
+                    onClick={() => setExpandedThemes(prev => { const n = new Set(prev); themeOpen ? n.delete(theme.name) : n.add(theme.name); return n; })}
+                    className="w-full flex items-center justify-between px-4 py-3 hover:bg-secondary transition text-left"
+                  >
+                    <span className="font-medium text-sm">{theme.name}</span>
+                    <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                      <span>{theme.subThemes.length} sous-thème{theme.subThemes.length > 1 ? 's' : ''}</span>
+                      <span className="bg-primary/10 text-primary px-2 py-0.5 rounded-full font-medium">{themeTotal} q.</span>
+                      <span>{themeOpen ? '▲' : '▼'}</span>
+                    </div>
+                  </button>
+
+                  {themeOpen && (
+                    <div className="border-t divide-y bg-secondary/20">
+                      {theme.subThemes.map((sub: any) => {
+                        const subKey = `${theme.name}::${sub.name}`;
+                        const subOpen = expandedSubs.has(subKey);
+                        const total = sub.totalQuestions ?? sub.questions?.length ?? 0;
+                        const isAr = preview.stats?.language === 'AR';
+                        const arLetters: Record<string, string> = { A: 'أ', B: 'ب', C: 'ج', D: 'د', E: 'هـ' };
+                        const dl = (l: string) => isAr ? arLetters[l] ?? l : l;
+                        return (
+                          <div key={sub.name}>
+                            <button
+                              onClick={() => setExpandedSubs(prev => { const n = new Set(prev); subOpen ? n.delete(subKey) : n.add(subKey); return n; })}
+                              className="w-full flex items-center justify-between px-4 py-2.5 pl-8 hover:bg-secondary/60 transition text-left"
+                            >
+                              <span className="text-sm">{sub.name}</span>
+                              <div className="flex items-center gap-2 text-xs">
+                                <span className="bg-primary/10 text-primary px-2 py-0.5 rounded-full">{total} q.</span>
+                                <span className="text-muted-foreground">{subOpen ? '▲' : '▼'}</span>
+                              </div>
+                            </button>
+
+                            {subOpen && (
+                              <div className="px-4 pb-3 pl-10 space-y-2" dir={isAr ? 'rtl' : 'ltr'}>
+                                {(sub.questions ?? []).map((q: any, i: number) => (
+                                  <div key={i} className="text-xs bg-white border rounded-lg p-3 space-y-1">
+                                    <p className="font-medium">{q.text}</p>
+                                    <div className="space-y-0.5">
+                                      {['A','B','C','D','E'].filter(l => q[`choice${l}`]).map(l => (
+                                        <p key={l} className={q.correctAnswer?.split(',').map((x: string) => x.trim()).includes(l) ? 'text-green-700 font-medium' : 'text-muted-foreground'}>
+                                          {dl(l)}. {q[`choice${l}`]}
+                                        </p>
+                                      ))}
+                                    </div>
+                                    {q.correctAnswer && (
+                                      <p className="text-green-600 font-medium pt-0.5">
+                                        ✓ {q.correctAnswer.split(',').map((l: string) => dl(l.trim())).join(', ')}
+                                      </p>
+                                    )}
+                                    {q.explanation && (
+                                      <p className="text-blue-600 italic border-t pt-1 mt-1">{q.explanation}</p>
+                                    )}
+                                  </div>
+                                ))}
+                                {total > (sub.questions?.length ?? 0) && (
+                                  <p className="text-xs text-muted-foreground">+ {total - (sub.questions?.length ?? 0)} autres questions…</p>
+                                )}
+                              </div>
+                            )}
+                          </div>
+                        );
+                      })}
+                    </div>
+                  )}
                 </div>
-              ))}
-            </div>
-          ))}
+              );
+            })}
+          </div>
 
           <button
             onClick={handleImport}

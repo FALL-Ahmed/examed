@@ -327,19 +327,14 @@ export function parseArText(rawText: string): {
   };
 }
 
-export function limitPreviewAr(result: any, max = 10): any {
-  let count = 0;
-  const previewThemes = [];
-  for (const theme of result.themes) {
-    if (count >= max) break;
-    const previewSubs = [];
-    for (const sub of theme.subThemes) {
-      const qs = sub.questions.slice(0, max - count);
-      count += qs.length;
-      if (qs.length) previewSubs.push({ ...sub, questions: qs });
-      if (count >= max) break;
-    }
-    if (previewSubs.length) previewThemes.push({ ...theme, subThemes: previewSubs });
-  }
+export function limitPreviewAr(result: any): any {
+  const previewThemes = result.themes.map((theme: any) => ({
+    name: theme.name,
+    subThemes: theme.subThemes.map((sub: any) => ({
+      name: sub.name,
+      totalQuestions: sub.questions.length,
+      questions: sub.questions.slice(0, 2),
+    })),
+  }));
   return { ...result, themes: previewThemes, preview: true };
 }
