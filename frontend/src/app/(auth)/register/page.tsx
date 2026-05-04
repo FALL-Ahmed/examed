@@ -120,7 +120,7 @@ function RegisterContent() {
   const groupBase  = groupPerP * groupSize;
 
   const solo1mPrice = promoActive ? promo(solo1mBase) : solo1mBase;
-  const groupPrice  = groupBase; // Pack Ami : prix fixe, pas de promo
+  const groupPrice  = groupBase; // Pack Amis : prix fixe, pas de promo
 
   const computedAmount   = selectedPlan === 'SOLO_1M' ? solo1mPrice : groupPrice;
   const computedDuration = 30;
@@ -444,7 +444,7 @@ function RegisterContent() {
                   ${selectedPlan === 'GROUP' ? 'border-violet-500 bg-violet-50' : 'border-gray-200 bg-white hover:border-gray-300'}`}>
                 <div className="flex items-center justify-between w-full">
                   <div>
-                    <p className="font-bold text-gray-900 text-sm">{isAr ? 'باك الأصدقاء · حتى المسابقة' : 'Pack Ami · jusqu\'au concours'}</p>
+                    <p className="font-bold text-gray-900 text-sm">{isAr ? 'باك الأصدقاء · حتى المسابقة' : 'Pack Amis · jusqu\'au concours'}</p>
                     <p className="text-xs text-emerald-600 font-semibold mt-0.5">
                       {isAr ? '🎁 ادفع لـ 2، وتعالوا 3' : '🎁 Payez pour 2, venez à 3'}
                     </p>

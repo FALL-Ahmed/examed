@@ -403,12 +403,13 @@ export default function LandingPage() {
                 {promoActive && <span className="inline-flex items-center gap-1 mt-2 bg-red-500 text-white text-sm font-black px-3 py-1.5 rounded-full">-{promoDiscount}%</span>}
               </div>
               <Link href="/register?plan=SOLO_1M"
-                className="block w-full text-center py-3 rounded-2xl font-bold text-sm border-2 border-gray-200 text-gray-700 hover:border-violet-400 hover:text-violet-600 transition">
+                className="block w-full text-center py-3 rounded-2xl font-bold text-sm text-white transition hover:opacity-90 shadow-md shadow-violet-200"
+                style={{ background: 'linear-gradient(135deg,#7c3aed,#6366f1)' }}>
                 {t('landing.pricing.start')}
               </Link>
             </div>
 
-            {/* Pack Ami */}
+            {/* Pack Amis */}
             <div className="relative bg-white rounded-3xl border-2 border-emerald-500 p-8 shadow-xl shadow-emerald-100">
               <div className="absolute -top-3.5 left-1/2 -translate-x-1/2">
                 <span className="bg-emerald-600 text-white text-xs font-bold px-4 py-1.5 rounded-full">{t('landing.pricing.popular')}</span>
@@ -427,20 +428,11 @@ export default function LandingPage() {
                   <span className="text-lg font-semibold text-gray-400 ml-1">MRU</span>
                 </p>
               </div>
-              <p className="text-xs text-emerald-600 font-semibold mb-6">
-                {pricing?.groupPerP?.price ?? 400} MRU / {lang === 'ar' ? 'شخص' : 'personne'}
+              <p className="text-sm text-emerald-600 font-semibold mb-6">
+                {lang === 'ar'
+                  ? `بطاقة بـ ${pricing?.groupPerP?.price ?? 400} MRU للشخص وأنتم مسجلون!`
+                  : `Un billet de ${pricing?.groupPerP?.price ?? 400} MRU chacun et vous êtes inscrits !`}
               </p>
-              <div className="space-y-1.5 mb-6">
-                {[3, 6, 9].map((n) => {
-                  const perP = pricing?.groupPerP?.price ?? 400;
-                  return (
-                    <div key={n} className="flex justify-between text-sm">
-                      <span className="text-gray-500">{n} {lang === 'ar' ? 'أشخاص' : 'personnes'}</span>
-                      <span className="font-bold text-gray-800">{n * perP} MRU</span>
-                    </div>
-                  );
-                })}
-              </div>
               <Link href="/register?plan=GROUP"
                 className="block w-full text-center py-3 rounded-2xl font-bold text-sm text-white transition hover:opacity-90 shadow-md shadow-emerald-200"
                 style={{ background: 'linear-gradient(135deg,#059669,#10b981)' }}>

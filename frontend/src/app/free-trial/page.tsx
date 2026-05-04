@@ -179,7 +179,7 @@ function FreeTrialContent() {
       sub: isAr ? 'وصول كامل حتى يوم المسابقة' : 'Accès jusqu\'au concours',
     },
     {
-      label: isAr ? `باك الأصدقاء · حتى المسابقة` : `Pack Ami · jusqu'au concours`,
+      label: isAr ? `باك الأصدقاء · حتى المسابقة` : `Pack Amis · jusqu'au concours`,
       href: '/register?plan=GROUP',
       price: groupPerP * groupMin,
       oldPrice: null,

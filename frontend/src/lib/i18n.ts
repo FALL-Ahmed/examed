@@ -276,7 +276,7 @@ export const translations = {
     'landing.pricing.solo1.name': 'Solo — jusqu\'au concours',
     'landing.pricing.solo1.desc': 'Accès jusqu\'au concours',
     'landing.pricing.popular': '⭐ Populaire',
-    'landing.pricing.group.name': 'Pack Ami',
+    'landing.pricing.group.name': 'Pack Amis',
     'landing.pricing.group.per': 'par personne',
     'landing.pricing.start': 'Commencer',
     'landing.pricing.group.create': 'Rejoindre un Pack',
