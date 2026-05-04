@@ -81,11 +81,11 @@ function RegisterContent() {
   const [formError, setFormError] = useState('');
 
   const [operators, setOperators] = useState<Record<string, string>>({});
-  const [pricing, setPricing] = useState<any>({ solo1m: { price: 500 }, solo3m: { price: 1200 }, groupPerP: { price: 400 }, groupMin: 5 });
+  const [pricing, setPricing] = useState<any>({ solo1m: { price: 500 }, groupPerP: { price: 400 }, groupMin: 5 });
   const [promoSettings, setPromoSettings] = useState<{ active: boolean; discount: number; endDate?: string | null } | null>(null);
   const planParam = searchParams.get('plan');
-  const [selectedPlan, setSelectedPlan] = useState<'SOLO_1M' | 'SOLO_3M' | 'GROUP'>(
-    planParam === 'SOLO_3M' ? 'SOLO_3M' : planParam === 'GROUP' ? 'GROUP' : 'SOLO_1M'
+  const [selectedPlan, setSelectedPlan] = useState<'SOLO_1M' | 'GROUP'>(
+    planParam === 'GROUP' ? 'GROUP' : 'SOLO_1M'
   );
   const [groupSize, setGroupSize] = useState(5);
   const [groupEmailsText, setGroupEmailsText] = useState('');
@@ -116,16 +116,14 @@ function RegisterContent() {
   const promo = (p: number) => Math.round(p * (1 - promoDiscount / 100));
 
   const solo1mBase = pricing.solo1m?.price ?? 500;
-  const solo3mBase = pricing.solo3m?.price ?? 1200;
   const groupPerP  = pricing.groupPerP?.price ?? 400;
   const groupBase  = groupPerP * groupSize;
 
   const solo1mPrice = promoActive ? promo(solo1mBase) : solo1mBase;
-  const solo3mPrice = promoActive ? promo(solo3mBase) : solo3mBase;
   const groupPrice  = promoActive ? promo(groupBase)  : groupBase;
 
-  const computedAmount   = selectedPlan === 'SOLO_1M' ? solo1mPrice : selectedPlan === 'SOLO_3M' ? solo3mPrice : groupPrice;
-  const computedDuration = selectedPlan === 'SOLO_3M' ? 90 : 30;
+  const computedAmount   = selectedPlan === 'SOLO_1M' ? solo1mPrice : groupPrice;
+  const computedDuration = 30;
 
   function set(key: string, value: string) {
     if (!started) { setStarted(true); gtrack('register_start', { lang }); }
@@ -428,7 +426,7 @@ function RegisterContent() {
                   ${selectedPlan === 'SOLO_1M' ? 'border-violet-500 bg-violet-50' : 'border-gray-200 bg-white hover:border-gray-300'}`}>
                 <div>
                   <p className="font-bold text-gray-900 text-sm">{isAr ? 'فردي · حتى المسابقة' : 'Solo · jusqu\'au concours'}</p>
-                  <p className="text-xs text-gray-500 mt-0.5">{isAr ? 'صالح حتى يوم المسابقة' : 'Valable jusqu\'au concours'}</p>
+                  <p className="text-xs text-gray-500 mt-0.5">{isAr ? 'وصول كامل حتى يوم المسابقة' : 'Accès jusqu\'au concours'}</p>
                 </div>
                 <div className="text-right flex-shrink-0 ml-4">
                   {promoActive && <p className="text-xs text-gray-400 line-through">{solo1mBase} MRU</p>}
@@ -440,36 +438,13 @@ function RegisterContent() {
                 )}
               </button>
 
-              {/* Solo 3 mois */}
-              <button type="button" onClick={() => { setSelectedPlan('SOLO_3M'); gtrack('register_plan_selected', { plan: 'SOLO_3M' }); }}
-                className={`relative w-full flex items-center justify-between p-4 rounded-2xl border-2 transition-all text-left
-                  ${selectedPlan === 'SOLO_3M' ? 'border-violet-500 bg-violet-50' : 'border-gray-200 bg-white hover:border-gray-300'}`}>
-                <div>
-                  <p className="font-bold text-gray-900 text-sm flex items-center gap-2">
-                    {isAr ? 'فردي · 3 أشهر' : 'Solo · 3 mois'}
-                    <span className="text-xs font-bold px-2 py-0.5 rounded-full bg-amber-100 text-amber-700">
-                      {isAr ? '⭐ الأكثر طلباً' : '⭐ Populaire'}
-                    </span>
-                  </p>
-                  <p className="text-xs text-gray-500 mt-0.5">{isAr ? 'وصول كامل 90 يوماً' : 'Accès complet 90 jours'}</p>
-                </div>
-                <div className="text-right flex-shrink-0 ml-4">
-                  {promoActive && <p className="text-xs text-gray-400 line-through">{solo3mBase} MRU</p>}
-                  <p className="font-extrabold text-violet-700 text-lg">{solo3mPrice} <span className="text-sm font-semibold">MRU</span></p>
-                  {promoActive && <span className="text-xs font-bold bg-red-100 text-red-600 px-1.5 py-0.5 rounded-full">-{promoDiscount}%</span>}
-                </div>
-                {selectedPlan === 'SOLO_3M' && (
-                  <div className="absolute top-3 right-3 w-4 h-4 rounded-full bg-violet-500 flex items-center justify-center">{checkIcon}</div>
-                )}
-              </button>
-
               {/* Groupe */}
               <button type="button" onClick={() => { setSelectedPlan('GROUP'); gtrack('register_plan_selected', { plan: 'GROUP' }); }}
                 className={`relative w-full flex flex-col p-4 rounded-2xl border-2 transition-all text-left
                   ${selectedPlan === 'GROUP' ? 'border-violet-500 bg-violet-50' : 'border-gray-200 bg-white hover:border-gray-300'}`}>
                 <div className="flex items-center justify-between w-full">
                   <div>
-                    <p className="font-bold text-gray-900 text-sm">{isAr ? 'مجموعة · شهر' : 'Groupe · 1 mois'}</p>
+                    <p className="font-bold text-gray-900 text-sm">{isAr ? 'مجموعة · حتى التوظيف' : 'Groupe · accès jusqu\'au recrutement'}</p>
                     <p className="text-xs text-gray-500 mt-0.5">
                       {isAr
                         ? `الحد الأدنى ${pricing.groupMin ?? 5} أعضاء · ${groupPerP} MRU/شخص`

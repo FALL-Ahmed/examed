@@ -166,7 +166,6 @@ function FreeTrialContent() {
     : (THEMES.find((t) => t.key === themeKey)?.label ?? themeKey);
 
   const solo1m   = pricing?.solo1m?.price ?? 500;
-  const solo3m   = pricing?.solo3m?.price ?? 1200;
   const groupMin = pricing?.groupMin ?? 5;
   const groupPerP = pricing?.groupPerP?.price ?? 400;
 
@@ -176,19 +175,11 @@ function FreeTrialContent() {
       href: '/register?plan=SOLO_1M',
       price: promoActive ? promo(solo1m) : solo1m,
       oldPrice: promoActive ? solo1m : null,
-      badge: null,
-      sub: isAr ? 'صالح حتى يوم المسابقة' : 'Valable jusqu\'au concours',
+      badge: isAr ? '⭐ الأكثر طلباً' : '⭐ Populaire',
+      sub: isAr ? 'وصول كامل حتى يوم المسابقة' : 'Accès jusqu\'au concours',
     },
     {
-      label: isAr ? 'فردي — 3 أشهر' : 'Solo — 3 mois',
-      href: '/register?plan=SOLO_3M',
-      price: promoActive ? promo(solo3m) : solo3m,
-      oldPrice: promoActive ? solo3m : null,
-      badge: isAr ? '⭐ الأفضل قيمة' : '⭐ Meilleure valeur',
-      sub: `≈ ${promoActive ? promo(Math.round(solo3m / 3)) : Math.round(solo3m / 3)} MRU/${isAr ? 'شهر' : 'mois'}`,
-    },
-    {
-      label: isAr ? `جماعي (${groupMin}+ أشخاص)` : `Groupe (${groupMin}+ pers.)`,
+      label: isAr ? `جماعي — حتى التوظيف (${groupMin}+ أشخاص)` : `Groupe — accès jusqu'au recrutement (${groupMin}+ pers.)`,
       href: '/register?plan=GROUP',
       price: promoActive ? promo(groupPerP * groupMin) : groupPerP * groupMin,
       oldPrice: promoActive ? groupPerP * groupMin : null,

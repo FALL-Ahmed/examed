@@ -381,12 +381,21 @@ export default function LandingPage() {
             </div>
           )}
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 items-start">
+          <p className="text-center text-gray-500 text-sm italic mb-8 max-w-xl mx-auto">
+            {lang === 'ar'
+              ? 'سجّل مرة واحدة، وذاكر حتى النهاية. آل بورور يرافقكم حتى باب قاعة الامتحان'
+              : "Inscrivez-vous une fois, révisez jusqu'au bout. Al Bourour vous accompagne jusqu'à la porte de la salle d'examen"}
+          </p>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-start max-w-2xl mx-auto w-full">
 
             {/* Solo 1 mois */}
-            <div className="bg-white rounded-3xl border border-gray-200 p-8 shadow-sm">
-              <div className="w-10 h-10 rounded-2xl bg-indigo-50 flex items-center justify-center mb-5">
-                <Target className="w-5 h-5 text-indigo-600" />
+            <div className="relative bg-white rounded-3xl border-2 border-violet-500 p-8 shadow-xl shadow-violet-100">
+              <div className="absolute -top-3.5 left-1/2 -translate-x-1/2">
+                <span className="bg-violet-600 text-white text-xs font-bold px-4 py-1.5 rounded-full">{t('landing.pricing.popular')}</span>
+              </div>
+              <div className="w-10 h-10 rounded-2xl bg-violet-50 flex items-center justify-center mb-5">
+                <Target className="w-5 h-5 text-violet-600" />
               </div>
               <h3 className="font-extrabold text-xl text-gray-900 mb-1">{t('landing.pricing.solo1.name')}</h3>
               <p className="text-gray-400 text-sm mb-6">{t('landing.pricing.solo1.desc')}</p>
@@ -399,33 +408,6 @@ export default function LandingPage() {
                 {promoActive && <span className="inline-flex items-center gap-1 mt-2 bg-red-500 text-white text-sm font-black px-3 py-1.5 rounded-full">-{promoDiscount}%</span>}
               </div>
               <Link href="/register?plan=SOLO_1M"
-                className="block w-full text-center py-3 rounded-2xl font-bold text-sm border-2 border-gray-200 text-gray-700 hover:border-indigo-400 hover:text-indigo-600 transition">
-                {t('landing.pricing.start')}
-              </Link>
-            </div>
-
-            {/* Solo 3 mois — populaire */}
-            <div className="relative bg-white rounded-3xl border-2 border-violet-500 p-8 shadow-xl shadow-violet-100">
-              <div className="absolute -top-3.5 left-1/2 -translate-x-1/2">
-                <span className="bg-violet-600 text-white text-xs font-bold px-4 py-1.5 rounded-full">{t('landing.pricing.popular')}</span>
-              </div>
-              <div className="w-10 h-10 rounded-2xl bg-violet-50 flex items-center justify-center mb-5">
-                <Zap className="w-5 h-5 text-violet-600" />
-              </div>
-              <h3 className="font-extrabold text-xl text-gray-900 mb-1">{t('landing.pricing.solo3.name')}</h3>
-              <p className="text-gray-400 text-sm mb-6">{t('landing.pricing.solo3.desc')}</p>
-              <div className="mb-1">
-                {promoActive && <p className="text-2xl font-black text-red-400 line-through">{pricing?.solo3m?.price ?? 1200} MRU</p>}
-                <p className="text-4xl font-black text-gray-900">
-                  {promoActive ? promo(pricing?.solo3m?.price ?? 1200) : (pricing?.solo3m?.price ?? 1200)}
-                  <span className="text-lg font-semibold text-gray-400 ml-1">MRU</span>
-                </p>
-                {promoActive && <span className="inline-flex items-center gap-1 mt-2 bg-red-500 text-white text-sm font-black px-3 py-1.5 rounded-full">-{promoDiscount}%</span>}
-              </div>
-              <p className="text-xs text-violet-500 font-semibold mb-6">
-                ≈ {promoActive ? promo(pricing ? Math.round(pricing.solo3m.price / 3) : 400) : (pricing ? Math.round(pricing.solo3m.price / 3) : 400)} MRU/{lang === 'ar' ? 'شهر' : 'mois'}
-              </p>
-              <Link href="/register?plan=SOLO_3M"
                 className="block w-full text-center py-3 rounded-2xl font-bold text-sm text-white transition hover:opacity-90 shadow-md shadow-violet-200"
                 style={{ background: 'linear-gradient(135deg,#7c3aed,#6366f1)' }}>
                 {t('landing.pricing.start')}
@@ -438,6 +420,7 @@ export default function LandingPage() {
                 <Users className="w-5 h-5 text-emerald-600" />
               </div>
               <h3 className="font-extrabold text-xl text-gray-900 mb-1">{t('landing.pricing.group.name')}</h3>
+              <p className="text-gray-400 text-sm mb-1">{lang === 'ar' ? 'حتى التوظيف' : 'Accès jusqu\'au recrutement'}</p>
               <p className="text-gray-400 text-sm mb-6">Min. {pricing?.groupMin ?? 5} {lang === 'ar' ? 'أشخاص' : 'personnes'}</p>
               <div className="mb-1">
                 {promoActive && <p className="text-2xl font-black text-red-400 line-through">{(pricing?.groupPerP?.price ?? 400) * (pricing?.groupMin ?? 5)} MRU</p>}

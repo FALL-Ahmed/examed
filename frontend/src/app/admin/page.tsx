@@ -328,8 +328,7 @@ export default function AdminDashboard() {
         <div className="flex items-center gap-2 mb-5"><Settings className="w-4 h-4 text-muted-foreground" /><h2 className="font-semibold">Tarifs</h2></div>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {[
-            { id: 'p1m', key: 'PRICE_1M', label: 'Solo — 1 mois (MRU)', field: 'p1m' },
-            { id: 'p3m', key: 'PRICE_3M', label: 'Solo — 3 mois (MRU) ⭐', field: 'p3m' },
+            { id: 'p1m', key: 'PRICE_1M', label: 'Solo — jusqu\'au concours (MRU)', field: 'p1m' },
             { id: 'pGroup', key: 'PRICE_GROUP_PER_PERSON', label: 'Groupe — prix/personne (MRU)', field: 'pGroup' },
             { id: 'groupMin', key: 'GROUP_MIN_MEMBERS', label: 'Groupe — membres minimum', field: 'groupMin' },
           ].map((plan) => (

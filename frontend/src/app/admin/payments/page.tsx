@@ -186,10 +186,7 @@ export default function AdminPaymentsPage() {
                         En attente
                       </span>
                       {p.planType === 'SOLO_1M' && (
-                        <span className="px-2.5 py-0.5 rounded-full bg-indigo-50 border border-indigo-200 text-indigo-700 text-xs font-bold">Solo · 1 mois</span>
-                      )}
-                      {p.planType === 'SOLO_3M' && (
-                        <span className="px-2.5 py-0.5 rounded-full bg-violet-50 border border-violet-200 text-violet-700 text-xs font-bold">Solo · 3 mois</span>
+                        <span className="px-2.5 py-0.5 rounded-full bg-indigo-50 border border-indigo-200 text-indigo-700 text-xs font-bold">Solo · jusqu'au concours</span>
                       )}
                       {p.planType === 'GROUP' && (
                         <span className="px-2.5 py-0.5 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-700 text-xs font-bold">
