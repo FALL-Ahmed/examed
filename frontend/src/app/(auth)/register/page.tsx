@@ -81,13 +81,13 @@ function RegisterContent() {
   const [formError, setFormError] = useState('');
 
   const [operators, setOperators] = useState<Record<string, string>>({});
-  const [pricing, setPricing] = useState<any>({ solo1m: { price: 500 }, groupPerP: { price: 400 }, groupMin: 5 });
+  const [pricing, setPricing] = useState<any>({ solo1m: { price: 500 }, groupPerP: { price: 400 }, groupMin: 3 });
   const [promoSettings, setPromoSettings] = useState<{ active: boolean; discount: number; endDate?: string | null } | null>(null);
   const planParam = searchParams.get('plan');
   const [selectedPlan, setSelectedPlan] = useState<'SOLO_1M' | 'GROUP'>(
     planParam === 'GROUP' ? 'GROUP' : 'SOLO_1M'
   );
-  const [groupSize, setGroupSize] = useState(5);
+  const [groupSize, setGroupSize] = useState(3);
   const [groupEmailsText, setGroupEmailsText] = useState('');
   const [selectedOp, setSelectedOp] = useState('');
   const [copied, setCopied] = useState(false);
@@ -120,7 +120,7 @@ function RegisterContent() {
   const groupBase  = groupPerP * groupSize;
 
   const solo1mPrice = promoActive ? promo(solo1mBase) : solo1mBase;
-  const groupPrice  = promoActive ? promo(groupBase)  : groupBase;
+  const groupPrice  = groupBase; // Pack Ami : prix fixe, pas de promo
 
   const computedAmount   = selectedPlan === 'SOLO_1M' ? solo1mPrice : groupPrice;
   const computedDuration = 30;
@@ -444,11 +444,9 @@ function RegisterContent() {
                   ${selectedPlan === 'GROUP' ? 'border-violet-500 bg-violet-50' : 'border-gray-200 bg-white hover:border-gray-300'}`}>
                 <div className="flex items-center justify-between w-full">
                   <div>
-                    <p className="font-bold text-gray-900 text-sm">{isAr ? 'مجموعة · حتى المسابقة' : 'Groupe · jusqu\'au concours'}</p>
-                    <p className="text-xs text-gray-500 mt-0.5">
-                      {isAr
-                        ? `الحد الأدنى ${pricing.groupMin ?? 5} أعضاء · ${groupPerP} MRU/شخص`
-                        : `Min. ${pricing.groupMin ?? 5} membres · ${groupPerP} MRU/personne`}
+                    <p className="font-bold text-gray-900 text-sm">{isAr ? 'باك الأصدقاء · حتى المسابقة' : 'Pack Ami · jusqu\'au concours'}</p>
+                    <p className="text-xs text-emerald-600 font-semibold mt-0.5">
+                      {isAr ? '🎁 ادفع لـ 2، وتعالوا 3' : '🎁 Payez pour 2, venez à 3'}
                     </p>
                   </div>
                   <div className="text-right flex-shrink-0 ml-4">
@@ -463,7 +461,7 @@ function RegisterContent() {
                 {selectedPlan === 'GROUP' && (
                   <div className="mt-3 flex items-center gap-3" onClick={(e) => e.stopPropagation()}>
                     <span className="text-xs font-semibold text-gray-600">{isAr ? 'الأعضاء :' : 'Membres :'}</span>
-                    <button type="button" onClick={() => setGroupSize(Math.max(pricing.groupMin ?? 5, groupSize - 1))}
+                    <button type="button" onClick={() => setGroupSize(Math.max(pricing.groupMin ?? 3, groupSize - 1))}
                       className="w-7 h-7 rounded-full bg-white border border-gray-300 text-gray-700 font-bold flex items-center justify-center hover:bg-gray-50">−</button>
                     <span className="w-6 text-center font-bold text-gray-900">{groupSize}</span>
                     <button type="button" onClick={() => setGroupSize(groupSize + 1)}

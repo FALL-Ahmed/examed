@@ -387,11 +387,8 @@ export default function LandingPage() {
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-start max-w-2xl mx-auto w-full">
 
-            {/* Solo 1 mois */}
-            <div className="relative bg-white rounded-3xl border-2 border-violet-500 p-8 shadow-xl shadow-violet-100">
-              <div className="absolute -top-3.5 left-1/2 -translate-x-1/2">
-                <span className="bg-violet-600 text-white text-xs font-bold px-4 py-1.5 rounded-full">{t('landing.pricing.popular')}</span>
-              </div>
+            {/* Solo */}
+            <div className="bg-white rounded-3xl border border-gray-200 p-8 shadow-sm">
               <div className="w-10 h-10 rounded-2xl bg-violet-50 flex items-center justify-center mb-5">
                 <Target className="w-5 h-5 text-violet-600" />
               </div>
@@ -406,46 +403,47 @@ export default function LandingPage() {
                 {promoActive && <span className="inline-flex items-center gap-1 mt-2 bg-red-500 text-white text-sm font-black px-3 py-1.5 rounded-full">-{promoDiscount}%</span>}
               </div>
               <Link href="/register?plan=SOLO_1M"
-                className="block w-full text-center py-3 rounded-2xl font-bold text-sm text-white transition hover:opacity-90 shadow-md shadow-violet-200"
-                style={{ background: 'linear-gradient(135deg,#7c3aed,#6366f1)' }}>
+                className="block w-full text-center py-3 rounded-2xl font-bold text-sm border-2 border-gray-200 text-gray-700 hover:border-violet-400 hover:text-violet-600 transition">
                 {t('landing.pricing.start')}
               </Link>
             </div>
 
-            {/* Groupe */}
-            <div className="bg-white rounded-3xl border border-gray-200 p-8 shadow-sm">
+            {/* Pack Ami */}
+            <div className="relative bg-white rounded-3xl border-2 border-emerald-500 p-8 shadow-xl shadow-emerald-100">
+              <div className="absolute -top-3.5 left-1/2 -translate-x-1/2">
+                <span className="bg-emerald-600 text-white text-xs font-bold px-4 py-1.5 rounded-full">{t('landing.pricing.popular')}</span>
+              </div>
               <div className="w-10 h-10 rounded-2xl bg-emerald-50 flex items-center justify-center mb-5">
                 <Users className="w-5 h-5 text-emerald-600" />
               </div>
               <h3 className="font-extrabold text-xl text-gray-900 mb-1">{t('landing.pricing.group.name')}</h3>
               <p className="text-gray-400 text-sm mb-1">{lang === 'ar' ? 'حتى المسابقة' : 'Accès jusqu\'au concours'}</p>
-              <p className="text-gray-400 text-sm mb-6">Min. {pricing?.groupMin ?? 5} {lang === 'ar' ? 'أشخاص' : 'personnes'}</p>
+              <p className="text-emerald-600 text-sm font-bold mb-4">
+                {lang === 'ar' ? '🎁 ادفع لـ 2، وتعالوا 3!' : '🎁 Payez pour 2, venez à 3 !'}
+              </p>
               <div className="mb-1">
-                {promoActive && <p className="text-2xl font-black text-red-400 line-through">{(pricing?.groupPerP?.price ?? 400) * (pricing?.groupMin ?? 5)} MRU</p>}
                 <p className="text-4xl font-black text-gray-900">
-                  {promoActive ? promo((pricing?.groupPerP?.price ?? 400) * (pricing?.groupMin ?? 5)) : (pricing?.groupPerP?.price ?? 400) * (pricing?.groupMin ?? 5)}
+                  {(pricing?.groupPerP?.price ?? 400) * (pricing?.groupMin ?? 3)}
                   <span className="text-lg font-semibold text-gray-400 ml-1">MRU</span>
                 </p>
-                {promoActive && <span className="inline-flex items-center gap-1 mt-2 bg-red-500 text-white text-sm font-black px-3 py-1.5 rounded-full">-{promoDiscount}%</span>}
               </div>
               <p className="text-xs text-emerald-600 font-semibold mb-6">
-                {promoActive ? promo(pricing?.groupPerP?.price ?? 400) : (pricing?.groupPerP?.price ?? 400)} MRU / {lang === 'ar' ? 'شخص' : 'personne'}
+                {pricing?.groupPerP?.price ?? 400} MRU / {lang === 'ar' ? 'شخص' : 'personne'}
               </p>
               <div className="space-y-1.5 mb-6">
-                {[5, 10, 20].map((n) => {
+                {[3, 6, 9].map((n) => {
                   const perP = pricing?.groupPerP?.price ?? 400;
-                  const finalPerP = promoActive ? promo(perP) : perP;
                   return (
                     <div key={n} className="flex justify-between text-sm">
                       <span className="text-gray-500">{n} {lang === 'ar' ? 'أشخاص' : 'personnes'}</span>
-                      <span className="font-bold text-gray-800">{n * finalPerP} MRU</span>
+                      <span className="font-bold text-gray-800">{n * perP} MRU</span>
                     </div>
                   );
                 })}
               </div>
               <Link href="/register?plan=GROUP"
-                className="block w-full text-center py-3 rounded-2xl font-bold text-sm text-white transition hover:opacity-90 shadow-md shadow-blue-200"
-                style={{ background: 'linear-gradient(135deg,#2563eb,#3b82f6)' }}>
+                className="block w-full text-center py-3 rounded-2xl font-bold text-sm text-white transition hover:opacity-90 shadow-md shadow-emerald-200"
+                style={{ background: 'linear-gradient(135deg,#059669,#10b981)' }}>
                 {t('landing.pricing.group.create')}
               </Link>
             </div>

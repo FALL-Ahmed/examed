@@ -166,7 +166,7 @@ function FreeTrialContent() {
     : (THEMES.find((t) => t.key === themeKey)?.label ?? themeKey);
 
   const solo1m   = pricing?.solo1m?.price ?? 500;
-  const groupMin = pricing?.groupMin ?? 5;
+  const groupMin = pricing?.groupMin ?? 3;
   const groupPerP = pricing?.groupPerP?.price ?? 400;
 
   const plans = [
@@ -179,12 +179,12 @@ function FreeTrialContent() {
       sub: isAr ? 'وصول كامل حتى يوم المسابقة' : 'Accès jusqu\'au concours',
     },
     {
-      label: isAr ? `جماعي — حتى المسابقة (${groupMin}+ أشخاص)` : `Groupe — jusqu'au concours (${groupMin}+ pers.)`,
+      label: isAr ? `باك الأصدقاء · حتى المسابقة` : `Pack Ami · jusqu'au concours`,
       href: '/register?plan=GROUP',
-      price: promoActive ? promo(groupPerP * groupMin) : groupPerP * groupMin,
-      oldPrice: promoActive ? groupPerP * groupMin : null,
-      badge: null,
-      sub: `${promoActive ? promo(groupPerP) : groupPerP} MRU / ${isAr ? 'شخص' : 'personne'}`,
+      price: groupPerP * groupMin,
+      oldPrice: null,
+      badge: isAr ? '🎁 ادفع لـ 2، وتعالوا 3' : '🎁 Payez pour 2, venez à 3',
+      sub: `${groupPerP} MRU / ${isAr ? 'شخص' : 'personne'}`,
     },
   ];
 

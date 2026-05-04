@@ -33,7 +33,7 @@ export class SettingsController {
     return {
       solo1m:    { price: price1m    ? parseInt(price1m)    : 500, duration: 30 },
       groupPerP: { price: priceGroup ? parseInt(priceGroup) : 400 },
-      groupMin:  groupMin ? parseInt(groupMin) : 5,
+      groupMin:  groupMin ? parseInt(groupMin) : 3,
     };
   }
 

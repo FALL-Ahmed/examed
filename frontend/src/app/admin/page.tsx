@@ -67,7 +67,7 @@ export default function AdminDashboard() {
       setPriceInput(r.data.PREMIUM_PRICE ?? '500');
       setWhatsapp(r.data.WHATSAPP_PHONE ?? '');
       setSupportEmail(r.data.SUPPORT_EMAIL ?? '');
-      setPrices({ p1m: r.data.PRICE_1M ?? '500', p3m: r.data.PRICE_3M ?? '1200', pGroup: r.data.PRICE_GROUP_PER_PERSON ?? '400', groupMin: r.data.GROUP_MIN_MEMBERS ?? '5' });
+      setPrices({ p1m: r.data.PRICE_1M ?? '500', p3m: r.data.PRICE_3M ?? '1200', pGroup: r.data.PRICE_GROUP_PER_PERSON ?? '400', groupMin: r.data.GROUP_MIN_MEMBERS ?? '3' });
       setDeviceVerif(r.data.DEVICE_VERIFICATION === 'true');
       setPromoEnabled(r.data.PROMO_ACTIVE === 'true');
       setPromoDiscount(r.data.PROMO_DISCOUNT ?? '30');
