@@ -420,7 +420,7 @@ export default function LandingPage() {
                 <Users className="w-5 h-5 text-emerald-600" />
               </div>
               <h3 className="font-extrabold text-xl text-gray-900 mb-1">{t('landing.pricing.group.name')}</h3>
-              <p className="text-gray-400 text-sm mb-1">{lang === 'ar' ? 'حتى التوظيف' : 'Accès jusqu\'au recrutement'}</p>
+              <p className="text-gray-400 text-sm mb-1">{lang === 'ar' ? 'حتى المسابقة' : 'Accès jusqu\'au concours'}</p>
               <p className="text-gray-400 text-sm mb-6">Min. {pricing?.groupMin ?? 5} {lang === 'ar' ? 'أشخاص' : 'personnes'}</p>
               <div className="mb-1">
                 {promoActive && <p className="text-2xl font-black text-red-400 line-through">{(pricing?.groupPerP?.price ?? 400) * (pricing?.groupMin ?? 5)} MRU</p>}

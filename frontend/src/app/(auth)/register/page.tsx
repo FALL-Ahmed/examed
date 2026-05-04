@@ -444,7 +444,7 @@ function RegisterContent() {
                   ${selectedPlan === 'GROUP' ? 'border-violet-500 bg-violet-50' : 'border-gray-200 bg-white hover:border-gray-300'}`}>
                 <div className="flex items-center justify-between w-full">
                   <div>
-                    <p className="font-bold text-gray-900 text-sm">{isAr ? 'مجموعة · حتى التوظيف' : 'Groupe · accès jusqu\'au recrutement'}</p>
+                    <p className="font-bold text-gray-900 text-sm">{isAr ? 'مجموعة · حتى المسابقة' : 'Groupe · jusqu\'au concours'}</p>
                     <p className="text-xs text-gray-500 mt-0.5">
                       {isAr
                         ? `الحد الأدنى ${pricing.groupMin ?? 5} أعضاء · ${groupPerP} MRU/شخص`

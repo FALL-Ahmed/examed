@@ -179,7 +179,7 @@ function FreeTrialContent() {
       sub: isAr ? 'وصول كامل حتى يوم المسابقة' : 'Accès jusqu\'au concours',
     },
     {
-      label: isAr ? `جماعي — حتى التوظيف (${groupMin}+ أشخاص)` : `Groupe — accès jusqu'au recrutement (${groupMin}+ pers.)`,
+      label: isAr ? `جماعي — حتى المسابقة (${groupMin}+ أشخاص)` : `Groupe — jusqu'au concours (${groupMin}+ pers.)`,
       href: '/register?plan=GROUP',
       price: promoActive ? promo(groupPerP * groupMin) : groupPerP * groupMin,
       oldPrice: promoActive ? groupPerP * groupMin : null,
