@@ -67,9 +67,9 @@ export class PdfController {
     const detectedLang = /[؀-ۿ]/.test(JSON.stringify(body).slice(0, 500)) ? 'AR' : 'FR';
     return {
       stats: { ...parsed.stats, language: detectedLang },
-      themes: parsed.themes.slice(0, 3).map((t: any) => ({
+      themes: parsed.themes.map((t: any) => ({
         name: t.name,
-        subThemes: t.subThemes.slice(0, 2).map((s: any) => ({
+        subThemes: t.subThemes.map((s: any) => ({
           name: s.name,
           questions: s.questions.slice(0, 2),
           totalQuestions: s.questions.length,
