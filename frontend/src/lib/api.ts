@@ -163,14 +163,12 @@ export const adminApi = {
   previewPdf: (file: File, lang = 'fr') => {
     const fd = new FormData();
     fd.append('file', file);
-    fd.append('lang', lang);
-    return api.post('/pdf/preview', fd, { headers: { 'Content-Type': 'multipart/form-data' } });
+    return api.post(`/pdf/preview?lang=${lang}`, fd, { headers: { 'Content-Type': 'multipart/form-data' } });
   },
   importPdf: (file: File, lang = 'fr') => {
     const fd = new FormData();
     fd.append('file', file);
-    fd.append('lang', lang);
-    return api.post('/pdf/import', fd, { headers: { 'Content-Type': 'multipart/form-data' } });
+    return api.post(`/pdf/import?lang=${lang}`, fd, { headers: { 'Content-Type': 'multipart/form-data' } });
   },
   previewText: (text: string) => api.post('/pdf/text-preview', { text }),
   importText: (text: string) => api.post('/pdf/text-import', { text }),

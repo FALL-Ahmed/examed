@@ -1,5 +1,5 @@
 import {
-  Controller, Post, UploadedFile, UseGuards, UseInterceptors, Body,
+  Controller, Post, UploadedFile, UseGuards, UseInterceptors, Body, Query,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { ApiTags, ApiBearerAuth, ApiConsumes } from '@nestjs/swagger';
@@ -23,14 +23,14 @@ export class PdfController {
   @Post('preview')
   @ApiConsumes('multipart/form-data')
   @UseInterceptors(FileInterceptor('file', { limits: { fileSize: 50 * 1024 * 1024 } }))
-  async preview(@UploadedFile() file: Express.Multer.File, @Body('lang') lang?: string) {
+  async preview(@UploadedFile() file: Express.Multer.File, @Query('lang') lang?: string) {
     return this.pdfService.parseAndPreview(file.buffer, file.originalname, lang?.toUpperCase() || 'FR');
   }
 
   @Post('import')
   @ApiConsumes('multipart/form-data')
   @UseInterceptors(FileInterceptor('file', { limits: { fileSize: 50 * 1024 * 1024 } }))
-  async importPdf(@UploadedFile() file: Express.Multer.File, @Body('lang') lang?: string) {
+  async importPdf(@UploadedFile() file: Express.Multer.File, @Query('lang') lang?: string) {
     const language = lang?.toUpperCase() || 'FR';
     const parsed = await this.pdfService.parseAndImport(file.buffer, file.originalname, language);
     const imported = await this.adminService.importFromParser(parsed, language);
