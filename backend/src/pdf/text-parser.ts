@@ -3,12 +3,13 @@
  * Gère plusieurs formats d'extraction PDF.
  */
 
-const ANSWER_RE = /^[•\-\*]?\s*[Rr][eé]ponse[s]?\s*(?:[eé]xacte[s]?|correcte[s]?|juste[s]?)?\s*[:\-–]?\s*(.+)$/i;
+const ANSWER_RE = /^[•\-\*✓✔]?\s*(?:[Bb]onne(?:s|\(s\))?\s*)?[Rr][eé]ponse(?:s|\(s\))?\s*(?:[eé]xacte[s]?|correcte[s]?|juste[s]?)?\s*[:\-–\t]?\s*(.+)$/i;
 const QUESTION_NUM_RE = /^(\d{1,3})\s*[\.\)]\s*(.{3,})$/;
+const QUESTION_Q_RE = /^[Qq]\s*(\d{1,3})\s+(.{3,})$/;
 const QUESTION_WORD_RE = /^[Qq]uestion\s+(\d{1,3})\s*[:\.]?\s*(.*)$/;
 const CHOICE_RE: Record<string, RegExp> = {};
 for (const l of ['A', 'B', 'C', 'D', 'E', 'F']) {
-  CHOICE_RE[l] = new RegExp(`^(?:[•z\\s]*)?[${l.toLowerCase()}${l}]\\s*[\\.):]\\s*(.+)$`);
+  CHOICE_RE[l] = new RegExp(`^(?:[•z\\s]*)?[${l.toLowerCase()}${l}]\\s*[\\.):\\t]?\\s{1,4}(.+)$`);
 }
 // Choix sans contenu sur la même ligne ("E." ou "E:") — le texte est sur la ligne suivante
 const CHOICE_EMPTY_RE = /^(?:[•\s]*)?([A-Fa-f])\s*[\.):]\s*$/;
@@ -46,7 +47,7 @@ function isThemeLine(line: string): boolean {
 }
 
 function isNewQuestionLine(line: string): boolean {
-  return QUESTION_NUM_RE.test(line) || QUESTION_WORD_RE.test(line);
+  return QUESTION_NUM_RE.test(line) || QUESTION_WORD_RE.test(line) || QUESTION_Q_RE.test(line);
 }
 
 interface Question {
@@ -176,6 +177,14 @@ export function parseText(rawText: string): any {
     const qm = line.match(QUESTION_NUM_RE);
     if (qm) {
       if (qm[2].trim()) newQuestion(qm[2].trim());
+      else waitingQText = true;
+      continue;
+    }
+
+    // ── 4b. Question "Q1 texte" (format tableau) ──
+    const qqm = line.match(QUESTION_Q_RE);
+    if (qqm) {
+      if (qqm[2].trim()) newQuestion(qqm[2].trim());
       else waitingQText = true;
       continue;
     }
