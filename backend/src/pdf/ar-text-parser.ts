@@ -28,18 +28,18 @@ export interface ArTheme {
 
 // ── Regex ─────────────────────────────────────────────────────────────────────
 
-// Ligne de réponse (toutes variantes)
-const ANSWER_RE = /^(?:الإجابات?\s+(?:الدقيقة|بالضبط|حدد)|مقال\s+الإجابة|الإجابة\s*(?:الدقيقة|بالضبط|حدد)?)\s*[:\s،,]*([أبتثجدهوA-Ea-e،\s,]+)/;
+// Ligne de réponse (toutes variantes + ✓ الإجابة الصحيحة)
+const ANSWER_RE = /^[✓✔]?\s*(?:الإجابات?\s+(?:الدقيقة|الصحيحة|بالضبط|حدد)|مقال\s+الإجابة|الإجابة\s*(?:الدقيقة|الصحيحة|بالضبط|حدد)?)\s*[:\s،,\t]*([أبتثجدهوA-Ea-e،\s,]+)/;
 
 // Explication
-const EXPL_RE = /^تعليق[:\s]/;
+const EXPL_RE = /^(?:تعليق|ملاحظة)[:\s\t]/;
 
-// Numéro de question (Format B)
-const QUESTION_NUM_RE = /^السؤال\s+\d+\s*[:\.]/;
+// Numéro de question (Format B : السؤال X: ou س1)
+const QUESTION_NUM_RE = /^(?:السؤال\s+\d+\s*[:\.]|س\s*\d+\s+)/;
 
-// Choix labellisé (Latin ou arabe) : أ) / أ. / A) / A.
-const LABELED_AR_RE = /^([أبتثجدهو])\s*[)\.،]\s*(.+)/;
-const LABELED_LATIN_RE = /^([A-Ea-e])\s*[)\.]\s*(.+)/;
+// Choix labellisé (Latin ou arabe) : أ) / أ. / A) / A. / A\t / A (espace)
+const LABELED_AR_RE = /^([أبتثجدهو])\s*[)\.،\t]?\s+(.+)/;
+const LABELED_LATIN_RE = /^([A-Ea-e])\s*[)\.\t]?\s+(.+)/;
 
 // ── Mapping lettres arabes → position A-E ─────────────────────────────────────
 
@@ -222,10 +222,16 @@ export function parseArText(rawText: string): {
       }
     }
 
-    // ── Format B : "السؤال X:" ────────────────────────────────────────────────
+    // ── Format B : "السؤال X:" ou "س1 texte" ─────────────────────────────────
     if (QUESTION_NUM_RE.test(content)) {
       flushQuestion();
-      awaitingQuestionText = true;
+      // س1 avec texte sur la même ligne
+      const sMatch = content.match(/^س\s*\d+\s+(.{3,})/);
+      if (sMatch) {
+        startQuestion(sMatch[1].trim());
+      } else {
+        awaitingQuestionText = true;
+      }
       continue;
     }
 
