@@ -320,7 +320,7 @@ export default function UploadPage() {
             ))}
           </div>
 
-          <div className="space-y-1.5 max-h-[520px] overflow-y-auto pr-1">
+          <div className="space-y-1.5">
             {preview.themes.map((theme: any) => {
               const themeTotal = theme.subThemes.reduce((a: number, s: any) => a + (s.totalQuestions ?? s.questions?.length ?? 0), 0);
               const themeOpen = expandedThemes.has(theme.name);
