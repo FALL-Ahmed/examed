@@ -87,6 +87,7 @@ export class AttemptsService {
         userId,
         mode: (dto.mode === 'FAVORITES' ? 'PRACTICE' : dto.mode) as any,
         themeId: dto.themeId,
+        subThemeId: dto.subThemeId,
         totalQ: questions.length,
         timeLimit: dto.durationMinutes ? dto.durationMinutes * 60 : null,
       },

@@ -35,8 +35,8 @@ export class AdminService {
     ] = await Promise.all([
       this.prisma.attempt.count(),
       this.prisma.attempt.count({ where: { isCompleted: true } }),
-      this.prisma.userAnswer.count(),
-      this.prisma.userAnswer.count({ where: { isCorrect: true } }),
+      this.prisma.attempt.aggregate({ where: { isCompleted: true }, _sum: { totalQ: true } }).then((r) => r._sum.totalQ ?? 0),
+      this.prisma.attempt.aggregate({ where: { isCompleted: true }, _sum: { correctQ: true } }).then((r) => r._sum.correctQ ?? 0),
       this.prisma.payment.aggregate({ where: { status: 'VALIDATED' }, _sum: { amount: true } }),
       this.prisma.payment.aggregate({ where: { status: 'VALIDATED', validatedAt: { gte: startOfMonth } }, _sum: { amount: true } }),
       this.prisma.attempt.findMany({ where: { startedAt: { gte: startOfWeek } }, distinct: ['userId'], select: { userId: true } }).then((r) => r.length),
@@ -344,14 +344,14 @@ export class AdminService {
   }
 
   async getLeaderboard(sortBy: 'accuracy' | 'total' | 'score' = 'accuracy', limit = 100) {
-    const [totalByUser, correctByUser, attemptsByUser, users] = await Promise.all([
-      this.prisma.userAnswer.groupBy({ by: ['userId'], _count: { _all: true } }),
-      this.prisma.userAnswer.groupBy({ by: ['userId'], where: { isCorrect: true }, _count: { _all: true } }),
+    // totalQ/correctQ stockés dans Attempt à la complétion — résistent à la suppression des questions
+    const [attemptsByUser, users] = await Promise.all([
       this.prisma.attempt.groupBy({
         by: ['userId'],
         where: { isCompleted: true },
         _count: { _all: true },
         _avg: { score: true },
+        _sum: { totalQ: true, correctQ: true },
       }),
       this.prisma.user.findMany({
         where: { role: { not: 'ADMIN' } },
@@ -359,20 +359,23 @@ export class AdminService {
       }),
     ]);
 
-    const totalMap   = Object.fromEntries(totalByUser.map((r) => [r.userId, r._count._all]));
-    const correctMap = Object.fromEntries(correctByUser.map((r) => [r.userId, r._count._all]));
-    const attemptMap = Object.fromEntries(attemptsByUser.map((r) => [r.userId, { count: r._count._all, avg: r._avg.score ?? 0 }]));
+    const attemptMap = Object.fromEntries(
+      attemptsByUser.map((r) => [r.userId, {
+        count:   r._count._all,
+        avg:     r._avg.score ?? 0,
+        total:   r._sum.totalQ ?? 0,
+        correct: r._sum.correctQ ?? 0,
+      }]),
+    );
 
     const withStats = users
       .map((u) => {
-        const total   = totalMap[u.id]   ?? 0;
-        const correct = correctMap[u.id] ?? 0;
-        const att     = attemptMap[u.id] ?? { count: 0, avg: 0 };
+        const att = attemptMap[u.id] ?? { count: 0, avg: 0, total: 0, correct: 0 };
         return {
           ...u,
-          totalAnswers:      total,
-          correctAnswers:    correct,
-          accuracyRate:      total > 0 ? Math.round((correct / total) * 100) : 0,
+          totalAnswers:      att.total,
+          correctAnswers:    att.correct,
+          accuracyRate:      att.total > 0 ? Math.round((att.correct / att.total) * 100) : 0,
           completedAttempts: att.count,
           avgScore:          Math.round(att.avg * 10) / 10,
         };
@@ -421,12 +424,12 @@ export class AdminService {
       }),
       this.prisma.$queryRaw<{ language: string; users: bigint; answers: bigint }[]>`
         SELECT th.language,
-               COUNT(DISTINCT ua."userId") AS users,
-               COUNT(ua.id) AS answers
-        FROM "UserAnswer" ua
-        JOIN "Question" q  ON ua."questionId" = q.id
-        JOIN "SubTheme" st ON q."subThemeId"  = st.id
-        JOIN "Theme"    th ON st."themeId"    = th.id
+               COUNT(DISTINCT a."userId") AS users,
+               SUM(a."totalQ")            AS answers
+        FROM "Attempt" a
+        JOIN "Theme" th ON a."themeId" = th.id
+        WHERE a."isCompleted" = true
+          AND a."themeId" IS NOT NULL
         GROUP BY th.language
       `,
     ]);
@@ -457,18 +460,18 @@ export class AdminService {
       subtheme: string; theme: string; language: string; total_answers: bigint;
       distinct_users: bigint; avg_score: number; sessions: bigint;
     }[]>`
-      SELECT st.name        AS subtheme,
-             th.name        AS theme,
+      SELECT COALESCE(st.name, th.name) AS subtheme,
+             th.name                    AS theme,
              th.language,
-             COUNT(ua.id)                AS total_answers,
-             COUNT(DISTINCT ua."userId") AS distinct_users,
-             COALESCE(AVG(a.score), 0)   AS avg_score,
-             COUNT(DISTINCT a.id)        AS sessions
-      FROM "UserAnswer" ua
-      JOIN "Question" q  ON ua."questionId" = q.id
-      JOIN "SubTheme" st ON q."subThemeId"  = st.id
-      JOIN "Theme"    th ON st."themeId"    = th.id
-      LEFT JOIN "Attempt" a ON ua."attemptId" = a.id AND a."isCompleted" = true
+             SUM(a."totalQ")                AS total_answers,
+             COUNT(DISTINCT a."userId")     AS distinct_users,
+             COALESCE(AVG(a.score), 0)      AS avg_score,
+             COUNT(a.id)                    AS sessions
+      FROM "Attempt" a
+      LEFT JOIN "SubTheme" st ON a."subThemeId" = st.id
+      JOIN "Theme"    th ON COALESCE(st."themeId", a."themeId") = th.id
+      WHERE a."isCompleted" = true
+        AND (a."subThemeId" IS NOT NULL OR a."themeId" IS NOT NULL)
       GROUP BY st.id, st.name, th.name, th.language
       ORDER BY total_answers DESC
       LIMIT 20
