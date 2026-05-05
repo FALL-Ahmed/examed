@@ -6,7 +6,7 @@ import { useAuthStore } from '@/lib/auth-store';
 import { useLang } from '@/components/LanguageProvider';
 import {
   BookOpen, Zap, TrendingUp, CheckCircle2,
-  Star, GraduationCap, ArrowRight, Target, Users, Clock,
+  GraduationCap, ArrowRight, Target, Users, Clock,
 } from 'lucide-react';
 import { settingsApi } from '@/lib/api';
 import { LanguageSwitcherLight } from '@/components/LanguageSwitcher';
@@ -33,9 +33,10 @@ export default function LandingPage() {
 
 
   const TESTIMONIALS = [
-    { name: t('landing.testi.1.name'), role: t('landing.testi.1.role'), text: t('landing.testi.1.text'), stars: 5 },
-    { name: t('landing.testi.2.name'), role: t('landing.testi.2.role'), text: t('landing.testi.2.text'), stars: 5 },
-    { name: t('landing.testi.3.name'), role: t('landing.testi.3.role'), text: t('landing.testi.3.text'), stars: 5 },
+    { name: 'Fatimetou', role: 'Étudiante en sciences infirmières', img: '/images/fr-com-1.jpeg' },
+    { name: 'Mohamed',   role: 'Étudiant en sciences infirmières',  img: '/images/fr-com-2.png' },
+    { name: 'مريم',     role: 'ممرضة متخرجة، نواكشوط',            img: '/images/ar-com-1.jpeg' },
+    { name: 'سيدي',     role: 'ممرض متخرج، نواكشوط',              img: '/images/ar-com-2.jpeg' },
   ];
 
   const FREE_CHAPTERS = [
@@ -130,7 +131,7 @@ export default function LandingPage() {
             {/* Stats bar */}
             <div className="flex flex-wrap gap-8 mt-12 pt-10 border-t border-white/10">
               <div>
-                <p className="text-2xl font-extrabold text-white">300+</p>
+                <p className="text-2xl font-extrabold text-white">600+</p>
                 <p className="text-xs text-white/40 mt-0.5">{t('landing.stat.q')}</p>
               </div>
               <div>
@@ -209,6 +210,27 @@ export default function LandingPage() {
         </div>
       </section>
 
+      {/* ── Testimonials ── */}
+      <section className="py-20 px-6 lg:px-10 bg-slate-50">
+        <div className="max-w-6xl mx-auto">
+          <div className="mb-12">
+            <p className="text-violet-600 text-xs font-bold uppercase tracking-widest mb-3">{t('landing.testi.badge')}</p>
+            <h2 className="text-3xl md:text-5xl font-extrabold text-gray-900 max-w-lg">{t('landing.testi.h2')}</h2>
+          </div>
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-8">
+            {TESTIMONIALS.map((testi) => (
+              <div key={testi.name} className="flex flex-col items-center text-center group cursor-pointer">
+                <div className="relative mb-4 overflow-hidden rounded-xl shadow-lg transition-all duration-300 group-hover:shadow-2xl group-hover:scale-105">
+                  <img src={testi.img} alt={testi.name} className="w-80 h-auto object-contain" />
+                </div>
+                <p className="font-bold text-base text-gray-900 group-hover:text-violet-600 transition">{testi.name}</p>
+                <p className="text-xs text-gray-400 mt-0.5">{testi.role}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
       {/* ── Chiffres clés ── */}
       <section className="py-20 px-6 lg:px-10 bg-white">
         <div className="max-w-6xl mx-auto">
@@ -221,12 +243,12 @@ export default function LandingPage() {
             </h2>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            {/* 300+ QCM */}
+            {/* 600+ QCM */}
             <div className="p-6 rounded-2xl border border-gray-100 bg-gray-50 flex flex-col gap-3">
               <div className="w-10 h-10 rounded-xl bg-violet-100 flex items-center justify-center">
                 <BookOpen className="w-5 h-5 text-violet-600" />
               </div>
-              <p className="text-3xl font-black text-gray-900">300+</p>
+              <p className="text-3xl font-black text-gray-900">600+</p>
               <div>
                 <p className="font-bold text-gray-800 text-sm">
                   {lang === 'ar' ? 'سؤال لا غنى عنه' : 'QCM Incontournables'}
@@ -311,38 +333,6 @@ export default function LandingPage() {
                   <p className="text-xs font-bold uppercase tracking-wider mb-1" style={{ color: f.color }}>{f.subtitle}</p>
                   <h3 className="font-extrabold text-gray-900 text-xl mb-2">{f.title}</h3>
                   <p className="text-sm text-gray-500 leading-relaxed">{f.desc}</p>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* ── Testimonials ── */}
-      <section className="py-28 px-6 lg:px-10 bg-white">
-        <div className="max-w-6xl mx-auto">
-          <div className="mb-16">
-            <p className="text-violet-600 text-xs font-bold uppercase tracking-widest mb-3">{t('landing.testi.badge')}</p>
-            <h2 className="text-3xl md:text-5xl font-extrabold text-gray-900 max-w-lg">{t('landing.testi.h2')}</h2>
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
-            {TESTIMONIALS.map((testi) => (
-              <div key={testi.name} className="bg-white rounded-3xl border border-gray-100 p-7 shadow-sm hover:shadow-md transition-shadow">
-                <div className="flex gap-1 mb-5">
-                  {Array.from({ length: testi.stars }).map((_, i) => (
-                    <Star key={i} className="w-4 h-4 text-amber-400 fill-amber-400" />
-                  ))}
-                </div>
-                <p className="text-gray-600 leading-relaxed mb-6 text-sm">"{testi.text}"</p>
-                <div className="flex items-center gap-3">
-                  <div className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold text-white flex-shrink-0"
-                    style={{ background: 'linear-gradient(135deg,#7c3aed,#6366f1)' }}>
-                    {testi.name[0]}
-                  </div>
-                  <div>
-                    <p className="font-bold text-sm text-gray-900">{testi.name}</p>
-                    <p className="text-xs text-gray-400">{testi.role}</p>
-                  </div>
                 </div>
               </div>
             ))}

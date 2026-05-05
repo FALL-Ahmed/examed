@@ -58,7 +58,7 @@ export default function LoginPage() {
   useEffect(() => { setMounted(true); }, []);
 
   const STATS = [
-    { value: '350+', label: t('login.stat1') },
+    { value: '600+', label: t('login.stat1') },
     { value: '50+',  label: t('login.stat2') },
     { value: '24/7', label: t('login.stat3') },
   ];

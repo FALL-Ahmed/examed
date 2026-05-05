@@ -53,7 +53,7 @@ const THEMES = [
 ];
 
 const FEATURES_FR = [
-  { icon: BookOpenCheck, text: '+350 questions validées par des experts' },
+  { icon: BookOpenCheck, text: '+600 questions validées par des experts' },
   { icon: BarChart3,     text: 'Suivi de progression en temps réel' },
   { icon: RotateCcw,     text: 'Mode révision des erreurs' },
   { icon: Users,         text: 'Abonnements solo et groupe' },
@@ -61,7 +61,7 @@ const FEATURES_FR = [
 ];
 
 const FEATURES_AR = [
-  { icon: BookOpenCheck, text: '+350 سؤال معتمد من خبراء' },
+  { icon: BookOpenCheck, text: '+600 سؤال معتمد من خبراء' },
   { icon: BarChart3,     text: 'تتبع التقدم في الوقت الفعلي' },
   { icon: RotateCcw,     text: 'مراجعة الأخطاء المخصصة' },
   { icon: Users,         text: 'اشتراكات فردية وجماعية' },
@@ -203,13 +203,13 @@ function FreeTrialContent() {
     ? (isAr ? 'مستوى جيد — واصل التقدم !' : 'Bon niveau — continue sur ta lancée !')
     : (isAr ? 'Des lacunes à combler !' : 'Des lacunes à combler — c\'est normal !');
   const doneSubline = isTop
-    ? (isAr ? 'مستواك قوي. تخيل ماذا ستحقق مع 350+ سؤال على 50 موضوعاً.' : 'Ton niveau est solide. Imagine tes résultats avec 350+ questions sur 50 thèmes.')
+    ? (isAr ? 'مستواك قوي. تخيل ماذا ستحقق مع 600+ سؤال على 50 موضوعاً.' : 'Ton niveau est solide. Imagine tes résultats avec 600+ questions sur 50 thèmes.')
     : isMid
     ? (isAr ? 'بالتدريب المنتظم ستصل إلى القمة.' : 'Avec un entraînement ciblé, tu atteins le sommet.')
     : (isAr ? 'هذه الثغرات تختفي بسرعة مع التدريب المنظم.' : 'Ces lacunes disparaissent vite avec un entraînement ciblé.');
   const doneUnlocks = isAr
-    ? ['350+ سؤال على 50+ موضوعاً', 'مراجعة مفصلة لكل خطأ', 'تتبع تقدمك أسبوعاً بأسبوع', 'وصول فوري بعد الدفع']
-    : ['350+ questions sur 50+ thèmes', 'Révision détaillée de chaque erreur', 'Suivi de ta progression semaine par semaine', 'Accès immédiat après paiement'];
+    ? ['600+ سؤال على 50+ موضوعاً', 'مراجعة مفصلة لكل خطأ', 'تتبع تقدمك أسبوعاً بأسبوع', 'وصول فوري بعد الدفع']
+    : ['600+ questions sur 50+ thèmes', 'Révision détaillée de chaque erreur', 'Suivi de ta progression semaine par semaine', 'Accès immédiat après paiement'];
 
   function submitWa() {
     if (waNumber.trim()) {
@@ -238,7 +238,7 @@ function FreeTrialContent() {
           {isAr ? 'مستعد لرؤية جميع الأسئلة؟' : 'Prêt à voir toutes les questions ?'}
         </p>
         <p className="text-white/65 text-xs mt-0.5">
-          {isAr ? '+350 سؤال · جميع المواضيع · تتبع التقدم' : '+350 questions · tous les thèmes · suivi de progression'}
+          {isAr ? '+600 سؤال · جميع المواضيع · تتبع التقدم' : '+600 questions · tous les thèmes · suivi de progression'}
         </p>
       </div>
 
@@ -592,7 +592,7 @@ function FreeTrialContent() {
         <div className="lg:hidden mt-6 text-center text-xs text-gray-400">
           {isAr ? 'تجربة مجانية · 3 مواضيع متاحة · ' : 'Essai gratuit · 3 thèmes disponibles · '}
           <Link href="/register" className="text-violet-600 font-semibold hover:underline">
-            {isAr ? 'الوصول إلى 300+ سؤال ←' : 'Accéder aux 300+ questions →'}
+            {isAr ? 'الوصول إلى 600+ سؤال ←' : 'Accéder aux 600+ questions →'}
           </Link>
         </div>
       </div>

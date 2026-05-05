@@ -263,8 +263,8 @@ function RegisterContent() {
 
           <div className="space-y-2.5">
             {(isAr
-              ? ['+350 سؤال طبي معتمد', 'للممرضين والأطباء والتقنيين', 'مكيّف مع المسابقات الموريتانية', 'وصول فوري بعد التحقق']
-              : ['350+ questions médicales validées', 'Pour infirmiers, médecins, techniciens', 'Adapté aux concours mauritaniens', 'Accès activé dès validation']
+              ? ['+600 سؤال طبي معتمد', 'للممرضين والأطباء والتقنيين', 'مكيّف مع المسابقات الموريتانية', 'وصول فوري بعد التحقق']
+              : ['600+ questions médicales validées', 'Pour infirmiers, médecins, techniciens', 'Adapté aux concours mauritaniens', 'Accès activé dès validation']
             ).map((item) => (
               <div key={item} className="flex items-center gap-2.5">
                 <div className="w-1.5 h-1.5 rounded-full bg-violet-400 flex-shrink-0" />
