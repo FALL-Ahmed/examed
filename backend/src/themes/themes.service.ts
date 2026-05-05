@@ -11,11 +11,11 @@ export class ThemesService {
       include: {
         subThemes: {
           select: { id: true, name: true, order: true, _count: { select: { questions: true } } },
-          orderBy: { order: 'asc' },
+          orderBy: { name: 'asc' },
         },
         _count: { select: { subThemes: true } },
       },
-      orderBy: { order: 'asc' },
+      orderBy: { name: 'asc' },
     });
   }
 
@@ -25,7 +25,7 @@ export class ThemesService {
       include: {
         subThemes: {
           include: { _count: { select: { questions: true } } },
-          orderBy: { order: 'asc' },
+          orderBy: { name: 'asc' },
         },
       },
     });
