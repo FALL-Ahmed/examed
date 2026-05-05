@@ -83,6 +83,19 @@ export default function DashboardPage() {
       </div>
 
 
+      {/* ── Bannière défilante nouvelles questions ── */}
+      <div className="overflow-hidden rounded-2xl bg-gradient-to-r from-violet-600 via-indigo-600 to-violet-600 py-2.5">
+        <div className="flex whitespace-nowrap animate-marquee">
+          {[0, 1].map((i) => (
+            <span key={i} className="flex-shrink-0 flex items-center gap-0 text-white text-sm font-medium px-4">
+              {isAr
+                ? '🎉 جديد · أكثر من 300 سؤال جديد أُضيف للمنصة · استعد بشكل أفضل لمسابقة ممرض الدولة · البرور يرافقك حتى قاعة الامتحان · 🎉 جديد · أكثر من 300 سؤال جديد أُضيف للمنصة · استعد بشكل أفضل لمسابقة ممرض الدولة · البرور يرافقك حتى قاعة الامتحان ·'
+                : '🎉 Nouveau · Plus de 300 nouvelles questions ajoutées · Préparez-vous encore mieux au concours national d\'infirmier d\'État · Al Bourour vous accompagne jusqu\'à la salle d\'examen · 🎉 Nouveau · Plus de 300 nouvelles questions ajoutées · Préparez-vous encore mieux au concours national d\'infirmier d\'État · Al Bourour vous accompagne jusqu\'à la salle d\'examen ·'}
+            </span>
+          ))}
+        </div>
+      </div>
+
       {/* ── Annonce barème officiel ── */}
       <div className={`overflow-hidden rounded-2xl border border-violet-500/30 bg-gradient-to-b from-violet-500/10 to-indigo-500/10 ${isAr ? 'text-right' : ''}`}>
         <img src="/correction.png" alt="Méthode de correction" className="w-full h-auto object-contain" />
