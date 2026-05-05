@@ -36,7 +36,7 @@ export default function LandingPage() {
     { name: 'Fatimetou', role: 'Étudiante en sciences infirmières', img: '/images/fr-com-1.jpeg' },
     { name: 'Mohamed',   role: 'Étudiant en sciences infirmières',  img: '/images/fr-com-2.png' },
     { name: 'مريم',     role: 'ممرضة متخرجة، نواكشوط',            img: '/images/ar-com-1.jpeg' },
-    { name: 'سيدي',     role: 'ممرض متخرج، نواكشوط',              img: '/images/ar-com-2.jpeg' },
+    { name: 'سيدي',     role: 'طالب في العلوم التمريضية',           img: '/images/ar-com-2.jpeg' },
   ];
 
   const FREE_CHAPTERS = [

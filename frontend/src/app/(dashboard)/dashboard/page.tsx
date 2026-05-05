@@ -72,7 +72,7 @@ export default function DashboardPage() {
   const SLIDES = [
     {
       badge: isAr ? 'جديد' : 'Nouveau',
-      image: null as string | null,
+      image: (isAr ? '/2.png' : '/1.png') as string | null,
       title: isAr
         ? 'أكثر من 600 سؤال جديد أُضيف للمنصة'
         : 'Plus de 600 nouvelles questions ajoutées',
