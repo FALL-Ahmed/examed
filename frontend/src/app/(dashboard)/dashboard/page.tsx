@@ -65,28 +65,30 @@ export default function DashboardPage() {
     const id = setInterval(() => {
       setFadeIn(false);
       setTimeout(() => { setSlideIdx(i => (i + 1) % 2); setFadeIn(true); }, 300);
-    }, 5000);
+    }, 10000);
     return () => clearInterval(id);
   }, []);
 
   const SLIDES = [
     {
       badge: isAr ? 'جديد' : 'Nouveau',
-      title: isAr
-        ? 'طريقة تصحيح جديدة مطابقة لمسابقة التوظيف الوطنية'
-        : 'Nouvelle méthode de correction adaptée au concours national',
-      desc: isAr
-        ? 'يتم التقييم دون أي تدخل بشري. تُمنح نقطة كاملة لكل إجابة صحيحة تماماً. ويُعتمد نظام التنقيط الجزئي التناسبي مع تطبيق غرامة على كل إجابة خاطئة محددة.'
-        : "L'évaluation se fait sans intervention humaine. Un point complet est attribué pour chaque réponse entièrement correcte. Un système de notation partielle proportionnelle est utilisé, avec pénalité pour chaque mauvaise réponse.",
-    },
-    {
-      badge: isAr ? 'جديد' : 'Nouveau',
+      image: null as string | null,
       title: isAr
         ? 'أكثر من 300 سؤال جديد أُضيف للمنصة'
         : 'Plus de 300 nouvelles questions ajoutées',
       desc: isAr
         ? 'استعد بشكل أفضل لمسابقة ممرض الدولة. البرور يرافقك حتى قاعة الامتحان.'
         : "Préparez-vous encore mieux au concours national d'infirmier d'État. Al Bourour vous accompagne jusqu'à la salle d'examen.",
+    },
+    {
+      badge: isAr ? 'جديد' : 'Nouveau',
+      image: '/correction.png' as string | null,
+      title: isAr
+        ? 'طريقة تصحيح جديدة مطابقة لمسابقة التوظيف الوطنية'
+        : 'Nouvelle méthode de correction adaptée au concours national',
+      desc: isAr
+        ? 'يتم التقييم دون أي تدخل بشري. تُمنح نقطة كاملة لكل إجابة صحيحة تماماً. ويُعتمد نظام التنقيط الجزئي التناسبي مع تطبيق غرامة على كل إجابة خاطئة محددة.'
+        : "L'évaluation se fait sans intervention humaine. Un point complet est attribué pour chaque réponse entièrement correcte. Un système de notation partielle proportionnelle est utilisé, avec pénalité pour chaque mauvaise réponse.",
     },
   ];
 
@@ -114,12 +116,15 @@ export default function DashboardPage() {
       </div>
 
 
-      {/* ── Annonces cycliques (5s) ── */}
-      <div className={`overflow-hidden rounded-2xl border border-violet-500/30 bg-gradient-to-b from-violet-500/10 to-indigo-500/10 ${isAr ? 'text-right' : ''}`}>
-        <div
-          className="p-5 flex flex-col gap-2"
-          style={{ transition: 'opacity 0.3s ease', opacity: fadeIn ? 1 : 0 }}
-        >
+      {/* ── Annonces cycliques (10s) ── */}
+      <div
+        className={`overflow-hidden rounded-2xl border border-violet-500/30 bg-gradient-to-b from-violet-500/10 to-indigo-500/10 ${isAr ? 'text-right' : ''}`}
+        style={{ transition: 'opacity 0.3s ease', opacity: fadeIn ? 1 : 0 }}
+      >
+        {SLIDES[slideIdx].image && (
+          <img src={SLIDES[slideIdx].image!} alt="" className="w-full h-auto object-contain" />
+        )}
+        <div className="p-5 flex flex-col gap-2">
           <span className={`inline-block w-fit bg-violet-500 text-white text-[10px] font-bold px-2.5 py-0.5 rounded-full uppercase tracking-wider ${isAr ? 'self-end' : ''}`}>
             {SLIDES[slideIdx].badge}
           </span>
