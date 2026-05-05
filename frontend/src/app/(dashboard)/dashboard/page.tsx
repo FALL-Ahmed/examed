@@ -59,6 +59,37 @@ export default function DashboardPage() {
   const subEnd = profile?.subscriptionEnd ? new Date(profile.subscriptionEnd) : null;
   const daysLeft = subEnd ? Math.ceil((subEnd.getTime() - Date.now()) / 86400000) : null;
 
+  const [slideIdx, setSlideIdx] = useState(0);
+  const [fadeIn, setFadeIn] = useState(true);
+  useEffect(() => {
+    const id = setInterval(() => {
+      setFadeIn(false);
+      setTimeout(() => { setSlideIdx(i => (i + 1) % 2); setFadeIn(true); }, 300);
+    }, 5000);
+    return () => clearInterval(id);
+  }, []);
+
+  const SLIDES = [
+    {
+      badge: isAr ? 'جديد' : 'Nouveau',
+      title: isAr
+        ? 'طريقة تصحيح جديدة مطابقة لمسابقة التوظيف الوطنية'
+        : 'Nouvelle méthode de correction adaptée au concours national',
+      desc: isAr
+        ? 'يتم التقييم دون أي تدخل بشري. تُمنح نقطة كاملة لكل إجابة صحيحة تماماً. ويُعتمد نظام التنقيط الجزئي التناسبي مع تطبيق غرامة على كل إجابة خاطئة محددة.'
+        : "L'évaluation se fait sans intervention humaine. Un point complet est attribué pour chaque réponse entièrement correcte. Un système de notation partielle proportionnelle est utilisé, avec pénalité pour chaque mauvaise réponse.",
+    },
+    {
+      badge: isAr ? 'جديد' : 'Nouveau',
+      title: isAr
+        ? 'أكثر من 300 سؤال جديد أُضيف للمنصة'
+        : 'Plus de 300 nouvelles questions ajoutées',
+      desc: isAr
+        ? 'استعد بشكل أفضل لمسابقة ممرض الدولة. البرور يرافقك حتى قاعة الامتحان.'
+        : "Préparez-vous encore mieux au concours national d'infirmier d'État. Al Bourour vous accompagne jusqu'à la salle d'examen.",
+    },
+  ];
+
   return (
     <div className="max-w-5xl mx-auto space-y-6">
 
@@ -83,36 +114,23 @@ export default function DashboardPage() {
       </div>
 
 
-      {/* ── Bannière défilante nouvelles questions ── */}
-      <div className="overflow-hidden rounded-2xl bg-gradient-to-r from-violet-600 via-indigo-600 to-violet-600 py-2.5">
-        <div className="flex whitespace-nowrap animate-marquee">
-          {[0, 1].map((i) => (
-            <span key={i} className="flex-shrink-0 flex items-center gap-0 text-white text-sm font-medium px-4">
-              {isAr
-                ? '🎉 جديد · أكثر من 300 سؤال جديد أُضيف للمنصة · استعد بشكل أفضل لمسابقة ممرض الدولة · البرور يرافقك حتى قاعة الامتحان · 🎉 جديد · أكثر من 300 سؤال جديد أُضيف للمنصة · استعد بشكل أفضل لمسابقة ممرض الدولة · البرور يرافقك حتى قاعة الامتحان ·'
-                : '🎉 Nouveau · Plus de 300 nouvelles questions ajoutées · Préparez-vous encore mieux au concours national d\'infirmier d\'État · Al Bourour vous accompagne jusqu\'à la salle d\'examen · 🎉 Nouveau · Plus de 300 nouvelles questions ajoutées · Préparez-vous encore mieux au concours national d\'infirmier d\'État · Al Bourour vous accompagne jusqu\'à la salle d\'examen ·'}
-            </span>
-          ))}
-        </div>
-      </div>
-
-      {/* ── Annonce barème officiel ── */}
+      {/* ── Annonces cycliques (5s) ── */}
       <div className={`overflow-hidden rounded-2xl border border-violet-500/30 bg-gradient-to-b from-violet-500/10 to-indigo-500/10 ${isAr ? 'text-right' : ''}`}>
-        <img src="/correction.png" alt="Méthode de correction" className="w-full h-auto object-contain" />
-        <div className="p-5 flex flex-col gap-2">
+        <div
+          className="p-5 flex flex-col gap-2"
+          style={{ transition: 'opacity 0.3s ease', opacity: fadeIn ? 1 : 0 }}
+        >
           <span className={`inline-block w-fit bg-violet-500 text-white text-[10px] font-bold px-2.5 py-0.5 rounded-full uppercase tracking-wider ${isAr ? 'self-end' : ''}`}>
-            {isAr ? 'جديد' : 'Nouveau'}
+            {SLIDES[slideIdx].badge}
           </span>
-          <p className="font-bold text-base leading-snug">
-            {isAr
-              ? 'طريقة تصحيح جديدة مطابقة لمسابقة التوظيف الوطنية'
-              : 'Nouvelle méthode de correction adaptée au concours national de recrutement'}
-          </p>
-          <p className="text-sm text-muted-foreground leading-relaxed">
-            {isAr
-              ? 'يتم التقييم دون أي تدخل بشري. تُمنح نقطة كاملة لكل إجابة صحيحة تماماً. ويُعتمد نظام التنقيط الجزئي التناسبي مع تطبيق غرامة على كل إجابة خاطئة محددة.'
-              : "L'évaluation se fait sans intervention humaine. Un point complet est attribué pour chaque réponse entièrement correcte. Un système d'évaluation partielle proportionnelle est utilisé, avec pénalité pour chaque mauvaise réponse sélectionnée."}
-          </p>
+          <p className="font-bold text-base leading-snug">{SLIDES[slideIdx].title}</p>
+          <p className="text-sm text-muted-foreground leading-relaxed">{SLIDES[slideIdx].desc}</p>
+          <div className={`flex gap-1.5 mt-1 ${isAr ? 'justify-end' : ''}`}>
+            {SLIDES.map((_, i) => (
+              <button key={i} onClick={() => { setFadeIn(false); setTimeout(() => { setSlideIdx(i); setFadeIn(true); }, 300); }}
+                className={`w-1.5 h-1.5 rounded-full transition-all ${i === slideIdx ? 'bg-violet-500 w-4' : 'bg-violet-300/50'}`} />
+            ))}
+          </div>
         </div>
       </div>
 
