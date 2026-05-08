@@ -145,9 +145,19 @@ function FreeTrialContent() {
     const isCorrect = correctAnswers.length === selected.length && correctAnswers.every((c) => selected.includes(c));
     if (isCorrect) setScore((s) => s + 1);
     publicApi.trackFreeTrialEvent({ sessionId, theme: themeKey, lang, source: utmSource, questionN: index + 1, isCorrect });
-    if (index === 4 && !waCaptured) {
+    if (index === 4 && !waCaptured && themeKey !== 'pediatrie') {
       setTimeout(() => setShowWaCapture(true), 800);
     }
+  }
+
+  function submitWa() {
+    if (waNumber.trim()) {
+      gtrack('lead_whatsapp_captured', { whatsapp: waNumber.trim(), theme: themeKey, lang });
+      localStorage.setItem('_wa_lead', waNumber.trim());
+      publicApi.saveFreeTrialLead({ sessionId, phone: waNumber.trim(), theme: themeKey, lang, source: utmSource });
+    }
+    setWaCaptured(true);
+    setShowWaCapture(false);
   }
 
   function next() {
@@ -211,15 +221,6 @@ function FreeTrialContent() {
     ? ['600+ سؤال على 50+ موضوعاً', 'مراجعة مفصلة لكل خطأ', 'تتبع تقدمك أسبوعاً بأسبوع', 'وصول فوري بعد الدفع']
     : ['600+ questions sur 50+ thèmes', 'Révision détaillée de chaque erreur', 'Suivi de ta progression semaine par semaine', 'Accès immédiat après paiement'];
 
-  function submitWa() {
-    if (waNumber.trim()) {
-      gtrack('lead_whatsapp_captured', { whatsapp: waNumber.trim(), theme: themeKey, lang });
-      localStorage.setItem('_wa_lead', waNumber.trim());
-      publicApi.saveFreeTrialLead({ sessionId, phone: waNumber.trim(), theme: themeKey, lang, source: utmSource });
-    }
-    setWaCaptured(true);
-    setShowWaCapture(false);
-  }
 
 
   /* ── Right CTA panel ── */
@@ -316,6 +317,7 @@ function FreeTrialContent() {
 
   return (
     <div className="min-h-screen bg-gray-50" dir={isAr ? 'rtl' : 'ltr'}>
+
 
       {/* ── WhatsApp capture popup ── */}
       {showWaCapture && (
