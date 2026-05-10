@@ -74,8 +74,8 @@ export default function DashboardPage() {
       badge: isAr ? 'جديد' : 'Nouveau',
       image: (isAr ? '/2.png' : '/1.png') as string | null,
       title: isAr
-        ? 'أكثر من 600 سؤال جديد أُضيف للمنصة'
-        : 'Plus de 600 nouvelles questions ajoutées',
+        ? 'أكثر من 600 سؤال جديد للمراجعة'
+        : 'Plus de 600 nouvelles questions à réviser',
       desc: isAr
         ? 'استعد بشكل أفضل لمسابقة ممرض الدولة. البرور يرافقك حتى قاعة الامتحان.'
         : "Préparez-vous encore mieux au concours national d'infirmier d'État. Al Bourour vous accompagne jusqu'à la salle d'examen.",
