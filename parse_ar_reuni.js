@@ -83,16 +83,26 @@ const categories = [];
 let curCat = null, curTheme = null;
 let inBlock = false, blockLines = [];
 let pendingSubtheme = null; // sous-thème sans marqueur المبحث
+let postCommentSubtheme = null; // sous-thème détecté après التعليق dans le bloc courant
+let pastComment = false; // on est passé après التعليق dans le bloc courant
 
 function flushBlock() {
-  if (!inBlock || blockLines.length === 0) { inBlock = false; blockLines = []; return; }
-  if (!curTheme) { inBlock = false; blockLines = []; return; }
-  const parsed = parseBlock(blockLines);
+  if (!inBlock || blockLines.length === 0) { inBlock = false; blockLines = []; pastComment = false; postCommentSubtheme = null; return; }
+  if (!curTheme) { inBlock = false; blockLines = []; pastComment = false; postCommentSubtheme = null; return; }
+  // Extraire les vraies lignes du bloc (avant les headers de section post-commentaire)
+  const realBlockLines = postCommentSubtheme
+    ? blockLines.slice(0, blockLines.lastIndexOf(postCommentSubtheme))
+    : blockLines;
+  const parsed = parseBlock(realBlockLines.length > 0 ? realBlockLines : blockLines);
   if (parsed) {
     parsed.numero = curTheme.questions.length + 1;
     curTheme.questions.push(parsed);
   }
-  inBlock = false; blockLines = [];
+  // Propager le sous-thème détecté après التعليق
+  if (postCommentSubtheme && !pendingSubtheme) {
+    pendingSubtheme = postCommentSubtheme;
+  }
+  inBlock = false; blockLines = []; pastComment = false; postCommentSubtheme = null;
 }
 
 function ensureTheme(nom) {
@@ -140,7 +150,16 @@ for (const line of rawLines) {
   }
 
   // Contenu du bloc en cours
-  if (inBlock) { blockLines.push(line); continue; }
+  if (inBlock) {
+    if (line === 'التعليق') pastComment = true;
+    // Détecter un header de section caché après التعليق:
+    // doit contenir des caractères latins (nom français) et ne pas finir par un point arabe
+    else if (pastComment && /[a-zA-Z]/.test(line) && !line.endsWith('.') && line.length > 5 && line.length < 120) {
+      postCommentSubtheme = line;
+    }
+    blockLines.push(line);
+    continue;
+  }
 
   // Ligne entre questions (potentiel sous-thème sans marqueur المبحث)
   if (!inBlock && curCat && !isLetter(line) && line.length > 8) {

@@ -1,31 +1,44 @@
 /**
  * import_ar_reuni.js
- * Réorganise guide_arabe_reuni.json en 9 catégories propres et importe en DB
+ * Réorganise guide_arabe_reuni.json avec la MÊME structure que le guide FR
+ * FR categories: ENDOCRINOLOGIE, PEDIATRIE, NEUROLOGIE, CARDIOLOGIE,
+ *                LES MALADIES INFECTIEUSES, URGENCES CHIRURGICALES,
+ *                GASTROLOGIE, ORTHOPEDIE, PHARMACOLOGIE, SEMIOLOGIE,
+ *                PRATIQUE DE LA SCIENCE INFIRMIERE, ANATOMIE ET PHYSIOLOGIE
  */
 const { PrismaClient } = require('./backend/node_modules/@prisma/client');
-const fs = require('fs');
-
-const prisma = new PrismaClient();
 const data = require('./guide_arabe_reuni.json');
+const prisma = new PrismaClient();
 
-// ── Sous-thèmes identifiants pour chaque catégorie cible ──────────────────
-// Clé = fragment du nom de sous-thème, valeur = catégorie cible
+// ── Mapping sous-thème → catégorie (ordre important: plus spécifique en premier) ──
 const SUBTHEME_TO_CATEGORY = [
-  // الدوائية — EN PREMIER pour éviter conflits (مضادات ارتفاع ضغط الدم vs ارتفاع ضغط الدم)
+  // طب الأطفال (PEDIATRIE)
+  { keys: ['رعاية حديثي الولادة', 'حديثي الولادة'], cat: 'طب الأطفال' },
+
+  // علم الأعصاب (NEUROLOGIE)
+  { keys: ['التشنجات', 'الصرع'], cat: 'علم الأعصاب' },
+
+  // الغدد الصماء (ENDOCRINOLOGIE) — insuline et glycémie compris
+  { keys: ['السكري', 'الأنسولين وأدوية السكري', 'مستوى السكر في الدم'], cat: 'الغدد الصماء' },
+
+  // الدوائية (PHARMACOLOGIE) — AVANT cardio pour éviter conflit مضادات ارتفاع ضغط الدم
   { keys: ['مسكنات الألم', 'مضادات الالتهاب', 'المضادات الحيوية', 'مضادات التخثر',
             'مضادات ارتفاع ضغط الدم', 'مدرات البول', 'الملينات'], cat: 'الدوائية والعلاج' },
 
-  // طب القلب
+  // طب القلب (CARDIOLOGIE)
   { keys: ['الانصمام الرئوي', 'ارتفاع ضغط الدم', 'قصور في القلب', 'جلطة الأوردة العميقة'], cat: 'طب القلب والأوعية الدموية' },
 
-  // أمراض الجهاز الهضمي
-  { keys: ['الإسهال الحاد', 'النزيف الهضمي', 'التهاب الكبد الحاد', 'اليرقان',
-            'انسداد الأمعاء', 'التهاب البنكرياس', 'التهاب الصفاق الحاد', 'قرحة المعدة'], cat: 'أمراض الجهاز الهضمي' },
+  // الطوارئ الجراحية (URGENCES CHIRURGICALES)
+  { keys: ['انسداد الأمعاء', 'التهاب البنكرياس', 'التهاب الصفاق الحاد', 'قرحة المعدة',
+            'التهاب الزائدة الدودية'], cat: 'الطوارئ الجراحية' },
 
-  // الجراحة العامة
-  { keys: ['التهاب المفاصل العظمي', 'الكسور', 'عدوى الأنسجة الرخوة', 'الحروق'], cat: 'الجراحة العامة والإسعافات' },
+  // أمراض الجهاز الهضمي (GASTROLOGIE)
+  { keys: ['الإسهال الحاد', 'النزيف الهضمي', 'التهاب الكبد الحاد', 'اليرقان'], cat: 'أمراض الجهاز الهضمي' },
 
-  // السيميولوجيا
+  // جراحة العظام والحروق (ORTHOPEDIE)
+  { keys: ['التهاب المفاصل العظمي', 'الكسور', 'عدوى الأنسجة الرخوة', 'الحروق'], cat: 'جراحة العظام والحروق' },
+
+  // السيميولوجيا (SEMIOLOGIE)
   { keys: ['سيميولوجيا'], cat: 'السيميولوجيا' },
 ];
 
@@ -39,10 +52,19 @@ function getCategoryForSubtheme(nom) {
 // ── Construire la structure finale ────────────────────────────────────────
 const catMap = new Map();
 
-// Catégories 1, 2, 3 gardées telles quelles
-for (const cat of data.categories.slice(0, 3)) {
-  catMap.set(cat.nom, { nom: cat.nom, themes: [...cat.themes] });
+// Catégorie 1 (Pneumologie) → dans الأمراض المعدية
+// Catégorie 2 (Maladies Infectieuses) → dans الأمراض المعدية
+const maladiesCat = { nom: 'الأمراض المعدية', themes: [] };
+for (const cat of data.categories.slice(0, 2)) {
+  for (const theme of cat.themes) {
+    if (theme.questions.length > 0) maladiesCat.themes.push(theme);
+  }
 }
+catMap.set('الأمراض المعدية', maladiesCat);
+
+// Catégorie 3 (Anatomie) → gardée telle quelle
+const anatCat = data.categories[2];
+catMap.set(anatCat.nom, { nom: anatCat.nom, themes: [...anatCat.themes] });
 
 // Catégorie 4 redistribuée
 const bigCat = data.categories[3];
@@ -53,13 +75,17 @@ for (const theme of bigCat.themes) {
   catMap.get(catName).themes.push(theme);
 }
 
+// Ordre des catégories (aligné sur la structure FR)
 const ORDERED_CATS = [
-  'أَمْراض الرِّئَة   (Pneumologie)',
-  'الأمراض المعدية (Maladies Infectieuses)',
-  'التشريح وعلم وظائف الأعضاء (Anatomie et Physiologie)',
+  'الأمراض المعدية',
+  anatCat.nom,
   'طب القلب والأوعية الدموية',
+  'الغدد الصماء',
+  'طب الأطفال',
+  'علم الأعصاب',
   'أمراض الجهاز الهضمي',
-  'الجراحة العامة والإسعافات',
+  'الطوارئ الجراحية',
+  'جراحة العظام والحروق',
   'الدوائية والعلاج',
   'السيميولوجيا',
   'الممارسة التمريضية',
@@ -67,22 +93,20 @@ const ORDERED_CATS = [
 
 const finalCategories = [];
 for (const name of ORDERED_CATS) {
-  // cherche dans catMap (correspondance exacte ou partielle)
   let found = catMap.get(name);
   if (!found) {
-    // cherche partielle
+    // correspondance partielle
     for (const [k, v] of catMap) {
-      if (k.includes(name) || name.includes(k.split(' ')[0])) { found = v; break; }
+      if (name.includes(k.split(' ')[0]) || k.includes(name.split(' ')[0])) { found = v; break; }
     }
   }
-  if (found) {
-    const q = found.themes.reduce((s, t) => s + t.questions.length, 0);
-    if (q > 0) finalCategories.push({ nom: name, themes: found.themes });
+  if (found && found.themes.some(t => t.questions.length > 0)) {
+    finalCategories.push({ nom: name, themes: found.themes });
   }
 }
 
 // Stats
-console.log('=== Structure finale ===');
+console.log('=== Structure finale (alignée sur FR) ===');
 let total = 0;
 for (const cat of finalCategories) {
   const q = cat.themes.reduce((s, t) => s + t.questions.length, 0);
