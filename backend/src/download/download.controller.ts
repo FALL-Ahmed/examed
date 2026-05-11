@@ -32,6 +32,17 @@ export class DownloadController {
       } catch {}
     }
 
+    // Déduplication : ignorer si même identifiant dans les 5 dernières secondes
+    const since = new Date(Date.now() - 60000);
+    const existing = await this.prisma.pdfDownload.findFirst({
+      where: {
+        filename,
+        downloadedAt: { gte: since },
+        ...(userId ? { userId } : { ipAddress: ip }),
+      },
+    });
+    if (existing) return { ok: true, deduplicated: true };
+
     await this.prisma.pdfDownload.create({
       data: { userId, filename, source: source || 'direct', ipAddress: ip },
     }).catch(() => {});
