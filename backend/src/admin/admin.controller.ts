@@ -188,4 +188,9 @@ export class AdminController {
   setSetting(@Param('key') key: string, @Body() body: { value: string }) {
     return this.adminService.setSetting(key, body.value);
   }
+
+  @Get('pdf-downloads')
+  getPdfDownloads(@Query('filename') filename?: string) {
+    return this.adminService.getPdfDownloads(filename);
+  }
 }

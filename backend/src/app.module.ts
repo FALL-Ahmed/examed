@@ -11,6 +11,7 @@ import { AttemptsModule } from './attempts/attempts.module';
 import { PaymentsModule } from './payments/payments.module';
 import { AdminModule } from './admin/admin.module';
 import { PdfModule } from './pdf/pdf.module';
+import { DownloadModule } from './download/download.module';
 import { KeepaliveService } from './common/keepalive.service';
 import { PushModule } from './push/push.module';
 
@@ -32,6 +33,7 @@ import { PushModule } from './push/push.module';
     AdminModule,
     PdfModule,
     PushModule,
+    DownloadModule,
   ],
   providers: [KeepaliveService],
 })

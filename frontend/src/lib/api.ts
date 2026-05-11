@@ -84,6 +84,7 @@ export const userApi = {
   me: () => api.get('/users/me'),
   stats: () => api.get('/users/me/stats'),
   myPayments: () => api.get('/payments/me'),
+  trackPdf: (filename: string, source = 'app') => api.post('/users/track-pdf', { filename, source }),
 };
 
 // Themes
@@ -157,6 +158,7 @@ export const adminApi = {
   deleteAllQuestions: () => api.delete('/admin/questions'),
   deleteAllThemes: () => api.delete('/admin/themes'),
   groups: () => api.get('/admin/groups'),
+  pdfDownloads: () => api.get('/admin/pdf-downloads'),
   pendingPayments: () => api.get('/admin/payments/pending'),
   validatePayment: (id: string) => api.post(`/admin/payments/${id}/validate`),
   rejectPayment: (id: string, reason?: string) => api.post(`/admin/payments/${id}/reject`, { reason }),

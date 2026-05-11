@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useAuthStore } from '@/lib/auth-store';
 import { attemptsApi, userApi } from '@/lib/api';
+import { useCallback } from 'react';
 import { useLang } from '@/components/LanguageProvider';
 import {
   BookOpen, Zap, RefreshCw, TrendingUp,
@@ -164,6 +165,7 @@ export default function DashboardPage() {
             <a
               href={SLIDES[slideIdx].download!}
               download
+              onClick={() => userApi.trackPdf('fiche-memo.pdf').catch(() => {})}
               className={`inline-flex items-center gap-2 mt-2 w-fit bg-violet-600 hover:bg-violet-700 text-white text-sm font-semibold px-4 py-2 rounded-xl transition ${isAr ? 'flex-row-reverse self-end' : ''}`}
             >
               <Download className="w-4 h-4" />

@@ -808,4 +808,21 @@ export class AdminService {
 
     return { byTheme, globalFunnel, totalSessions: allBySession.size, leads, dailyStats };
   }
+
+  async trackPdfDownload(userId: string, filename: string) {
+    return this.prisma.pdfDownload.create({
+      data: { userId, filename },
+    });
+  }
+
+  async getPdfDownloads(filename?: string) {
+    return this.prisma.pdfDownload.findMany({
+      where: filename ? { filename } : undefined,
+      orderBy: { downloadedAt: 'desc' },
+      include: {
+        user: { select: { id: true, fullName: true, email: true, profession: true, wilaya: true } },
+      },
+      take: 200,
+    });
+  }
 }

@@ -97,4 +97,8 @@ export class UsersService {
       data: { dailyQuestionCount: { increment: 1 } },
     });
   }
+
+  async trackPdfDownload(userId: string, filename: string, source = 'app') {
+    return this.prisma.pdfDownload.create({ data: { userId, filename, source } });
+  }
 }

@@ -74,6 +74,7 @@ model User {
   payments        Payment[]
   favorites       Favorite[]
   trustedDevices  TrustedDevice[]
+  pdfDownloads    PdfDownload[]
   dailyQuestionCount Int       @default(0)
   lastQuestionDate   DateTime?
   createdAt       DateTime     @default(now())
@@ -244,6 +245,19 @@ model FreeTrialLead {
   createdAt DateTime @default(now())
 
   @@index([createdAt])
+}
+
+model PdfDownload {
+  id           String   @id @default(cuid())
+  userId       String?
+  user         User?    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  filename     String
+  source       String?  // "app", "facebook", "tiktok", "direct"
+  ipAddress    String?
+  downloadedAt DateTime @default(now())
+
+  @@index([userId])
+  @@index([downloadedAt])
 }
 
 model FreeTrialEvent {
