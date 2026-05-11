@@ -41,7 +41,15 @@ export default function ExamConfigPage() {
         durationMinutes: config.durationMinutes,
         language: lang.toUpperCase(),
       });
-      router.push(`/exam/${data.attemptId}?data=${encodeURIComponent(JSON.stringify(data))}`);
+      localStorage.setItem('exam_state', JSON.stringify({
+        attemptId: data.attemptId,
+        session: data,
+        answers: {},
+        marked: {},
+        currentIndex: 0,
+        remainingSeconds: data.timeLimit ?? null,
+      }));
+      router.push(`/exam/${data.attemptId}`);
     } catch (err: any) {
       setError(err.response?.data?.message || 'Erreur lors du démarrage');
     } finally {
