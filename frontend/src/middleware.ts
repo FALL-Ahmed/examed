@@ -13,11 +13,15 @@ export function middleware(request: NextRequest) {
     const filename = TRACKED_FILES[pathname];
     const source = searchParams.get('source') || 'direct';
     const ip = request.headers.get('x-forwarded-for')?.split(',')[0].trim() || '';
+    const token = request.cookies.get('access_token')?.value;
 
     // Fire-and-forget — ne bloque pas la réponse
     fetch(`${API_URL}/download/track/${filename}?source=${source}`, {
       method: 'GET',
-      headers: { 'x-forwarded-for': ip },
+      headers: {
+        'x-forwarded-for': ip,
+        ...(token ? { 'x-auth-token': token } : {}),
+      },
     }).catch(() => {});
   }
 
