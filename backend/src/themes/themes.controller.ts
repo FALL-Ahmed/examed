@@ -1,4 +1,4 @@
-import { Controller, Get, Param, Query, UseGuards } from '@nestjs/common';
+import { Controller, Get, Param, Query, UseGuards, Req } from '@nestjs/common';
 import { ApiTags, ApiBearerAuth } from '@nestjs/swagger';
 import { ThemesService } from './themes.service';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
@@ -11,8 +11,8 @@ export class ThemesController {
   constructor(private themesService: ThemesService) {}
 
   @Get()
-  findAll(@Query('lang') lang?: string) {
-    return this.themesService.findAll(lang ? lang.toUpperCase() : undefined);
+  findAll(@Req() req: any, @Query('lang') lang?: string) {
+    return this.themesService.findAll(lang ? lang.toUpperCase() : undefined, req.user?.sub);
   }
 
   @Get(':id')

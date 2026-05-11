@@ -45,15 +45,16 @@ const CountdownTimer = memo(({ isAr, endDate }: { isAr: boolean; endDate?: strin
 });
 
 const PROFESSIONS = [
-  { value: 'etudiant_infirmier',  fr: 'Étudiant en sciences infirmières', ar: 'طالب علوم التمريض' },
-  { value: 'etudiant_medecine',   fr: 'Étudiant en médecine',             ar: 'طالب طب' },
-  { value: 'etudiant_pharmacie',  fr: 'Étudiant en pharmacie',            ar: 'طالب صيدلة' },
-  { value: 'infirmier_diplome',   fr: 'Infirmier diplômé',                ar: 'ممرض متخرج' },
-  { value: 'aide_soignant',       fr: 'Aide-soignant',                    ar: 'مساعد تمريض' },
-  { value: 'medecin',             fr: 'Médecin',                          ar: 'طبيب' },
-  { value: 'sage_femme',          fr: 'Sage-femme',                       ar: 'قابلة' },
-  { value: 'technicien_labo',     fr: 'Technicien de laboratoire',        ar: 'تقني مخبر' },
-  { value: 'autre',               fr: 'Autre professionnel de santé',     ar: 'مهني صحة آخر' },
+  { value: 'etudiant_infirmier',      fr: 'Étudiant en sciences infirmières', ar: 'طالب علوم التمريض' },
+  { value: 'etudiant_infirmier_3eme', fr: 'Étudiant infirmier 3ème année',    ar: 'طالب تمريض السنة الثالثة' },
+  { value: 'etudiant_medecine',       fr: 'Étudiant en médecine',             ar: 'طالب طب' },
+  { value: 'etudiant_pharmacie',      fr: 'Étudiant en pharmacie',            ar: 'طالب صيدلة' },
+  { value: 'infirmier_diplome',       fr: 'Infirmier diplômé',                ar: 'ممرض متخرج' },
+  { value: 'aide_soignant',           fr: 'Aide-soignant',                    ar: 'مساعد تمريض' },
+  { value: 'medecin',                 fr: 'Médecin',                          ar: 'طبيب' },
+  { value: 'sage_femme',              fr: 'Sage-femme',                       ar: 'قابلة' },
+  { value: 'technicien_labo',         fr: 'Technicien de laboratoire',        ar: 'تقني مخبر' },
+  { value: 'autre',                   fr: 'Autre professionnel de santé',     ar: 'مهني صحة آخر' },
 ];
 
 const WILAYAS = [
