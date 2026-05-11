@@ -76,6 +76,7 @@ export function QuestionCard({ question, questionNumber, totalQuestions, onAnswe
   );
   const [result, setResult] = useState<AnswerResult | null>(savedAnswer?.result ?? null);
   const [loading, setLoading] = useState(false);
+  const [submitError, setSubmitError] = useState(false);
   const [favorited, setFavorited] = useState(isFavorited);
   const [favLoading, setFavLoading] = useState(false);
 
@@ -97,9 +98,12 @@ export function QuestionCard({ question, questionNumber, totalQuestions, onAnswe
   async function handleSubmit() {
     if (selected.size === 0 || result || loading) return;
     setLoading(true);
+    setSubmitError(false);
     try {
       const res = await onAnswer([...selected].sort().join(','));
       setResult(res);
+    } catch {
+      setSubmitError(true);
     } finally {
       setLoading(false);
     }
@@ -219,6 +223,11 @@ export function QuestionCard({ question, questionNumber, totalQuestions, onAnswe
       </div>
 
       {/* Submit */}
+      {submitError && (
+        <p className="text-center text-sm text-red-500 py-1">
+          {isAr ? 'حدث خطأ، حاول مجدداً' : 'Une erreur est survenue, réessaie'}
+        </p>
+      )}
       {!result && (
         <button
           onClick={handleSubmit}

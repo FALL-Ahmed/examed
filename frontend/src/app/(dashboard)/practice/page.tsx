@@ -54,6 +54,9 @@ export default function PracticePage() {
     saveRef.current = setTimeout(() => {
       localStorage.setItem(PRACTICE_KEY, JSON.stringify({ session, currentIndex, answers }));
     }, 300);
+    return () => {
+      if (saveRef.current) clearTimeout(saveRef.current);
+    };
   }, [session, currentIndex, answers]);
 
   const maxAvailable = (() => {
@@ -114,6 +117,7 @@ export default function PracticePage() {
     // Check if all questions answered
     const allAnswered = answers.every((a, i) => i === viewIndex || a !== null);
     if (allAnswered || nextUnanswered === -1) {
+      if (saveRef.current) clearTimeout(saveRef.current);
       localStorage.removeItem(PRACTICE_KEY);
       attemptsApi.finish(session.attemptId).catch(() => {});
       const params = new URLSearchParams({ from: 'practice' });
@@ -271,7 +275,7 @@ export default function PracticePage() {
       <div className="xl:col-span-2">
         <div className="flex justify-end mb-3 xl:hidden">
           <button
-            onClick={() => { localStorage.removeItem(PRACTICE_KEY); setSession(null); setConfigured(false); setAnswers([]); setCurrentIndex(0); }}
+            onClick={() => { if (saveRef.current) clearTimeout(saveRef.current); localStorage.removeItem(PRACTICE_KEY); setSession(null); setConfigured(false); setAnswers([]); setCurrentIndex(0); }}
             className="text-xs text-muted-foreground border border-border rounded-lg px-3 py-1.5 hover:text-red-500 hover:border-red-300 transition"
           >
             {t('practice.stopSession')}
@@ -329,7 +333,7 @@ export default function PracticePage() {
 
         {/* Abandon */}
         <button
-          onClick={() => { localStorage.removeItem(PRACTICE_KEY); setSession(null); setConfigured(false); setAnswers([]); setCurrentIndex(0); }}
+          onClick={() => { if (saveRef.current) clearTimeout(saveRef.current); localStorage.removeItem(PRACTICE_KEY); setSession(null); setConfigured(false); setAnswers([]); setCurrentIndex(0); }}
           className="w-full py-2.5 rounded-xl border border-border text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-secondary transition"
         >
           {t('practice.newSession')}
