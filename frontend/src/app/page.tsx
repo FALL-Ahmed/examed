@@ -58,7 +58,7 @@ export default function LandingPage() {
 
   // Journée Internationale des Infirmiers — 12 mai uniquement
   const today = new Date();
-  const isNursesDay = today.getMonth() === 4 && today.getDate() === 12; // mois 4 = mai (0-indexé)
+  const isNursesDay = today.getMonth() === 4 && (today.getDate() === 12 || today.getDate() === 13); // 12 et 13 mai
 
   return (
     <div className="min-h-screen bg-white text-gray-900 overflow-x-hidden" dir={lang === 'ar' ? 'rtl' : 'ltr'}>
