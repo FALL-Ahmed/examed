@@ -59,15 +59,17 @@ export class SettingsController {
 
   @Get('promo')
   async getPromo() {
-    const [active, discount, endDate] = await Promise.all([
+    const [active, discount, endDate, includesGroup] = await Promise.all([
       this.adminService.getSetting('PROMO_ACTIVE'),
       this.adminService.getSetting('PROMO_DISCOUNT'),
       this.adminService.getSetting('PROMO_END_DATE'),
+      this.adminService.getSetting('PROMO_INCLUDES_GROUP'),
     ]);
     return {
       active: active === 'true',
       discount: discount ? parseInt(discount) : 30,
       endDate: endDate ?? null,
+      includesGroup: includesGroup === 'true',
     };
   }
 }

@@ -89,7 +89,7 @@ function FreeTrialContent() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [pricing, setPricing] = useState<any>(null);
-  const [promoSettings, setPromoSettings] = useState<{ active: boolean; discount: number; endDate?: string | null } | null>(null);
+  const [promoSettings, setPromoSettings] = useState<{ active: boolean; discount: number; endDate?: string | null; includesGroup?: boolean } | null>(null);
   const [showMobilePromo, setShowMobilePromo] = useState(false);
   const [promoPopupDismissed, setPromoPopupDismissed] = useState(false);
   const [showWaCapture, setShowWaCapture] = useState(false);
@@ -106,6 +106,7 @@ function FreeTrialContent() {
   const promoActive = promoSettings?.active ?? false;
   const promoDiscount = promoSettings?.discount ?? 30;
   const promoEndDate = promoSettings?.endDate ?? null;
+  const promoIncludesGroup = promoSettings?.includesGroup ?? false;
   const promo = (p: number) => Math.round(p * (1 - promoDiscount / 100));
   const formattedEndDate = promoEndDate
     ? new Date(promoEndDate).toLocaleDateString(isAr ? 'ar-TN' : 'fr-FR', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })
@@ -191,8 +192,8 @@ function FreeTrialContent() {
     {
       label: isAr ? `باك الأصدقاء · حتى المسابقة` : `Pack Amis · jusqu'au concours`,
       href: '/register?plan=GROUP',
-      price: groupPerP * groupMin,
-      oldPrice: null,
+      price: promoActive && promoIncludesGroup ? promo(groupPerP * groupMin) : groupPerP * groupMin,
+      oldPrice: promoActive && promoIncludesGroup ? groupPerP * groupMin : null,
       badge: isAr ? '🎁 ادفع لـ 2، وتعالوا 3' : '🎁 Payez pour 2, venez à 3',
       sub: `${groupPerP} MRU / ${isAr ? 'شخص' : 'personne'}`,
     },
@@ -368,7 +369,7 @@ function FreeTrialContent() {
             <div className="text-center mb-5">
               <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold mb-3"
                 style={{ background: 'linear-gradient(135deg,#7c3aed,#6366f1)', color: 'white' }}>
-                🔥 {isAr ? 'عرض إطلاق حصري' : 'Offre de lancement exclusive'}
+                🔥 {isAr ? `خصم ${promoDiscount}% — اليوم فقط` : `Offre spéciale -${promoDiscount}%`}
               </div>
               <h3 className="text-lg font-extrabold text-gray-900 leading-tight">
                 {isAr ? `خصم ${promoDiscount}% على جميع الخطط!` : `-${promoDiscount}% sur tous les plans !`}

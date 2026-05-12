@@ -16,10 +16,11 @@ export default function LandingPage() {
   const { loadUser } = useAuthStore();
   const { t, lang } = useLang();
   const [pricing, setPricing] = useState<any>(null);
-  const [promoSettings, setPromoSettings] = useState<{ active: boolean; discount: number; endDate?: string | null } | null>(null);
+  const [promoSettings, setPromoSettings] = useState<{ active: boolean; discount: number; endDate?: string | null; includesGroup?: boolean } | null>(null);
   const promoActive = promoSettings?.active ?? false;
   const promoDiscount = promoSettings?.discount ?? 30;
   const promoEndDate = promoSettings?.endDate ?? null;
+  const promoIncludesGroup = promoSettings?.includesGroup ?? false;
   const promo = (p: number) => Math.round(p * (1 - promoDiscount / 100));
   const formattedEndDate = promoEndDate
     ? new Date(promoEndDate).toLocaleDateString(lang === 'ar' ? 'ar-TN' : 'fr-FR', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })
@@ -364,22 +365,22 @@ export default function LandingPage() {
                   <p className="text-3xl md:text-4xl font-black mb-2 tracking-tight">
                     {lang === 'ar' ? `-${promoDiscount}% على جميع الخطط !` : `-${promoDiscount}% sur tous les plans !`}
                   </p>
-                  <p className="text-white/80 text-base mb-4">
-                    {formattedEndDate
-                      ? (lang === 'ar' ? `عرض الإطلاق — صالح حتى ${formattedEndDate}` : `Offre de lancement — valable jusqu'au ${formattedEndDate}`)
-                      : (lang === 'ar' ? 'عرض الإطلاق — أسعار محدودة المدة' : 'Offre de lancement — prix à durée limitée')}
-                  </p>
+                  {formattedEndDate && (
+                    <p className="text-white/80 text-base mb-4">
+                      {lang === 'ar' ? `صالح حتى ${formattedEndDate}` : `valable jusqu'au ${formattedEndDate}`}
+                    </p>
+                  )}
                 </>
               )}
               {isNursesDay ? (
                 <>
                   <p className="text-3xl md:text-4xl font-black mb-2 tracking-tight">
-                    {lang === 'ar' ? '🌷 عيد الممرضين العالمي السعيد !' : '🌷 Bonne Journée Internationale des Infirmiers !'}
+                    {lang === 'ar' ? 'عيد الممرضين العالمي السعيد !' : 'Bonne Journée Internationale des Infirmiers !'}
                   </p>
                   <p className="text-white/90 text-base md:text-lg max-w-2xl mx-auto leading-relaxed">
                     {lang === 'ar'
-                      ? `احتفالاً بهذا اليوم، استفد من عرض خاص بـ -${promoDiscount}% سارٍ اليوم فقط.`
-                      : `Pour célébrer cette journée, profitez d'une offre spéciale de -${promoDiscount}% valable aujourd'hui seulement.`}
+                      ? 'احتفالاً بهذا اليوم، استفد من عرض خاص سارٍ اليوم فقط.'
+                      : "Pour célébrer cette journée, profitez d'une offre spéciale valable aujourd'hui seulement."}
                   </p>
                 </>
               ) : (
@@ -430,15 +431,25 @@ export default function LandingPage() {
                 {lang === 'ar' ? '🎁 ادفع لـ 2، وتعالوا 3!' : '🎁 Payez pour 2, venez à 3 !'}
               </p>
               <div className="mb-1">
+                {promoActive && promoIncludesGroup && (
+                  <p className="text-2xl font-black text-red-400 line-through">
+                    {(pricing?.groupPerP?.price ?? 400) * (pricing?.groupMin ?? 3)} MRU
+                  </p>
+                )}
                 <p className="text-4xl font-black text-gray-900">
-                  {(pricing?.groupPerP?.price ?? 400) * (pricing?.groupMin ?? 3)}
+                  {promoActive && promoIncludesGroup
+                    ? promo((pricing?.groupPerP?.price ?? 400) * (pricing?.groupMin ?? 3))
+                    : (pricing?.groupPerP?.price ?? 400) * (pricing?.groupMin ?? 3)}
                   <span className="text-lg font-semibold text-gray-400 ml-1">MRU</span>
                 </p>
+                {promoActive && promoIncludesGroup && (
+                  <span className="inline-flex items-center gap-1 mt-2 bg-red-500 text-white text-sm font-black px-3 py-1.5 rounded-full">-{promoDiscount}%</span>
+                )}
               </div>
               <p className="text-sm text-emerald-600 font-semibold mb-6">
                 {lang === 'ar'
-                  ? `بطاقة بـ ${pricing?.groupPerP?.price ?? 400} MRU للشخص وأنتم مسجلون!`
-                  : `Un billet de ${pricing?.groupPerP?.price ?? 400} MRU chacun et vous êtes inscrits !`}
+                  ? `بطاقة بـ ${promoActive && promoIncludesGroup ? promo(pricing?.groupPerP?.price ?? 400) : (pricing?.groupPerP?.price ?? 400)} MRU للشخص وأنتم مسجلون!`
+                  : `Un billet de ${promoActive && promoIncludesGroup ? promo(pricing?.groupPerP?.price ?? 400) : (pricing?.groupPerP?.price ?? 400)} MRU chacun et vous êtes inscrits !`}
               </p>
               <Link href="/register?plan=GROUP"
                 className="block w-full text-center py-3 rounded-2xl font-bold text-sm text-white transition hover:opacity-90 shadow-md shadow-emerald-200"

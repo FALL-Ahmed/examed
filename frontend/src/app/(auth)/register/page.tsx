@@ -83,7 +83,7 @@ function RegisterContent() {
 
   const [operators, setOperators] = useState<Record<string, string>>({});
   const [pricing, setPricing] = useState<any>({ solo1m: { price: 500 }, groupPerP: { price: 400 }, groupMin: 3 });
-  const [promoSettings, setPromoSettings] = useState<{ active: boolean; discount: number; endDate?: string | null } | null>(null);
+  const [promoSettings, setPromoSettings] = useState<{ active: boolean; discount: number; endDate?: string | null; includesGroup?: boolean } | null>(null);
   const planParam = searchParams.get('plan');
   const [selectedPlan, setSelectedPlan] = useState<'SOLO_1M' | 'GROUP'>(
     planParam === 'GROUP' ? 'GROUP' : 'SOLO_1M'
@@ -114,6 +114,7 @@ function RegisterContent() {
   const promoActive = promoSettings?.active ?? false;
   const promoDiscount = promoSettings?.discount ?? 30;
   const promoEndDate = promoSettings?.endDate ?? null;
+  const promoIncludesGroup = promoSettings?.includesGroup ?? false;
   const promo = (p: number) => Math.round(p * (1 - promoDiscount / 100));
 
   const solo1mBase = pricing.solo1m?.price ?? 500;
@@ -121,7 +122,7 @@ function RegisterContent() {
   const groupBase  = groupPerP * groupSize;
 
   const solo1mPrice = promoActive ? promo(solo1mBase) : solo1mBase;
-  const groupPrice  = groupBase; // Pack Amis : prix fixe, pas de promo
+  const groupPrice  = promoActive && promoIncludesGroup ? promo(groupBase) : groupBase;
 
   const computedAmount   = selectedPlan === 'SOLO_1M' ? solo1mPrice : groupPrice;
   const computedDuration = 30;
@@ -409,7 +410,7 @@ function RegisterContent() {
                 <span className="text-xl flex-shrink-0">🎉</span>
                 <div>
                   <p className="text-sm font-bold text-red-700">
-                    {isAr ? `عرض إطلاق — خصم ${promoDiscount}% على جميع الخطط !` : `Offre de lancement — -${promoDiscount}% sur tous les plans !`}
+                    {isAr ? `خصم ${promoDiscount}% على جميع الخطط !` : `-${promoDiscount}% sur tous les plans !`}
                   </p>
                   <p className="text-xs text-red-500 mt-0.5">
                     {isAr ? 'ينتهي خلال' : 'Expire dans'}

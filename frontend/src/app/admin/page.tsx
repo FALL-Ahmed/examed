@@ -53,6 +53,7 @@ export default function AdminDashboard() {
   const [promoEnabled, setPromoEnabled] = useState(false);
   const [promoDiscount, setPromoDiscount] = useState('30');
   const [promoEndDate, setPromoEndDate] = useState('');
+  const [promoIncludesGroup, setPromoIncludesGroup] = useState(false);
   const [savingPromo, setSavingPromo] = useState(false);
   const [savedPromo, setSavedPromo] = useState(false);
 
@@ -72,6 +73,7 @@ export default function AdminDashboard() {
       setPromoEnabled(r.data.PROMO_ACTIVE === 'true');
       setPromoDiscount(r.data.PROMO_DISCOUNT ?? '30');
       setPromoEndDate(r.data.PROMO_END_DATE ?? '');
+      setPromoIncludesGroup(r.data.PROMO_INCLUDES_GROUP === 'true');
     }).catch(() => {});
     settingsApi.operators().then((r) => {
       const map: Record<string, string> = {};
@@ -157,6 +159,11 @@ export default function AdminDashboard() {
     const next = !promoEnabled;
     setPromoEnabled(next);
     await adminApi.setSetting('PROMO_ACTIVE', String(next)).catch(() => setPromoEnabled(!next));
+  }
+  async function togglePromoGroup() {
+    const next = !promoIncludesGroup;
+    setPromoIncludesGroup(next);
+    await adminApi.setSetting('PROMO_INCLUDES_GROUP', String(next)).catch(() => setPromoIncludesGroup(!next));
   }
   async function savePromoDiscount() {
     setSavingPromo(true);
@@ -303,6 +310,15 @@ export default function AdminDashboard() {
             </div>
             <button type="button" onClick={togglePromo} className={`relative w-11 h-6 rounded-full transition-colors flex-shrink-0 ${promoEnabled ? 'bg-orange-500' : 'bg-border'}`}>
               <span className={`absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full shadow transition-transform ${promoEnabled ? 'translate-x-5' : 'translate-x-0'}`} />
+            </button>
+          </div>
+          <div className="flex items-center justify-between mb-3">
+            <div>
+              <p className="text-sm font-semibold flex items-center gap-1.5">👥 Pack amis inclus</p>
+              <p className="text-xs text-muted-foreground mt-0.5">{promoIncludesGroup ? 'Promo appliquée au pack amis' : 'Pack amis au prix normal'}</p>
+            </div>
+            <button type="button" onClick={togglePromoGroup} className={`relative w-11 h-6 rounded-full transition-colors flex-shrink-0 ${promoIncludesGroup ? 'bg-orange-500' : 'bg-border'}`}>
+              <span className={`absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full shadow transition-transform ${promoIncludesGroup ? 'translate-x-5' : 'translate-x-0'}`} />
             </button>
           </div>
           <div className="flex gap-2 mb-2">
