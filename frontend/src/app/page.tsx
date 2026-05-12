@@ -56,6 +56,10 @@ export default function LandingPage() {
 
   const line2prefix = t('landing.hero.line2prefix');
 
+  // Journée Internationale des Infirmiers — 12 mai uniquement
+  const today = new Date();
+  const isNursesDay = today.getMonth() === 4 && today.getDate() === 12; // mois 4 = mai (0-indexé)
+
   return (
     <div className="min-h-screen bg-white text-gray-900 overflow-x-hidden" dir={lang === 'ar' ? 'rtl' : 'ltr'}>
 
@@ -367,11 +371,24 @@ export default function LandingPage() {
                   </p>
                 </>
               )}
-              <p className="text-white/90 text-base md:text-lg max-w-2xl mx-auto leading-relaxed">
-                {lang === 'ar'
-                  ? 'سجّل مرة واحدة، وذاكر حتى النهاية. آل بورور يرافقكم حتى باب قاعة الامتحان'
-                  : "Inscrivez-vous une fois, révisez jusqu'au bout. Al Bourour vous accompagne jusqu'à la porte de la salle d'examen"}
-              </p>
+              {isNursesDay ? (
+                <>
+                  <p className="text-3xl md:text-4xl font-black mb-2 tracking-tight">
+                    {lang === 'ar' ? '🌷 عيد الممرضين العالمي السعيد !' : '🌷 Bonne Journée Internationale des Infirmiers !'}
+                  </p>
+                  <p className="text-white/90 text-base md:text-lg max-w-2xl mx-auto leading-relaxed">
+                    {lang === 'ar'
+                      ? `احتفالاً بهذا اليوم، استفد من عرض خاص بـ -${promoDiscount}% سارٍ اليوم فقط.`
+                      : `Pour célébrer cette journée, profitez d'une offre spéciale de -${promoDiscount}% valable aujourd'hui seulement.`}
+                  </p>
+                </>
+              ) : (
+                <p className="text-white/90 text-base md:text-lg max-w-2xl mx-auto leading-relaxed">
+                  {lang === 'ar'
+                    ? 'سجّل مرة واحدة، وذاكر حتى النهاية. آل بورور يرافقكم حتى باب قاعة الامتحان'
+                    : "Inscrivez-vous une fois, révisez jusqu'au bout. Al Bourour vous accompagne jusqu'à la porte de la salle d'examen"}
+                </p>
+              )}
             </div>
           </div>
 
