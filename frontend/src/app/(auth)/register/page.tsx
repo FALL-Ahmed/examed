@@ -115,7 +115,7 @@ function RegisterContent() {
   const promoDiscount = promoSettings?.discount ?? 30;
   const promoEndDate = promoSettings?.endDate ?? null;
   const promoIncludesGroup = promoSettings?.includesGroup ?? false;
-  const promo = (p: number) => Math.round(p * (1 - promoDiscount / 100));
+  const promo = (p: number) => Math.round(p * (1 - promoDiscount / 100) / 100) * 100;
 
   const solo1mBase = pricing.solo1m?.price ?? 500;
   const groupPerP  = pricing.groupPerP?.price ?? 400;

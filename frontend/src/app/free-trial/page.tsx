@@ -107,7 +107,7 @@ function FreeTrialContent() {
   const promoDiscount = promoSettings?.discount ?? 30;
   const promoEndDate = promoSettings?.endDate ?? null;
   const promoIncludesGroup = promoSettings?.includesGroup ?? false;
-  const promo = (p: number) => Math.round(p * (1 - promoDiscount / 100));
+  const promo = (p: number) => Math.round(p * (1 - promoDiscount / 100) / 100) * 100;
   const formattedEndDate = promoEndDate
     ? new Date(promoEndDate).toLocaleDateString(isAr ? 'ar-TN' : 'fr-FR', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })
     : null;
