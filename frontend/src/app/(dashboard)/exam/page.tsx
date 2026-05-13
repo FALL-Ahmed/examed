@@ -3,7 +3,8 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { attemptsApi, themesApi } from '@/lib/api';
 import { useAuthStore } from '@/lib/auth-store';
-import { Zap, Loader2, ChevronDown, Timer, Play, PlayCircle, Trash2 } from 'lucide-react';
+import { Zap, Loader2, Timer, Play, PlayCircle, Trash2 } from 'lucide-react';
+import { ThemeSearchInput } from '@/components/ThemeSearchInput';
 import { useLang } from '@/components/LanguageProvider';
 import { sentenceCase } from '@/lib/utils';
 
@@ -121,17 +122,12 @@ export default function ExamConfigPage() {
 
           <div>
             <label className="block text-sm font-semibold mb-2">{t('practice.selectTheme')}</label>
-            <div className="relative">
-              <select
-                value={config.themeId}
-                onChange={(e) => setConfig({ ...config, themeId: e.target.value })}
-                className="w-full appearance-none px-4 py-3 pr-10 bg-background border border-border rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary text-sm cursor-pointer"
-              >
-                <option value="">{t('practice.allThemes')}</option>
-                {themes.map((t) => <option key={t.id} value={t.id}>{sentenceCase(t.name)}</option>)}
-              </select>
-              <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none" />
-            </div>
+            <ThemeSearchInput
+              themes={themes}
+              themeId={config.themeId}
+              allLabel={t('practice.allThemes')}
+              onSelect={(themeId) => setConfig({ ...config, themeId })}
+            />
           </div>
 
           <div>

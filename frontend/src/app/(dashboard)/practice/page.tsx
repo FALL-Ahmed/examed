@@ -6,7 +6,8 @@ import { attemptsApi, themesApi } from '@/lib/api';
 import { useAuthStore } from '@/lib/auth-store';
 import { QuestionCard } from '@/components/QuestionCard';
 import { useLang } from '@/components/LanguageProvider';
-import { BookOpen, Loader2, Play, ChevronDown } from 'lucide-react';
+import { BookOpen, Loader2, Play } from 'lucide-react';
+import { ThemeSearchInput } from '@/components/ThemeSearchInput';
 import { sentenceCase } from '@/lib/utils';
 
 const PRACTICE_KEY = 'practice_state';
@@ -156,46 +157,15 @@ export default function PracticePage() {
 
             <div>
               <label className="block text-sm font-semibold mb-2">{t('practice.selectTheme')}</label>
-              <div className="relative">
-                <select
-                  value={config.themeId}
-                  onChange={(e) => setConfig({ ...config, themeId: e.target.value, subThemeId: '' })}
-                  className="w-full appearance-none px-4 py-3 pr-10 bg-background border border-border rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary text-sm cursor-pointer"
-                >
-                  <option value="">{t('practice.allThemes')}</option>
-                  {themes.map((t) => (
-                    <option key={t.id} value={t.id}>{sentenceCase(t.name)}</option>
-                  ))}
-                </select>
-                <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none" />
-              </div>
+              <ThemeSearchInput
+                themes={themes}
+                themeId={config.themeId}
+                subThemeId={config.subThemeId}
+                withSubThemes
+                allLabel={t('practice.allThemes')}
+                onSelect={(themeId, subThemeId) => setConfig({ ...config, themeId, subThemeId: subThemeId ?? '' })}
+              />
             </div>
-
-            {config.themeId && (() => {
-              const selectedTheme = themes.find((t) => t.id === config.themeId);
-              const subThemes = selectedTheme?.subThemes ?? [];
-              if (!subThemes.length) return null;
-              return (
-                <div>
-                  <label className="block text-sm font-semibold mb-2">{t('upload.subthemes')}</label>
-                  <div className="relative">
-                    <select
-                      value={config.subThemeId}
-                      onChange={(e) => setConfig({ ...config, subThemeId: e.target.value })}
-                      className="w-full appearance-none px-4 py-3 pr-10 bg-background border border-border rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary text-sm cursor-pointer"
-                    >
-                      <option value="">{t('practice.allThemes')}</option>
-                      {subThemes.map((s: any) => (
-                        <option key={s.id} value={s.id}>
-                          {sentenceCase(s.name)} ({s._count.questions} q.)
-                        </option>
-                      ))}
-                    </select>
-                    <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none" />
-                  </div>
-                </div>
-              );
-            })()}
 
             <div>
               <div className="flex items-center justify-between mb-3">
