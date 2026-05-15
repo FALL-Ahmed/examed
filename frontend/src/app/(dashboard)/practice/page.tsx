@@ -6,7 +6,7 @@ import { attemptsApi, themesApi } from '@/lib/api';
 import { useAuthStore } from '@/lib/auth-store';
 import { QuestionCard } from '@/components/QuestionCard';
 import { useLang } from '@/components/LanguageProvider';
-import { BookOpen, Loader2, Play } from 'lucide-react';
+import { BookOpen, Loader2, Play, ChevronDown } from 'lucide-react';
 import { ThemeSearchInput } from '@/components/ThemeSearchInput';
 import { sentenceCase } from '@/lib/utils';
 
@@ -138,13 +138,25 @@ export default function PracticePage() {
         {/* Header banner */}
         <div className="rounded-2xl p-6 md:p-8 text-white"
           style={{ background: 'linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%)' }}>
-          <div className="flex items-center gap-4">
-            <div className="w-12 h-12 rounded-xl bg-white/20 border border-white/30 flex items-center justify-center flex-shrink-0">
-              <BookOpen className="w-6 h-6 text-white" />
+          <div className="flex items-center justify-between gap-4 flex-wrap">
+            <div className="flex items-center gap-4">
+              <div className="w-12 h-12 rounded-xl bg-white/20 border border-white/30 flex items-center justify-center flex-shrink-0">
+                <BookOpen className="w-6 h-6 text-white" />
+              </div>
+              <div>
+                <h1 className="text-xl md:text-2xl font-bold">{t('practice.title')}</h1>
+                <p className="text-white/70 text-sm mt-0.5">{t('practice.subtitle')}</p>
+              </div>
             </div>
-            <div>
-              <h1 className="text-xl md:text-2xl font-bold">{t('practice.title')}</h1>
-              <p className="text-white/70 text-sm mt-0.5">{t('practice.subtitle')}</p>
+            <div className="w-72 hidden sm:block text-foreground">
+              <ThemeSearchInput
+                themes={themes}
+                themeId={config.themeId}
+                subThemeId={config.subThemeId}
+                withSubThemes
+                allLabel={t('practice.allThemes')}
+                onSelect={(themeId, subThemeId) => setConfig({ ...config, themeId, subThemeId: subThemeId ?? '' })}
+              />
             </div>
           </div>
         </div>
@@ -157,15 +169,46 @@ export default function PracticePage() {
 
             <div>
               <label className="block text-sm font-semibold mb-2">{t('practice.selectTheme')}</label>
-              <ThemeSearchInput
-                themes={themes}
-                themeId={config.themeId}
-                subThemeId={config.subThemeId}
-                withSubThemes
-                allLabel={t('practice.allThemes')}
-                onSelect={(themeId, subThemeId) => setConfig({ ...config, themeId, subThemeId: subThemeId ?? '' })}
-              />
+              <div className="relative">
+                <select
+                  value={config.themeId}
+                  onChange={(e) => setConfig({ ...config, themeId: e.target.value, subThemeId: '' })}
+                  className="w-full appearance-none px-4 py-3 pr-10 bg-background border border-border rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary text-sm cursor-pointer"
+                >
+                  <option value="">{t('practice.allThemes')}</option>
+                  {themes.map((th) => (
+                    <option key={th.id} value={th.id}>{sentenceCase(th.name)}</option>
+                  ))}
+                </select>
+                <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none" />
+              </div>
             </div>
+
+            {config.themeId && (() => {
+              const selectedTheme = themes.find((th) => th.id === config.themeId);
+              const subThemes = selectedTheme?.subThemes ?? [];
+              if (!subThemes.length) return null;
+              return (
+                <div>
+                  <label className="block text-sm font-semibold mb-2">{t('upload.subthemes')}</label>
+                  <div className="relative">
+                    <select
+                      value={config.subThemeId}
+                      onChange={(e) => setConfig({ ...config, subThemeId: e.target.value })}
+                      className="w-full appearance-none px-4 py-3 pr-10 bg-background border border-border rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary text-sm cursor-pointer"
+                    >
+                      <option value="">{t('practice.allThemes')}</option>
+                      {subThemes.map((s: any) => (
+                        <option key={s.id} value={s.id}>
+                          {sentenceCase(s.name)} ({s._count.questions} q.)
+                        </option>
+                      ))}
+                    </select>
+                    <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none" />
+                  </div>
+                </div>
+              );
+            })()}
 
             <div>
               <div className="flex items-center justify-between mb-3">
