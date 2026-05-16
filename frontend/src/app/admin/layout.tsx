@@ -27,7 +27,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     { href: '/admin/payments',    icon: CreditCard, label: t('admin.nav.payments'),    badge: true  },
     { href: '/admin/leaderboard', icon: Trophy,     label: 'Classement',               badge: false },
     { href: '/admin/securite',    icon: Globe,         label: 'Sécurité IP',    badge: false },
-    { href: '/admin/free-trial',    icon: FlaskConical,  label: 'Free Trial',           badge: false },
+    { href: '/admin/free-trial',    icon: FlaskConical,  label: 'Essais gratuits',      badge: false },
     { href: '/admin/pdf-downloads', icon: Download,      label: 'Téléch. PDF',          badge: false },
   ];
 

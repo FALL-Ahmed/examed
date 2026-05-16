@@ -104,6 +104,16 @@ export const publicApi = {
     axios.post(`${API_URL}/questions/free-trial/event`, data).catch(() => {}),
   saveFreeTrialLead: (data: { sessionId: string; phone: string; theme: string; lang: string; source: string }) =>
     axios.post(`${API_URL}/questions/free-trial/lead`, data).catch(() => {}),
+  trackFreePracticeEvent: (data: {
+    sessionId: string;
+    themeId?: string;
+    themeName: string;
+    lang: string;
+    eventType: string;
+    questionN?: number;
+    isCorrect?: boolean;
+    count?: number;
+  }) => axios.post(`${API_URL}/questions/free-trial/practice-event`, data).catch(() => {}),
 };
 
 export const questionsApi = {
@@ -198,6 +208,7 @@ export const adminApi = {
   sessions: () => api.get('/admin/sessions'),
   freeTrialStats: (params?: { startDate?: string; endDate?: string; compareStart?: string; compareEnd?: string }) =>
     api.get('/admin/free-trial-stats', { params }),
+  freePracticeStats: () => api.get('/admin/free-practice-stats'),
 };
 
 export const pushApi = {

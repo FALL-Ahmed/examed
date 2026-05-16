@@ -198,6 +198,65 @@ export class QuestionsService {
     return { ok: true };
   }
 
+  async trackFreePracticeEvent(dto: {
+    sessionId: string;
+    themeId?: string;
+    themeName: string;
+    lang: string;
+    eventType: string;
+    questionN?: number;
+    isCorrect?: boolean;
+    count?: number;
+  }) {
+    await (this.prisma as any).freePracticeEvent.create({ data: dto });
+    return { ok: true };
+  }
+
+  async getFreePracticeStats() {
+    const since = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
+    const events = await (this.prisma as any).freePracticeEvent.findMany({
+      where: { createdAt: { gte: since } },
+      orderBy: { createdAt: 'asc' },
+    });
+
+    const themeNames = [...new Set<string>(events.map((e: any) => e.themeName))];
+
+    const byTheme = themeNames.map((themeName) => {
+      const te = events.filter((e: any) => e.themeName === themeName);
+      const sessions = new Map<string, { started: boolean; completed: boolean; answered: number; correct: number; count: number }>();
+
+      for (const e of te) {
+        const s = sessions.get(e.sessionId) ?? { started: false, completed: false, answered: 0, correct: 0, count: e.count ?? 0 };
+        if (e.eventType === 'start') { s.started = true; s.count = e.count ?? s.count; }
+        if (e.eventType === 'complete') s.completed = true;
+        if (e.eventType === 'answer') { s.answered++; if (e.isCorrect) s.correct++; }
+        sessions.set(e.sessionId, s);
+      }
+
+      const arr = [...sessions.values()];
+      const total = arr.length;
+      const completed = arr.filter((s) => s.completed).length;
+      const totalAnswers = arr.reduce((sum, s) => sum + s.answered, 0);
+      const totalCorrect = arr.reduce((sum, s) => sum + s.correct, 0);
+      const frCount = new Set(te.filter((e: any) => e.lang === 'fr').map((e: any) => e.sessionId)).size;
+      const arCount = new Set(te.filter((e: any) => e.lang === 'ar').map((e: any) => e.sessionId)).size;
+
+      return {
+        themeName,
+        totalSessions: total,
+        completions: completed,
+        completionRate: total > 0 ? Math.round((completed / total) * 100) : 0,
+        successRate: totalAnswers > 0 ? Math.round((totalCorrect / totalAnswers) * 100) : 0,
+        langSplit: { fr: frCount, ar: arCount },
+      };
+    });
+
+    const totalSessions = new Set(events.map((e: any) => e.sessionId)).size;
+    const totalCompleted = events.filter((e: any) => e.eventType === 'complete').length;
+
+    return { byTheme, totalSessions, completionRate: totalSessions > 0 ? Math.round((totalCompleted / totalSessions) * 100) : 0 };
+  }
+
   async getFreeTrialStats() {
     // Toutes les sessions des 30 derniers jours
     const since = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);

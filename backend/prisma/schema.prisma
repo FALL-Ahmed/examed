@@ -274,6 +274,22 @@ model FreeTrialEvent {
   @@index([sessionId])
 }
 
+model FreePracticeEvent {
+  id        String   @id @default(cuid())
+  sessionId String
+  themeId   String?
+  themeName String
+  lang      String   @default("fr")
+  eventType String   // 'start' | 'answer' | 'complete'
+  questionN Int?
+  isCorrect Boolean?
+  count     Int?
+  createdAt DateTime @default(now())
+
+  @@index([themeName, createdAt])
+  @@index([sessionId])
+}
+
 model DeviceVerification {
   id                String   @id @default(cuid())
   userId            String

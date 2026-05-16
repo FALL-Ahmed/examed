@@ -45,6 +45,11 @@ export class AdminController {
     return this.adminService.getFreeTrialStats({ startDate, endDate, compareStart, compareEnd });
   }
 
+  @Get('free-practice-stats')
+  getFreePracticeStats() {
+    return this.adminService.getFreePracticeStats();
+  }
+
   @Get('leaderboard')
   getLeaderboard(@Query('sortBy') sortBy?: string, @Query('limit') limit?: string) {
     const sort = ['accuracy', 'total', 'score'].includes(sortBy!) ? sortBy as any : 'accuracy';

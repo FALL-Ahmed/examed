@@ -809,6 +809,66 @@ export class AdminService {
     return { byTheme, globalFunnel, totalSessions: allBySession.size, leads, dailyStats };
   }
 
+  async getFreePracticeStats() {
+    const since = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
+    const events = await (this.prisma as any).freePracticeEvent.findMany({
+      where: { createdAt: { gte: since } },
+      orderBy: { createdAt: 'asc' },
+    });
+
+    const themeNames = [...new Set<string>(events.map((e: any) => e.themeName))];
+
+    const byTheme = themeNames.map((themeName) => {
+      const te = events.filter((e: any) => e.themeName === themeName);
+      const sessions = new Map<string, { completed: boolean; answered: number; correct: number }>();
+
+      for (const e of te) {
+        const s = sessions.get(e.sessionId) ?? { completed: false, answered: 0, correct: 0 };
+        if (e.eventType === 'complete') s.completed = true;
+        if (e.eventType === 'answer') { s.answered++; if (e.isCorrect) s.correct++; }
+        sessions.set(e.sessionId, s);
+      }
+
+      const arr = [...sessions.values()];
+      const total = arr.length;
+      const completed = arr.filter((s) => s.completed).length;
+      const totalAnswers = arr.reduce((sum, s) => sum + s.answered, 0);
+      const totalCorrect = arr.reduce((sum, s) => sum + s.correct, 0);
+      const frCount = new Set(te.filter((e: any) => e.lang === 'fr').map((e: any) => e.sessionId)).size;
+      const arCount = new Set(te.filter((e: any) => e.lang === 'ar').map((e: any) => e.sessionId)).size;
+
+      return {
+        themeName,
+        totalSessions: total,
+        completions: completed,
+        completionRate: total > 0 ? Math.round((completed / total) * 100) : 0,
+        successRate: totalAnswers > 0 ? Math.round((totalCorrect / totalAnswers) * 100) : 0,
+        langSplit: { fr: frCount, ar: arCount },
+      };
+    });
+
+    // Stats journalières
+    const dailyMap = new Map<string, Set<string>>();
+    for (const e of events) {
+      const day = (e.createdAt as Date).toISOString().slice(0, 10);
+      if (!dailyMap.has(day)) dailyMap.set(day, new Set());
+      dailyMap.get(day)!.add(e.sessionId);
+    }
+    const dailyStats = [...dailyMap.entries()]
+      .sort(([a], [b]) => a.localeCompare(b))
+      .map(([date, sessions]) => ({ date, sessions: sessions.size }));
+
+    const totalSessions = new Set(events.map((e: any) => e.sessionId)).size;
+    const totalCompleted = new Set(events.filter((e: any) => e.eventType === 'complete').map((e: any) => e.sessionId)).size;
+
+    return {
+      byTheme,
+      dailyStats,
+      totalSessions,
+      completionRate: totalSessions > 0 ? Math.round((totalCompleted / totalSessions) * 100) : 0,
+    };
+  }
+
   async trackPdfDownload(userId: string, filename: string) {
     return this.prisma.pdfDownload.create({
       data: { userId, filename },

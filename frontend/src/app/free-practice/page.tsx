@@ -50,6 +50,13 @@ export default function FreePracticePage() {
   const [results, setResults] = useState<{ correct: boolean }[]>([]);
   const [loadingQ, setLoadingQ] = useState(false);
   const configRef = useRef<HTMLDivElement>(null);
+  const practiceSession = useRef<{ sessionId: string; themeId: string; themeName: string; lang: string } | null>(null);
+
+  function trackPracticeEvent(eventType: string, extra?: { questionN?: number; isCorrect?: boolean; count?: number }) {
+    const s = practiceSession.current;
+    if (!s) return;
+    publicApi.trackFreePracticeEvent({ ...s, eventType, ...extra });
+  }
 
   useEffect(() => {
     setSelectedTheme(null);
@@ -67,6 +74,14 @@ export default function FreePracticePage() {
     setSessionSubThemeName(selectedSubTheme?.name ?? '');
     try {
       const { data } = await publicApi.freePractice(selectedTheme.id, selectedTheme.name, count, lang, selectedSubTheme?.id);
+      // Init session tracking
+      practiceSession.current = {
+        sessionId: `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
+        themeId: selectedTheme.id ?? '',
+        themeName: selectedTheme.name ?? '',
+        lang,
+      };
+      trackPracticeEvent('start', { count: data.length });
       setQuestions(data);
       setResults([]);
       setCurrentIdx(0);
@@ -81,12 +96,15 @@ export default function FreePracticePage() {
     const q = questions[currentIdx];
     const correct = q.correctAnswer.split(',').map((s: string) => s.trim()).sort().join(',');
     const userAns = [...selected].sort().join(',');
-    setResults((r) => [...r, { correct: userAns === correct }]);
+    const isCorrect = userAns === correct;
+    setResults((r) => [...r, { correct: isCorrect }]);
+    trackPracticeEvent('answer', { questionN: currentIdx + 1, isCorrect });
     setRevealed(true);
   }
 
   function nextQuestion() {
     if (currentIdx + 1 >= questions.length) {
+      trackPracticeEvent('complete', { count: questions.length });
       setPhase('results');
     } else {
       setCurrentIdx((i) => i + 1);

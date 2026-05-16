@@ -42,4 +42,18 @@ export class PublicQuestionsController {
   saveLead(@Body() dto: { sessionId: string; phone: string; theme: string; lang: string; source: string }) {
     return this.questionsService.saveFreeTrialLead(dto);
   }
+
+  @Post('practice-event')
+  trackPracticeEvent(@Body() dto: {
+    sessionId: string;
+    themeId?: string;
+    themeName: string;
+    lang: string;
+    eventType: string;
+    questionN?: number;
+    isCorrect?: boolean;
+    count?: number;
+  }) {
+    return this.questionsService.trackFreePracticeEvent(dto);
+  }
 }

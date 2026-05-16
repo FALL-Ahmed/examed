@@ -1,13 +1,14 @@
 'use client';
 import { useEffect, useState, useCallback } from 'react';
 import { adminApi } from '@/lib/api';
-import { FlaskConical, Users, Trophy, TrendingDown, Phone, Globe, Zap, GitCompare } from 'lucide-react';
+import { FlaskConical, Users, Trophy, TrendingDown, Phone, Globe, Zap, GitCompare, BookOpen, CheckCircle2, BarChart2 } from 'lucide-react';
 
 const toIso = (d: Date) => d.toISOString().slice(0, 10);
 const daysAgo = (n: number) => toIso(new Date(Date.now() - n * 86400000));
 const fmtDay = (iso: string) => new Date(iso).toLocaleDateString('fr-FR', { day: '2-digit', month: 'short' });
 
 export default function FreeTrialStatsPage() {
+  const [tab, setTab] = useState<'trial' | 'practice'>('trial');
   const today = toIso(new Date());
   const [startDate, setStartDate] = useState(daysAgo(6));
   const [endDate, setEndDate] = useState(today);
@@ -18,6 +19,9 @@ export default function FreeTrialStatsPage() {
 
   const [data, setData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
+
+  const [practiceData, setPracticeData] = useState<any>(null);
+  const [practiceLoading, setPracticeLoading] = useState(false);
 
   const load = useCallback(() => {
     setLoading(true);
@@ -31,6 +35,14 @@ export default function FreeTrialStatsPage() {
   }, [startDate, endDate, compareMode, compareStart, compareEnd]);
 
   useEffect(() => { load(); }, [load]);
+
+  useEffect(() => {
+    if (tab !== 'practice' || practiceData) return;
+    setPracticeLoading(true);
+    adminApi.freePracticeStats()
+      .then((r) => setPracticeData(r.data))
+      .finally(() => setPracticeLoading(false));
+  }, [tab, practiceData]);
 
   if (!data && loading) return (
     <div className="flex items-center justify-center py-32">
@@ -57,10 +69,113 @@ export default function FreeTrialStatsPage() {
           <FlaskConical className="w-5 h-5 text-white" />
         </div>
         <div>
-          <h1 className="text-xl font-bold">Analyse Free Trial</h1>
-          <p className="text-xs text-muted-foreground">{period}</p>
+          <h1 className="text-xl font-bold">Essais gratuits</h1>
+          <p className="text-xs text-muted-foreground">{tab === 'trial' ? period : 'Free Pratique — /free-practice'}</p>
         </div>
       </div>
+
+      {/* ── Onglets ── */}
+      <div className="flex gap-2 border-b border-border">
+        <button
+          onClick={() => setTab('trial')}
+          className={`flex items-center gap-2 px-4 py-2.5 text-sm font-semibold border-b-2 transition -mb-px ${tab === 'trial' ? 'border-violet-500 text-violet-600' : 'border-transparent text-muted-foreground hover:text-foreground'}`}>
+          <FlaskConical className="w-4 h-4" /> Free Trial
+        </button>
+        <button
+          onClick={() => setTab('practice')}
+          className={`flex items-center gap-2 px-4 py-2.5 text-sm font-semibold border-b-2 transition -mb-px ${tab === 'practice' ? 'border-violet-500 text-violet-600' : 'border-transparent text-muted-foreground hover:text-foreground'}`}>
+          <BookOpen className="w-4 h-4" /> Free Pratique
+        </button>
+      </div>
+
+      {/* ── Contenu Free Pratique ── */}
+      {tab === 'practice' && (
+        <div className="space-y-6">
+          {practiceLoading && (
+            <div className="flex items-center justify-center py-16">
+              <div className="w-6 h-6 border-2 border-violet-500 border-t-transparent rounded-full animate-spin" />
+            </div>
+          )}
+          {!practiceLoading && practiceData && (
+            <>
+              {/* KPIs */}
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
+                <div className="bg-card border border-border rounded-2xl p-4 space-y-1">
+                  <p className="text-xs text-muted-foreground font-semibold uppercase tracking-wide">Sessions (30j)</p>
+                  <p className="text-3xl font-black text-violet-600">{practiceData.totalSessions}</p>
+                </div>
+                <div className="bg-card border border-border rounded-2xl p-4 space-y-1">
+                  <p className="text-xs text-muted-foreground font-semibold uppercase tracking-wide">Taux de complétion</p>
+                  <p className="text-3xl font-black text-emerald-600">{practiceData.completionRate}%</p>
+                </div>
+                <div className="bg-card border border-border rounded-2xl p-4 space-y-1">
+                  <p className="text-xs text-muted-foreground font-semibold uppercase tracking-wide">Thèmes pratiqués</p>
+                  <p className="text-3xl font-black text-blue-600">{practiceData.byTheme?.length ?? 0}</p>
+                </div>
+              </div>
+
+              {/* Stats par thème */}
+              {practiceData.byTheme?.length > 0 ? (
+                <div className="bg-card border border-border rounded-2xl overflow-hidden">
+                  <div className="p-4 border-b border-border flex items-center gap-2">
+                    <BarChart2 className="w-4 h-4 text-violet-500" />
+                    <p className="font-semibold text-sm">Par thème</p>
+                  </div>
+                  <div className="divide-y divide-border">
+                    {practiceData.byTheme.map((t: any) => (
+                      <div key={t.themeName} className="p-4 flex items-center justify-between gap-4 flex-wrap">
+                        <div className="flex-1 min-w-0">
+                          <p className="font-semibold text-sm truncate">{t.themeName}</p>
+                          <div className="flex items-center gap-3 mt-1 text-xs text-muted-foreground">
+                            <span>{t.totalSessions} sessions</span>
+                            <span>·</span>
+                            <span className="flex items-center gap-1">
+                              <CheckCircle2 className="w-3 h-3 text-emerald-500" />
+                              {t.completionRate}% complétées
+                            </span>
+                            <span>·</span>
+                            <span>🇫🇷 {t.langSplit.fr} / 🇸🇦 {t.langSplit.ar}</span>
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-3 flex-shrink-0">
+                          <div className="text-right">
+                            <p className="text-xs text-muted-foreground">Réussite</p>
+                            <p className="font-bold text-sm" style={{ color: t.successRate >= 70 ? '#10b981' : t.successRate >= 50 ? '#f59e0b' : '#ef4444' }}>
+                              {t.successRate}%
+                            </p>
+                          </div>
+                          <div className="w-16 bg-secondary rounded-full h-1.5">
+                            <div className="h-1.5 rounded-full bg-violet-500" style={{ width: `${t.completionRate}%` }} />
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              ) : (
+                <div className="bg-card border border-border rounded-2xl p-8 text-center">
+                  <BookOpen className="w-8 h-8 text-muted-foreground mx-auto mb-3" />
+                  <p className="text-sm text-muted-foreground">Aucune session trackée sur les 30 derniers jours.</p>
+                  <p className="text-xs text-muted-foreground mt-1">Les nouvelles sessions apparaîtront ici automatiquement.</p>
+                </div>
+              )}
+
+              {/* Lien vers la page */}
+              <div className="flex justify-end">
+                <a href="/free-practice" target="_blank" rel="noopener noreferrer"
+                  className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-violet-600 text-white text-sm font-semibold hover:bg-violet-700 transition">
+                  Voir la page <Globe className="w-4 h-4" />
+                </a>
+              </div>
+            </>
+          )}
+          {!practiceLoading && !practiceData && (
+            <p className="text-center text-muted-foreground py-12">Erreur de chargement.</p>
+          )}
+        </div>
+      )}
+
+      {tab === 'trial' && <div className="space-y-6">
 
       {/* ── Filtres ── */}
       <div className="bg-card border border-border rounded-2xl p-5 space-y-4">
@@ -399,6 +514,8 @@ export default function FreeTrialStatsPage() {
           </div>
         )}
       </div>
+
+      </div>}
     </div>
   );
 }
