@@ -8,21 +8,21 @@ import { Clock, AlertTriangle, ChevronLeft, ChevronRight, CheckCircle2, Loader2,
 const EB_STATE_KEY = 'examen_blanc_state';
 const pad = (n: number) => String(n).padStart(2, '0');
 
-function Timer({ totalSec, onExpire, isAr }: { totalSec: number; onExpire: () => void; isAr: boolean }) {
-  const [remaining, setRemaining] = useState(totalSec);
+function Timer({ endTime, onExpire, isAr }: { endTime: number; onExpire: () => void; isAr: boolean }) {
+  const getRemaining = () => Math.max(0, Math.floor((endTime - Date.now()) / 1000));
+  const [remaining, setRemaining] = useState(getRemaining);
   const cbRef = useRef(onExpire);
   cbRef.current = onExpire;
 
   useEffect(() => {
-    if (totalSec <= 0) return;
+    if (endTime <= Date.now()) { cbRef.current(); return; }
     const id = setInterval(() => {
-      setRemaining(prev => {
-        if (prev <= 1) { clearInterval(id); cbRef.current(); return 0; }
-        return prev - 1;
-      });
-    }, 1000);
+      const r = getRemaining();
+      setRemaining(r);
+      if (r <= 0) { clearInterval(id); cbRef.current(); }
+    }, 500);
     return () => clearInterval(id);
-  }, [totalSec]);
+  }, [endTime]);
 
   const h = Math.floor(remaining / 3600);
   const m = Math.floor((remaining % 3600) / 60);
@@ -51,7 +51,7 @@ export default function ExamPage() {
   const [showTabWarning, setShowTabWarning] = useState(false);
   const [finishing, setFinishing] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
-  const [timeRemaining, setTimeRemaining] = useState(0);
+  const [examEndTime, setExamEndTime] = useState(0);
   const tabSwitchesRef = useRef(0);
   const startTimeRef = useRef<Date | null>(null);
 
@@ -65,10 +65,8 @@ export default function ExamPage() {
       setState(s);
       setAnswers(s.answers || {});
       startTimeRef.current = new Date(s.startedAt);
-      const elapsed = Math.floor((Date.now() - new Date(s.startedAt).getTime()) / 1000);
       const limit = (s.durationMin || 120) * 60;
-      const remaining = Math.max(0, limit - elapsed);
-      setTimeRemaining(remaining);
+      setExamEndTime(new Date(s.startedAt).getTime() + limit * 1000);
     } catch { router.replace('/examen-blanc'); }
   }, [router]);
 
@@ -205,8 +203,8 @@ export default function ExamPage() {
             {isAr ? `السؤال ${currentIdx + 1} من ${totalQ}` : `Question ${currentIdx + 1} / ${totalQ}`}
           </div>
 
-          {timeRemaining > 0 && (
-            <Timer totalSec={timeRemaining} onExpire={handleFinish} isAr={isAr} />
+          {examEndTime > 0 && (
+            <Timer endTime={examEndTime} onExpire={handleFinish} isAr={isAr} />
           )}
 
           <button onClick={() => setShowConfirm(true)}

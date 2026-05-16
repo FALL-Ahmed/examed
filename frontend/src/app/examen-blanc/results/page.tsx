@@ -90,11 +90,15 @@ export default function ResultsPage() {
     </div>
   );
 
-  // Locked state — show countdown
+  // Locked state — show score immediately, classement later
   if (!results || results.locked) {
-    const prenom = localState?.participant?.prenom || '';
-    const answeredCount = localState?.answers ? Object.keys(localState.answers).length : 0;
-    const totalQ = localState?.totalQ || 80;
+    const prenom = results?.participant?.prenom || localState?.participant?.prenom || '';
+    const score = results?.score;
+    const noteOn20 = score != null ? ((score / 100) * 20).toFixed(2) : null;
+    const correctQ = results?.correctQ ?? 0;
+    const totalQ = results?.totalQ || localState?.totalQ || 80;
+    const answeredQ = results?.answeredQ ?? 0;
+    const passed = score != null && score >= 50;
     const revealDate = resultsAt
       ? resultsAt.toLocaleDateString(isAr ? 'ar-MA' : 'fr-FR', { weekday: 'long', day: 'numeric', month: 'long' })
       : '';
@@ -108,31 +112,49 @@ export default function ResultsPage() {
         <div className="fixed inset-0 opacity-[0.03] pointer-events-none"
           style={{ backgroundImage: 'linear-gradient(rgba(255,255,255,.5) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.5) 1px,transparent 1px)', backgroundSize: '40px 40px' }} />
 
-        <div className="relative z-10 max-w-lg w-full space-y-6">
+        <div className="relative z-10 max-w-lg w-full space-y-5">
 
-          {/* Success confirmation */}
-          <div className="bg-emerald-500/10 border border-emerald-500/30 rounded-3xl p-6">
-            <div className="text-5xl mb-3">✅</div>
-            <h1 className="text-2xl font-black text-white mb-2">
-              {isAr
-                ? `${prenom}، تم تسجيل امتحانك بنجاح!`
-                : `${prenom}, ton examen est bien enregistré !`}
-            </h1>
-            <p className="text-emerald-300 text-sm font-semibold">
-              {isAr
-                ? `أجبت على ${answeredCount} من ${totalQ} سؤال`
-                : `Tu as répondu à ${answeredCount} / ${totalQ} questions`}
-            </p>
-          </div>
+          {/* Score immédiat */}
+          {score != null ? (
+            <div className={`rounded-3xl p-7 border ${passed ? 'bg-emerald-500/10 border-emerald-500/30' : 'bg-amber-500/10 border-amber-500/30'}`}>
+              <div className="text-5xl mb-3">{passed ? '🎉' : '📚'}</div>
+              <p className="text-white/60 text-sm font-semibold mb-1">
+                {isAr ? `${prenom}، نتيجتك في الامتحان` : `${prenom}, ton score à l'examen`}
+              </p>
+              <p className="text-6xl font-black text-white mb-1">
+                {score?.toFixed(1)}<span className="text-3xl text-white/40">%</span>
+              </p>
+              <p className={`text-2xl font-bold mb-3 ${passed ? 'text-emerald-300' : 'text-amber-300'}`}>
+                {noteOn20}<span className="text-base text-white/40"> / 20</span>
+              </p>
+              <p className="text-white/40 text-sm">
+                {isAr
+                  ? `${correctQ} صحيح من ${answeredQ} إجابة`
+                  : `${correctQ} correctes sur ${answeredQ} répondues`}
+              </p>
+            </div>
+          ) : (
+            <div className="bg-emerald-500/10 border border-emerald-500/30 rounded-3xl p-6">
+              <div className="text-5xl mb-3">✅</div>
+              <h1 className="text-2xl font-black text-white mb-2">
+                {isAr ? `${prenom}، تم تسجيل امتحانك بنجاح!` : `${prenom}, ton examen est bien enregistré !`}
+              </h1>
+            </div>
+          )}
 
-          {/* When results */}
+          {/* Classement verrouillé */}
           <div className="bg-white/5 border border-white/10 rounded-3xl p-6">
-            <p className="text-white/50 text-sm mb-1">
-              {isAr ? '🔒 النتائج ستُكشف يوم' : '🔒 Les résultats seront révélés le'}
+            <p className="text-white/80 font-bold mb-1">
+              {isAr ? '🏆 الترتيب والتصحيح يُكشف يوم' : '🏆 Classement & correction révélés le'}
             </p>
-            <p className="text-white font-black text-xl mb-1">{revealDate}</p>
-            <p className="text-violet-300 font-bold text-lg mb-6">{isAr ? `الساعة ${revealTime}` : `à ${revealTime}`}</p>
+            <p className="text-white font-black text-lg">{revealDate}</p>
+            <p className="text-violet-300 font-semibold mb-5">{isAr ? `الساعة ${revealTime}` : `à ${revealTime}`}</p>
             {resultsAt && <Countdown target={resultsAt} isAr={isAr} />}
+            <p className="text-white/30 text-xs mt-4">
+              {isAr
+                ? '🔐 النتائج مجهولة الهوية — لن يعرف أحد معلومات الآخرين'
+                : '🔐 Résultats anonymes — personne ne verra les infos des autres'}
+            </p>
           </div>
 
           {/* Instructions */}

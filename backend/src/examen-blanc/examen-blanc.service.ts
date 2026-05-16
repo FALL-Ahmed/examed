@@ -70,7 +70,8 @@ export class ExamenBlancService {
     if (now > new Date(session.endsAt)) throw new BadRequestException('Les inscriptions sont fermées');
 
     const lang = dto.lang === 'ar' ? 'ar' : 'fr';
-    const questionIds: string[] = lang === 'ar' ? session.questionIdsAr : session.questionIdsFr;
+    const allIds: string[] = lang === 'ar' ? session.questionIdsAr : session.questionIdsFr;
+    const questionIds = allIds.slice(0, session.totalQ);
 
     if (!questionIds?.length) throw new BadRequestException(`Aucune question disponible en ${lang.toUpperCase()}`);
 
@@ -93,7 +94,7 @@ export class ExamenBlancService {
       include: { subTheme: { include: { theme: true } } },
     });
 
-    const ordered = (questionIds as string[])
+    const ordered = questionIds
       .map((id: string) => questions.find((q: any) => q.id === id))
       .filter(Boolean);
 
@@ -192,7 +193,8 @@ export class ExamenBlancService {
     const elapsed = (Date.now() - new Date(participant.createdAt).getTime()) / 1000;
     if (elapsed > session.durationMin * 60 + 60) throw new BadRequestException('Temps écoulé');
 
-    if (!(session.questionIds as string[]).includes(dto.questionId))
+    const questionIds: string[] = (participant.lang === 'ar' ? session.questionIdsAr : session.questionIdsFr).slice(0, session.totalQ);
+    if (!questionIds.includes(dto.questionId))
       throw new BadRequestException('Question invalide');
 
     const question = await this.prisma.question.findUnique({ where: { id: dto.questionId } });
@@ -242,7 +244,17 @@ export class ExamenBlancService {
 
     const now = new Date();
     const resultsAt = new Date(participant.examenBlanc.resultsAt);
-    if (now < resultsAt) return { locked: true, resultsAt: participant.examenBlanc.resultsAt };
+    if (now < resultsAt) return {
+      locked: true,
+      resultsAt: participant.examenBlanc.resultsAt,
+      score: participant.score,
+      rawScore: participant.rawScore,
+      totalQ: participant.examenBlanc.totalQ,
+      answeredQ: participant.reponses.length,
+      correctQ: participant.reponses.filter((r: any) => r.isCorrect).length,
+      timeTaken: participant.timeTaken,
+      participant: { nom: participant.nom, prenom: participant.prenom, ville: participant.ville },
+    };
 
     const session = participant.examenBlanc;
     const lang = participant.lang || 'fr';
@@ -530,7 +542,7 @@ export class ExamenBlancService {
     };
   }
 
-  async updateSession(id: string, dto: { title?: string; descriptionFr?: string; descriptionAr?: string; startsAt?: string; endsAt?: string; resultsAt?: string; isActive?: boolean; durationMin?: number }) {
+  async updateSession(id: string, dto: { title?: string; descriptionFr?: string; descriptionAr?: string; startsAt?: string; endsAt?: string; resultsAt?: string; isActive?: boolean; durationMin?: number; totalQ?: number }) {
     const data: any = {};
     if (dto.title !== undefined) data.title = dto.title;
     if (dto.descriptionFr !== undefined) data.descriptionFr = dto.descriptionFr;
@@ -540,6 +552,7 @@ export class ExamenBlancService {
     if (dto.resultsAt) data.resultsAt = new Date(dto.resultsAt);
     if (dto.isActive !== undefined) data.isActive = dto.isActive;
     if (dto.durationMin !== undefined) data.durationMin = dto.durationMin;
+    if (dto.totalQ !== undefined) data.totalQ = dto.totalQ;
     return db(this.prisma).examenBlanc.update({ where: { id }, data });
   }
 

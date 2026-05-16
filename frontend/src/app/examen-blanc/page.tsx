@@ -296,6 +296,37 @@ export default function ExamenBlancPage() {
           </div>
         </div>
 
+        {/* Banner — Modalité de correction / Barème */}
+        <div className="mb-10 overflow-hidden rounded-2xl border border-violet-500/30" style={{ background: 'linear-gradient(to bottom, rgba(124,58,237,0.1), rgba(99,102,241,0.1))' }}>
+          <img src="/correction.png" alt="Modalité de correction" className="w-full h-auto object-contain" />
+          <div className={`p-5 flex flex-col gap-3 ${isAr ? 'text-right' : ''}`}>
+            <span className={`inline-block w-fit bg-violet-500 text-white text-[10px] font-bold px-2.5 py-0.5 rounded-full uppercase tracking-wider ${isAr ? 'self-end' : ''}`}>
+              {isAr ? 'جديد' : 'Nouveau'}
+            </span>
+            <p className="font-black text-white text-base leading-snug">
+              {isAr ? 'طريقة تصحيح جديدة مطابقة لمسابقة التوظيف الوطنية' : 'Nouvelle méthode de correction adaptée au concours national'}
+            </p>
+            <p className="text-sm text-white/60 leading-relaxed">
+              {isAr
+                ? 'يتم التقييم دون أي تدخل بشري. تُمنح نقطة كاملة لكل إجابة صحيحة تماماً. ويُعتمد نظام التنقيط الجزئي التناسبي مع تطبيق غرامة على كل إجابة خاطئة محددة.'
+                : "L'évaluation se fait sans intervention humaine. Un point complet est attribué pour chaque réponse entièrement correcte. Un système de notation partielle proportionnelle est utilisé, avec pénalité pour chaque mauvaise réponse."}
+            </p>
+            <div className={`grid grid-cols-3 gap-2 mt-1 ${isAr ? 'direction-rtl' : ''}`}>
+              {[
+                { emoji: '✅', label: isAr ? 'إجابة صحيحة كاملة' : 'Réponse entièrement correcte', val: isAr ? '+ نقطة كاملة' : '+ 1 point complet', color: 'bg-emerald-500/10 border-emerald-500/20 text-emerald-300' },
+                { emoji: '🔶', label: isAr ? 'إجابة جزئية' : 'Réponse partielle', val: isAr ? '+ نقطة جزئية' : '+ points partiels', color: 'bg-amber-500/10 border-amber-500/20 text-amber-300' },
+                { emoji: '❌', label: isAr ? 'إجابة خاطئة' : 'Mauvaise réponse', val: isAr ? 'غرامة' : 'Pénalité', color: 'bg-red-500/10 border-red-500/20 text-red-300' },
+              ].map(({ emoji, label, val, color }, i) => (
+                <div key={i} className={`rounded-xl border p-3 text-center ${color}`}>
+                  <p className="text-xl mb-1">{emoji}</p>
+                  <p className="text-[11px] font-semibold leading-tight mb-1">{label}</p>
+                  <p className="text-xs font-black">{val}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+
         {/* Info cards */}
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-16">
           {[

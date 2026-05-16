@@ -222,6 +222,18 @@ export default function AdminExamenBlancPage() {
                             onChange={e => setEditing(prev => ({ ...prev, [s.id]: { ...prev[s.id], descriptionAr: e.target.value } }))} />
                         </div>
                       </div>
+                      <div className="grid grid-cols-2 gap-3">
+                        <div>
+                          <label className={labelCls}>Nb questions</label>
+                          <input type="number" min={10} max={200} className={inputCls} defaultValue={s.totalQ}
+                            onChange={e => setEditing(prev => ({ ...prev, [s.id]: { ...prev[s.id], totalQ: Number(e.target.value) } }))} />
+                        </div>
+                        <div>
+                          <label className={labelCls}>Durée (minutes)</label>
+                          <input type="number" min={30} max={360} className={inputCls} defaultValue={s.durationMin}
+                            onChange={e => setEditing(prev => ({ ...prev, [s.id]: { ...prev[s.id], durationMin: Number(e.target.value) } }))} />
+                        </div>
+                      </div>
                       <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                         {(['startsAt', 'endsAt', 'resultsAt'] as const).map(field => (
                           <div key={field}>
