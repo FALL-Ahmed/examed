@@ -94,6 +94,11 @@ export const themesApi = {
 
 // Questions
 export const publicApi = {
+  themes: (lang?: string) => axios.get(`${API_URL}/themes/public`, lang ? { params: { lang } } : {}),
+  freePractice: (themeId: string, themeName: string, count: number, lang: string, subThemeId?: string) =>
+    axios.get(`${API_URL}/questions/free-trial/practice`, { params: { themeId, themeName, count, lang, subThemeId } }),
+  nationalStats: (score: number, themeId?: string, subThemeId?: string) =>
+    axios.get(`${API_URL}/stats/national`, { params: { score, themeId, subThemeId } }),
   freeTrial: (theme: string, lang: string) => axios.get(`${API_URL}/questions/free-trial`, { params: { theme, lang } }),
   trackFreeTrialEvent: (data: { sessionId: string; theme: string; lang: string; source: string; questionN: number; isCorrect: boolean }) =>
     axios.post(`${API_URL}/questions/free-trial/event`, data).catch(() => {}),
@@ -116,6 +121,9 @@ export const attemptsApi = {
   finish: (id: string) => api.post(`/attempts/${id}/finish`),
   review: (id: string) => api.get(`/attempts/${id}/review`),
   history: () => api.get('/attempts/history/me'),
+  weakTheme: () => api.get('/attempts/weak-theme'),
+  themeProgress: (themeId?: string, subThemeId?: string, excludeId?: string) =>
+    api.get('/attempts/theme-progress', { params: { themeId, subThemeId, excludeId } }),
 };
 
 // Payments
@@ -124,6 +132,10 @@ export const paymentsApi = {
     headers: { 'Content-Type': undefined },
   }),
   myPayments: () => api.get('/payments/me'),
+};
+
+export const statsApi = {
+  myRank: () => api.get('/stats/my-rank'),
 };
 
 // Public settings

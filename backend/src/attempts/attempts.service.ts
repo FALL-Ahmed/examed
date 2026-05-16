@@ -257,4 +257,62 @@ export class AttemptsService {
       },
     });
   }
+
+  async getWeakTheme(userId: string) {
+    // Utilise les réponses → question → sous-thème → thème pour avoir les vrais IDs actuels
+    const answers = await this.prisma.userAnswer.findMany({
+      where: {
+        userId,
+        attempt: { isCompleted: true, mode: { in: ['PRACTICE', 'EXAM'] } },
+      },
+      select: {
+        isCorrect: true,
+        question: {
+          select: {
+            subTheme: { select: { theme: { select: { id: true, name: true } } } },
+          },
+        },
+      },
+      orderBy: { answeredAt: 'desc' },
+      take: 500,
+    });
+
+    const map: Record<string, { themeId: string; name: string; correct: number; total: number }> = {};
+    for (const a of answers) {
+      const theme = a.question?.subTheme?.theme;
+      if (!theme) continue;
+      if (!map[theme.id]) map[theme.id] = { themeId: theme.id, name: theme.name, correct: 0, total: 0 };
+      map[theme.id].total++;
+      if (a.isCorrect) map[theme.id].correct++;
+    }
+
+    const ranked = Object.values(map)
+      .filter((t) => t.total >= 5)
+      .map((t) => ({
+        themeId: t.themeId,
+        name: t.name,
+        avgScore: Math.round((t.correct / t.total) * 100),
+        sessions: t.total,
+      }))
+      .sort((a, b) => a.avgScore - b.avgScore);
+
+    if (!ranked.length) return null;
+    return ranked[0];
+  }
+
+  async getThemeProgress(userId: string, themeId?: string, subThemeId?: string, excludeId?: string) {
+    const where: any = { userId, isCompleted: true, mode: { in: ['PRACTICE', 'EXAM'] } };
+    if (excludeId) where.id = { not: excludeId };
+    if (subThemeId) where.subThemeId = subThemeId;
+    else if (themeId) where.themeId = themeId;
+
+    const attempts = await this.prisma.attempt.findMany({
+      where,
+      orderBy: { completedAt: 'desc' },
+      take: 5,
+      select: { id: true, score: true, correctQ: true, totalQ: true, completedAt: true },
+    });
+
+    return { attempts };
+  }
 }

@@ -24,7 +24,8 @@ export default function ReviewPage() {
     setError('');
     try {
       const { data } = await attemptsApi.start({ mode: 'REVIEW', count: 20, language: lang.toUpperCase() });
-      router.push(`/exam/${data.attemptId}?data=${encodeURIComponent(JSON.stringify(data))}`);
+      localStorage.setItem('exam_state', JSON.stringify({ attemptId: data.attemptId, session: data, answers: {}, marked: {}, currentIndex: 0, remainingSeconds: null }));
+      router.push(`/exam/${data.attemptId}`);
     } catch (err: any) {
       setError(
         err.response?.data?.message?.includes('Aucune erreur')

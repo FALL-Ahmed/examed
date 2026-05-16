@@ -122,7 +122,7 @@ export default function LandingPage() {
             </p>
 
             <div className="flex flex-col sm:flex-row gap-3">
-              <Link href={`/free-trial${lang === 'ar' ? '?lang=ar' : ''}`}
+              <Link href={`/free-practice${lang === 'ar' ? '?lang=ar' : ''}`}
                 className="inline-flex items-center justify-center gap-2 text-white font-bold px-7 py-4 rounded-2xl text-sm transition hover:opacity-90 shadow-xl shadow-violet-900/50"
                 style={{ background: 'linear-gradient(135deg,#7c3aed,#6366f1)' }}>
                 {t('landing.hero.start')} <ArrowRight className="w-4 h-4" />
@@ -198,12 +198,12 @@ export default function LandingPage() {
               {lang === 'ar' ? 'ابدأ بهذه الفصول المجانية' : 'Commencez par ces chapitres offerts'}
             </h2>
             <p className="text-gray-500 text-sm mt-2">
-              {lang === 'ar' ? '30 سؤالاً مجانياً — بدون بطاقة بنكية' : '30 QCM gratuits — sans carte bancaire'}
+              {lang === 'ar' ? '300 سؤالاً مجانياً — بدون بطاقة بنكية' : '300 QCM gratuits — sans carte bancaire'}
             </p>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 max-w-2xl mx-auto">
             {FREE_CHAPTERS.map((ch) => (
-              <Link key={ch.name} href={`/free-trial?theme=${ch.key}${lang === 'ar' ? '&lang=ar' : ''}`}
+              <Link key={ch.name} href={`/free-practice${lang === 'ar' ? '?lang=ar' : ''}`}
                 className="flex flex-col items-center gap-3 p-6 bg-white rounded-2xl border-2 border-violet-100 hover:border-violet-400 hover:shadow-lg transition-all group">
                 <p className="font-bold text-gray-900 text-sm text-center">{ch.name}</p>
                 <span className="text-xs font-semibold text-violet-600 bg-violet-50 px-2 py-0.5 rounded-full group-hover:bg-violet-100 transition">

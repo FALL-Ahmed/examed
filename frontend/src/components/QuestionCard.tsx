@@ -180,8 +180,8 @@ export function QuestionCard({ question, questionNumber, totalQuestions, onAnswe
         <div className="flex items-start justify-between gap-3 mb-1">
           <div className="flex-1">
             {(question.isMultiple || (result && correctLetters.length > 1)) && (
-              <span className="inline-flex items-center mb-3 text-xs bg-violet-50 dark:bg-violet-900/30 text-violet-600 dark:text-violet-300 px-2.5 py-1 rounded-full font-medium border border-violet-200 dark:border-violet-700">
-                {isAr ? 'إجابات متعددة ممكنة' : 'Plusieurs réponses possibles'}
+              <span className="inline-flex items-center gap-1.5 mb-3 text-xs bg-amber-50 dark:bg-amber-900/30 text-amber-700 dark:text-amber-300 px-2.5 py-1 rounded-full font-bold border border-amber-200 dark:border-amber-700">
+                ⚠️ {isAr ? 'أجوبة متعددة — اختر كل الإجابات الصحيحة' : 'Plusieurs réponses correctes — sélectionnez toutes les bonnes réponses'}
               </span>
             )}
           </div>

@@ -14,6 +14,12 @@ export function middleware(request: NextRequest) {
     const source = searchParams.get('source') || 'direct';
     const ip = request.headers.get('x-forwarded-for')?.split(',')[0].trim() || '';
     const token = request.cookies.get('access_token')?.value;
+    const ua = request.headers.get('user-agent') || '';
+
+    // Ignorer les bots (Facebook crawler, TikTok crawler, Google, etc.)
+    if (/facebookexternalhit|facebot|tiktok|Twitterbot|LinkedInBot|WhatsApp|Googlebot|bingbot|curl|python|wget/i.test(ua)) {
+      return NextResponse.next();
+    }
 
     // Fire-and-forget — ne bloque pas la réponse
     fetch(`${API_URL}/download/track/${filename}?source=${source}`, {

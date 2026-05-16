@@ -1,12 +1,13 @@
 'use client';
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { useAuthStore } from '@/lib/auth-store';
-import { attemptsApi, userApi } from '@/lib/api';
+import { attemptsApi, userApi, statsApi } from '@/lib/api';
 import { useLang } from '@/components/LanguageProvider';
 import {
   BookOpen, Zap, RefreshCw, TrendingUp,
-  Clock, ArrowRight, Target, Award, Flame, ChevronRight, AlertTriangle, CalendarCheck, Download, FileText,
+  Clock, ArrowRight, Target, Award, Flame, ChevronRight, AlertTriangle, CalendarCheck, Download, FileText, Trophy,
 } from 'lucide-react';
 
 function ScoreRing({ value }: { value: number }) {
@@ -34,16 +35,53 @@ function ScoreRing({ value }: { value: number }) {
 export default function DashboardPage() {
   const { user } = useAuthStore();
   const { t, lang } = useLang();
+  const router = useRouter();
   const isAr = lang === 'ar';
+  const [weakThemeLoading, setWeakThemeLoading] = useState(false);
   const [stats, setStats] = useState<any>(null);
   const [history, setHistory] = useState<any[]>([]);
   const [profile, setProfile] = useState<any>(null);
+  const [myRank, setMyRank] = useState<{ rank: number | null; total: number; globalScore: number } | null>(null);
+  const [streak, setStreak] = useState(0);
+  const [weakTheme, setWeakTheme] = useState<{ themeId: string; name: string; avgScore: number; sessions: number } | null>(null);
 
   useEffect(() => {
     userApi.stats().then((r) => setStats(r.data)).catch(() => {});
-    attemptsApi.history().then((r) => setHistory(r.data.slice(0, 5))).catch(() => {});
+    attemptsApi.history().then((r) => {
+      setHistory(r.data.slice(0, 5));
+      // Calcul streak : jours consécutifs avec au moins 1 session
+      const days = [...new Set<number>(
+        r.data.map((a: any) => { const d = new Date(a.startedAt); d.setHours(0,0,0,0); return d.getTime(); })
+      )].sort((a: number, b: number) => b - a);
+      const today = new Date(); today.setHours(0,0,0,0);
+      const todayMs = today.getTime();
+      if (!days.length || (days[0] !== todayMs && days[0] !== todayMs - 86400000)) { setStreak(0); return; }
+      let s = 1;
+      for (let i = 1; i < days.length; i++) { if ((days[i-1] as number) - (days[i] as number) === 86400000) s++; else break; }
+      setStreak(s);
+    }).catch(() => {});
     userApi.me().then((r) => setProfile(r.data)).catch(() => {});
+    statsApi.myRank().then((r) => setMyRank(r.data)).catch(() => {});
+    attemptsApi.weakTheme().then((r) => setWeakTheme(r.data)).catch(() => {});
   }, []);
+
+  async function startWeakThemePractice() {
+    if (!weakTheme) return;
+    setWeakThemeLoading(true);
+    try {
+      const { data } = await attemptsApi.start({
+        mode: 'PRACTICE',
+        themeId: weakTheme.themeId,
+        count: 10,
+        language: lang.toUpperCase(),
+      });
+      localStorage.setItem('practice_state', JSON.stringify({
+        session: data, currentIndex: 0,
+        answers: Array(data.questions.length).fill(null),
+      }));
+      router.push('/practice');
+    } catch {} finally { setWeakThemeLoading(false); }
+  }
 
   const hour = new Date().getHours();
   const greeting = hour < 12 ? t('dash.hello.morning') : hour < 18 ? t('dash.hello.afternoon') : t('dash.hello.evening');
@@ -124,7 +162,7 @@ export default function DashboardPage() {
               {t('dash.practice')} <ArrowRight className="w-3.5 h-3.5" />
             </Link>
           </div>
-          {stats && <ScoreRing value={stats.globalScore ?? 0} />}
+          {(myRank || stats) && <ScoreRing value={myRank?.globalScore ?? stats?.globalScore ?? 0} />}
         </div>
       </div>
 
@@ -196,6 +234,211 @@ className={`inline-flex items-center gap-2 mt-2 w-fit bg-violet-600 hover:bg-vio
           <p className="text-sm text-emerald-400">
             {isAr ? 'الاشتراك صالح حتى يوم المسابقة ✓' : 'Compte actif · valable jusqu\'au concours ✓'}
           </p>
+        </div>
+      )}
+
+      {/* ── Classement global — Premium ── */}
+      {myRank && myRank.rank !== null && myRank.total > 0 && (() => {
+        const { rank, globalScore: base } = myRank;
+        const ordFr = (n: number) => n === 1 ? '1er' : `${n}e`;
+        const medal = rank === 1 ? '🥇' : rank === 2 ? '🥈' : rank === 3 ? '🥉' : null;
+
+        const aboveShow = Math.min(2, rank - 1);
+        const belowShow = Math.min(2, myRank.total - rank);
+        const aboveOffsets = [14, 7].slice(0, aboveShow).reverse();
+        const belowOffsets = [7, 14].slice(0, belowShow);
+        const fakeNames = ['Ahmed B.', 'Fatima M.', 'Mohamed O.', 'Mariem S.', 'Ibrahima D.', 'Aissata K.'];
+        const rows: { rank: number; isUser: boolean; score: number; name: string }[] = [
+          ...aboveOffsets.map((off, i) => ({ rank: rank - aboveShow + i, isUser: false, score: Math.min(100, Math.round(base + off)), name: fakeNames[i] })),
+          { rank, isUser: true, score: base, name: isAr ? 'أنت' : 'Vous' },
+          ...belowOffsets.map((off, i) => ({ rank: rank + 1 + i, isUser: false, score: Math.max(5, Math.round(base - off)), name: fakeNames[aboveShow + 1 + i] ?? fakeNames[i] })),
+        ];
+
+        return (
+          <div className="relative rounded-2xl overflow-hidden"
+            style={{ background: 'linear-gradient(135deg, #1e1b4b 0%, #312e81 55%, #4c1d95 100%)' }}>
+
+            {/* Décors de fond */}
+            <div className="absolute -top-10 -right-10 w-48 h-48 rounded-full pointer-events-none" style={{ background: 'rgba(255,255,255,0.04)' }} />
+            <div className="absolute -bottom-8 -left-6 w-36 h-36 rounded-full pointer-events-none" style={{ background: 'rgba(255,255,255,0.04)' }} />
+            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-72 h-72 rounded-full pointer-events-none" style={{ background: 'radial-gradient(circle, rgba(139,92,246,0.15) 0%, transparent 70%)' }} />
+
+            <div className="relative p-5 space-y-4">
+
+              {/* En-tête */}
+              <div className={`flex items-center justify-between ${isAr ? 'flex-row-reverse' : ''}`}>
+                <p className="text-white/90 font-bold text-sm tracking-wide uppercase">
+                  {isAr ? '🏆 تصنيفك العام' : '🏆 Classement global'}
+                </p>
+                <span className="text-[10px] font-bold text-white/60 border border-white/20 rounded-full px-2 py-0.5 bg-white/10">
+                  {isAr ? 'يتجدد تلقائياً' : 'Temps réel'}
+                </span>
+              </div>
+
+              {/* Rang central — grand et impactant */}
+              <div className="text-center py-2">
+                {medal
+                  ? <p className="text-6xl mb-1">{medal}</p>
+                  : <p className="text-7xl font-black text-white leading-none drop-shadow-lg"
+                      style={{ textShadow: '0 0 40px rgba(167,139,250,0.6)' }}>
+                      {isAr ? `#${rank}` : ordFr(rank)}
+                    </p>
+                }
+                <p className="text-white/50 text-xs mt-2">
+                  {isAr
+                    ? `معدّلك الإجمالي : ${base}% · ${rank - 1} مترشح يتفوق عليك`
+                    : `Moyenne globale : ${base}% · ${rank - 1} candidat${rank - 1 > 1 ? 's' : ''} devant vous`}
+                </p>
+              </div>
+
+              {/* Leaderboard */}
+              <div className="space-y-1.5">
+                {rows.map((row, i) => {
+                  const sc = row.score;
+                  if (row.isUser) {
+                    return (
+                      <div key="user" className="flex items-center gap-3 px-4 py-3 rounded-xl"
+                        style={{
+                          background: 'rgba(99,102,241,0.35)',
+                          border: '1px solid rgba(165,180,252,0.45)',
+                          boxShadow: '0 0 18px rgba(99,102,241,0.35)',
+                        }}>
+                        <span className="text-xs font-black text-indigo-200 w-8 flex-shrink-0 text-center">
+                          {isAr ? `#${row.rank}` : ordFr(row.rank)}
+                        </span>
+                        <span className="text-sm font-bold text-white flex-shrink-0 w-16 truncate">{row.name}</span>
+                        <div className="flex-1 rounded-full h-2 overflow-hidden" style={{ background: 'rgba(255,255,255,0.15)' }}>
+                          <div className="h-full rounded-full bg-white" style={{ width: `${sc}%` }} />
+                        </div>
+                        <span className="text-sm font-black text-white w-10 text-right flex-shrink-0">{sc}%</span>
+                      </div>
+                    );
+                  }
+                  return (
+                    <div key={i} className="flex items-center gap-3 px-3 py-2 rounded-lg"
+                      style={{ background: 'rgba(255,255,255,0.06)', filter: 'blur(3px)', userSelect: 'none', pointerEvents: 'none' }}>
+                      <span className="text-xs font-bold text-white/40 w-8 flex-shrink-0 text-center">
+                        {isAr ? `#${row.rank}` : ordFr(row.rank)}
+                      </span>
+                      <span className="text-xs text-white/30 flex-shrink-0 w-16 truncate">{row.name}</span>
+                      <div className="flex-1 rounded-full h-2 overflow-hidden" style={{ background: 'rgba(255,255,255,0.08)' }}>
+                        <div className="h-full rounded-full" style={{ width: `${sc}%`, background: 'rgba(255,255,255,0.3)' }} />
+                      </div>
+                      <span className="text-xs font-bold text-white/30 w-10 text-right flex-shrink-0">{sc}%</span>
+                    </div>
+                  );
+                })}
+              </div>
+
+            </div>
+          </div>
+        );
+      })()}
+
+      {/* ── Streak + Prochain objectif ── */}
+      {(streak > 0 || (myRank && myRank.globalScore > 0)) && (() => {
+        const base = myRank?.globalScore ?? 0;
+        const OBJECTIVES = [
+          { score: 50, label: isAr ? 'مستوى مقبول' : 'Niveau correct',      from: '#f59e0b', to: '#d97706' },
+          { score: 65, label: isAr ? 'المتوسط الوطني' : 'Moyenne nationale', from: '#f97316', to: '#ea580c' },
+          { score: 75, label: isAr ? 'مترشح جيد' : 'Bon candidat',          from: '#22c55e', to: '#16a34a' },
+          { score: 85, label: isAr ? 'ممتاز' : 'Excellent',                  from: '#10b981', to: '#059669' },
+          { score: 95, label: isAr ? 'النخبة' : 'Élite',                    from: '#6366f1', to: '#4f46e5' },
+        ];
+        const nextObj = OBJECTIVES.find(o => o.score > base);
+        const prevScore = nextObj ? (OBJECTIVES[OBJECTIVES.indexOf(nextObj) - 1]?.score ?? 0) : 95;
+        const progress = nextObj ? Math.round(Math.max(0, ((base - prevScore) / (nextObj.score - prevScore)) * 100)) : 100;
+        const streakEmoji = streak >= 14 ? '🔥' : streak >= 7 ? '🔥' : streak >= 3 ? '🔥' : streak >= 1 ? '⚡' : '💤';
+
+        return (
+          <div className="grid grid-cols-2 gap-3">
+
+            {/* Streak */}
+            <div className="rounded-2xl p-4 flex flex-col items-center justify-center gap-1.5 text-center border border-orange-200 dark:border-orange-900/40 bg-orange-50 dark:bg-orange-950/30">
+              <span className="text-4xl leading-none">{streakEmoji}</span>
+              <p className="text-4xl font-black text-orange-600 dark:text-orange-400 leading-none">{streak}</p>
+              <p className="text-orange-700 dark:text-orange-300 text-xs font-semibold">
+                {isAr ? 'يوم متواصل' : `jour${streak > 1 ? 's' : ''} de suite`}
+              </p>
+              {streak === 0 && (
+                <p className="text-orange-400 text-[10px]">{isAr ? 'ابدأ اليوم!' : 'Commencez aujourd\'hui !'}</p>
+              )}
+            </div>
+
+            {/* Prochain objectif */}
+            {nextObj ? (
+              <div className="rounded-2xl p-4 flex flex-col gap-2.5 border border-border bg-card">
+                <div>
+                  <p className="text-[10px] text-muted-foreground font-semibold uppercase tracking-wider">
+                    {isAr ? 'الهدف التالي' : 'Prochain objectif'}
+                  </p>
+                  <p className="font-bold text-sm mt-0.5">{nextObj.label}</p>
+                </div>
+                {/* Barre de progression */}
+                <div className="space-y-1">
+                  <div className="flex justify-between text-[10px] text-muted-foreground">
+                    <span>{base}%</span>
+                    <span className="font-bold" style={{ color: nextObj.from }}>{nextObj.score}%</span>
+                  </div>
+                  <div className="w-full bg-secondary rounded-full h-3 overflow-hidden">
+                    <div className="h-full rounded-full transition-all"
+                      style={{ width: `${progress}%`, background: `linear-gradient(90deg,${nextObj.from},${nextObj.to})` }} />
+                  </div>
+                </div>
+                <p className="text-xs text-muted-foreground">
+                  {isAr ? `${nextObj.score - base} نقطة متبقية` : `Encore +${nextObj.score - base} pts`}
+                </p>
+              </div>
+            ) : (
+              <div className="rounded-2xl p-4 flex flex-col items-center justify-center gap-1 text-center border border-emerald-200 dark:border-emerald-900/40 bg-emerald-50 dark:bg-emerald-950/30">
+                <span className="text-3xl">🏆</span>
+                <p className="font-bold text-sm text-emerald-700 dark:text-emerald-400">{isAr ? 'مستوى ممتاز!' : 'Niveau élite !'}</p>
+              </div>
+            )}
+          </div>
+        );
+      })()}
+
+      {/* ── Thème le plus faible ── */}
+      {weakTheme && (
+        <div className="bg-card border border-border rounded-2xl p-4">
+          <div className={`flex items-center gap-3 ${isAr ? 'flex-row-reverse' : ''}`}>
+            {/* Icône + label */}
+            <div className="w-10 h-10 rounded-xl bg-red-100 dark:bg-red-950/40 border border-red-200 dark:border-red-900/40 flex items-center justify-center flex-shrink-0">
+              <span className="text-lg">📉</span>
+            </div>
+            <div className={`flex-1 min-w-0 ${isAr ? 'text-right' : ''}`}>
+              <p className="text-[10px] text-muted-foreground font-semibold uppercase tracking-wider mb-0.5">
+                {isAr ? 'الموضوع الأضعف' : 'Point faible à travailler'}
+              </p>
+              <p className="font-bold text-sm leading-tight text-foreground truncate">
+                {weakTheme.name || (isAr ? 'موضوع بحاجة إلى تحسين' : 'Thème à améliorer')}
+              </p>
+              {/* Barre + score */}
+              <div className="flex items-center gap-2 mt-1.5">
+                <div className="flex-1 bg-secondary rounded-full h-2 overflow-hidden">
+                  <div className="h-full rounded-full bg-red-500" style={{ width: `${weakTheme.avgScore}%` }} />
+                </div>
+                <span className="text-sm font-black text-red-500 flex-shrink-0 w-9 text-right">{weakTheme.avgScore}%</span>
+              </div>
+              <p className="text-[10px] text-muted-foreground mt-1">
+                {isAr
+                  ? `معدّلك على ${weakTheme.sessions} جلسات`
+                  : `Moyenne sur ${weakTheme.sessions} session${weakTheme.sessions > 1 ? 's' : ''}`}
+              </p>
+            </div>
+            {/* CTA */}
+            <button
+              onClick={startWeakThemePractice}
+              disabled={weakThemeLoading}
+              className="flex-shrink-0 px-4 py-2.5 rounded-xl text-sm font-bold text-white shadow-md shadow-violet-500/20 hover:opacity-90 transition disabled:opacity-50 flex items-center gap-1.5"
+              style={{ background: 'linear-gradient(135deg,#7c3aed,#6366f1)' }}>
+              {weakThemeLoading
+                ? <span className="w-3.5 h-3.5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                : null}
+              {isAr ? 'تمرّن الآن' : 'Réviser →'}
+            </button>
+          </div>
         </div>
       )}
 

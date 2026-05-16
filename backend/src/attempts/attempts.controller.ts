@@ -1,4 +1,4 @@
-import { Controller, Post, Get, Body, Param, Req, UseGuards } from '@nestjs/common';
+import { Controller, Post, Get, Body, Param, Query, Req, UseGuards } from '@nestjs/common';
 import { ApiTags, ApiBearerAuth } from '@nestjs/swagger';
 import { IsString, IsOptional, IsNumber, IsIn, IsArray } from 'class-validator';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
@@ -65,5 +65,20 @@ export class AttemptsController {
   @Get('history/me')
   history(@Req() req: any) {
     return this.attemptsService.getUserHistory(req.user.sub);
+  }
+
+  @Get('weak-theme')
+  weakTheme(@Req() req: any) {
+    return this.attemptsService.getWeakTheme(req.user.sub);
+  }
+
+  @Get('theme-progress')
+  themeProgress(
+    @Req() req: any,
+    @Query('themeId') themeId?: string,
+    @Query('subThemeId') subThemeId?: string,
+    @Query('excludeId') excludeId?: string,
+  ) {
+    return this.attemptsService.getThemeProgress(req.user.sub, themeId, subThemeId, excludeId);
   }
 }

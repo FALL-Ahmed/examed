@@ -78,6 +78,29 @@ export class QuestionsService {
     return shuffled.slice(0, opts.count);
   }
 
+  async getFreePracticeQuestions(themeId: string, themeName: string, count: number, lang: string, subThemeId?: string) {
+    const langUp = (lang || 'fr').toUpperCase();
+    const where: any = { isActive: true };
+
+    if (subThemeId) {
+      where.subThemeId = subThemeId;
+    } else if (themeId) {
+      where.subTheme = { themeId };
+    } else if (themeName) {
+      where.subTheme = {
+        theme: { name: { contains: themeName, mode: 'insensitive' as const }, language: langUp },
+      };
+    }
+
+    const questions = await this.prisma.question.findMany({
+      where,
+      include: { subTheme: { include: { theme: true } } },
+    });
+
+    // Mélanger et limiter
+    return questions.sort(() => Math.random() - 0.5).slice(0, Math.min(count, 30));
+  }
+
   async getFreeTrial(themeName: string, lang: string = 'fr') {
     const normalized = themeName.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '');
 

@@ -2,8 +2,8 @@
 import { useEffect, useState } from 'react';
 import { useParams, useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
-import { attemptsApi } from '@/lib/api';
-import { CheckCircle, XCircle, ChevronDown, ChevronUp, RotateCcw, RefreshCw, Clock, Target } from 'lucide-react';
+import { attemptsApi, publicApi, statsApi } from '@/lib/api';
+import { CheckCircle, XCircle, ChevronDown, ChevronUp, RotateCcw, RefreshCw, Clock, Target, BarChart2, TrendingUp } from 'lucide-react';
 import { useLang } from '@/components/LanguageProvider';
 import { sentenceCase, resolveImageUrl } from '@/lib/utils';
 
@@ -23,9 +23,31 @@ export default function ResultsPage() {
   const [filter, setFilter] = useState<'all' | 'correct' | 'wrong'>('all');
   const [reviewLoading, setReviewLoading] = useState(false);
   const [retryLoading, setRetryLoading] = useState(false);
+  const [natStats, setNatStats] = useState<{ avg: number; percentile: number; total: number; estimated?: boolean; distribution?: { min: number; h: number }[] } | null>(null);
+  const [prevAttempts, setPrevAttempts] = useState<{ id: string; score: number; correctQ: number; totalQ: number; completedAt: string }[]>([]);
+  const [globalAvg, setGlobalAvg] = useState<number | null>(null);
+  const [myRank, setMyRank] = useState<{ rank: number | null; total: number; globalScore: number } | null>(null);
 
   useEffect(() => {
-    attemptsApi.review(attemptId).then((r) => setReview(r.data)).finally(() => setLoading(false));
+    attemptsApi.review(attemptId).then((r) => {
+      setReview(r.data);
+      const s = r.data.score;
+      publicApi.nationalStats(s, practiceThemeId, practiceSubThemeId)
+        .then((rs) => setNatStats(rs.data))
+        .catch(() => setNatStats({ avg: 68, percentile: Math.round((s / 100) * 80), total: 0, estimated: true }));
+      if (practiceThemeId) {
+        attemptsApi.themeProgress(practiceThemeId, practiceSubThemeId, attemptId)
+          .then((rp) => setPrevAttempts(rp.data.attempts))
+          .catch(() => {});
+      }
+      // Vrai rang depuis le backend
+      statsApi.myRank()
+        .then((rr) => {
+          setMyRank(rr.data);
+          setGlobalAvg(rr.data.globalScore);
+        })
+        .catch(() => {});
+    }).finally(() => setLoading(false));
   }, [attemptId]);
 
   if (loading) return (
@@ -122,6 +144,227 @@ export default function ResultsPage() {
           ))}
         </div>
       </div>
+
+      {/* ── Bloc unifié : Progression & Stats nationales ── */}
+      {natStats && (() => {
+        const SIMULATED = [
+          { min: 20, h: 4 }, { min: 25, h: 7 }, { min: 30, h: 12 },
+          { min: 35, h: 20 }, { min: 40, h: 31 }, { min: 45, h: 45 },
+          { min: 50, h: 61 }, { min: 55, h: 77 }, { min: 60, h: 89 },
+          { min: 65, h: 97 }, { min: 70, h: 100 }, { min: 75, h: 91 },
+          { min: 80, h: 75 }, { min: 85, h: 54 }, { min: 90, h: 33 },
+          { min: 95, h: 17 }, { min: 100, h: 6 },
+        ];
+        const bars = natStats.distribution ?? SIMULATED;
+        const THRESHOLD = 75;
+        const toPct = (v: number) => ((v - 20) / 80) * 100;
+        const clamp = (v: number) => toPct(Math.max(20, Math.min(100, v)));
+        const barColor = (v: number) => v <= 35 ? '#dc2626' : v <= 45 ? '#ea580c' : v <= 55 ? '#f97316' : v <= 62 ? '#fbbf24' : v <= 68 ? '#a3e635' : v <= 75 ? '#4ade80' : '#16a34a';
+
+        const themeName = review.questions[0]?.theme ?? '';
+        const subThemeName = review.questions[0]?.subTheme ?? '';
+
+        const subThemeQs = practiceSubThemeId
+          ? review.questions.filter((q: any) => q.subTheme === subThemeName)
+          : review.questions;
+        const subCorrect = subThemeQs.filter((q: any) => q.isCorrect).length;
+        const subTotal = subThemeQs.length;
+        const subPct = subTotal > 0 ? Math.round((subCorrect / subTotal) * 100) : 0;
+        const subColor = subPct >= 70 ? '#10b981' : subPct >= 50 ? '#f59e0b' : '#ef4444';
+
+        const prev = prevAttempts[0];
+        const diff = prev ? Math.round(score - prev.score) : null;
+
+        // Classement simulé autour du score global de l'utilisateur
+        const base = globalAvg ?? natStats.avg;
+        const pct = natStats.percentile;
+        // Combien de candidats simulés au-dessus vs en-dessous (total 5)
+        const aboveCount = pct >= 75 ? 1 : pct >= 50 ? 2 : pct >= 25 ? 3 : 4;
+        const belowCount = 5 - aboveCount - 1; // -1 pour la ligne "Vous"
+        const aboveOffsets = [22, 15, 9, 5].slice(0, aboveCount);
+        const belowOffsets = [6, 13, 19, 25].slice(0, belowCount);
+
+        return (
+          <div className="bg-card border border-border rounded-2xl p-5 space-y-5">
+
+            {/* En-tête */}
+            <div>
+              <div className={`flex items-center gap-2 mb-1 ${isAr ? 'flex-row-reverse' : ''}`}>
+                <div className="w-7 h-7 rounded-lg bg-violet-100 flex items-center justify-center flex-shrink-0">
+                  <BarChart2 className="w-4 h-4 text-violet-600" />
+                </div>
+                <p className="font-bold text-sm">{isAr ? 'إحصائياتك وتطور مستواك' : 'Votre progression & Statistiques'}</p>
+              </div>
+              {themeName && (
+                <p className="text-xs text-muted-foreground">
+                  📚 {themeName}{subThemeName && subThemeName !== themeName ? ` · ${subThemeName}` : ''}
+                </p>
+              )}
+            </div>
+
+            {/* ── 1. Histogramme : cette session uniquement ── */}
+            <div>
+              <div className="relative h-8 mb-1">
+                <div className="absolute bottom-0 flex flex-col items-center pointer-events-none"
+                  style={isAr ? { right: `${clamp(score)}%`, transform: 'translateX(50%)' } : { left: `${clamp(score)}%`, transform: 'translateX(-50%)' }}>
+                  <span className="text-[9px] font-black text-gray-900 whitespace-nowrap">{isAr ? 'جلستك' : 'Cette session'}</span>
+                  <span className="text-[9px] font-black text-gray-900 whitespace-nowrap">{Math.round(score)}%</span>
+                </div>
+                <div className="absolute bottom-0 flex flex-col items-center pointer-events-none"
+                  style={isAr ? { right: `${toPct(THRESHOLD)}%`, transform: 'translateX(50%)' } : { left: `${toPct(THRESHOLD)}%`, transform: 'translateX(-50%)' }}>
+                  <span className="text-[9px] font-bold text-gray-400 whitespace-nowrap">75%</span>
+                  <span className="text-[8px] text-gray-400 whitespace-nowrap">{isAr ? 'عتبة' : 'seuil'}</span>
+                </div>
+              </div>
+              <div className="relative flex items-end gap-[2px]" style={{ height: '100px' }}>
+                {bars.map(({ min, h }) => (
+                  <div key={min} className="flex-1 rounded-t-sm" style={{ height: `${h}%`, background: barColor(min), minWidth: 0 }} />
+                ))}
+                <div className="absolute top-0 bottom-0 w-[2px] bg-gray-900 pointer-events-none z-10"
+                  style={isAr ? { right: `${clamp(score)}%` } : { left: `${clamp(score)}%` }} />
+                <div className="absolute top-0 bottom-0 w-px pointer-events-none z-10"
+                  style={{ background: 'repeating-linear-gradient(to bottom,#9ca3af 0,#9ca3af 4px,transparent 4px,transparent 8px)', ...(isAr ? { right: `${toPct(THRESHOLD)}%` } : { left: `${toPct(THRESHOLD)}%` }) }} />
+              </div>
+              <div className="flex justify-between text-[10px] text-muted-foreground mt-1">
+                <span>20%</span><span>40%</span><span>60%</span><span>80%</span><span>100%</span>
+              </div>
+              <div className={`flex flex-wrap gap-x-4 gap-y-1 mt-2 text-[11px] text-muted-foreground ${isAr ? 'flex-row-reverse' : ''}`}>
+                <span className="flex items-center gap-1.5">
+                  <span className="w-3 h-[2px] inline-block rounded bg-gray-900" />
+                  {isAr ? 'هذه الجلسة' : 'Cette session'}
+                </span>
+                <span className="flex items-center gap-1.5">
+                  <span className="w-3 h-[2px] inline-block" style={{ background: 'repeating-linear-gradient(to right,#9ca3af 0,#9ca3af 3px,transparent 3px,transparent 6px)' }} />
+                  {isAr ? 'عتبة القبول 75%' : 'Seuil bon candidat 75%'}
+                </span>
+              </div>
+              {/* Texte stats sous l'histogramme */}
+              <div className={`flex items-center justify-between mt-3 ${isAr ? 'flex-row-reverse' : ''}`}>
+                <p className="text-xs text-muted-foreground">
+                  {isAr ? 'المعدل على المستوى الوطني :' : 'Score moyen à l\'échelle nationale :'}{' '}
+                  <span className="font-bold text-violet-700">{natStats.avg}%</span>
+                  {natStats.estimated && <span className="text-[10px] text-muted-foreground ml-1">{isAr ? '(تقديري)' : '(estimé)'}</span>}
+                </p>
+                <p className="text-xs font-bold text-violet-700">
+                  {isAr ? `أفضل من ${natStats.percentile}%` : `Meilleur que ${natStats.percentile}%`}
+                </p>
+              </div>
+            </div>
+
+            {/* ── 2. Classement global (vrai rang) ── */}
+            {myRank && myRank.rank !== null && myRank.total > 0 && (() => {
+              const { rank, total: rankTotal, globalScore: base } = myRank;
+              const ordFr = (n: number) => n === 1 ? '1er' : `${n}e`;
+              const ordinal = (n: number) => isAr ? `#${n}` : ordFr(n);
+              const fakeNames = ['Ahmed B.', 'Fatima M.', 'Mohamed O.', 'Mariem S.', 'Ibrahima D.', 'Aissata K.'];
+              const aboveShow = Math.min(2, rank - 1);
+              const belowShow = Math.min(2, rankTotal - rank);
+              const aboveOffsets = [14, 7].slice(0, aboveShow).reverse();
+              const belowOffsets = [7, 14].slice(0, belowShow);
+              const rows: { rank: number; isUser: boolean; score: number; name: string }[] = [
+                ...aboveOffsets.map((off, i) => ({ rank: rank - aboveShow + i, isUser: false, score: Math.min(100, Math.round(base + off)), name: fakeNames[i] })),
+                { rank, isUser: true, score: base, name: isAr ? 'أنت' : 'Vous' },
+                ...belowOffsets.map((off, i) => ({ rank: rank + 1 + i, isUser: false, score: Math.max(5, Math.round(base - off)), name: fakeNames[aboveShow + 1 + i] ?? fakeNames[i] })),
+              ];
+              return (
+                <>
+                  <div className="h-px bg-border" />
+                  <div>
+                    <div className={`flex items-center justify-between mb-3 ${isAr ? 'flex-row-reverse' : ''}`}>
+                      <p className="text-xs font-semibold text-foreground">
+                        {isAr ? '🏆 تصنيفك العام' : '🏆 Classement global'}
+                      </p>
+                      <span className="text-lg font-black" style={{ color: '#6366f1' }}>
+                        {isAr ? `#${rank}` : ordFr(rank)}
+                      </span>
+                    </div>
+                    <div className="space-y-1.5">
+                      {rows.map((row, i) => {
+                        const sc = row.score;
+                        if (row.isUser) return (
+                          <div key="user" className="flex items-center gap-3 px-3 py-2.5 rounded-xl"
+                            style={{ background: 'rgba(99,102,241,0.1)', border: '1.5px solid rgba(99,102,241,0.4)' }}>
+                            <span className="text-xs font-black text-indigo-600 w-7 flex-shrink-0 text-center">{ordinal(row.rank)}</span>
+                            <span className="text-sm font-bold text-indigo-700 dark:text-indigo-300 flex-shrink-0 w-14 truncate">{row.name}</span>
+                            <div className="flex-1 bg-indigo-100 dark:bg-indigo-900/40 rounded-full h-2 overflow-hidden">
+                              <div className="h-full rounded-full bg-indigo-500 transition-all" style={{ width: `${sc}%` }} />
+                            </div>
+                            <span className="text-sm font-black text-indigo-600 dark:text-indigo-400 w-9 text-right flex-shrink-0">{sc}%</span>
+                          </div>
+                        );
+                        return (
+                          <div key={i} className="flex items-center gap-3 px-3 py-2 rounded-lg bg-secondary"
+                            style={{ filter: 'blur(2.5px)', userSelect: 'none', pointerEvents: 'none' }}>
+                            <span className="text-[11px] font-bold text-muted-foreground w-7 flex-shrink-0 text-center">{ordinal(row.rank)}</span>
+                            <span className="text-xs text-muted-foreground flex-shrink-0 w-14 truncate">{row.name}</span>
+                            <div className="flex-1 bg-border rounded-full h-2 overflow-hidden">
+                              <div className="h-full rounded-full bg-muted-foreground/40" style={{ width: `${sc}%` }} />
+                            </div>
+                            <span className="text-xs font-bold text-muted-foreground w-9 text-right flex-shrink-0">{sc}%</span>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+                </>
+              );
+            })()}
+
+
+            {/* ── 4. Progression vs session précédente ── */}
+            {practiceThemeId && (
+              <>
+                <div className="h-px bg-border" />
+                <div>
+                  <p className="text-xs font-semibold text-foreground mb-2">
+                    {isAr ? 'مقارنة مع الجلسة السابقة' : 'Session précédente vs aujourd\'hui'}
+                  </p>
+                  {!prev ? (
+                    <p className="text-xs text-muted-foreground">
+                      🎯 {isAr ? 'أول جلسة على هذا الموضوع' : 'Première session sur ce thème'}
+                    </p>
+                  ) : (
+                    <div className="space-y-2.5">
+                      {/* Ligne précédente */}
+                      <div className="space-y-1">
+                        <div className={`flex items-center justify-between text-xs ${isAr ? 'flex-row-reverse' : ''}`}>
+                          <span className="text-muted-foreground">{isAr ? 'الجلسة السابقة' : 'Session précédente'}</span>
+                          <span className="font-bold">{Math.round(prev.score)}%</span>
+                        </div>
+                        <div className="w-full bg-secondary rounded-full h-2">
+                          <div className="h-2 rounded-full bg-muted-foreground/40 transition-all" style={{ width: `${Math.round(prev.score)}%` }} />
+                        </div>
+                      </div>
+                      {/* Ligne aujourd'hui */}
+                      <div className="space-y-1">
+                        <div className={`flex items-center justify-between text-xs ${isAr ? 'flex-row-reverse' : ''}`}>
+                          <span className="text-muted-foreground">{isAr ? 'اليوم' : "Aujourd'hui"}</span>
+                          <span className="font-black" style={{ color: scoreColor }}>{Math.round(score)}%</span>
+                        </div>
+                        <div className="w-full bg-secondary rounded-full h-2">
+                          <div className="h-2 rounded-full transition-all" style={{ width: `${Math.round(score)}%`, background: scoreColor }} />
+                        </div>
+                      </div>
+                      {/* Badge tendance */}
+                      <div className={`flex ${isAr ? 'justify-end' : 'justify-start'}`}>
+                        <span className={`inline-flex items-center gap-1 text-xs font-bold px-2.5 py-1 rounded-full ${
+                          diff! > 0 ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400'
+                          : diff === 0 ? 'bg-secondary text-muted-foreground'
+                          : 'bg-red-100 text-red-600 dark:bg-red-900/30 dark:text-red-400'
+                        }`}>
+                          {diff! > 0 ? '▲' : diff === 0 ? '▶' : '▼'}
+                          {diff! > 0 ? `+${diff} pts` : diff === 0 ? (isAr ? 'مستقر' : 'Stable') : `${diff} pts`}
+                        </span>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </>
+            )}
+
+          </div>
+        );
+      })()}
 
       {/* ── Actions ── */}
       <div className="grid grid-cols-2 gap-3">

@@ -33,7 +33,8 @@ export class DownloadController {
     }
 
     // Déduplication : ignorer si même identifiant dans les 5 dernières secondes
-    const since = new Date(Date.now() - 60000);
+    // 1 seul téléchargement compté par user/IP par jour
+    const since = new Date(Date.now() - 86400000);
     const existing = await this.prisma.pdfDownload.findFirst({
       where: {
         filename,
