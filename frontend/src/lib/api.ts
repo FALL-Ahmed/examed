@@ -213,7 +213,7 @@ export const adminApi = {
 
 export const examenBlancApi = {
   current: () => axios.get(`${API_URL}/examen-blanc/current`),
-  register: (data: { nom: string; prenom: string; telephone: string; ville: string; examenBlancId: string }) =>
+  register: (data: { nom: string; prenom: string; telephone: string; ville: string; examenBlancId: string; lang: string }) =>
     axios.post(`${API_URL}/examen-blanc/register`, data),
   getSession: (sessionId: string) => axios.get(`${API_URL}/examen-blanc/session/${sessionId}`),
   submitAnswer: (sessionId: string, data: { questionId: string; reponse: string; tempsReponse?: number }) =>
