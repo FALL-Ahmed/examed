@@ -208,7 +208,7 @@ export const adminApi = {
   sessions: () => api.get('/admin/sessions'),
   freeTrialStats: (params?: { startDate?: string; endDate?: string; compareStart?: string; compareEnd?: string }) =>
     api.get('/admin/free-trial-stats', { params }),
-  freePracticeStats: () => api.get('/admin/free-practice-stats'),
+  freePracticeStats: (params?: { startDate?: string; endDate?: string }) => api.get('/admin/free-practice-stats', { params }),
 };
 
 export const pushApi = {

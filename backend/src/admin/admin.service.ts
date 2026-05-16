@@ -809,10 +809,13 @@ export class AdminService {
     return { byTheme, globalFunnel, totalSessions: allBySession.size, leads, dailyStats };
   }
 
-  async getFreePracticeStats() {
-    const since = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
+  async getFreePracticeStats(params?: { startDate?: string; endDate?: string }) {
+    const from = params?.startDate ? new Date(params.startDate) : new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
+    const to = params?.endDate ? new Date(params.endDate + 'T23:59:59') : new Date();
+    const since = from;
+    const dateFilter = { gte: from, lte: to };
     const events = await (this.prisma as any).freePracticeEvent.findMany({
-      where: { createdAt: { gte: since } },
+      where: { createdAt: dateFilter },
       orderBy: { createdAt: 'asc' },
     });
 
@@ -881,20 +884,18 @@ export class AdminService {
 
     // Inscriptions issues de free-practice (source = 'free-practice', 30 derniers jours)
     const [registrations, validatedPayments, waLeads, utmBreakdown] = await Promise.all([
-      this.prisma.user.count({ where: { source: 'free-practice', createdAt: { gte: since } } }),
+      this.prisma.user.count({ where: { source: 'free-practice', createdAt: dateFilter } }),
       this.prisma.payment.count({
-        where: { status: 'VALIDATED', createdAt: { gte: since }, user: { source: 'free-practice' } },
+        where: { status: 'VALIDATED', createdAt: dateFilter, user: { source: 'free-practice' } },
       }),
-      // Leads WhatsApp collectés via FomoResults free-practice
       (this.prisma as any).freeTrialLead.findMany({
-        where: { source: 'free-practice', createdAt: { gte: since } },
+        where: { source: 'free-practice', createdAt: dateFilter },
         orderBy: { createdAt: 'desc' },
         select: { phone: true, theme: true, lang: true, createdAt: true },
       }),
-      // Breakdown UTM source des inscrits
       (this.prisma as any).user.groupBy({
         by: ['utmSource'],
-        where: { createdAt: { gte: since } },
+        where: { createdAt: dateFilter },
         _count: { id: true },
       }),
     ]);

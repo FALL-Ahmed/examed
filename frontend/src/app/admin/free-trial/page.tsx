@@ -22,6 +22,8 @@ export default function FreeTrialStatsPage() {
 
   const [practiceData, setPracticeData] = useState<any>(null);
   const [practiceLoading, setPracticeLoading] = useState(false);
+  const [pStart, setPStart] = useState(daysAgo(6));
+  const [pEnd, setPEnd] = useState(today);
 
   const load = useCallback(() => {
     setLoading(true);
@@ -36,13 +38,17 @@ export default function FreeTrialStatsPage() {
 
   useEffect(() => { load(); }, [load]);
 
-  useEffect(() => {
-    if (tab !== 'practice' || practiceData) return;
+  const loadPractice = useCallback(() => {
     setPracticeLoading(true);
-    adminApi.freePracticeStats()
+    adminApi.freePracticeStats({ startDate: pStart, endDate: pEnd })
       .then((r) => setPracticeData(r.data))
       .finally(() => setPracticeLoading(false));
-  }, [tab, practiceData]);
+  }, [pStart, pEnd]);
+
+  useEffect(() => {
+    if (tab !== 'practice') return;
+    loadPractice();
+  }, [tab, loadPractice]);
 
   if (!data && loading) return (
     <div className="flex items-center justify-center py-32">
@@ -91,6 +97,35 @@ export default function FreeTrialStatsPage() {
       {/* ── Contenu Free Pratique ── */}
       {tab === 'practice' && (
         <div className="space-y-6">
+
+          {/* Filtres dates */}
+          <div className="bg-card border border-border rounded-2xl p-4 flex flex-wrap items-end gap-3">
+            <div className="flex flex-col gap-1">
+              <label className="text-xs font-semibold text-muted-foreground">Du</label>
+              <input type="date" value={pStart} max={pEnd}
+                onChange={(e) => setPStart(e.target.value)}
+                className="px-3 py-2 rounded-xl border border-border bg-secondary text-sm font-medium focus:outline-none focus:border-violet-400" />
+            </div>
+            <div className="flex flex-col gap-1">
+              <label className="text-xs font-semibold text-muted-foreground">Au</label>
+              <input type="date" value={pEnd} min={pStart} max={today}
+                onChange={(e) => setPEnd(e.target.value)}
+                className="px-3 py-2 rounded-xl border border-border bg-secondary text-sm font-medium focus:outline-none focus:border-violet-400" />
+            </div>
+            <div className="flex gap-2">
+              {[7, 14, 30].map((n) => (
+                <button key={n} onClick={() => { setPStart(daysAgo(n - 1)); setPEnd(today); }}
+                  className={`px-3 py-2 rounded-xl text-xs font-bold border transition ${pStart === daysAgo(n - 1) && pEnd === today ? 'bg-violet-600 text-white border-violet-600' : 'border-border text-muted-foreground hover:text-foreground hover:border-violet-400'}`}>
+                  {n}j
+                </button>
+              ))}
+            </div>
+            <button onClick={loadPractice}
+              className="px-4 py-2 rounded-xl bg-violet-600 text-white text-xs font-bold hover:bg-violet-700 transition">
+              Appliquer
+            </button>
+          </div>
+
           {practiceLoading && (
             <div className="flex items-center justify-center py-16">
               <div className="w-6 h-6 border-2 border-violet-500 border-t-transparent rounded-full animate-spin" />
