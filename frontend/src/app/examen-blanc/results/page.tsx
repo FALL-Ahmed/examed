@@ -163,10 +163,17 @@ export default function ResultsPage() {
             <p>{isAr ? '🔍 استخدم رقم هاتفك للعودة إلى نتائجك' : '🔍 Utilise ton numéro de téléphone pour retrouver tes résultats'}</p>
           </div>
 
-          <Link href="/examen-blanc"
-            className="inline-block px-6 py-3 rounded-xl border border-white/10 text-white/50 text-sm hover:bg-white/5 transition">
-            {isAr ? '← الصفحة الرئيسية' : '← Retour à l\'accueil'}
-          </Link>
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
+            <Link href="/examen-blanc"
+              className="inline-block px-6 py-3 rounded-xl border border-white/10 text-white/50 text-sm hover:bg-white/5 transition">
+              {isAr ? '← صفحة الامتحان' : '← Page examen'}
+            </Link>
+            <Link href="/"
+              className="inline-flex items-center gap-2 px-6 py-3 rounded-xl font-bold text-sm text-white hover:opacity-90 transition"
+              style={{ background: 'linear-gradient(135deg,#7c3aed,#6366f1)' }}>
+              {isAr ? 'الذهاب إلى المنصة الرئيسية ←' : 'Aller sur Al Bourour →'}
+            </Link>
+          </div>
         </div>
       </div>
     );
