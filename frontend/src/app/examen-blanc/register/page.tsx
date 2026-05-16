@@ -152,9 +152,9 @@ function RegisterContent() {
         )}
 
         {/* Form */}
-        <div className="bg-white/5 backdrop-blur border border-white/10 rounded-3xl p-7">
+        <div className="bg-white/5 backdrop-blur border border-white/10 rounded-3xl p-7" dir={isFormAr ? 'rtl' : 'ltr'}>
           <p className="text-white/40 text-xs font-bold uppercase tracking-widest mb-6">
-            {isAr ? '👤 معلوماتك' : '👤 Vos informations'}
+            {isFormAr ? '👤 معلوماتك' : '👤 Vos informations'}
           </p>
 
           {error && (
@@ -179,14 +179,14 @@ function RegisterContent() {
                   🇲🇷 العربية
                 </button>
               </div>
-              <p className="text-white/30 text-xs mt-1.5" dir={isFormAr ? 'rtl' : 'ltr'}>
+              <p className="text-white/30 text-xs mt-1.5">
                 {isFormAr ? 'ستكون جميع أسئلة الامتحان باللغة المختارة' : 'Toutes les questions de l\'examen seront dans cette langue'}
               </p>
             </div>
 
-            <div className="border-t border-white/10" dir={isFormAr ? 'rtl' : 'ltr'} />
+            <div className="border-t border-white/10" />
 
-            <div className="grid grid-cols-2 gap-3" dir={isFormAr ? 'rtl' : 'ltr'}>
+            <div className="grid grid-cols-2 gap-3">
               <div>
                 <label className={labelCls}>{isFormAr ? 'الاسم الأول' : 'Prénom'} <span className="text-red-400">*</span></label>
                 <input type="text" value={form.prenom} onChange={e => set('prenom', e.target.value)}
@@ -213,9 +213,9 @@ function RegisterContent() {
               <select value={form.ville} onChange={e => set('ville', e.target.value)}
                 className={`${inputCls} cursor-pointer`}
                 style={{ WebkitAppearance: 'none' }}>
-                <option value="" className="bg-gray-900">{isFormAr ? 'اختر ولايتك…' : 'Sélectionner votre wilaya…'}</option>
+                <option value="" style={{ background: '#1f2937', color: 'white' }}>{isFormAr ? 'اختر ولايتك…' : 'Sélectionner votre wilaya…'}</option>
                 {WILAYAS.map(w => (
-                  <option key={w} value={w} className="bg-gray-900">
+                  <option key={w} value={w} style={{ background: '#1f2937', color: 'white' }}>
                     {isFormAr ? WILAYAS_AR[w] || w : w}
                   </option>
                 ))}
@@ -228,7 +228,7 @@ function RegisterContent() {
             style={{ background: 'linear-gradient(135deg,#7c3aed,#6366f1)' }}>
             {submitting
               ? <><Loader2 className="w-5 h-5 animate-spin" /> {isFormAr ? 'جارٍ التسجيل…' : 'Inscription en cours…'}</>
-              : <>{isFormAr ? 'بدء الامتحان' : "Commencer l'examen"} <ChevronRight className="w-5 h-5" /></>}
+              : <>{isFormAr ? 'بدء الامتحان' : "Commencer l'examen"} <ChevronRight className={`w-5 h-5 ${isFormAr ? 'rotate-180' : ''}`} /></>}
           </button>
 
           <p className="text-center text-white/30 text-xs mt-4">
