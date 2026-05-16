@@ -1,7 +1,7 @@
 'use client';
 import { useEffect, useState, useCallback } from 'react';
 import { adminApi } from '@/lib/api';
-import { FlaskConical, Users, Trophy, TrendingDown, Phone, Globe, Zap, GitCompare, BookOpen, CheckCircle2, BarChart2 } from 'lucide-react';
+import { FlaskConical, Users, Trophy, TrendingDown, Phone, Globe, Zap, GitCompare, BookOpen, CheckCircle2, BarChart2, ArrowRight, CreditCard } from 'lucide-react';
 
 const toIso = (d: Date) => d.toISOString().slice(0, 10);
 const daysAgo = (n: number) => toIso(new Date(Date.now() - n * 86400000));
@@ -98,35 +98,59 @@ export default function FreeTrialStatsPage() {
           )}
           {!practiceLoading && practiceData && (
             <>
-              {/* KPIs */}
-              <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
-                <div className="bg-card border border-border rounded-2xl p-4 space-y-1">
-                  <p className="text-xs text-muted-foreground font-semibold uppercase tracking-wide">Sessions (30j)</p>
-                  <p className="text-3xl font-black text-violet-600">{practiceData.totalSessions}</p>
-                </div>
-                <div className="bg-card border border-border rounded-2xl p-4 space-y-1">
-                  <p className="text-xs text-muted-foreground font-semibold uppercase tracking-wide">Taux de complétion</p>
-                  <p className="text-3xl font-black text-emerald-600">{practiceData.completionRate}%</p>
-                </div>
-                <div className="bg-card border border-border rounded-2xl p-4 space-y-1">
-                  <p className="text-xs text-muted-foreground font-semibold uppercase tracking-wide">Thèmes pratiqués</p>
-                  <p className="text-3xl font-black text-blue-600">{practiceData.byTheme?.length ?? 0}</p>
+              {/* Funnel */}
+              <div className="bg-card border border-border rounded-2xl p-5 space-y-3">
+                <p className="text-xs font-bold text-muted-foreground uppercase tracking-wide">Entonnoir de conversion — 30 derniers jours</p>
+                <div className="flex flex-wrap items-center gap-2">
+                  {[
+                    { label: 'Sessions', value: practiceData.totalSessions, color: 'bg-violet-100 text-violet-700', pct: null },
+                    { label: 'Complétées', value: practiceData.totalSessions > 0 ? Math.round((practiceData.totalSessions * practiceData.completionRate) / 100) : 0, color: 'bg-blue-100 text-blue-700', pct: practiceData.completionRate },
+                    { label: 'Clic "Activez"', value: practiceData.totalCtaClicks, color: 'bg-orange-100 text-orange-700', pct: practiceData.ctaRate },
+                    { label: 'Inscriptions', value: practiceData.registrations, color: 'bg-emerald-100 text-emerald-700', pct: practiceData.registrationRate },
+                    { label: 'Paiements validés', value: practiceData.validatedPayments, color: 'bg-pink-100 text-pink-700', pct: practiceData.paymentRate },
+                  ].map((step, i, arr) => (
+                    <div key={step.label} className="flex items-center gap-2">
+                      <div className={`px-3 py-2 rounded-xl ${step.color} text-center min-w-[90px]`}>
+                        <p className="text-xl font-black">{step.value}</p>
+                        <p className="text-[10px] font-semibold mt-0.5">{step.label}</p>
+                        {step.pct !== null && (
+                          <p className="text-[10px] opacity-70">{step.pct}% du précédent</p>
+                        )}
+                      </div>
+                      {i < arr.length - 1 && <ArrowRight className="w-4 h-4 text-muted-foreground flex-shrink-0" />}
+                    </div>
+                  ))}
                 </div>
               </div>
 
-              {/* Stats par thème */}
+              {/* KPIs détaillés */}
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
+                <div className="bg-card border border-border rounded-2xl p-4 space-y-1">
+                  <p className="text-xs text-muted-foreground font-semibold uppercase tracking-wide">Sessions totales</p>
+                  <p className="text-3xl font-black text-violet-600">{practiceData.totalSessions}</p>
+                  <p className="text-xs text-muted-foreground">{practiceData.completionRate}% complétées</p>
+                </div>
+                <div className="bg-card border border-border rounded-2xl p-4 space-y-1">
+                  <p className="text-xs text-muted-foreground font-semibold uppercase tracking-wide">Inscriptions réelles</p>
+                  <p className="text-3xl font-black text-emerald-600">{practiceData.registrations}</p>
+                  <p className="text-xs text-muted-foreground">{practiceData.registrationRate}% des clics CTA</p>
+                </div>
+                <div className="bg-card border border-border rounded-2xl p-4 space-y-1">
+                  <p className="text-xs text-muted-foreground font-semibold uppercase tracking-wide">Paiements validés</p>
+                  <p className="text-3xl font-black text-pink-600">{practiceData.validatedPayments}</p>
+                  <p className="text-xs text-muted-foreground">{practiceData.paymentRate}% des inscrits</p>
+                </div>
+              </div>
+
+              {/* Stats par thème + abandon par question */}
               {practiceData.byTheme?.length > 0 ? (
-                <div className="bg-card border border-border rounded-2xl overflow-hidden">
-                  <div className="p-4 border-b border-border flex items-center gap-2">
-                    <BarChart2 className="w-4 h-4 text-violet-500" />
-                    <p className="font-semibold text-sm">Par thème</p>
-                  </div>
-                  <div className="divide-y divide-border">
-                    {practiceData.byTheme.map((t: any) => (
-                      <div key={t.themeName} className="p-4 flex items-center justify-between gap-4 flex-wrap">
+                <div className="space-y-4">
+                  {practiceData.byTheme.map((t: any) => (
+                    <div key={t.themeName} className="bg-card border border-border rounded-2xl overflow-hidden">
+                      <div className="p-4 flex items-center justify-between gap-4 flex-wrap">
                         <div className="flex-1 min-w-0">
                           <p className="font-semibold text-sm truncate">{t.themeName}</p>
-                          <div className="flex items-center gap-3 mt-1 text-xs text-muted-foreground">
+                          <div className="flex items-center gap-3 mt-1 text-xs text-muted-foreground flex-wrap">
                             <span>{t.totalSessions} sessions</span>
                             <span>·</span>
                             <span className="flex items-center gap-1">
@@ -137,26 +161,97 @@ export default function FreeTrialStatsPage() {
                             <span>🇫🇷 {t.langSplit.fr} / 🇸🇦 {t.langSplit.ar}</span>
                           </div>
                         </div>
-                        <div className="flex items-center gap-3 flex-shrink-0">
+                        <div className="flex items-center gap-4 flex-shrink-0">
                           <div className="text-right">
                             <p className="text-xs text-muted-foreground">Réussite</p>
                             <p className="font-bold text-sm" style={{ color: t.successRate >= 70 ? '#10b981' : t.successRate >= 50 ? '#f59e0b' : '#ef4444' }}>
                               {t.successRate}%
                             </p>
                           </div>
-                          <div className="w-16 bg-secondary rounded-full h-1.5">
-                            <div className="h-1.5 rounded-full bg-violet-500" style={{ width: `${t.completionRate}%` }} />
+                          <div className="text-right">
+                            <p className="text-xs text-muted-foreground">Clics CTA</p>
+                            <p className="font-bold text-sm text-pink-600">
+                              {t.ctaClicks} <span className="font-normal text-muted-foreground">({t.conversionRate}%)</span>
+                            </p>
                           </div>
                         </div>
                       </div>
-                    ))}
-                  </div>
+                      {/* Abandon par question */}
+                      {t.questionFunnel?.length > 0 && (
+                        <div className="px-4 pb-4 border-t border-border pt-3">
+                          <p className="text-xs font-semibold text-muted-foreground mb-2">Abandon par question</p>
+                          <div className="flex items-end gap-1" style={{ height: 48 }}>
+                            {t.questionFunnel.map((f: any, i: number) => {
+                              const pct = t.questionFunnel[0].count > 0 ? (f.count / t.questionFunnel[0].count) * 100 : 0;
+                              const drop = i > 0 ? t.questionFunnel[i - 1].count - f.count : 0;
+                              return (
+                                <div key={f.q} className="flex-1 flex flex-col items-center gap-0.5" title={`Q${f.q}: ${f.count} sessions${drop > 0 ? ` (-${drop})` : ''}`}>
+                                  <div className="w-full rounded-t" style={{ height: `${Math.max(4, pct)}%`, background: pct > 70 ? '#10b981' : pct > 40 ? '#f59e0b' : '#ef4444' }} />
+                                  <span className="text-[9px] text-muted-foreground">{f.q}</span>
+                                </div>
+                              );
+                            })}
+                          </div>
+                          <p className="text-[10px] text-muted-foreground mt-1">
+                            {t.questionFunnel.length > 1 && (() => {
+                              const maxDrop = t.questionFunnel.reduce((best: any, f: any, i: number) => {
+                                if (i === 0) return best;
+                                const d = t.questionFunnel[i - 1].count - f.count;
+                                return d > (best?.drop ?? 0) ? { q: f.q, drop: d } : best;
+                              }, null);
+                              return maxDrop ? `Plus grande chute à la Q${maxDrop.q} (−${maxDrop.drop} sessions)` : '';
+                            })()}
+                          </p>
+                        </div>
+                      )}
+                    </div>
+                  ))}
                 </div>
               ) : (
                 <div className="bg-card border border-border rounded-2xl p-8 text-center">
                   <BookOpen className="w-8 h-8 text-muted-foreground mx-auto mb-3" />
                   <p className="text-sm text-muted-foreground">Aucune session trackée sur les 30 derniers jours.</p>
-                  <p className="text-xs text-muted-foreground mt-1">Les nouvelles sessions apparaîtront ici automatiquement.</p>
+                </div>
+              )}
+
+              {/* Leads WhatsApp */}
+              {practiceData.waLeads?.length > 0 && (
+                <div className="bg-card border border-border rounded-2xl overflow-hidden">
+                  <div className="p-4 border-b border-border flex items-center gap-2">
+                    <span className="text-green-500 text-lg">💬</span>
+                    <p className="font-semibold text-sm">Leads WhatsApp ({practiceData.waLeads.length})</p>
+                  </div>
+                  <div className="divide-y divide-border max-h-64 overflow-y-auto">
+                    {practiceData.waLeads.map((l: any, i: number) => (
+                      <div key={i} className="px-4 py-2.5 flex items-center justify-between gap-3 text-sm">
+                        <span className="font-mono font-semibold text-foreground" dir="ltr">{l.phone}</span>
+                        <span className="text-xs text-muted-foreground truncate max-w-[140px]">{l.theme}</span>
+                        <span className="text-xs text-muted-foreground flex-shrink-0">{new Date(l.createdAt).toLocaleDateString('fr-FR')}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* UTM source */}
+              {practiceData.utmStats?.filter((u: any) => u.source !== 'direct' && u.count > 0).length > 0 && (
+                <div className="bg-card border border-border rounded-2xl p-4 space-y-3">
+                  <p className="text-xs font-bold text-muted-foreground uppercase tracking-wide">Source de trafic (inscrits, 30j)</p>
+                  <div className="space-y-2">
+                    {practiceData.utmStats.map((u: any) => {
+                      const total = practiceData.utmStats.reduce((s: number, x: any) => s + x.count, 0);
+                      const pct = total > 0 ? Math.round((u.count / total) * 100) : 0;
+                      return (
+                        <div key={u.source} className="flex items-center gap-3">
+                          <span className="text-xs font-semibold w-24 truncate text-foreground">{u.source}</span>
+                          <div className="flex-1 bg-secondary rounded-full h-2">
+                            <div className="h-2 rounded-full bg-violet-500" style={{ width: `${pct}%` }} />
+                          </div>
+                          <span className="text-xs text-muted-foreground w-14 text-right">{u.count} ({pct}%)</span>
+                        </div>
+                      );
+                    })}
+                  </div>
                 </div>
               )}
 

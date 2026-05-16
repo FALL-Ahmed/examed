@@ -820,12 +820,16 @@ export class AdminService {
 
     const byTheme = themeNames.map((themeName) => {
       const te = events.filter((e: any) => e.themeName === themeName);
-      const sessions = new Map<string, { completed: boolean; answered: number; correct: number }>();
+      const sessions = new Map<string, { completed: boolean; answered: number; correct: number; maxQ: number }>();
 
       for (const e of te) {
-        const s = sessions.get(e.sessionId) ?? { completed: false, answered: 0, correct: 0 };
+        const s = sessions.get(e.sessionId) ?? { completed: false, answered: 0, correct: 0, maxQ: 0 };
         if (e.eventType === 'complete') s.completed = true;
-        if (e.eventType === 'answer') { s.answered++; if (e.isCorrect) s.correct++; }
+        if (e.eventType === 'answer') {
+          s.answered++;
+          if (e.isCorrect) s.correct++;
+          if ((e.questionN ?? 0) > s.maxQ) s.maxQ = e.questionN ?? 0;
+        }
         sessions.set(e.sessionId, s);
       }
 
@@ -836,6 +840,16 @@ export class AdminService {
       const totalCorrect = arr.reduce((sum, s) => sum + s.correct, 0);
       const frCount = new Set(te.filter((e: any) => e.lang === 'fr').map((e: any) => e.sessionId)).size;
       const arCount = new Set(te.filter((e: any) => e.lang === 'ar').map((e: any) => e.sessionId)).size;
+      const ctaClicks = new Set(te.filter((e: any) => e.eventType === 'cta_click').map((e: any) => e.sessionId)).size;
+
+      // Funnel par question : combien de sessions ont atteint la question N
+      const maxQ = arr.length > 0 ? Math.max(...arr.map((s) => s.maxQ)) : 0;
+      const questionFunnel = maxQ > 0
+        ? Array.from({ length: maxQ }, (_, i) => ({
+            q: i + 1,
+            count: arr.filter((s) => s.maxQ >= i + 1).length,
+          }))
+        : [];
 
       return {
         themeName,
@@ -843,7 +857,10 @@ export class AdminService {
         completions: completed,
         completionRate: total > 0 ? Math.round((completed / total) * 100) : 0,
         successRate: totalAnswers > 0 ? Math.round((totalCorrect / totalAnswers) * 100) : 0,
+        ctaClicks,
+        conversionRate: total > 0 ? Math.round((ctaClicks / total) * 100) : 0,
         langSplit: { fr: frCount, ar: arCount },
+        questionFunnel,
       };
     });
 
@@ -860,12 +877,45 @@ export class AdminService {
 
     const totalSessions = new Set(events.map((e: any) => e.sessionId)).size;
     const totalCompleted = new Set(events.filter((e: any) => e.eventType === 'complete').map((e: any) => e.sessionId)).size;
+    const totalCtaClicks = new Set(events.filter((e: any) => e.eventType === 'cta_click').map((e: any) => e.sessionId)).size;
+
+    // Inscriptions issues de free-practice (source = 'free-practice', 30 derniers jours)
+    const [registrations, validatedPayments, waLeads, utmBreakdown] = await Promise.all([
+      this.prisma.user.count({ where: { source: 'free-practice', createdAt: { gte: since } } }),
+      this.prisma.payment.count({
+        where: { status: 'VALIDATED', createdAt: { gte: since }, user: { source: 'free-practice' } },
+      }),
+      // Leads WhatsApp collectés via FomoResults free-practice
+      (this.prisma as any).freeTrialLead.findMany({
+        where: { source: 'free-practice', createdAt: { gte: since } },
+        orderBy: { createdAt: 'desc' },
+        select: { phone: true, theme: true, lang: true, createdAt: true },
+      }),
+      // Breakdown UTM source des inscrits
+      (this.prisma as any).user.groupBy({
+        by: ['utmSource'],
+        where: { createdAt: { gte: since } },
+        _count: { id: true },
+      }),
+    ]);
+
+    const utmStats = (utmBreakdown as any[])
+      .map((r: any) => ({ source: r.utmSource ?? 'direct', count: r._count.id }))
+      .sort((a: any, b: any) => b.count - a.count);
 
     return {
       byTheme,
       dailyStats,
       totalSessions,
       completionRate: totalSessions > 0 ? Math.round((totalCompleted / totalSessions) * 100) : 0,
+      totalCtaClicks,
+      ctaRate: totalSessions > 0 ? Math.round((totalCtaClicks / totalSessions) * 100) : 0,
+      registrations,
+      registrationRate: totalCtaClicks > 0 ? Math.round((registrations / totalCtaClicks) * 100) : 0,
+      validatedPayments,
+      paymentRate: registrations > 0 ? Math.round((validatedPayments / registrations) * 100) : 0,
+      waLeads,
+      utmStats,
     };
   }
 

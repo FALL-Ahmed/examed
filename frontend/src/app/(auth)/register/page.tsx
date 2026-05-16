@@ -197,6 +197,10 @@ function RegisterContent() {
         fd.append('groupEmails', JSON.stringify(emails));
       }
       fd.append('receipt', receipt!);
+      const fpSource = typeof window !== 'undefined' ? localStorage.getItem('albourour_source') : null;
+      if (fpSource) fd.append('source', fpSource);
+      const utmSource = typeof window !== 'undefined' ? localStorage.getItem('albourour_utm_source') : null;
+      if (utmSource) fd.append('utmSource', utmSource);
 
       await authApi.register(fd);
       const { data: ld } = await authApi.login({ email: form.email.trim(), password: form.password });

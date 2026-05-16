@@ -32,6 +32,7 @@ export class AuthService {
       pseudo?: string; gender?: string; profession?: string; wilaya?: string; phone?: string;
       amount?: number; paymentMethod?: string; operator?: string;
       planType?: string; durationDays?: number; groupSize?: number; groupEmails?: string[];
+      source?: string; utmSource?: string;
     },
     receipt?: Express.Multer.File,
   ) {
@@ -70,6 +71,8 @@ export class AuthService {
       gender: dto.gender || null,
       profession: dto.profession || null,
       wilaya: dto.wilaya || null,
+      source: dto.source || null,
+      utmSource: dto.utmSource || null,
     };
 
     if (invite) {

@@ -81,6 +81,7 @@ export default function FreePracticePage() {
         themeName: selectedTheme.name ?? '',
         lang,
       };
+      localStorage.setItem('albourour_source', 'free-practice');
       trackPracticeEvent('start', { count: data.length });
       setQuestions(data);
       setResults([]);
@@ -460,6 +461,8 @@ export default function FreePracticePage() {
             subThemeId={selectedSubTheme?.id}
             lang={lang}
             onRestart={restart}
+            onCtaClick={() => trackPracticeEvent('cta_click')}
+            sessionId={practiceSession.current?.sessionId}
           />
         )}
       </div>
