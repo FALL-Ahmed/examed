@@ -15,6 +15,7 @@ import { DownloadModule } from './download/download.module';
 import { StatsModule } from './stats/stats.module';
 import { KeepaliveService } from './common/keepalive.service';
 import { PushModule } from './push/push.module';
+import { ExamenBlancModule } from './examen-blanc/examen-blanc.module';
 
 @Module({
   imports: [
@@ -36,6 +37,7 @@ import { PushModule } from './push/push.module';
     PushModule,
     DownloadModule,
     StatsModule,
+    ExamenBlancModule,
   ],
   providers: [KeepaliveService],
 })

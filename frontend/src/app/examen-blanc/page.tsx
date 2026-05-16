@@ -1,0 +1,424 @@
+'use client';
+import { useEffect, useState, useCallback } from 'react';
+import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+import { examenBlancApi } from '@/lib/api';
+import { useLang } from '@/components/LanguageProvider';
+import { BookOpen, Clock, FileText, Trophy, Users, ChevronRight, MapPin, Star, Zap, Shield, Loader2 } from 'lucide-react';
+
+const pad = (n: number) => String(n).padStart(2, '0');
+
+function Countdown({ target, label, isAr }: { target: Date; label: string; isAr: boolean }) {
+  const [t, setT] = useState({ d: 0, h: 0, m: 0, s: 0 });
+  useEffect(() => {
+    const tick = () => {
+      const diff = target.getTime() - Date.now();
+      if (diff <= 0) { setT({ d: 0, h: 0, m: 0, s: 0 }); return; }
+      setT({
+        d: Math.floor(diff / 86400000),
+        h: Math.floor((diff % 86400000) / 3600000),
+        m: Math.floor((diff % 3600000) / 60000),
+        s: Math.floor((diff % 60000) / 1000),
+      });
+    };
+    tick();
+    const id = setInterval(tick, 1000);
+    return () => clearInterval(id);
+  }, [target]);
+
+  const units = t.d > 0
+    ? [{ v: pad(t.d), l: isAr ? 'يوم' : 'j' }, { v: pad(t.h), l: isAr ? 'س' : 'h' }, { v: pad(t.m), l: isAr ? 'د' : 'm' }]
+    : [{ v: pad(t.h), l: isAr ? 'س' : 'h' }, { v: pad(t.m), l: isAr ? 'د' : 'm' }, { v: pad(t.s), l: isAr ? 'ث' : 's' }];
+
+  return (
+    <div>
+      <p className="text-white/50 text-xs font-semibold uppercase tracking-widest mb-3">{label}</p>
+      <div className="flex items-center gap-2">
+        {units.map(({ v, l }, i) => (
+          <div key={i} className="flex items-center gap-1.5">
+            <div className="bg-white/10 backdrop-blur border border-white/20 rounded-xl px-4 py-3 text-center min-w-[60px]">
+              <span className="text-3xl font-black text-white tabular-nums">{v}</span>
+              <p className="text-white/50 text-xs mt-0.5">{l}</p>
+            </div>
+            {i < units.length - 1 && <span className="text-white/40 text-2xl font-bold">:</span>}
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function formatTime(sec: number) {
+  const h = Math.floor(sec / 3600);
+  const m = Math.floor((sec % 3600) / 60);
+  const s = sec % 60;
+  return h > 0 ? `${h}h${pad(m)}` : `${pad(m)}:${pad(s)}`;
+}
+
+const EB_STATE_KEY = 'examen_blanc_state';
+
+export default function ExamenBlancPage() {
+  const { lang, setLang } = useLang();
+  const isAr = lang === 'ar';
+  const [data, setData] = useState<any>(null);
+  const [leaderboard, setLeaderboard] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
+  const [showRecover, setShowRecover] = useState(false);
+  const [recoverPhone, setRecoverPhone] = useState('');
+  const [recoverLoading, setRecoverLoading] = useState(false);
+  const [recoverError, setRecoverError] = useState('');
+
+  const router = useRouter();
+
+  async function handleRecover() {
+    if (!recoverPhone.trim()) return;
+    setRecoverLoading(true); setRecoverError('');
+    try {
+      const { data } = await examenBlancApi.recover(recoverPhone.trim());
+      localStorage.setItem(EB_STATE_KEY, JSON.stringify({
+        sessionId: data.sessionId,
+        participantId: data.participantId,
+        examenBlancId: data.examenBlancId,
+        durationMin: data.durationMin,
+        totalQ: data.totalQ,
+        startsAt: data.startsAt,
+        endsAt: data.endsAt,
+        resultsAt: data.resultsAt,
+        startedAt: data.startedAt,
+        isCompleted: data.isCompleted,
+        participant: data.participant,
+        questions: data.questions,
+        answers: data.answers,
+      }));
+      router.push(data.isCompleted ? '/examen-blanc/results' : '/examen-blanc/exam');
+    } catch {
+      setRecoverError(isAr ? 'لم يُعثر على أي مشارك بهذا الرقم' : 'Aucun participant trouvé avec ce numéro');
+    }
+    setRecoverLoading(false);
+  }
+
+  const load = useCallback(async () => {
+    try {
+      const [curr, lb] = await Promise.all([
+        examenBlancApi.current(),
+        examenBlancApi.leaderboard(),
+      ]);
+      setData(curr.data);
+      setLeaderboard(lb.data);
+    } catch {
+      setData({ session: null, stats: { participants: 0, totalAllTime: 0 } });
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => { load(); }, [load]);
+
+  if (loading) return (
+    <div className="min-h-screen flex items-center justify-center" style={{ background: 'linear-gradient(145deg,#0f0a2e,#1a1040,#0d1b3e)' }}>
+      <div className="w-10 h-10 border-4 border-violet-400 border-t-transparent rounded-full animate-spin" />
+    </div>
+  );
+
+  const session = data?.session;
+  const stats = data?.stats ?? {};
+  const now = new Date();
+  const isOpen = session?.isOpen;
+  const isClosed = session?.isClosed;
+  const isResultsReady = session?.isResultsReady;
+  const hasSession = !!session;
+
+  const statusBadge = !hasSession
+    ? { text: isAr ? 'لا توجد جلسة نشطة' : 'Aucune session active', color: 'bg-gray-500/20 text-gray-300 border-gray-500/30' }
+    : isOpen
+      ? { text: isAr ? '🟢 مفتوح الآن' : '🟢 Ouvert maintenant', color: 'bg-green-500/20 text-green-300 border-green-500/30' }
+      : isClosed
+        ? { text: isAr ? '🔒 التسجيل مغلق' : '🔒 Inscriptions fermées', color: 'bg-red-500/20 text-red-300 border-red-500/30' }
+        : { text: isAr ? '⏳ قريباً' : '⏳ Bientôt', color: 'bg-amber-500/20 text-amber-300 border-amber-500/30' };
+
+  return (
+    <div className="min-h-screen" dir={isAr ? 'rtl' : 'ltr'}
+      style={{ background: 'linear-gradient(145deg,#0f0a2e 0%,#1a1040 50%,#0d1b3e 100%)' }}>
+
+      {/* Grid bg */}
+      <div className="fixed inset-0 opacity-[0.03] pointer-events-none"
+        style={{ backgroundImage: 'linear-gradient(rgba(255,255,255,.5) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.5) 1px,transparent 1px)', backgroundSize: '40px 40px' }} />
+      <div className="fixed top-1/4 left-1/4 w-96 h-96 rounded-full blur-3xl opacity-10 pointer-events-none"
+        style={{ background: 'radial-gradient(circle,#7c3aed,transparent)' }} />
+      <div className="fixed top-2/3 right-1/4 w-64 h-64 rounded-full blur-3xl opacity-10 pointer-events-none"
+        style={{ background: 'radial-gradient(circle,#6366f1,transparent)' }} />
+
+      {/* Nav */}
+      <nav className="relative z-10 flex items-center justify-between px-6 py-4 max-w-6xl mx-auto">
+        <Link href="/" className="flex items-center gap-2.5">
+          <div className="w-8 h-8 rounded-xl flex items-center justify-center" style={{ background: 'linear-gradient(135deg,#7c3aed,#6366f1)' }}>
+            <BookOpen className="w-4 h-4 text-white" />
+          </div>
+          <span className="text-white font-bold text-lg">Al Bourour</span>
+        </Link>
+        <div className="flex items-center gap-3">
+          <div className="flex items-center gap-1 p-1 bg-white/5 border border-white/10 rounded-xl">
+            <button onClick={() => setLang('fr')}
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-semibold transition ${!isAr ? 'bg-white/15 text-white' : 'text-white/40 hover:text-white/70'}`}>
+              🇫🇷 Français
+            </button>
+            <button onClick={() => setLang('ar')}
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-semibold transition ${isAr ? 'bg-white/15 text-white' : 'text-white/40 hover:text-white/70'}`}>
+              🇲🇷 العربية
+            </button>
+          </div>
+          <Link href="/examen-blanc/leaderboard"
+            className="flex items-center gap-1.5 text-white/60 hover:text-white text-sm font-medium transition">
+            <Trophy className="w-4 h-4" />
+            {isAr ? 'الترتيب' : 'Classement'}
+          </Link>
+        </div>
+      </nav>
+
+      {/* Hero */}
+      <section className="relative z-10 max-w-6xl mx-auto px-6 pt-8 pb-16">
+        <div className="text-center mb-10">
+          <div className={`inline-flex items-center gap-2 px-4 py-1.5 rounded-full border text-sm font-bold mb-6 ${statusBadge.color}`}>
+            {statusBadge.text}
+          </div>
+
+          <h1 className="text-4xl sm:text-5xl lg:text-6xl font-black text-white leading-tight mb-4">
+            {isAr ? 'الامتحان التجريبي' : 'Examen Blanc'}
+            <span className="block" style={{ background: 'linear-gradient(135deg,#a78bfa,#818cf8)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
+              {isAr ? 'الوطني' : 'National'}
+            </span>
+          </h1>
+
+          <p className="text-white/60 text-lg sm:text-xl max-w-2xl mx-auto mb-8 leading-relaxed">
+            {isAr
+              ? 'اختبر مستواك الحقيقي قبل المسابقة الرسمية. ترتيب وطني. نتائج مفصّلة.'
+              : 'Teste ton vrai niveau avant le concours officiel. Classement national. Analyse détaillée.'}
+          </p>
+
+          {/* Stats live */}
+          <div className="flex items-center justify-center gap-6 sm:gap-10 mb-10 flex-wrap">
+            {[
+              { icon: Users, val: stats.participants > 0 ? stats.participants : (stats.totalAllTime || '—'), label: isAr ? 'مشارك' : 'participants' },
+              { icon: FileText, val: session?.totalQ ?? 80, label: isAr ? 'سؤال' : 'questions' },
+              { icon: Clock, val: `${session?.durationMin ?? 120}min`, label: isAr ? 'مدة' : 'durée' },
+            ].map(({ icon: Icon, val, label }, i) => (
+              <div key={i} className="text-center">
+                <div className="flex items-center justify-center gap-1.5 mb-1">
+                  <Icon className="w-4 h-4 text-violet-400" />
+                  <span className="text-2xl font-black text-white">{val}</span>
+                </div>
+                <p className="text-white/40 text-xs">{label}</p>
+              </div>
+            ))}
+          </div>
+
+          {/* Countdown */}
+          {session && (
+            <div className="flex justify-center mb-10">
+              {!isOpen && !isClosed && (
+                <Countdown target={new Date(session.startsAt)} label={isAr ? 'يفتح خلال' : 'Ouverture dans'} isAr={isAr} />
+              )}
+              {isOpen && (
+                <Countdown target={new Date(session.endsAt)} label={isAr ? 'يغلق خلال' : 'Fermeture dans'} isAr={isAr} />
+              )}
+              {isClosed && isResultsReady && (
+                <p className="text-green-400 font-bold text-lg">
+                  {isAr ? '✅ النتائج متاحة الآن' : '✅ Résultats disponibles'}
+                </p>
+              )}
+              {isClosed && !isResultsReady && session && (
+                <Countdown target={new Date(session.resultsAt)} label={isAr ? 'النتائج خلال' : 'Résultats dans'} isAr={isAr} />
+              )}
+            </div>
+          )}
+
+          {/* CTA */}
+          {isOpen ? (
+            <Link href={`/examen-blanc/register?id=${session.id}`}
+              className="inline-flex items-center gap-2 px-8 py-4 rounded-2xl font-bold text-lg text-white hover:opacity-90 transition shadow-2xl shadow-violet-900/50"
+              style={{ background: 'linear-gradient(135deg,#7c3aed,#6366f1)' }}>
+              {isAr ? 'المشاركة الآن' : 'Participer maintenant'}
+              <ChevronRight className="w-5 h-5" />
+            </Link>
+          ) : isClosed && isResultsReady ? (
+            <Link href="/examen-blanc/leaderboard"
+              className="inline-flex items-center gap-2 px-8 py-4 rounded-2xl font-bold text-lg text-white hover:opacity-90 transition shadow-2xl shadow-violet-900/50"
+              style={{ background: 'linear-gradient(135deg,#7c3aed,#6366f1)' }}>
+              <Trophy className="w-5 h-5" />
+              {isAr ? 'عرض الترتيب' : 'Voir le classement'}
+            </Link>
+          ) : (
+            <button disabled
+              className="inline-flex items-center gap-2 px-8 py-4 rounded-2xl font-bold text-lg text-white/40 bg-white/5 border border-white/10 cursor-not-allowed">
+              {!hasSession
+                ? (isAr ? 'لا توجد جلسة' : 'Aucune session')
+                : !isOpen && !isClosed
+                  ? (isAr ? 'قريباً…' : 'Bientôt…')
+                  : (isAr ? 'مغلق' : 'Fermé')}
+            </button>
+          )}
+
+          {/* Already registered / Recover */}
+          <div className="mt-5 flex flex-col items-center gap-3">
+            {!showRecover ? (
+              <button onClick={() => setShowRecover(true)}
+                className="w-full max-w-xs py-3 rounded-2xl border border-violet-500/40 bg-violet-500/10 text-violet-300 font-semibold text-sm hover:bg-violet-500/20 hover:border-violet-500/60 transition">
+                {isAr ? '🔍 استرجاع نتائجي برقم الهاتف' : '🔍 Retrouver mes résultats'}
+              </button>
+            ) : (
+              <div className="w-full max-w-xs bg-white/5 border border-violet-500/30 rounded-2xl p-5 space-y-3">
+                <p className="text-white/80 text-sm font-bold text-center">
+                  {isAr ? '📱 أدخل رقم هاتفك' : '📱 Ton numéro de téléphone'}
+                </p>
+                <input
+                  type="tel" value={recoverPhone}
+                  onChange={e => { setRecoverPhone(e.target.value); setRecoverError(''); }}
+                  onKeyDown={e => e.key === 'Enter' && handleRecover()}
+                  placeholder="+222 XX XX XX XX" dir="ltr"
+                  className="w-full px-4 py-3 bg-white/5 border border-white/15 rounded-xl text-white placeholder:text-white/30 focus:outline-none focus:ring-2 focus:ring-violet-500 text-sm"
+                />
+                {recoverError && (
+                  <div className="bg-red-500/10 border border-red-500/30 rounded-xl px-4 py-3 text-red-300 text-sm text-center font-semibold">
+                    ❌ {recoverError}
+                  </div>
+                )}
+                <button onClick={handleRecover} disabled={recoverLoading || !recoverPhone.trim()}
+                  className="w-full py-3 rounded-xl font-bold text-sm text-white flex items-center justify-center gap-2 disabled:opacity-50 transition hover:opacity-90"
+                  style={{ background: 'linear-gradient(135deg,#7c3aed,#6366f1)' }}>
+                  {recoverLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : (isAr ? '🔍 بحث' : '🔍 Retrouver')}
+                </button>
+                <button onClick={() => { setShowRecover(false); setRecoverError(''); setRecoverPhone(''); }}
+                  className="w-full text-white/30 text-xs hover:text-white/50 transition text-center">
+                  {isAr ? 'إلغاء' : 'Annuler'}
+                </button>
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Info cards */}
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-16">
+          {[
+            { icon: FileText, title: session?.totalQ ?? 80, sub: isAr ? 'سؤال طبي' : 'Questions médicales' },
+            { icon: Clock, title: `${session?.durationMin ?? 120} min`, sub: isAr ? 'مدة الاختبار' : "Durée de l'examen" },
+            { icon: Trophy, title: isAr ? 'وطني' : 'National', sub: isAr ? 'ترتيب وطني' : 'Classement national' },
+            { icon: Zap, title: isAr ? '24 ساعة' : '24h', sub: isAr ? 'للنتائج المفصّلة' : 'Pour les résultats' },
+          ].map(({ icon: Icon, title, sub }, i) => (
+            <div key={i} className="bg-white/5 backdrop-blur border border-white/10 rounded-2xl p-5 text-center hover:bg-white/8 transition">
+              <Icon className="w-6 h-6 text-violet-400 mx-auto mb-3" />
+              <p className="text-2xl font-black text-white mb-1">{title}</p>
+              <p className="text-white/50 text-xs">{sub}</p>
+            </div>
+          ))}
+        </div>
+
+        {/* What you get */}
+        <div className="grid lg:grid-cols-2 gap-8 mb-16">
+          <div className="bg-white/5 backdrop-blur border border-white/10 rounded-3xl p-8">
+            <h2 className="text-xl font-black text-white mb-6">
+              {isAr ? '📋 مميزات الامتحان' : "📋 L'examen en détail"}
+            </h2>
+            <div className="space-y-4">
+              {(isAr ? [
+                ['🧠', 'أسئلة من جميع المواد الطبية'],
+                ['⚖️', 'نفس نظام التقييم الرسمي'],
+                ['📱', 'متاح على الهاتف والحاسوب'],
+                ['🛡️', 'نظام كشف الغش'],
+                ['💾', 'حفظ تلقائي كل سؤال'],
+                ['🔒', 'لا يحتاج حساباً'],
+              ] : [
+                ['🧠', 'Questions de toutes les matières'],
+                ['⚖️', 'Barème officiel identique au vrai concours'],
+                ['📱', 'Accessible mobile et ordinateur'],
+                ['🛡️', 'Système anti-triche intégré'],
+                ['💾', 'Sauvegarde automatique à chaque réponse'],
+                ['🔒', 'Aucun compte requis'],
+              ]).map(([icon, text], i) => (
+                <div key={i} className="flex items-center gap-3">
+                  <span className="text-xl">{icon}</span>
+                  <span className="text-white/70 text-sm">{text}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div className="bg-white/5 backdrop-blur border border-white/10 rounded-3xl p-8">
+            <h2 className="text-xl font-black text-white mb-6">
+              {isAr ? '📊 تحصل على بعد 24 ساعة' : '📊 Résultats après 24h'}
+            </h2>
+            <div className="space-y-4">
+              {(isAr ? [
+                ['🎯', 'تحليل أداءك بكل مادة'],
+                ['✅', 'مراجعة كل سؤال مع التصحيح'],
+                ['📉', 'مواد القوة ومواد الضعف'],
+                ['📈', 'مقارنة بالمتوسط العام'],
+                ['🔐', 'بياناتك سرية — لا أحد يرى معلومات الآخرين'],
+              ] : [
+                ['🎯', 'Analyse par matière et sous-thème'],
+                ['✅', 'Révision de chaque question avec correction'],
+                ['📉', 'Points forts et points faibles identifiés'],
+                ['📈', 'Comparaison avec la moyenne générale'],
+                ['🔐', 'Données confidentielles — personne ne verra les infos des autres'],
+              ]).map(([icon, text], i) => (
+                <div key={i} className="flex items-center gap-3">
+                  <span className="text-xl">{icon}</span>
+                  <span className="text-white/70 text-sm">{text}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        {/* Leaderboard preview */}
+        {leaderboard && !leaderboard.locked && leaderboard.participants?.length > 0 && (
+          <div className="mb-16">
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="text-2xl font-black text-white">
+                {isAr ? '🏆 الترتيب الأخير' : '🏆 Dernière session'}
+              </h2>
+              <Link href="/examen-blanc/leaderboard" className="text-violet-400 text-sm hover:text-violet-300">
+                {isAr ? 'عرض الكل' : 'Voir tout →'}
+              </Link>
+            </div>
+            <div className="bg-white/5 backdrop-blur border border-white/10 rounded-3xl overflow-hidden">
+              {leaderboard.participants.slice(0, 5).map((p: any, i: number) => (
+                <div key={i} className={`flex items-center gap-4 px-6 py-4 ${i < 4 ? 'border-b border-white/5' : ''}`}>
+                  <div className={`w-8 h-8 rounded-full flex items-center justify-center font-black text-sm flex-shrink-0
+                    ${i === 0 ? 'bg-amber-400 text-amber-900' : i === 1 ? 'bg-gray-300 text-gray-700' : i === 2 ? 'bg-amber-700 text-amber-100' : 'bg-white/10 text-white/60'}`}>
+                    {i + 1}
+                  </div>
+                  <div className="flex-1">
+                    <p className="text-white font-semibold text-sm">{p.nom}</p>
+                    <p className="text-white/40 text-xs flex items-center gap-1">
+                      <MapPin className="w-3 h-3" />{p.ville}
+                    </p>
+                  </div>
+                  <div className="text-right">
+                    <p className="text-white font-black">{p.score?.toFixed(1)}%</p>
+                    <p className="text-white/40 text-xs">{formatTime(p.timeTaken)}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Trust section */}
+        <div className="text-center">
+          <div className="flex flex-wrap items-center justify-center gap-6 text-white/30 text-sm">
+            {[
+              [Shield, isAr ? 'أسئلة رسمية معتمدة' : 'Questions officielles validées'],
+              [Star, isAr ? `${stats.totalAllTime}+ مشارك` : `${stats.totalAllTime}+ participants`],
+              [MapPin, isAr ? 'كل ولايات موريتانيا' : 'Toutes les wilayas'],
+            ].map(([Icon, text]: any, i) => (
+              <div key={i} className="flex items-center gap-1.5">
+                <Icon className="w-4 h-4" />
+                <span>{text}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+    </div>
+  );
+}

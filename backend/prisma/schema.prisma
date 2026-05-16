@@ -292,6 +292,63 @@ model FreePracticeEvent {
   @@index([sessionId])
 }
 
+model ExamenBlanc {
+  id             String   @id @default(cuid())
+  title          String   @default("Examen Blanc National")
+  descriptionFr  String?
+  descriptionAr  String?
+  startsAt       DateTime
+  endsAt         DateTime
+  resultsAt      DateTime
+  questionIdsFr  String[]
+  questionIdsAr  String[]
+  totalQ         Int      @default(80)
+  durationMin    Int      @default(120)
+  isActive       Boolean  @default(true)
+  createdAt      DateTime @default(now())
+  participants   ExamenBlancParticipant[]
+}
+
+model ExamenBlancParticipant {
+  id            String    @id @default(cuid())
+  examenBlancId String
+  examenBlanc   ExamenBlanc @relation(fields: [examenBlancId], references: [id], onDelete: Cascade)
+  nom           String
+  prenom        String
+  telephone     String
+  ville         String
+  lang          String    @default("fr")
+  sessionId     String    @unique
+  score         Float?
+  rawScore      Float?
+  classement    Int?
+  timeTaken     Int?
+  isCompleted   Boolean   @default(false)
+  tricherie     Boolean   @default(false)
+  tabSwitches   Int       @default(0)
+  submittedAt   DateTime?
+  createdAt     DateTime  @default(now())
+  reponses      ExamenBlancReponse[]
+
+  @@index([examenBlancId])
+  @@index([telephone])
+}
+
+model ExamenBlancReponse {
+  id            String    @id @default(cuid())
+  participantId String
+  participant   ExamenBlancParticipant @relation(fields: [participantId], references: [id], onDelete: Cascade)
+  questionId    String
+  reponse       String
+  isCorrect     Boolean
+  partialScore  Float
+  tempsReponse  Int?
+  answeredAt    DateTime  @default(now())
+
+  @@unique([participantId, questionId])
+  @@index([participantId])
+}
+
 model DeviceVerification {
   id                String   @id @default(cuid())
   userId            String

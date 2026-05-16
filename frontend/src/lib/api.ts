@@ -211,6 +211,25 @@ export const adminApi = {
   freePracticeStats: (params?: { startDate?: string; endDate?: string }) => api.get('/admin/free-practice-stats', { params }),
 };
 
+export const examenBlancApi = {
+  current: () => axios.get(`${API_URL}/examen-blanc/current`),
+  register: (data: { nom: string; prenom: string; telephone: string; ville: string; examenBlancId: string }) =>
+    axios.post(`${API_URL}/examen-blanc/register`, data),
+  getSession: (sessionId: string) => axios.get(`${API_URL}/examen-blanc/session/${sessionId}`),
+  submitAnswer: (sessionId: string, data: { questionId: string; reponse: string; tempsReponse?: number }) =>
+    axios.post(`${API_URL}/examen-blanc/session/${sessionId}/answer`, data).catch(() => {}),
+  finish: (sessionId: string, tabSwitches: number) =>
+    axios.post(`${API_URL}/examen-blanc/session/${sessionId}/finish`, { tabSwitches }),
+  results: (sessionId: string) => axios.get(`${API_URL}/examen-blanc/session/${sessionId}/results`),
+  leaderboard: (id?: string) => axios.get(`${API_URL}/examen-blanc/leaderboard`, id ? { params: { id } } : {}),
+  adminSessions: () => api.get('/examen-blanc/admin/sessions'),
+  adminCreateSession: (data: any) => api.post('/examen-blanc/admin/sessions', data),
+  adminGetStats: (id: string, lang?: 'fr' | 'ar') => api.get(`/examen-blanc/admin/sessions/${id}/stats`, lang ? { params: { lang } } : {}),
+  adminUpdateSession: (id: string, data: any) => api.put(`/examen-blanc/admin/sessions/${id}`, data),
+  adminParticipants: () => api.get('/examen-blanc/admin/participants'),
+  recover: (telephone: string) => axios.post(`${API_URL}/examen-blanc/recover`, { telephone }),
+};
+
 export const pushApi = {
   vapidKey: () => api.get('/push/vapid-public-key'),
   subscribe: (sub: { endpoint: string; p256dh: string; auth: string }) => api.post('/push/subscribe', sub),
