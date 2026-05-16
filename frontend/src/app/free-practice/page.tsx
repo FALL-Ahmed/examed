@@ -1,5 +1,5 @@
 'use client';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { publicApi } from '@/lib/api';
 import { FomoResults } from '@/components/FomoResults';
@@ -49,6 +49,7 @@ export default function FreePracticePage() {
   const [revealed, setRevealed] = useState(false);
   const [results, setResults] = useState<{ correct: boolean }[]>([]);
   const [loadingQ, setLoadingQ] = useState(false);
+  const configRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     setSelectedTheme(null);
@@ -200,7 +201,10 @@ export default function FreePracticePage() {
                         <button
                           key={theme.id}
                           onClick={() => {
-                            if (free) { setSelectedTheme(theme); setSelectedSubTheme(null); setPremiumModal(null); }
+                            if (free) {
+                              setSelectedTheme(theme); setSelectedSubTheme(null); setPremiumModal(null);
+                              setTimeout(() => configRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 50);
+                            }
                             else setPremiumModal(theme.name);
                           }}
                           className={`relative p-4 rounded-xl border-2 transition-all duration-200 ${isAr ? 'text-right' : 'text-left'} ${
@@ -240,7 +244,7 @@ export default function FreePracticePage() {
               </div>
 
               {/* Panneau config — identique au side panel du dashboard practice */}
-              <div className="space-y-4">
+              <div className="space-y-4" ref={configRef}>
                 <div className="bg-card border border-border rounded-2xl p-5 space-y-5">
                   <h3 className="font-semibold text-sm text-foreground">
                     {isAr ? 'إعداد الجلسة' : 'Configuration'}

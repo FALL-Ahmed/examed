@@ -1,8 +1,14 @@
 'use client';
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { publicApi } from '@/lib/api';
-import { Users, ArrowRight, BarChart2 } from 'lucide-react';
+import { publicApi, settingsApi } from '@/lib/api';
+import { Users, ArrowRight, BarChart2, Copy, CheckCheck } from 'lucide-react';
+
+const OPERATORS = [
+  { id: 'BANKILY', name: 'Bankily', image: '/images/bankily.png' },
+  { id: 'MASRIVI', name: 'Masrivi', image: '/images/masrivi.png' },
+  { id: 'SEDAD',   name: 'Sedad',   image: '/images/sedad.png'   },
+];
 
 interface Props {
   score: number;
@@ -43,12 +49,29 @@ function barColor(val: number): string {
 export function FomoResults({ score, totalQ, correctQ, themeName, subThemeName, themeId, subThemeId, lang, onRestart }: Props) {
   const isAr = lang === 'ar';
   const [stats, setStats] = useState<{ avg: number; percentile: number; total: number; estimated?: boolean; distribution?: { min: number; h: number }[] } | null>(null);
+  const [operators, setOperators] = useState<Record<string, string>>({});
+  const [selectedOp, setSelectedOp] = useState('');
+  const [copied, setCopied] = useState(false);
 
   useEffect(() => {
     publicApi.nationalStats(score, themeId, subThemeId)
       .then((r) => setStats(r.data))
       .catch(() => setStats({ avg: 68, percentile: Math.round((score / 100) * 80), total: 0, estimated: true }));
+    settingsApi.operators().then((r) => {
+      const map: Record<string, string> = {};
+      r.data.forEach((op: any) => { map[op.id] = op.phone; });
+      setOperators(map);
+    }).catch(() => {});
   }, [score, themeId, subThemeId]);
+
+  const selectedPhone = selectedOp ? operators[selectedOp] : null;
+
+  function copyPhone() {
+    if (!selectedPhone) return;
+    navigator.clipboard.writeText(selectedPhone).catch(() => {});
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  }
 
   const avg = stats?.avg ?? 68;
   const pct = Math.round(score);
@@ -205,6 +228,54 @@ export function FomoResults({ score, totalQ, correctQ, themeName, subThemeName, 
           {isAr ? 'فعّل حسابك الآن وتابع تطور مستواك' : 'Activez votre compte et suivez votre progression'}
           <ArrowRight className="w-4 h-4 flex-shrink-0" />
         </Link>
+
+        {/* ── Paiement ── */}
+        <div className="bg-white border border-gray-200 rounded-2xl p-4 space-y-3">
+          <p className="text-xs font-bold text-gray-500 uppercase tracking-wider text-center">
+            {isAr ? 'طرق الدفع' : 'Paiement via'}
+          </p>
+
+          {/* Logos opérateurs */}
+          <div className="grid grid-cols-3 gap-2">
+            {OPERATORS.map((op) => (
+              <button
+                key={op.id}
+                type="button"
+                onClick={() => setSelectedOp(selectedOp === op.id ? '' : op.id)}
+                className={`flex flex-col items-center gap-1.5 p-3 rounded-xl border-2 transition ${
+                  selectedOp === op.id
+                    ? 'border-violet-500 bg-violet-50'
+                    : 'border-gray-100 bg-gray-50 hover:border-violet-200'
+                }`}
+              >
+                <img src={op.image} alt={op.name} className="h-8 w-auto object-contain" />
+                <span className="text-[10px] font-semibold text-gray-600">{op.name}</span>
+              </button>
+            ))}
+          </div>
+
+          {/* Numéro */}
+          {selectedOp && selectedPhone && (
+            <div className="p-3 rounded-xl bg-violet-50 border border-violet-200">
+              <p className="text-[10px] font-bold text-violet-500 uppercase tracking-wide mb-1">
+                {isAr ? 'رقم الدفع' : 'Numéro de paiement'}
+              </p>
+              <div className="flex items-center justify-between gap-2">
+                <p className="text-lg font-extrabold text-gray-900 tracking-wider" dir="ltr">{selectedPhone}</p>
+                <button type="button" onClick={copyPhone}
+                  className="flex items-center gap-1 text-xs font-semibold px-2.5 py-1.5 rounded-lg bg-white border border-violet-200 text-violet-600 hover:bg-violet-100 transition">
+                  {copied
+                    ? <><CheckCheck className="w-3.5 h-3.5" />{isAr ? 'تم' : 'Copié'}</>
+                    : <><Copy className="w-3.5 h-3.5" />{isAr ? 'نسخ' : 'Copier'}</>}
+                </button>
+              </div>
+              <p className="text-[10px] text-violet-400 mt-1">
+                {isAr ? 'أرسل المبلغ ثم سجّل مع إرفاق الإيصال' : 'Envoyez le montant puis inscrivez-vous avec votre reçu'}
+              </p>
+            </div>
+          )}
+        </div>
+
         <button onClick={onRestart}
           className="w-full py-3 rounded-xl border border-gray-200 text-sm text-gray-500 hover:text-gray-800 hover:border-gray-400 transition">
           {isAr ? '← إعادة المحاولة' : '← Recommencer'}

@@ -20,6 +20,12 @@ const tajawal = Tajawal({
   display: 'swap',
 })
 
+export const viewport = {
+  width: 'device-width',
+  initialScale: 1,
+  maximumScale: 1,
+}
+
 export const metadata: Metadata = {
   title: 'Al Bourour — Préparation Concours de Santé',
   description: 'Application de révision QCM pour étudiants en soins infirmiers en Mauritanie',
