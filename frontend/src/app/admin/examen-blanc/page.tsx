@@ -387,19 +387,37 @@ export default function AdminExamenBlancPage() {
                   <h3 className="font-semibold text-foreground mb-5 flex items-center gap-2">
                     <TrendingUp className="w-4 h-4 text-violet-500" /> Distribution des notes
                   </h3>
-                  <div className="flex items-end gap-2 h-36">
-                    {stats.histogram.map((bar: any, i: number) => {
-                      const maxC = Math.max(...stats.histogram.map((b: any) => b.count), 1);
-                      return (
-                        <div key={i} className="flex-1 flex flex-col items-center gap-1">
-                          {bar.count > 0 && <span className="text-xs text-muted-foreground">{bar.count}</span>}
-                          <div className="w-full rounded-t-lg transition-all"
-                            style={{ height: `${Math.max(4, (bar.count / maxC) * 100)}%`, background: bar.count > 0 ? 'linear-gradient(180deg,#7c3aed,#6366f1)' : 'var(--border)' }} />
-                          <span className="text-xs text-muted-foreground">{i * 10}</span>
-                        </div>
-                      );
-                    })}
-                  </div>
+                  {(() => {
+                    const total = stats.histogram.reduce((s: number, b: any) => s + b.count, 0) || 1;
+                    const maxC = Math.max(...stats.histogram.map((b: any) => b.count), 1);
+                    const colors = [
+                      '#ef4444','#f97316','#f59e0b','#eab308','#84cc16',
+                      '#22c55e','#10b981','#14b8a6','#6366f1','#8b5cf6',
+                    ];
+                    return (
+                      <div className="space-y-2">
+                        {stats.histogram.map((bar: any, i: number) => (
+                          <div key={i} className="flex items-center gap-3">
+                            <span className="text-xs font-mono text-muted-foreground w-14 flex-shrink-0 text-right">
+                              {i * 10}–{(i + 1) * 10}
+                            </span>
+                            <div className="flex-1 h-6 bg-muted rounded-lg overflow-hidden">
+                              <div className="h-full rounded-lg transition-all duration-500 flex items-center justify-end pr-2"
+                                style={{ width: `${Math.max(bar.count > 0 ? 2 : 0, (bar.count / maxC) * 100)}%`, background: colors[i] }}>
+                                {bar.count > 0 && bar.count / maxC > 0.15 && (
+                                  <span className="text-white text-xs font-bold">{bar.count}</span>
+                                )}
+                              </div>
+                            </div>
+                            <div className="flex items-center gap-1.5 w-20 flex-shrink-0">
+                              <span className="text-sm font-bold text-foreground">{bar.count}</span>
+                              <span className="text-xs text-muted-foreground">({Math.round(bar.count / total * 100)}%)</span>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    );
+                  })()}
                 </div>
               )}
 
