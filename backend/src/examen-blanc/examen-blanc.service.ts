@@ -224,7 +224,8 @@ export class ExamenBlancService {
     const session = participant.examenBlanc;
     const rawScore = participant.reponses.reduce((sum: number, r: any) => sum + r.partialScore, 0);
     const score = session.totalQ > 0 ? Math.round((rawScore / session.totalQ) * 1000) / 10 : 0;
-    const timeTaken = Math.floor((Date.now() - new Date(participant.createdAt).getTime()) / 1000);
+    const elapsed = Math.floor((Date.now() - new Date(participant.createdAt).getTime()) / 1000);
+    const timeTaken = Math.min(elapsed, session.durationMin * 60);
 
     await db(this.prisma).examenBlancParticipant.update({
       where: { id: participant.id },
