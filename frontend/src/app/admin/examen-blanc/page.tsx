@@ -41,7 +41,11 @@ function buildWhatsAppUrl(l: any): string {
   }
 
   const msg = (isAr ? headerAr : headerFr) + body;
-  const phone = l.telephone?.replace(/\D/g, '');
+  let phone = (l.telephone ?? '').replace(/\D/g, '');
+  // Normalisation indicatif Mauritanie (+222)
+  if (phone.startsWith('00222')) phone = phone.slice(2);       // 00222XXXXXXXX → 222XXXXXXXX
+  else if (phone.startsWith('0') && phone.length <= 9) phone = '222' + phone.slice(1); // 0XXXXXXXX → 222XXXXXXXX
+  else if (phone.length === 8) phone = '222' + phone;          // XXXXXXXX → 222XXXXXXXX
   return `https://wa.me/${phone}?text=${encodeURIComponent(msg)}`;
 }
 
