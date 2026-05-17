@@ -501,14 +501,14 @@ export default function AdminExamenBlancPage() {
               <table className="w-full text-sm">
                 <thead className="bg-muted border-b border-border">
                   <tr>
-                    {['Prénom', 'Nom', 'Téléphone', 'Wilaya', 'Langue', 'Session', 'Score', 'Terminé', 'Triche', 'Date'].map(h => (
+                    {['Prénom', 'Nom', 'Téléphone', 'Wilaya', 'Langue', 'Session', 'Score', 'Terminé', 'Résultats vus', 'Triche', 'Date'].map(h => (
                       <th key={h} className="text-left px-4 py-3 text-xs font-semibold text-muted-foreground">{h}</th>
                     ))}
                   </tr>
                 </thead>
                 <tbody>
                   {leads.length === 0 ? (
-                    <tr><td colSpan={10} className="text-center py-12 text-muted-foreground">Aucun participant pour l'instant</td></tr>
+                    <tr><td colSpan={11} className="text-center py-12 text-muted-foreground">Aucun participant pour l'instant</td></tr>
                   ) : leads.map((l: any) => (
                     <tr key={l.id} className="border-t border-border hover:bg-muted/50">
                       <td className="px-4 py-3 font-semibold text-foreground">{l.prenom}</td>
@@ -520,6 +520,11 @@ export default function AdminExamenBlancPage() {
                       <td className="px-4 py-3 font-bold text-violet-600">{l.score != null ? `${l.score.toFixed(1)}%` : '—'}</td>
                       <td className="px-4 py-3">
                         {l.isCompleted ? <CheckCircle className="w-4 h-4 text-emerald-500" /> : <XCircle className="w-4 h-4 text-muted-foreground" />}
+                      </td>
+                      <td className="px-4 py-3">
+                        {l.resultsViewedAt
+                          ? <span className="flex items-center gap-1 text-emerald-600 text-xs font-semibold"><Eye className="w-3.5 h-3.5" />{new Date(l.resultsViewedAt).toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' })}</span>
+                          : <span className="text-muted-foreground text-xs">—</span>}
                       </td>
                       <td className="px-4 py-3">
                         {l.tricherie ? <AlertTriangle className="w-4 h-4 text-red-400" /> : <span className="text-muted-foreground">—</span>}

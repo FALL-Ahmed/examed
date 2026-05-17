@@ -326,8 +326,9 @@ model ExamenBlancParticipant {
   isCompleted   Boolean   @default(false)
   tricherie     Boolean   @default(false)
   tabSwitches   Int       @default(0)
-  submittedAt   DateTime?
-  createdAt     DateTime  @default(now())
+  submittedAt      DateTime?
+  resultsViewedAt  DateTime?
+  createdAt        DateTime  @default(now())
   reponses      ExamenBlancReponse[]
 
   @@index([examenBlancId])

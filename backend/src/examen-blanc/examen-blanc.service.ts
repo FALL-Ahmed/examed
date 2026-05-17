@@ -257,6 +257,14 @@ export class ExamenBlancService {
       participant: { nom: participant.nom, prenom: participant.prenom, ville: participant.ville },
     };
 
+    // Marquer comme vu si pas encore fait
+    if (!participant.resultsViewedAt) {
+      await db(this.prisma).examenBlancParticipant.update({
+        where: { id: participant.id },
+        data: { resultsViewedAt: new Date() },
+      });
+    }
+
     const session = participant.examenBlanc;
     const lang = participant.lang || 'fr';
     const [allCompleted, totalRegistered] = await Promise.all([
@@ -579,6 +587,7 @@ export class ExamenBlancService {
       select: {
         id: true, nom: true, prenom: true, telephone: true, ville: true,
         lang: true, score: true, isCompleted: true, tricherie: true, submittedAt: true, createdAt: true,
+        resultsViewedAt: true,
         examenBlanc: { select: { title: true, id: true } },
       },
     });
