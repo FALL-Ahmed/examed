@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { examenBlancApi } from '@/lib/api';
 import { useLang } from '@/components/LanguageProvider';
-import { Trophy, Clock, Target, TrendingUp, MapPin, ChevronDown, ChevronUp, CheckCircle2, XCircle, BookOpen } from 'lucide-react';
+import { Trophy, Clock, ChevronLeft, ChevronRight, CheckCircle2, BookOpen, Download } from 'lucide-react';
 
 const EB_STATE_KEY = 'examen_blanc_state';
 const pad = (n: number) => String(n).padStart(2, '0');
@@ -49,9 +49,15 @@ export default function ResultsPage() {
   const [results, setResults] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [expandedQ, setExpandedQ] = useState<string | null>(null);
+  const [selectedQIdx, setSelectedQIdx] = useState<number>(0);
   const [showAll, setShowAll] = useState(false);
   const [resultsAt, setResultsAt] = useState<Date | null>(null);
   const [localState, setLocalState] = useState<any>(null);
+
+  function handlePrint() {
+    setShowAll(true);
+    setTimeout(() => window.print(), 300);
+  }
 
   const load = useCallback(async () => {
     const raw = localStorage.getItem(EB_STATE_KEY);
@@ -157,6 +163,23 @@ export default function ResultsPage() {
             </p>
           </div>
 
+          {/* CTA inscription */}
+          <div className="rounded-3xl p-6 text-center" style={{ background: 'linear-gradient(135deg,#7c3aed,#6366f1)' }}>
+            <h3 className="text-white font-black text-lg mb-2">
+              {isAr ? '🚀 هل تريد التحضير أكثر؟' : '🚀 Vous voulez vous préparer davantage ?'}
+            </h3>
+            <p className="text-white/70 text-sm mb-4">
+              {isAr
+                ? 'وصول كامل لجميع الأسئلة والتحليلات المفصّلة.'
+                : 'Accès complet à toutes les questions et analyses.'}
+            </p>
+            <Link href="/register"
+              className="inline-flex items-center gap-2 px-6 py-2.5 rounded-2xl font-bold text-violet-900 bg-white hover:bg-gray-50 transition shadow-lg text-sm">
+              <BookOpen className="w-4 h-4" />
+              {isAr ? 'التسجيل' : "S'inscrire"}
+            </Link>
+          </div>
+
           {/* Instructions */}
           <div className="text-white/30 text-sm space-y-1">
             <p>{isAr ? '📱 يمكنك إغلاق هذه الصفحة والعودة لاحقاً' : '📱 Tu peux fermer cette page et revenir plus tard'}</p>
@@ -185,9 +208,39 @@ export default function ResultsPage() {
 
   return (
     <div className="min-h-screen bg-gray-50" dir={isAr ? 'rtl' : 'ltr'}>
+    <style>{`
+      @media print {
+        body { background: white !important; font-family: Arial, sans-serif; }
+        .no-print { display: none !important; }
+        .print-header { display: block !important; }
+        .print-break { page-break-before: always; }
+        * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+      }
+      .print-header { display: none; }
+    `}</style>
+
+      {/* Print header — invisible à l'écran, visible à l'impression */}
+      <div className="print-header p-8 border-b-2 border-gray-300">
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
+          <div>
+            <p style={{ fontSize: 22, fontWeight: 900, margin: 0 }}>Al Bourour — Examen Blanc National</p>
+            <p style={{ fontSize: 13, color: '#6b7280', margin: '4px 0 0' }}>{new Date().toLocaleDateString('fr-FR', { day: '2-digit', month: 'long', year: 'numeric' })}</p>
+          </div>
+          <div style={{ textAlign: 'right' }}>
+            <p style={{ fontSize: 18, fontWeight: 700, margin: 0 }}>{results.participant?.prenom} {results.participant?.nom}</p>
+            <p style={{ fontSize: 13, color: '#6b7280', margin: '2px 0 0' }}>{results.participant?.ville}</p>
+          </div>
+        </div>
+        <div style={{ display: 'flex', gap: 32, marginTop: 12 }}>
+          <div><p style={{ fontSize: 13, color: '#6b7280', margin: 0 }}>Score</p><p style={{ fontSize: 28, fontWeight: 900, margin: 0, color: passed ? '#059669' : '#d97706' }}>{results.score?.toFixed(1)}% — {noteOn20}/20</p></div>
+          <div><p style={{ fontSize: 13, color: '#6b7280', margin: 0 }}>Classement</p><p style={{ fontSize: 24, fontWeight: 900, margin: 0 }}>{results.classement}/{results.totalParticipants}</p></div>
+          <div><p style={{ fontSize: 13, color: '#6b7280', margin: 0 }}>Correctes</p><p style={{ fontSize: 24, fontWeight: 900, margin: 0 }}>{results.correctQ}/{results.totalQ}</p></div>
+          <div><p style={{ fontSize: 13, color: '#6b7280', margin: 0 }}>Temps</p><p style={{ fontSize: 24, fontWeight: 900, margin: 0 }}>{formatTime(results.timeTaken || 0)}</p></div>
+        </div>
+      </div>
 
       {/* Hero results */}
-      <div className="relative overflow-hidden" style={{ background: 'linear-gradient(145deg,#0f0a2e 0%,#1a1040 50%,#0d1b3e 100%)' }}>
+      <div className="relative overflow-hidden no-print" style={{ background: 'linear-gradient(145deg,#0f0a2e 0%,#1a1040 50%,#0d1b3e 100%)' }}>
         <div className="fixed inset-0 opacity-[0.03] pointer-events-none"
           style={{ backgroundImage: 'linear-gradient(rgba(255,255,255,.5) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.5) 1px,transparent 1px)', backgroundSize: '40px 40px' }} />
 
@@ -201,10 +254,20 @@ export default function ResultsPage() {
           </h1>
           <p className="text-2xl font-bold text-violet-300 mb-8">{noteOn20}/20</p>
 
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 max-w-2xl mx-auto mb-8">
+          {/* Rang — mis en valeur */}
+          <div className="bg-amber-400/10 border-2 border-amber-400/40 rounded-3xl px-8 py-5 max-w-xs mx-auto mb-6">
+            <Trophy className="w-8 h-8 text-amber-400 mx-auto mb-1" />
+            <p className="text-amber-300 text-sm font-bold mb-1">{isAr ? 'ترتيبك الوطني' : 'Ton rang national'}</p>
+            <p className="text-white font-black text-5xl">
+              {results.classement}<span className="text-2xl text-white/40">/{results.totalParticipants}</span>
+            </p>
+            <p className="text-amber-200/60 text-xs mt-1">
+              {isAr ? `أفضل من ${results.percentile}% من المشاركين` : `Mieux que ${results.percentile}% des participants`}
+            </p>
+          </div>
+
+          <div className="grid grid-cols-2 gap-4 max-w-sm mx-auto mb-8">
             {[
-              { icon: Trophy, val: `${results.classement}/${results.totalParticipants}`, label: isAr ? 'الترتيب' : 'Classement' },
-              { icon: Target, val: `${results.percentile}%`, label: isAr ? 'فوق المتوسط' : 'Mieux que' },
               { icon: CheckCircle2, val: `${results.correctQ}/${results.totalQ}`, label: isAr ? 'إجابات صحيحة' : 'Correctes' },
               { icon: Clock, val: formatTime(results.timeTaken || 0), label: isAr ? 'الوقت' : 'Temps' },
             ].map(({ icon: Icon, val, label }, i) => (
@@ -217,12 +280,12 @@ export default function ResultsPage() {
           </div>
 
           <div className="flex flex-wrap gap-3 justify-center">
-            <Link href="/examen-blanc/leaderboard"
+            <button onClick={handlePrint}
               className="flex items-center gap-2 px-6 py-3 rounded-xl font-bold text-white transition hover:opacity-80"
               style={{ background: 'linear-gradient(135deg,#7c3aed,#6366f1)' }}>
-              <Trophy className="w-4 h-4" />
-              {isAr ? 'الترتيب الوطني' : 'Classement national'}
-            </Link>
+              <Download className="w-4 h-4" />
+              {isAr ? 'تحميل PDF' : 'Télécharger PDF'}
+            </button>
             <Link href="/register"
               className="flex items-center gap-2 px-6 py-3 rounded-xl font-bold text-white bg-white/10 border border-white/20 hover:bg-white/15 transition">
               <BookOpen className="w-4 h-4" />
@@ -234,126 +297,111 @@ export default function ResultsPage() {
 
       <div className="max-w-4xl mx-auto px-6 py-10 space-y-8">
 
-        {/* Score distribution */}
-        {results.histogram && (
-          <div className="bg-white rounded-3xl border border-gray-100 shadow-sm p-6">
-            <h2 className="font-black text-gray-900 text-lg mb-6 flex items-center gap-2">
-              <TrendingUp className="w-5 h-5 text-violet-500" />
-              {isAr ? 'توزيع النتائج' : 'Distribution des notes'}
-            </h2>
-            <div className="flex items-end gap-2 h-40">
-              {results.histogram.map((bar: any, i: number) => {
-                const maxCount = Math.max(...results.histogram.map((b: any) => b.count), 1);
-                const height = Math.max(4, (bar.count / maxCount) * 100);
-                const isMyRange = results.score >= i * 10 && results.score < (i + 1) * 10;
-                return (
-                  <div key={i} className="flex-1 flex flex-col items-center gap-1">
-                    {bar.count > 0 && <span className="text-xs text-gray-400">{bar.count}</span>}
-                    <div className="w-full rounded-t-lg transition-all"
-                      style={{
-                        height: `${height}%`,
-                        background: isMyRange ? 'linear-gradient(180deg,#7c3aed,#6366f1)' : '#e5e7eb',
-                      }} />
-                    <span className="text-xs text-gray-400">{i * 10}</span>
-                  </div>
-                );
-              })}
-            </div>
-          </div>
-        )}
+        {/* Question review — grille numérotée */}
+        {results.questions?.length > 0 && (() => {
+          const qs = results.questions;
+          const q = qs[selectedQIdx];
+          const correctAnswers = q?.correctAnswer?.toUpperCase().split(',').map((x: string) => x.trim()) ?? [];
+          const userAnswers = q?.userAnswer?.toUpperCase().split(',').map((x: string) => x.trim()) ?? [];
+          const notAnswered = !q?.userAnswer;
 
-        {/* Theme breakdown */}
-        {results.themeStats?.length > 0 && (
-          <div className="bg-white rounded-3xl border border-gray-100 shadow-sm p-6">
-            <h2 className="font-black text-gray-900 text-lg mb-6">
-              {isAr ? '📚 أداؤك بكل مادة' : '📚 Performance par matière'}
-            </h2>
-            <div className="space-y-4">
-              {results.themeStats.sort((a: any, b: any) => b.pct - a.pct).map((ts: any, i: number) => (
-                <div key={i}>
-                  <div className="flex justify-between items-center mb-1.5">
-                    <span className="text-gray-700 font-semibold text-sm">{ts.name}</span>
-                    <span className={`text-sm font-bold ${ts.pct >= 75 ? 'text-emerald-600' : ts.pct >= 50 ? 'text-amber-600' : 'text-red-500'}`}>
-                      {ts.correct}/{ts.total} · {ts.pct}%
+          return (
+            <div className="bg-white rounded-3xl border border-gray-100 shadow-sm overflow-hidden">
+              <div className="px-6 pt-6 pb-4 border-b border-gray-100">
+                <h2 className="font-black text-gray-900 text-lg mb-4">
+                  {isAr ? '🔍 مراجعة الأسئلة' : '🔍 Correction des questions'}
+                </h2>
+                {/* Grille numérotée */}
+                <div className="flex flex-wrap gap-1.5">
+                  {qs.map((item: any, idx: number) => {
+                    const noAnswer = !item.userAnswer;
+                    const bg = noAnswer ? 'bg-gray-100 text-gray-400' : item.isCorrect ? 'bg-emerald-500 text-white' : item.partialScore > 0 ? 'bg-amber-400 text-white' : 'bg-red-500 text-white';
+                    const ring = selectedQIdx === idx ? 'ring-2 ring-offset-1 ring-violet-500' : '';
+                    return (
+                      <button key={idx} onClick={() => setSelectedQIdx(idx)}
+                        className={`w-8 h-8 rounded-lg text-xs font-bold transition-all ${bg} ${ring} hover:opacity-80`}>
+                        {noAnswer ? '×' : idx + 1}
+                      </button>
+                    );
+                  })}
+                </div>
+                {/* Légende */}
+                <div className="flex flex-wrap gap-4 mt-3 text-xs text-gray-400">
+                  <span className="flex items-center gap-1"><span className="w-3 h-3 rounded bg-emerald-500 inline-block" /> {isAr ? 'صحيح' : 'Correct'}</span>
+                  <span className="flex items-center gap-1"><span className="w-3 h-3 rounded bg-amber-400 inline-block" /> {isAr ? 'جزئي' : 'Partiel'}</span>
+                  <span className="flex items-center gap-1"><span className="w-3 h-3 rounded bg-red-500 inline-block" /> {isAr ? 'خطأ' : 'Faux'}</span>
+                  <span className="flex items-center gap-1"><span className="w-3 h-3 rounded bg-gray-200 inline-block" /> {isAr ? 'لم يُجب' : 'Non répondu'}</span>
+                </div>
+              </div>
+
+              {/* Question active */}
+              {q && (
+                <div className="px-6 py-5 space-y-4">
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="flex-1">
+                      <p className="text-xs text-gray-400 mb-1">{isAr ? 'السؤال' : 'Question'} {selectedQIdx + 1}/{qs.length}</p>
+                      <p className="text-gray-800 font-semibold text-sm leading-relaxed">{q.text}</p>
+                    </div>
+                    <span className={`flex-shrink-0 text-sm font-black px-2 py-1 rounded-lg ${q.partialScore > 0 ? 'bg-emerald-50 text-emerald-600' : q.partialScore < 0 ? 'bg-red-50 text-red-500' : 'bg-gray-50 text-gray-400'}`}>
+                      {q.partialScore > 0 ? '+' : ''}{q.partialScore?.toFixed(2)}
                     </span>
                   </div>
-                  <div className="h-2 bg-gray-100 rounded-full overflow-hidden">
-                    <div className="h-full rounded-full transition-all"
-                      style={{
-                        width: `${ts.pct}%`,
-                        background: ts.pct >= 75 ? 'linear-gradient(90deg,#10b981,#34d399)' : ts.pct >= 50 ? 'linear-gradient(90deg,#f59e0b,#fbbf24)' : 'linear-gradient(90deg,#ef4444,#f87171)',
-                      }} />
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
 
-        {/* Question review */}
-        {results.questions?.length > 0 && (
-          <div className="bg-white rounded-3xl border border-gray-100 shadow-sm p-6">
-            <h2 className="font-black text-gray-900 text-lg mb-6">
-              {isAr ? '🔍 مراجعة الأسئلة' : '🔍 Révision des questions'}
-            </h2>
-            <div className="space-y-3">
-              {displayedQuestions.map((q: any, i: number) => (
-                <div key={q.id} className={`border rounded-2xl overflow-hidden ${q.isCorrect ? 'border-emerald-200' : 'border-red-200'}`}>
-                  <button
-                    className={`w-full flex items-center gap-3 px-5 py-4 text-left ${q.isCorrect ? 'bg-emerald-50' : 'bg-red-50'}`}
-                    onClick={() => setExpandedQ(expandedQ === q.id ? null : q.id)}>
-                    {q.isCorrect
-                      ? <CheckCircle2 className="w-5 h-5 text-emerald-500 flex-shrink-0" />
-                      : <XCircle className="w-5 h-5 text-red-500 flex-shrink-0" />}
-                    <div className="flex-1 text-left min-w-0">
-                      <p className="text-xs text-gray-400 mb-0.5">{q.theme} · {q.subTheme}</p>
-                      <p className="text-gray-800 text-sm font-medium line-clamp-2">{q.text}</p>
-                    </div>
-                    <div className="flex items-center gap-2 flex-shrink-0">
-                      <span className={`text-sm font-bold ${q.partialScore > 0 ? 'text-emerald-600' : q.partialScore < 0 ? 'text-red-500' : 'text-gray-400'}`}>
-                        {q.partialScore > 0 ? '+' : ''}{q.partialScore.toFixed(2)}
-                      </span>
-                      {expandedQ === q.id ? <ChevronUp className="w-4 h-4 text-gray-400" /> : <ChevronDown className="w-4 h-4 text-gray-400" />}
-                    </div>
-                  </button>
-                  {expandedQ === q.id && (
-                    <div className="px-5 py-4 bg-white space-y-3">
-                      {['A', 'B', 'C', 'D', 'E'].filter(c => q[`choice${c}`]).map(c => {
-                        const isCorrect = q.correctAnswer?.toUpperCase().split(',').map((x: string) => x.trim()).includes(c);
-                        const wasSelected = q.userAnswer?.toUpperCase().split(',').map((x: string) => x.trim()).includes(c);
-                        return (
-                          <div key={c} className={`flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm
-                            ${isCorrect ? 'bg-emerald-50 text-emerald-800 border border-emerald-200' : wasSelected ? 'bg-red-50 text-red-700 border border-red-200' : 'text-gray-500'}`}>
-                            <span className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0
-                              ${isCorrect ? 'bg-emerald-500 text-white' : wasSelected ? 'bg-red-400 text-white' : 'bg-gray-200 text-gray-600'}`}>{c}</span>
-                            {q[`choice${c}`]}
-                          </div>
-                        );
-                      })}
-                      {q.explanation && (
-                        <div className="bg-blue-50 border border-blue-200 rounded-xl px-4 py-3 text-sm text-blue-800 mt-2">
-                          <p className="font-semibold mb-1">{isAr ? 'التصحيح:' : 'Correction :'}</p>
-                          {q.explanation}
-                        </div>
-                      )}
+                  {q.imageUrl && <img src={q.imageUrl} alt="" className="rounded-xl max-h-48 object-contain" />}
+
+                  {notAnswered && (
+                    <div className="bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-sm text-gray-500 text-center">
+                      {isAr ? '— لم تُجب على هذا السؤال —' : '— Question non répondue —'}
                     </div>
                   )}
+
+                  <div className="space-y-2">
+                    {['A', 'B', 'C', 'D', 'E'].filter(c => q[`choice${c}`]).map(c => {
+                      const isCorr = correctAnswers.includes(c);
+                      const wasSel = userAnswers.includes(c);
+                      return (
+                        <div key={c} className={`flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm border
+                          ${isCorr ? 'bg-emerald-50 border-emerald-200 text-emerald-800'
+                            : wasSel ? 'bg-red-50 border-red-200 text-red-700'
+                            : 'bg-gray-50 border-transparent text-gray-500'}`}>
+                          <span className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-black flex-shrink-0
+                            ${isCorr ? 'bg-emerald-500 text-white' : wasSel ? 'bg-red-400 text-white' : 'bg-gray-200 text-gray-500'}`}>
+                            {isCorr ? '✓' : wasSel ? '✗' : c}
+                          </span>
+                          <span>{q[`choice${c}`]}</span>
+                          {isCorr && <span className="ml-auto text-emerald-600 text-xs font-bold">{isAr ? 'صحيح' : 'Bonne réponse'}</span>}
+                        </div>
+                      );
+                    })}
+                  </div>
+
+                  {q.explanation && (
+                    <div className="bg-blue-50 border border-blue-200 rounded-xl px-4 py-3 text-sm text-blue-800">
+                      <p className="font-bold mb-1">💬 {isAr ? 'التصحيح' : 'Commentaire'}</p>
+                      <p className="leading-relaxed">{q.explanation}</p>
+                    </div>
+                  )}
+
+                  {/* Navigation */}
+                  <div className="flex items-center justify-between pt-2 no-print">
+                    <button onClick={() => setSelectedQIdx(i => Math.max(0, i - 1))} disabled={selectedQIdx === 0}
+                      className="flex items-center gap-1 px-4 py-2 rounded-xl border border-gray-200 text-gray-600 text-sm font-semibold hover:bg-gray-50 transition disabled:opacity-30">
+                      <ChevronLeft className="w-4 h-4" /> {isAr ? 'السابق' : 'Précédente'}
+                    </button>
+                    <span className="text-gray-400 text-xs">{selectedQIdx + 1} / {qs.length}</span>
+                    <button onClick={() => setSelectedQIdx(i => Math.min(qs.length - 1, i + 1))} disabled={selectedQIdx === qs.length - 1}
+                      className="flex items-center gap-1 px-4 py-2 rounded-xl border border-gray-200 text-gray-600 text-sm font-semibold hover:bg-gray-50 transition disabled:opacity-30">
+                      {isAr ? 'التالي' : 'Suivante'} <ChevronRight className="w-4 h-4" />
+                    </button>
+                  </div>
                 </div>
-              ))}
+              )}
             </div>
-            {results.questions.length > 10 && (
-              <button onClick={() => setShowAll(!showAll)}
-                className="w-full mt-4 py-3 rounded-xl border border-gray-200 text-gray-600 text-sm font-semibold hover:bg-gray-50 transition flex items-center justify-center gap-2">
-                {showAll
-                  ? <><ChevronUp className="w-4 h-4" /> {isAr ? 'عرض أقل' : 'Réduire'}</>
-                  : <><ChevronDown className="w-4 h-4" /> {isAr ? `عرض كل ${results.questions.length} سؤال` : `Voir les ${results.questions.length} questions`}</>}
-              </button>
-            )}
-          </div>
-        )}
+          );
+        })()}
 
         {/* CTA inscription */}
-        <div className="rounded-3xl p-8 text-center" style={{ background: 'linear-gradient(135deg,#7c3aed,#6366f1)' }}>
+        <div className="no-print rounded-3xl p-8 text-center" style={{ background: 'linear-gradient(135deg,#7c3aed,#6366f1)' }}>
           <h3 className="text-white font-black text-2xl mb-3">
             {isAr ? '🚀 طوّر نفسك أكثر' : '🚀 Allez plus loin'}
           </h3>
