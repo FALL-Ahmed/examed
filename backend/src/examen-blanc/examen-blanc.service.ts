@@ -259,14 +259,19 @@ export class ExamenBlancService {
 
     const session = participant.examenBlanc;
     const lang = participant.lang || 'fr';
-    const allCompleted = await db(this.prisma).examenBlancParticipant.findMany({
-      where: { examenBlancId: participant.examenBlancId, isCompleted: true, lang },
-      orderBy: [{ score: 'desc' }, { timeTaken: 'asc' }],
-      select: { id: true, score: true },
-    });
+    const [allCompleted, totalRegistered] = await Promise.all([
+      db(this.prisma).examenBlancParticipant.findMany({
+        where: { examenBlancId: participant.examenBlancId, isCompleted: true, lang },
+        orderBy: [{ score: 'desc' }, { timeTaken: 'asc' }],
+        select: { id: true, score: true },
+      }),
+      db(this.prisma).examenBlancParticipant.count({
+        where: { examenBlancId: participant.examenBlancId },
+      }),
+    ]);
 
     const classement = allCompleted.findIndex((p: any) => p.id === participant.id) + 1;
-    const total = allCompleted.length;
+    const total = totalRegistered;
     const allScores = allCompleted.map((p: any) => p.score ?? 0);
 
     const questionIds: string[] = lang === 'ar' ? session.questionIdsAr : session.questionIdsFr;
@@ -310,7 +315,8 @@ export class ExamenBlancService {
       rawScore: participant.rawScore,
       classement,
       totalParticipants: total,
-      percentile: total > 1 ? Math.round(((total - classement) / (total - 1)) * 100) : 100,
+      completedParticipants: allCompleted.length,
+      percentile: allCompleted.length > 1 ? Math.round(((allCompleted.length - classement) / (allCompleted.length - 1)) * 100) : 100,
       timeTaken: participant.timeTaken,
       correctQ: participant.reponses.filter((r: any) => r.isCorrect).length,
       totalQ: session.totalQ,
