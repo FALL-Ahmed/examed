@@ -390,17 +390,28 @@ export default function AdminExamenBlancPage() {
                   <p className="text-xs text-muted-foreground mb-5">FR + AR combinés — {stats.histogramAll.reduce((s: number, b: any) => s + b.count, 0)} participants</p>
                   {(() => {
                     const maxC = Math.max(...stats.histogramAll.map((b: any) => b.count), 1);
+                    const MAX_H = 120;
                     const colors = ['#ef4444','#f97316','#f59e0b','#eab308','#84cc16','#22c55e','#10b981','#14b8a6','#6366f1','#8b5cf6'];
                     return (
-                      <div className="flex items-end gap-2 h-40">
-                        {stats.histogramAll.map((bar: any, i: number) => (
-                          <div key={i} className="flex-1 flex flex-col items-center gap-1">
-                            <span className="text-xs font-bold text-foreground">{bar.count > 0 ? bar.count : ''}</span>
-                            <div className="w-full rounded-t-lg transition-all duration-500"
-                              style={{ height: `${Math.max(bar.count > 0 ? 8 : 2, (bar.count / maxC) * 100)}%`, background: bar.count > 0 ? colors[i] : 'var(--border)' }} />
-                            <span className="text-[10px] text-muted-foreground">{i * 10}</span>
-                          </div>
-                        ))}
+                      <div>
+                        <div className="flex items-end gap-1.5" style={{ height: MAX_H }}>
+                          {stats.histogramAll.map((bar: any, i: number) => {
+                            const h = bar.count > 0 ? Math.max(12, Math.round((bar.count / maxC) * MAX_H)) : 3;
+                            return (
+                              <div key={i} className="flex-1 flex flex-col items-center justify-end" style={{ height: '100%' }}>
+                                {bar.count > 0 && <span className="text-[11px] font-bold text-foreground mb-0.5">{bar.count}</span>}
+                                <div className="w-full rounded-t-md" style={{ height: h, background: bar.count > 0 ? colors[i] : '#e5e7eb' }} />
+                              </div>
+                            );
+                          })}
+                        </div>
+                        <div className="flex gap-1.5 mt-1">
+                          {stats.histogramAll.map((_: any, i: number) => (
+                            <div key={i} className="flex-1 text-center">
+                              <span className="text-[10px] text-muted-foreground">{i * 10}</span>
+                            </div>
+                          ))}
+                        </div>
                       </div>
                     );
                   })()}

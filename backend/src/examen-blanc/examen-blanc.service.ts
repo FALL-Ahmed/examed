@@ -530,7 +530,7 @@ export class ExamenBlancService {
     const allScores = lang ? allCompleted.map((p: any) => p.score ?? 0) : scores;
     const histogramAll = Array.from({ length: 10 }, (_, i) => ({
       range: `${i * 10}-${(i + 1) * 10}`,
-      count: allScores.filter((s: number) => s >= i * 10 && (i === 9 ? s <= (i + 1) * 10 : s < (i + 1) * 10)).length,
+      count: allScores.filter((s: number) => (i === 0 ? s < 10 : s >= i * 10) && (i === 9 ? s <= 100 : s < (i + 1) * 10)).length,
     }));
 
     return {
