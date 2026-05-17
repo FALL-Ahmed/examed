@@ -582,14 +582,44 @@ export class ExamenBlancService {
   }
 
   async getAllParticipants() {
-    return db(this.prisma).examenBlancParticipant.findMany({
-      orderBy: { createdAt: 'desc' },
-      select: {
-        id: true, nom: true, prenom: true, telephone: true, ville: true,
-        lang: true, score: true, isCompleted: true, tricherie: true, submittedAt: true, createdAt: true,
-        resultsViewedAt: true,
-        examenBlanc: { select: { title: true, id: true } },
-      },
+    const [participants, users] = await Promise.all([
+      db(this.prisma).examenBlancParticipant.findMany({
+        orderBy: { createdAt: 'desc' },
+        select: {
+          id: true, examenBlancId: true, nom: true, prenom: true, telephone: true, ville: true,
+          lang: true, score: true, isCompleted: true, tricherie: true, submittedAt: true, createdAt: true,
+          resultsViewedAt: true,
+          examenBlanc: { select: { title: true, id: true } },
+        },
+      }),
+      this.prisma.user.findMany({
+        where: { phone: { not: null } },
+        select: { phone: true, fullName: true, role: true },
+      }),
+    ]);
+
+    const phoneToUser: Record<string, any> = {};
+    users.forEach((u: any) => {
+      if (u.phone) phoneToUser[u.phone.trim()] = u;
+    });
+
+    // Compute classement per session (all langs combined, completed only)
+    const bySession: Record<string, any[]> = {};
+    participants.forEach((p: any) => {
+      if (!bySession[p.examenBlancId]) bySession[p.examenBlancId] = [];
+      bySession[p.examenBlancId].push(p);
+    });
+    const rankMap: Record<string, { classement: number; totalParticipants: number }> = {};
+    Object.values(bySession).forEach((group: any[]) => {
+      const completed = [...group].filter(p => p.isCompleted).sort((a, b) => (b.score ?? -999) - (a.score ?? -999));
+      const total = group.length;
+      completed.forEach((p, i) => { rankMap[p.id] = { classement: i + 1, totalParticipants: total }; });
+    });
+
+    return participants.map((p: any) => {
+      const matched = phoneToUser[p.telephone?.trim()];
+      const rank = rankMap[p.id] ?? null;
+      return { ...p, isRegistered: !!matched, registeredUser: matched ?? null, classement: rank?.classement ?? null, totalParticipants: rank?.totalParticipants ?? null };
     });
   }
 }

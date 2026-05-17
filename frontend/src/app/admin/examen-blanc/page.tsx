@@ -7,6 +7,44 @@ const pad = (n: number) => String(n).padStart(2, '0');
 function formatDate(d: string) { return new Date(d).toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' }); }
 function formatTime(sec: number) { const h = Math.floor(sec / 3600); const m = Math.floor((sec % 3600) / 60); return h > 0 ? `${h}h${pad(m)}` : `${m}min`; }
 
+const LIEN_PREMIUM = 'https://albourour.com/register';
+
+function buildWhatsAppUrl(l: any): string {
+  const isAr = l.lang === 'ar';
+  const prenom = l.prenom ?? '';
+  const nom = l.nom ?? '';
+  const score = l.score != null ? l.score.toFixed(1) : '—';
+  const classement = l.classement ? `${l.classement}/${l.totalParticipants}` : 'XX';
+
+  const headerFr = `Bonsoir ${prenom} ${nom}, votre score à l'examen blanc était de ${score}%, votre classement est ${classement}.\n`;
+  const headerAr = `مساء الخير ${prenom} ${nom}، درجتك في الامتحان التجريبي كانت ${score}%، وترتيبك هو ${classement}.\n`;
+
+  let body = '';
+  const s = l.score ?? -1;
+
+  if (s < 30) {
+    body = isAr
+      ? `درجة ${score}% هي إنذار: طريقتك الحالية في المراجعة قد لا تكفي. قرر اليوم التوقف عن المراجعة العشوائية. مع أكثر من 600 أسئلة متعددة الاختيارات وتفسيرات أطبائنا، حوّل نقاط ضعفك إلى نقاط قوة. اتقن أخيراً المفاهيم الأساسية، تابع تطورك وارتقِ في الترتيب الوطني لتأمين مستقبلك. استعد بجدية.\n${LIEN_PREMIUM}`
+      : `Ton score de ${score}% est un signal d'alarme : ta méthode actuelle peut ne pas suffire pour le concours. Décide aujourd'hui de ne plus réviser au hasard. Avec plus de 600 QCM et les explications de nos médecins, transforme tes lacunes en forces. Maîtrise enfin les concepts clés, suis ton évolution et remonte dans le classement national pour sécuriser ton avenir. Prépare-toi sérieusement.\n${LIEN_PREMIUM}`;
+  } else if (s < 50) {
+    body = isAr
+      ? `بحصولك على ${score}%، لديك الأساسيات ولكنك لا تزال في منطقة الخطر. للنجاح في الاكتتاب، عليك الانتقال لمستوى أعلى. اتخذ القرار بتنظيم نجاحك: استفد من 600 سؤال مشروح لفهم منطق الامتحان. تابع ترتيبك بين زملائك واضمن تفوقك على المتوسط الوطني يومياً. نجاحك يستحق هذا المجهود.\n${LIEN_PREMIUM}`
+      : `Avec ${score}%, tu as les bases, mais tu es encore dans la zone d'incertitude. Pour réussir le recrutement, tu dois passer à la vitesse supérieure. Décide de structurer ta réussite : accède à nos 600 QCM commentés pour comprendre la logique de l'examen. Suis ton rang par rapport aux autres candidats et assure-toi de dépasser la moyenne nationale chaque jour. Ton succès mérite cet investissement.\n${LIEN_PREMIUM}`;
+  } else if (s < 65) {
+    body = isAr
+      ? `أحسنت بحصولك على ${score}%، أنت قريب من الهدف! لكن احذر، فالاكتتاب يُحسم بالتفاصيل الصغيرة. قرر أن لا تترك شيئاً للصدفة. استخدم منصة "البرور" لإتقان المواضيع الصعبة عبر شروحاتنا الطبية. بمتابعة ترتيبك الوطني المباشر، ستعرف بالضبط كيف تسبق منافسيك. اجعل هدفك التميز وليس فقط النجاح.\n${LIEN_PREMIUM}`
+      : `Bravo pour tes ${score}%, tu es proche du but ! Mais attention, le recrutement se joue sur les détails qui font la différence. Décide de ne rien laisser au hasard. Utilise Albourour pour perfectionner les thèmes difficiles avec nos médecins. En suivant ton évolution et ton classement national en temps réel, tu sauras exactement comment rester devant tes concurrents. Vise l'excellence, pas seulement la moyenne.\n${LIEN_PREMIUM}`;
+  } else {
+    body = isAr
+      ? `هنيئاً لك نتيجتك ${score}%، أنت الآن من النخبة! لم يعد السؤال هو "هل ستنجح؟" بل "كيف تضمن صدارة الناجحين؟". لتبقى في القمة، تحتاج إلى 600 سؤال من المستوى العالي وشروحاتنا الطبية الدقيقة. لا تسمح لأحد بتجاوزك: تابع ترتيبك الوطني لحظة بلحظة وحافظ على تفوقك. قرر تثبيت مكانتك في الصدارة الآن.\n${LIEN_PREMIUM}`
+      : `Félicitations pour ton score de ${score}%, tu fais partie de l'élite ! La question n'est plus de réussir, mais de garantir ta place de Major. Pour rester au sommet, tu as besoin de nos 600 QCM de haut niveau et des commentaires détaillés des médecins. Ne laisse personne te rattraper : suis ton classement national heure par heure et continue de dominer la préparation. Décide de confirmer ton rang dès maintenant.\n${LIEN_PREMIUM}`;
+  }
+
+  const msg = (isAr ? headerAr : headerFr) + body;
+  const phone = l.telephone?.replace(/\D/g, '');
+  return `https://wa.me/${phone}?text=${encodeURIComponent(msg)}`;
+}
+
 const defaultForm = { title: 'Examen Blanc National', descriptionFr: '', descriptionAr: '', startsAt: '', endsAt: '', resultsAt: '', totalQ: 80, durationMin: 120 };
 
 export default function AdminExamenBlancPage() {
@@ -15,6 +53,8 @@ export default function AdminExamenBlancPage() {
   const [selectedSession, setSelectedSession] = useState<any>(null);
   const [stats, setStats] = useState<any>(null);
   const [leads, setLeads] = useState<any[]>([]);
+  const [leadsFilter, setLeadsFilter] = useState<'all' | 'prospects' | 'registered'>('all');
+  const [scoreFilter, setScoreFilter] = useState<'all' | 'lt30' | '30-50' | '50-65' | 'gt65'>('all');
   const [loading, setLoading] = useState(true);
   const [statsLoading, setStatsLoading] = useState(false);
   const [statsLang, setStatsLang] = useState<'fr' | 'ar'>('fr');
@@ -483,41 +523,75 @@ export default function AdminExamenBlancPage() {
       )}
 
       {/* ── LEADS ── */}
-      {tab === 'leads' && (
+      {tab === 'leads' && (() => {
+        const prospects = leads.filter(l => !l.isRegistered);
+        const registered = leads.filter(l => l.isRegistered);
+        const byStatus = leadsFilter === 'prospects' ? prospects : leadsFilter === 'registered' ? registered : leads;
+        const filtered = byStatus.filter(l => {
+          if (!l.isCompleted || l.score == null) return scoreFilter === 'all';
+          if (scoreFilter === 'lt30') return l.score < 30;
+          if (scoreFilter === '30-50') return l.score >= 30 && l.score < 50;
+          if (scoreFilter === '50-65') return l.score >= 50 && l.score < 65;
+          if (scoreFilter === 'gt65') return l.score >= 65;
+          return true;
+        });
+        return (
         <div className="space-y-4">
-          <div className="flex items-center justify-between">
+          <div className="flex items-center justify-between flex-wrap gap-3">
             <h2 className="font-bold text-foreground flex items-center gap-2">
-              <Users className="w-4 h-4 text-violet-500" /> Tous les participants ({leads.length})
+              <Users className="w-4 h-4 text-violet-500" /> Participants ({leads.length})
+              <span className="text-xs font-normal text-muted-foreground">— {prospects.length} prospects · {registered.length} inscrits</span>
             </h2>
-            <button onClick={exportLeadsCsv}
-              className="flex items-center gap-2 px-4 py-2 rounded-xl font-semibold text-sm text-white hover:opacity-80 transition"
-              style={{ background: 'linear-gradient(135deg,#7c3aed,#6366f1)' }}>
-              <Download className="w-4 h-4" /> Exporter CSV
-            </button>
+            <div className="flex items-center gap-2 flex-wrap">
+              {(['all', 'prospects', 'registered'] as const).map(f => (
+                <button key={f} onClick={() => setLeadsFilter(f)}
+                  className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition ${leadsFilter === f ? 'bg-violet-600 text-white' : 'bg-muted text-muted-foreground hover:bg-muted/80'}`}>
+                  {f === 'all' ? `Tous (${leads.length})` : f === 'prospects' ? `Prospects (${prospects.length})` : `Inscrits (${registered.length})`}
+                </button>
+              ))}
+              <div className="w-px h-5 bg-border" />
+              {([['all','Tous scores'],['lt30','< 30%'],['30-50','30-50%'],['50-65','50-65%'],['gt65','> 65%']] as const).map(([f, label]) => (
+                <button key={f} onClick={() => setScoreFilter(f as any)}
+                  className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition ${scoreFilter === f ? 'bg-amber-500 text-white' : 'bg-muted text-muted-foreground hover:bg-muted/80'}`}>
+                  {label}
+                </button>
+              ))}
+              <button onClick={exportLeadsCsv}
+                className="flex items-center gap-2 px-4 py-2 rounded-xl font-semibold text-sm text-white hover:opacity-80 transition"
+                style={{ background: 'linear-gradient(135deg,#7c3aed,#6366f1)' }}>
+                <Download className="w-4 h-4" /> CSV
+              </button>
+            </div>
           </div>
+          <p className="text-xs text-muted-foreground">{filtered.length} participant(s) affiché(s)</p>
 
           <div className="bg-card border border-border rounded-2xl overflow-hidden">
             <div className="overflow-x-auto">
               <table className="w-full text-sm">
                 <thead className="bg-muted border-b border-border">
                   <tr>
-                    {['Prénom', 'Nom', 'Téléphone', 'Wilaya', 'Langue', 'Session', 'Score', 'Terminé', 'Résultats vus', 'Triche', 'Date'].map(h => (
+                    {['Statut', 'Prénom', 'Nom', 'Téléphone', 'Wilaya', 'Langue', 'Score', 'Classement', 'Terminé', 'Résultats vus', 'Triche', 'WA', 'Date'].map(h => (
                       <th key={h} className="text-left px-4 py-3 text-xs font-semibold text-muted-foreground">{h}</th>
                     ))}
                   </tr>
                 </thead>
                 <tbody>
-                  {leads.length === 0 ? (
-                    <tr><td colSpan={11} className="text-center py-12 text-muted-foreground">Aucun participant pour l'instant</td></tr>
-                  ) : leads.map((l: any) => (
-                    <tr key={l.id} className="border-t border-border hover:bg-muted/50">
+                  {filtered.length === 0 ? (
+                    <tr><td colSpan={13} className="text-center py-12 text-muted-foreground">Aucun participant</td></tr>
+                  ) : filtered.map((l: any) => (
+                    <tr key={l.id} className={`border-t border-border hover:bg-muted/50 ${l.isRegistered ? '' : 'bg-amber-50/30 dark:bg-amber-900/5'}`}>
+                      <td className="px-4 py-3">
+                        {l.isRegistered
+                          ? <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-bold bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400"><CheckCircle className="w-3 h-3" />Inscrit</span>
+                          : <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-bold bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400">Prospect</span>}
+                      </td>
                       <td className="px-4 py-3 font-semibold text-foreground">{l.prenom}</td>
                       <td className="px-4 py-3 text-foreground">{l.nom}</td>
-                      <td className="px-4 py-3 font-mono text-foreground">{l.telephone}</td>
+                      <td className="px-4 py-3 font-mono text-foreground text-xs">{l.telephone}</td>
                       <td className="px-4 py-3 text-muted-foreground">{l.ville}</td>
                       <td className="px-4 py-3 text-xs font-semibold">{l.lang === 'ar' ? '🇲🇷 AR' : '🇫🇷 FR'}</td>
-                      <td className="px-4 py-3 text-muted-foreground text-xs max-w-[120px] truncate">{l.examenBlanc?.title}</td>
                       <td className="px-4 py-3 font-bold text-violet-600">{l.score != null ? `${l.score.toFixed(1)}%` : '—'}</td>
+                      <td className="px-4 py-3 text-xs text-muted-foreground">{l.classement ? `${l.classement}/${l.totalParticipants}` : '—'}</td>
                       <td className="px-4 py-3">
                         {l.isCompleted ? <CheckCircle className="w-4 h-4 text-emerald-500" /> : <XCircle className="w-4 h-4 text-muted-foreground" />}
                       </td>
@@ -529,6 +603,14 @@ export default function AdminExamenBlancPage() {
                       <td className="px-4 py-3">
                         {l.tricherie ? <AlertTriangle className="w-4 h-4 text-red-400" /> : <span className="text-muted-foreground">—</span>}
                       </td>
+                      <td className="px-4 py-3">
+                        {l.isCompleted && l.telephone ? (
+                          <a href={buildWhatsAppUrl(l)} target="_blank" rel="noreferrer"
+                            className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-bold bg-[#25D366]/10 text-[#128C7E] hover:bg-[#25D366]/20 transition">
+                            💬 WA
+                          </a>
+                        ) : <span className="text-muted-foreground">—</span>}
+                      </td>
                       <td className="px-4 py-3 text-muted-foreground text-xs">{new Date(l.createdAt).toLocaleDateString('fr-FR')}</td>
                     </tr>
                   ))}
@@ -537,7 +619,8 @@ export default function AdminExamenBlancPage() {
             </div>
           </div>
         </div>
-      )}
+        );
+      })()}
     </div>
   );
 }
