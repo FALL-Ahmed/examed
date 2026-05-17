@@ -616,10 +616,18 @@ export class ExamenBlancService {
       completed.forEach((p, i) => { rankMap[p.id] = { classement: i + 1, totalParticipants: total }; });
     });
 
-    return participants.map((p: any) => {
+    const result = participants.map((p: any) => {
       const matched = phoneToUser[p.telephone?.trim()];
       const rank = rankMap[p.id] ?? null;
       return { ...p, isRegistered: !!matched, registeredUser: matched ?? null, classement: rank?.classement ?? null, totalParticipants: rank?.totalParticipants ?? null };
+    });
+
+    // Trier par classement croissant (non classés à la fin)
+    return result.sort((a: any, b: any) => {
+      if (a.classement == null && b.classement == null) return 0;
+      if (a.classement == null) return 1;
+      if (b.classement == null) return -1;
+      return a.classement - b.classement;
     });
   }
 }
