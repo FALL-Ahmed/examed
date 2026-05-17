@@ -213,10 +213,12 @@ export default function ResultsPage() {
         body { background: white !important; font-family: Arial, sans-serif; }
         .no-print { display: none !important; }
         .print-header { display: block !important; }
+        .print-all-qs { display: block !important; }
         .print-break { page-break-before: always; }
         * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
       }
       .print-header { display: none; }
+      .print-all-qs { display: none; }
     `}</style>
 
       {/* Print header — invisible à l'écran, visible à l'impression */}
@@ -237,6 +239,50 @@ export default function ResultsPage() {
           <div><p style={{ fontSize: 13, color: '#6b7280', margin: 0 }}>Correctes</p><p style={{ fontSize: 24, fontWeight: 900, margin: 0 }}>{results.correctQ}/{results.totalQ}</p></div>
           <div><p style={{ fontSize: 13, color: '#6b7280', margin: 0 }}>Temps</p><p style={{ fontSize: 24, fontWeight: 900, margin: 0 }}>{formatTime(results.timeTaken || 0)}</p></div>
         </div>
+      </div>
+
+      {/* Print-only: toutes les questions */}
+      <div className="print-all-qs" style={{ padding: '24px 40px', fontFamily: 'Arial, sans-serif' }}>
+        <p style={{ fontWeight: 900, fontSize: 16, marginBottom: 20, borderBottom: '2px solid #e5e7eb', paddingBottom: 8 }}>
+          Correction détaillée — {results.questions?.length} questions
+        </p>
+        {results.questions?.map((q: any, idx: number) => {
+          const correctAnswers = (q.correctAnswer ?? '').toUpperCase().split(',').map((x: string) => x.trim()).filter(Boolean);
+          const userAnswers = (q.userAnswer ?? '').toUpperCase().split(',').map((x: string) => x.trim()).filter(Boolean);
+          const notAnswered = !q.userAnswer;
+          return (
+            <div key={idx} style={{ marginBottom: 20, pageBreakInside: 'avoid', borderBottom: '1px solid #f3f4f6', paddingBottom: 16 }}>
+              <p style={{ fontWeight: 700, fontSize: 13, margin: '0 0 6px', color: '#111827' }}>
+                Q{idx + 1}. {q.text}
+                <span style={{ marginLeft: 10, fontSize: 12, fontWeight: 900, color: q.partialScore > 0 ? '#059669' : q.partialScore < 0 ? '#dc2626' : '#9ca3af' }}>
+                  {q.partialScore > 0 ? '+' : ''}{q.partialScore?.toFixed(2)} pt
+                </span>
+              </p>
+              {notAnswered && (
+                <p style={{ fontSize: 11, color: '#9ca3af', margin: '0 0 4px', fontStyle: 'italic' }}>Non répondu</p>
+              )}
+              {['A', 'B', 'C', 'D', 'E'].filter(c => q[`choice${c}`]).map(c => {
+                const isCorr = correctAnswers.includes(c);
+                const wasSel = userAnswers.includes(c);
+                const color = isCorr ? '#059669' : wasSel ? '#dc2626' : '#6b7280';
+                const bullet = isCorr && wasSel ? '✓' : isCorr ? '→' : wasSel ? '✗' : '○';
+                return (
+                  <p key={c} style={{ margin: '2px 0', paddingLeft: 12, fontSize: 12, color, fontWeight: isCorr || wasSel ? 700 : 400 }}>
+                    {bullet} {c}. {q[`choice${c}`]}
+                    {isCorr && !wasSel ? '  ← bonne réponse' : ''}
+                    {wasSel && !isCorr ? '  ← ta réponse' : ''}
+                    {isCorr && wasSel ? '  ← ta réponse ✓' : ''}
+                  </p>
+                );
+              })}
+              {q.explanation && (
+                <p style={{ margin: '8px 0 0', padding: '6px 10px', background: '#eff6ff', borderLeft: '3px solid #3b82f6', color: '#1e40af', fontSize: 11, lineHeight: 1.5 }}>
+                  💬 {q.explanation}
+                </p>
+              )}
+            </div>
+          );
+        })}
       </div>
 
       {/* Hero results */}
