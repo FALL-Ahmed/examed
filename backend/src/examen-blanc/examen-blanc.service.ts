@@ -520,9 +520,18 @@ export class ExamenBlancService {
       count: scores.filter((s: number) => s >= i * 10 && (i === 9 ? s <= (i + 1) * 10 : s < (i + 1) * 10)).length,
     }));
 
-    // Always provide per-lang totals for context
+    // Histogram combiné FR+AR toujours
     const totalFr = await db(this.prisma).examenBlancParticipant.count({ where: { examenBlancId: id, lang: 'fr' } });
     const totalAr = await db(this.prisma).examenBlancParticipant.count({ where: { examenBlancId: id, lang: 'ar' } });
+
+    const allCompleted = lang
+      ? await db(this.prisma).examenBlancParticipant.findMany({ where: { examenBlancId: id, isCompleted: true } })
+      : completed;
+    const allScores = lang ? allCompleted.map((p: any) => p.score ?? 0) : scores;
+    const histogramAll = Array.from({ length: 10 }, (_, i) => ({
+      range: `${i * 10}-${(i + 1) * 10}`,
+      count: allScores.filter((s: number) => s >= i * 10 && (i === 9 ? s <= (i + 1) * 10 : s < (i + 1) * 10)).length,
+    }));
 
     return {
       session,
@@ -539,6 +548,7 @@ export class ExamenBlancService {
       },
       cityBreakdown: cityBreakdown.map((c: any) => ({ ville: c.ville, count: c._count.id })),
       histogram,
+      histogramAll,
       topParticipants: completed.slice(0, 20).map((p: any, i: number) => ({ rank: i + 1, ...p })),
     };
   }
