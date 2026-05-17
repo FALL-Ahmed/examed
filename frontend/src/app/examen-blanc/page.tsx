@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { examenBlancApi } from '@/lib/api';
 import { useLang } from '@/components/LanguageProvider';
-import { BookOpen, Clock, FileText, Trophy, Users, ChevronRight, MapPin, Star, Zap, Shield, Loader2 } from 'lucide-react';
+import { BookOpen, Clock, FileText, Trophy, Users, ChevronRight, Star, Zap, Shield, MapPin, Loader2 } from 'lucide-react';
 
 const pad = (n: number) => String(n).padStart(2, '0');
 
@@ -61,7 +61,6 @@ export default function ExamenBlancPage() {
   const { lang, setLang } = useLang();
   const isAr = lang === 'ar';
   const [data, setData] = useState<any>(null);
-  const [leaderboard, setLeaderboard] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [showRecover, setShowRecover] = useState(false);
   const [recoverPhone, setRecoverPhone] = useState('');
@@ -99,12 +98,8 @@ export default function ExamenBlancPage() {
 
   const load = useCallback(async () => {
     try {
-      const [curr, lb] = await Promise.all([
-        examenBlancApi.current(),
-        examenBlancApi.leaderboard(),
-      ]);
+      const curr = await examenBlancApi.current();
       setData(curr.data);
-      setLeaderboard(lb.data);
     } catch {
       setData({ session: null, stats: { participants: 0, totalAllTime: 0 } });
     } finally {
@@ -241,12 +236,12 @@ export default function ExamenBlancPage() {
               <ChevronRight className="w-5 h-5" />
             </Link>
           ) : isClosed && isResultsReady ? (
-            <Link href="/examen-blanc/leaderboard"
+            <button onClick={() => setShowRecover(true)}
               className="inline-flex items-center gap-2 px-8 py-4 rounded-2xl font-bold text-lg text-white hover:opacity-90 transition shadow-2xl shadow-violet-900/50"
               style={{ background: 'linear-gradient(135deg,#7c3aed,#6366f1)' }}>
               <Trophy className="w-5 h-5" />
-              {isAr ? 'عرض الترتيب' : 'Voir le classement'}
-            </Link>
+              {isAr ? 'عرض نتائجي' : 'Voir mes résultats'}
+            </button>
           ) : (
             <button disabled
               className="inline-flex items-center gap-2 px-8 py-4 rounded-2xl font-bold text-lg text-white/40 bg-white/5 border border-white/10 cursor-not-allowed">
@@ -399,40 +394,6 @@ export default function ExamenBlancPage() {
             </div>
           </div>
         </div>
-
-        {/* Leaderboard preview */}
-        {leaderboard && !leaderboard.locked && leaderboard.participants?.length > 0 && (
-          <div className="mb-16">
-            <div className="flex items-center justify-between mb-6">
-              <h2 className="text-2xl font-black text-white">
-                {isAr ? '🏆 الترتيب الأخير' : '🏆 Dernière session'}
-              </h2>
-              <Link href="/examen-blanc/leaderboard" className="text-violet-400 text-sm hover:text-violet-300">
-                {isAr ? 'عرض الكل' : 'Voir tout →'}
-              </Link>
-            </div>
-            <div className="bg-white/5 backdrop-blur border border-white/10 rounded-3xl overflow-hidden">
-              {leaderboard.participants.slice(0, 5).map((p: any, i: number) => (
-                <div key={i} className={`flex items-center gap-4 px-6 py-4 ${i < 4 ? 'border-b border-white/5' : ''}`}>
-                  <div className={`w-8 h-8 rounded-full flex items-center justify-center font-black text-sm flex-shrink-0
-                    ${i === 0 ? 'bg-amber-400 text-amber-900' : i === 1 ? 'bg-gray-300 text-gray-700' : i === 2 ? 'bg-amber-700 text-amber-100' : 'bg-white/10 text-white/60'}`}>
-                    {i + 1}
-                  </div>
-                  <div className="flex-1">
-                    <p className="text-white font-semibold text-sm">{p.nom}</p>
-                    <p className="text-white/40 text-xs flex items-center gap-1">
-                      <MapPin className="w-3 h-3" />{p.ville}
-                    </p>
-                  </div>
-                  <div className="text-right">
-                    <p className="text-white font-black">{p.score?.toFixed(1)}%</p>
-                    <p className="text-white/40 text-xs">{formatTime(p.timeTaken)}</p>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
 
         {/* Trust section */}
         <div className="text-center">
