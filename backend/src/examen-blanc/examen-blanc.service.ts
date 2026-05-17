@@ -261,7 +261,7 @@ export class ExamenBlancService {
     const lang = participant.lang || 'fr';
     const [allCompleted, totalRegistered] = await Promise.all([
       db(this.prisma).examenBlancParticipant.findMany({
-        where: { examenBlancId: participant.examenBlancId, isCompleted: true, lang },
+        where: { examenBlancId: participant.examenBlancId, isCompleted: true },
         orderBy: [{ score: 'desc' }, { timeTaken: 'asc' }],
         select: { id: true, score: true },
       }),
