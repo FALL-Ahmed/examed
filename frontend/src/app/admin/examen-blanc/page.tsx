@@ -73,7 +73,7 @@ export default function AdminExamenBlancPage() {
   const [stats, setStats] = useState<any>(null);
   const [leads, setLeads] = useState<any[]>([]);
   const [leadsFilter, setLeadsFilter] = useState<'all' | 'prospects' | 'registered'>('all');
-  const [scoreFilter, setScoreFilter] = useState<'all' | 'lt30' | '30-50' | '50-65' | 'gt65'>('all');
+  const [scoreFilter, setScoreFilter] = useState<'all' | 'incomplete' | 'lt30' | '30-50' | '50-65' | 'gt65'>('all');
   const [sendQueue, setSendQueue] = useState<any[] | null>(null);
   const [sendIdx, setSendIdx] = useState(0);
   const [loading, setLoading] = useState(true);
@@ -549,6 +549,7 @@ export default function AdminExamenBlancPage() {
         const registered = leads.filter(l => l.isRegistered);
         const byStatus = leadsFilter === 'prospects' ? prospects : leadsFilter === 'registered' ? registered : leads;
         const filtered = byStatus.filter(l => {
+          if (scoreFilter === 'incomplete') return !l.isCompleted;
           if (!l.isCompleted || l.score == null) return scoreFilter === 'all';
           if (scoreFilter === 'lt30') return l.score < 30;
           if (scoreFilter === '30-50') return l.score >= 30 && l.score < 50;
@@ -572,7 +573,7 @@ export default function AdminExamenBlancPage() {
               ))}
               {leadsFilter === 'prospects' && (<>
                 <div className="w-px h-5 bg-border" />
-                {([['all','Tous scores'],['lt30','< 30%'],['30-50','30-50%'],['50-65','50-65%'],['gt65','> 65%']] as const).map(([f, label]) => (
+                {([['all','Tous scores'],['incomplete','Non terminé'],['lt30','< 30%'],['30-50','30-50%'],['50-65','50-65%'],['gt65','> 65%']] as const).map(([f, label]) => (
                   <button key={f} onClick={() => setScoreFilter(f as any)}
                     className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition ${scoreFilter === f ? 'bg-amber-500 text-white' : 'bg-muted text-muted-foreground hover:bg-muted/80'}`}>
                     {label}
