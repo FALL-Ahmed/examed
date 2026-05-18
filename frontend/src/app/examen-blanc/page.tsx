@@ -256,10 +256,10 @@ export default function ExamenBlancPage() {
           {/* Already registered / Recover */}
           <div className="mt-5 flex flex-col items-center gap-3">
             {!showRecover ? (
-              <button onClick={() => setShowRecover(true)}
-                className="w-full max-w-xs py-3 rounded-2xl border border-violet-500/40 bg-violet-500/10 text-violet-300 font-semibold text-sm hover:bg-violet-500/20 hover:border-violet-500/60 transition">
-                {isAr ? '🔍 استرجاع نتائجي برقم الهاتف' : '🔍 Retrouver mes résultats'}
-              </button>
+              <Link href="/"
+                className="w-full max-w-xs py-3 rounded-2xl border border-white/20 bg-white/5 text-white/70 font-semibold text-sm hover:bg-white/10 hover:text-white transition text-center">
+                {isAr ? '← الذهاب إلى منصة البرور' : 'Accéder à la plateforme Al Bourour →'}
+              </Link>
             ) : (
               <div className="w-full max-w-xs bg-white/5 border border-violet-500/30 rounded-2xl p-5 space-y-3">
                 <p className="text-white/80 text-sm font-bold text-center">
