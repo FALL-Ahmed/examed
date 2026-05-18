@@ -19,6 +19,13 @@ function computePartialScore(userAnswer: string, question: {
 
 const db = (prisma: PrismaService) => prisma as any;
 
+function normalizePhone(phone: string): string {
+  let p = (phone ?? '').replace(/\D/g, '');
+  if (p.startsWith('00222')) p = p.slice(5);
+  else if (p.startsWith('222')) p = p.slice(3);
+  return p; // 8 chiffres locaux
+}
+
 @Injectable()
 export class ExamenBlancService {
   constructor(private prisma: PrismaService) {}
@@ -600,7 +607,10 @@ export class ExamenBlancService {
 
     const phoneToUser: Record<string, any> = {};
     users.forEach((u: any) => {
-      if (u.phone) phoneToUser[u.phone.trim()] = u;
+      if (u.phone) {
+        const key = normalizePhone(u.phone);
+        if (key) phoneToUser[key] = u;
+      }
     });
 
     // Compute classement per session (all langs combined, completed only)
@@ -617,7 +627,7 @@ export class ExamenBlancService {
     });
 
     const result = participants.map((p: any) => {
-      const matched = phoneToUser[p.telephone?.trim()];
+      const matched = phoneToUser[normalizePhone(p.telephone ?? '')];
       const rank = rankMap[p.id] ?? null;
       return { ...p, isRegistered: !!matched, registeredUser: matched ?? null, classement: rank?.classement ?? null, totalParticipants: rank?.totalParticipants ?? null };
     });
