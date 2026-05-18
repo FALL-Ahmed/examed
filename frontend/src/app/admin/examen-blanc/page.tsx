@@ -9,10 +9,25 @@ function formatTime(sec: number) { const h = Math.floor(sec / 3600); const m = M
 
 const LIEN_PREMIUM = 'https://albourour.com/register';
 
+const LIEN_FREE = 'https://albourour.com/free-practice';
+
 function buildWhatsAppUrl(l: any): string {
   const isAr = l.lang === 'ar';
   const prenom = l.prenom ?? '';
   const nom = l.nom ?? '';
+
+  // Cas : a commencé mais pas terminé
+  if (!l.isCompleted) {
+    const msg = isAr
+      ? `مرحباً ${prenom} ${nom}،\nلقد بدأت امتحان البرور التجريبي ولكنك لم تكمله.\n\nرابط بريميوم: ${LIEN_PREMIUM}\nرابط التجربة المجانية: ${LIEN_FREE}\n\nقرر المراجعة بشكل منظم، تابع تقدمك (الإحصائيات) وترتيبك مقارنة بزملائك.`
+      : `Bonjour ${prenom} ${nom},\nVous avez entamé l'examen Blanc Albourour, mais ne l'avez pas fini.\n\nLien premium : ${LIEN_PREMIUM}\nLien Essai gratuit : ${LIEN_FREE}\n\nDécidez de réviser de façon organisée, suivez votre progression (statistiques) et votre classement par rapport aux autres collègues.`;
+    let phone = (l.telephone ?? '').replace(/\D/g, '');
+    if (phone.startsWith('00222')) phone = phone.slice(2);
+    else if (phone.startsWith('0') && phone.length <= 9) phone = '222' + phone.slice(1);
+    else if (phone.length === 8) phone = '222' + phone;
+    return `https://wa.me/${phone}?text=${encodeURIComponent(msg)}`;
+  }
+
   const score = l.score != null ? l.score.toFixed(1) : '—';
   const classement = l.classement ? `${l.classement}/${l.totalParticipants}` : 'XX';
 
@@ -576,7 +591,7 @@ export default function AdminExamenBlancPage() {
               <table className="w-full text-xs">
                 <thead className="bg-muted border-b border-border">
                   <tr>
-                    {['Statut', 'Nom complet', 'Téléphone', 'Wilaya', 'Lg', 'Score', 'Rang', 'Résultats vus', 'WA', 'Date'].map(h => (
+                    {['Statut', 'Nom complet', 'Téléphone', 'Wilaya', 'Lg', 'Score', 'Rang', 'Résultats vus', 'WA', 'Temps'].map(h => (
                       <th key={h} className="text-left px-3 py-3 text-xs font-semibold text-muted-foreground whitespace-nowrap">{h}</th>
                     ))}
                   </tr>
@@ -603,7 +618,7 @@ export default function AdminExamenBlancPage() {
                           : <span className="text-muted-foreground text-xs">—</span>}
                       </td>
                       <td className="px-3 py-2.5">
-                        {!l.isRegistered && l.isCompleted && l.telephone ? (
+                        {!l.isRegistered && l.telephone ? (
                           <a href={buildWhatsAppUrl(l)} target="_blank" rel="noreferrer"
                             className="inline-flex items-center justify-center w-8 h-8 rounded-lg bg-[#25D366]/10 hover:bg-[#25D366]/25 transition"
                             title={`Message WhatsApp — ${l.prenom}`}>
@@ -613,7 +628,7 @@ export default function AdminExamenBlancPage() {
                           </a>
                         ) : <span />}
                       </td>
-                      <td className="px-3 py-2.5 text-muted-foreground text-xs whitespace-nowrap">{new Date(l.createdAt).toLocaleDateString('fr-FR')}</td>
+                      <td className="px-3 py-2.5 text-muted-foreground text-xs whitespace-nowrap">{l.timeTaken ? formatTime(l.timeTaken) : '—'}</td>
                     </tr>
                   ))}
                 </tbody>

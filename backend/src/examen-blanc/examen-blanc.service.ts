@@ -594,7 +594,7 @@ export class ExamenBlancService {
         orderBy: { createdAt: 'desc' },
         select: {
           id: true, examenBlancId: true, nom: true, prenom: true, telephone: true, ville: true,
-          lang: true, score: true, isCompleted: true, tricherie: true, submittedAt: true, createdAt: true,
+          lang: true, score: true, timeTaken: true, isCompleted: true, tricherie: true, submittedAt: true, createdAt: true,
           resultsViewedAt: true,
           examenBlanc: { select: { title: true, id: true } },
         },
