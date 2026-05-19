@@ -30,10 +30,10 @@ export class PdfController {
   @Post('import')
   @ApiConsumes('multipart/form-data')
   @UseInterceptors(FileInterceptor('file', { limits: { fileSize: 50 * 1024 * 1024 } }))
-  async importPdf(@UploadedFile() file: Express.Multer.File, @Query('lang') lang?: string) {
+  async importPdf(@UploadedFile() file: Express.Multer.File, @Query('lang') lang?: string, @Query('target') target?: string) {
     const language = lang?.toUpperCase() || 'FR';
     const parsed = await this.pdfService.parseAndImport(file.buffer, file.originalname, language);
-    const imported = await this.adminService.importFromParser(parsed, language);
+    const imported = await this.adminService.importFromParser(parsed, language, target?.toUpperCase() || 'INFIRMIER');
     return { parsed: parsed.stats, imported };
   }
 
@@ -43,9 +43,9 @@ export class PdfController {
   }
 
   @Post('text-import')
-  async textImport(@Body('text') text: string) {
+  async textImport(@Body('text') text: string, @Body('target') target?: string) {
     const parsed = await this.pdfService.parseTextImport(text);
-    const imported = await this.adminService.importFromParser(parsed, 'FR');
+    const imported = await this.adminService.importFromParser(parsed, 'FR', target?.toUpperCase() || 'INFIRMIER');
     return { parsed: parsed.stats, imported };
   }
 
@@ -55,16 +55,17 @@ export class PdfController {
   }
 
   @Post('ar-text-import')
-  async arTextImport(@Body('text') text: string) {
+  async arTextImport(@Body('text') text: string, @Body('target') target?: string) {
     const parsed = await this.pdfService.parseArTextImport(text);
-    const imported = await this.adminService.importFromParser(parsed, 'AR');
+    const imported = await this.adminService.importFromParser(parsed, 'AR', target?.toUpperCase() || 'INFIRMIER');
     return { parsed: parsed.stats, imported };
   }
 
   @Post('json-preview')
   async jsonPreview(@Body() body: Record<string, any>) {
-    const parsed = this.pdfService.parseJsonImport(body);
-    const detectedLang = /[؀-ۿ]/.test(JSON.stringify(body).slice(0, 500)) ? 'AR' : 'FR';
+    const { target: _, ...data } = body;
+    const parsed = this.pdfService.parseJsonImport(data);
+    const detectedLang = /[؀-ۿ]/.test(JSON.stringify(data).slice(0, 500)) ? 'AR' : 'FR';
     return {
       stats: { ...parsed.stats, language: detectedLang },
       themes: parsed.themes.map((t: any) => ({
@@ -80,9 +81,10 @@ export class PdfController {
 
   @Post('json-import')
   async jsonImport(@Body() body: Record<string, any>) {
-    const detectedLang = /[؀-ۿ]/.test(JSON.stringify(body).slice(0, 500)) ? 'AR' : 'FR';
-    const parsed = this.pdfService.parseJsonImport(body);
-    const imported = await this.adminService.importFromParser(parsed, detectedLang);
+    const { target, ...data } = body;
+    const detectedLang = /[؀-ۿ]/.test(JSON.stringify(data).slice(0, 500)) ? 'AR' : 'FR';
+    const parsed = this.pdfService.parseJsonImport(data);
+    const imported = await this.adminService.importFromParser(parsed, detectedLang, (target as string)?.toUpperCase() || 'INFIRMIER');
     return { parsed: { ...parsed.stats, language: detectedLang }, imported };
   }
 }

@@ -501,7 +501,7 @@ export class AdminService {
     };
   }
 
-  async importFromParser(parserData: any, language = 'FR') {
+  async importFromParser(parserData: any, language = 'FR', target = 'INFIRMIER') {
     let themesCreated = 0;
     let subThemesCreated = 0;
     let questionsCreated = 0;
@@ -510,8 +510,8 @@ export class AdminService {
     for (const themeData of parserData.themes) {
       const theme = await this.prisma.theme.upsert({
         where: { name: themeData.name },
-        update: { language },
-        create: { name: themeData.name, language },
+        update: { language, target },
+        create: { name: themeData.name, language, target },
       });
       themesCreated++;
 

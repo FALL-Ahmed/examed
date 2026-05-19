@@ -1,0 +1,2 @@
+-- AlterTable
+ALTER TABLE "Theme" ADD COLUMN     "target" TEXT NOT NULL DEFAULT 'INFIRMIER';

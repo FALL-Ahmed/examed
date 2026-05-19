@@ -184,7 +184,8 @@ export class AdminController {
 
   @Post('import')
   importData(@Body() body: any) {
-    return this.adminService.importFromParser(body);
+    const { target, ...data } = body;
+    return this.adminService.importFromParser(data, 'FR', (target as string)?.toUpperCase() || 'INFIRMIER');
   }
 
   @Get('sessions')

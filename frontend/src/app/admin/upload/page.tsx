@@ -6,9 +6,12 @@ import { Upload, FileText, CheckCircle, AlertCircle, Loader2, Type, Trash2, File
 type Tab = 'pdf' | 'text' | 'json';
 type Lang = 'fr' | 'ar';
 
+type Target = 'INFIRMIER' | 'SAGE_FEMME';
+
 export default function UploadPage() {
   const [tab, setTab] = useState<Tab>('json');
   const [lang, setLang] = useState<Lang>('fr');
+  const [target, setTarget] = useState<Target>('INFIRMIER');
 
   // PDF state
   const [file, setFile] = useState<File | null>(null);
@@ -103,13 +106,13 @@ export default function UploadPage() {
     try {
       let data: any;
       if (tab === 'pdf') {
-        ({ data } = await adminApi.importPdf(file!, lang));
+        ({ data } = await adminApi.importPdf(file!, lang, target));
       } else if (tab === 'json') {
-        ({ data } = await adminApi.importJson(jsonData));
+        ({ data } = await adminApi.importJson(jsonData, target));
       } else {
         ({ data } = lang === 'ar'
-          ? await adminApi.importArText(rawText)
-          : await adminApi.importText(rawText));
+          ? await adminApi.importArText(rawText, target)
+          : await adminApi.importText(rawText, target));
       }
       setResult(data);
       setPreview(null);
@@ -150,6 +153,25 @@ export default function UploadPage() {
       <div>
         <h1 className="text-2xl font-bold">Importer des questions</h1>
         <p className="text-muted-foreground mt-1">Via JSON structuré, PDF ou en collant le texte</p>
+      </div>
+
+      {/* Sélecteur filière — obligatoire */}
+      <div className="flex items-center gap-3 p-4 rounded-2xl border-2 border-dashed border-border bg-muted/30">
+        <span className="text-sm font-semibold text-foreground">Filière :</span>
+        {([
+          ['INFIRMIER',  '🏥 Infirmier'],
+          ['SAGE_FEMME', '👶 Sage-femme'],
+        ] as const).map(([t, label]) => (
+          <button key={t} onClick={() => { setTarget(t); resetAll(); }}
+            className={`px-5 py-2 rounded-xl text-sm font-bold transition ${target === t
+              ? t === 'INFIRMIER' ? 'bg-blue-600 text-white shadow' : 'bg-pink-500 text-white shadow'
+              : 'bg-background border border-border text-muted-foreground hover:bg-muted'}`}>
+            {label}
+          </button>
+        ))}
+        <span className={`ml-auto text-xs font-semibold px-2 py-1 rounded-full ${target === 'INFIRMIER' ? 'bg-blue-100 text-blue-700' : 'bg-pink-100 text-pink-700'}`}>
+          {target === 'INFIRMIER' ? 'Questions infirmier' : 'Questions sage-femme'}
+        </span>
       </div>
 
       {/* Langue (text + pdf) */}

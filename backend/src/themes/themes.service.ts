@@ -37,9 +37,23 @@ export class ThemesService {
       profession = user?.profession ?? null;
     }
 
+    if (profession === 'sage_femme') {
+      return this.prisma.theme.findMany({
+        where: { target: 'SAGE_FEMME', ...(language ? { language } : {}) },
+        include: {
+          subThemes: {
+            select: { id: true, name: true, order: true, _count: { select: { questions: true } } },
+            orderBy: { name: 'asc' },
+          },
+          _count: { select: { subThemes: true } },
+        },
+        orderBy: { name: 'asc' },
+      });
+    }
+
     if (profession === 'etudiant_infirmier_3eme') {
       const themes = await this.prisma.theme.findMany({
-        where: language ? { language } : undefined,
+        where: { target: 'INFIRMIER', ...(language ? { language } : {}) },
         include: {
           subThemes: {
             select: { id: true, name: true, order: true, _count: { select: { questions: true } } },
@@ -56,7 +70,7 @@ export class ThemesService {
     }
 
     return this.prisma.theme.findMany({
-      where: language ? { language } : undefined,
+      where: { target: 'INFIRMIER', ...(language ? { language } : {}) },
       include: {
         subThemes: {
           select: { id: true, name: true, order: true, _count: { select: { questions: true } } },

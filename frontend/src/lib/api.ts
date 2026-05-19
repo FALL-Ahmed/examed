@@ -190,17 +190,17 @@ export const adminApi = {
     fd.append('file', file);
     return api.post(`/pdf/preview?lang=${lang}`, fd, { headers: { 'Content-Type': 'multipart/form-data' } });
   },
-  importPdf: (file: File, lang = 'fr') => {
+  importPdf: (file: File, lang = 'fr', target = 'INFIRMIER') => {
     const fd = new FormData();
     fd.append('file', file);
-    return api.post(`/pdf/import?lang=${lang}`, fd, { headers: { 'Content-Type': 'multipart/form-data' } });
+    return api.post(`/pdf/import?lang=${lang}&target=${target}`, fd, { headers: { 'Content-Type': 'multipart/form-data' } });
   },
   previewText: (text: string) => api.post('/pdf/text-preview', { text }),
-  importText: (text: string) => api.post('/pdf/text-import', { text }),
+  importText: (text: string, target = 'INFIRMIER') => api.post('/pdf/text-import', { text, target }),
   previewArText: (text: string) => api.post('/pdf/ar-text-preview', { text }),
-  importArText: (text: string) => api.post('/pdf/ar-text-import', { text }),
+  importArText: (text: string, target = 'INFIRMIER') => api.post('/pdf/ar-text-import', { text, target }),
   previewJson: (json: any) => api.post('/pdf/json-preview', json),
-  importJson: (json: any) => api.post('/pdf/json-import', json),
+  importJson: (json: any, target = 'INFIRMIER') => api.post('/pdf/json-import', { ...json, target }),
   analytics: () => api.get('/admin/analytics'),
   getSettings: () => api.get('/admin/settings'),
   setSetting: (key: string, value: string) => api.put(`/admin/settings/${key}`, { value }),
