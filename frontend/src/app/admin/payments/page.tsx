@@ -70,9 +70,9 @@ export default function AdminPaymentsPage() {
     setLoading(false);
   }
 
-  async function validate(id: string) {
+  async function validate(id: string, gifted = false) {
     setProcessing(id);
-    await adminApi.validatePayment(id).catch(() => {});
+    await adminApi.validatePayment(id, gifted).catch(() => {});
     await load();
     setProcessing(null);
   }
@@ -259,7 +259,7 @@ export default function AdminPaymentsPage() {
                   </div>
 
                   {/* Actions */}
-                  <div className="flex lg:flex-col gap-3 flex-shrink-0 items-center lg:items-stretch lg:justify-center">
+                  <div className="flex lg:flex-col gap-2 flex-shrink-0 items-center lg:items-stretch lg:justify-center">
                     <button
                       onClick={() => validate(p.id)}
                       disabled={!!processing}
@@ -269,6 +269,13 @@ export default function AdminPaymentsPage() {
                         ? <Loader2 className="w-4 h-4 animate-spin" />
                         : <CheckCircle className="w-4 h-4" />}
                       Valider
+                    </button>
+                    <button
+                      onClick={() => validate(p.id, true)}
+                      disabled={!!processing}
+                      className="flex items-center justify-center gap-2 px-5 py-2.5 bg-violet-100 hover:bg-violet-200 text-violet-700 border border-violet-200 rounded-xl text-sm font-semibold transition disabled:opacity-50"
+                    >
+                      🎁 Offert
                     </button>
                     <button
                       onClick={() => reject(p.id)}

@@ -407,6 +407,9 @@ export default function UserDetailPage() {
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2 flex-wrap mb-1">
                     <span className="text-lg font-black text-slate-900">{p.amount} MRU</span>
+                    {p.status === 'VALIDATED' && p.amount === 0 && (
+                      <span className="px-2 py-0.5 rounded-full text-xs font-semibold bg-violet-100 text-violet-700">🎁 Offert</span>
+                    )}
                     <span className={`px-2 py-0.5 rounded-full text-xs font-semibold ${st.cls}`}>{st.label}</span>
                     {p.planType && <span className="px-2 py-0.5 rounded-full text-xs font-semibold bg-slate-100 text-slate-600">{p.planType}</span>}
                     {p.operator && <span className="px-2 py-0.5 rounded-full text-xs font-semibold bg-slate-100 text-slate-600">{p.operator}</span>}

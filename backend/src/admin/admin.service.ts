@@ -37,8 +37,8 @@ export class AdminService {
       this.prisma.attempt.count({ where: { isCompleted: true } }),
       this.prisma.attempt.aggregate({ where: { isCompleted: true }, _sum: { totalQ: true } }).then((r) => r._sum.totalQ ?? 0),
       this.prisma.attempt.aggregate({ where: { isCompleted: true }, _sum: { correctQ: true } }).then((r) => r._sum.correctQ ?? 0),
-      this.prisma.payment.aggregate({ where: { status: 'VALIDATED' }, _sum: { amount: true } }),
-      this.prisma.payment.aggregate({ where: { status: 'VALIDATED', validatedAt: { gte: startOfMonth } }, _sum: { amount: true } }),
+      this.prisma.payment.aggregate({ where: { status: 'VALIDATED', amount: { gt: 0 } }, _sum: { amount: true } }),
+      this.prisma.payment.aggregate({ where: { status: 'VALIDATED', amount: { gt: 0 }, validatedAt: { gte: startOfMonth } }, _sum: { amount: true } }),
       this.prisma.attempt.findMany({ where: { startedAt: { gte: startOfWeek } }, distinct: ['userId'], select: { userId: true } }).then((r) => r.length),
       this.prisma.attempt.aggregate({ where: { isCompleted: true, totalQ: { gt: 0 } }, _avg: { score: true } }),
     ]);

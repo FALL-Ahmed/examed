@@ -182,7 +182,7 @@ export const adminApi = {
   groups: () => api.get('/admin/groups'),
   pdfDownloads: () => api.get('/admin/pdf-downloads'),
   pendingPayments: () => api.get('/admin/payments/pending'),
-  validatePayment: (id: string) => api.post(`/admin/payments/${id}/validate`),
+  validatePayment: (id: string, gifted = false) => api.post(`/admin/payments/${id}/validate`, { gifted }),
   rejectPayment: (id: string, reason?: string) => api.post(`/admin/payments/${id}/reject`, { reason }),
   previewPdf: (file: File, lang = 'fr') => {
     const fd = new FormData();

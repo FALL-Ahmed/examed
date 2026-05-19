@@ -72,7 +72,7 @@ export class PaymentsService {
     });
   }
 
-  async validatePayment(paymentId: string, adminId: string) {
+  async validatePayment(paymentId: string, adminId: string, gifted = false) {
     const payment = await this.prisma.payment.findUnique({
       where: { id: paymentId },
       include: { user: true },
@@ -98,7 +98,7 @@ export class PaymentsService {
 
     return this.prisma.payment.update({
       where: { id: paymentId },
-      data: { status: 'VALIDATED', validatedBy: adminId, validatedAt: new Date() },
+      data: { status: 'VALIDATED', validatedBy: adminId, validatedAt: new Date(), ...(gifted ? { amount: 0 } : {}) },
     });
   }
 

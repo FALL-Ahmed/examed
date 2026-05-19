@@ -168,8 +168,8 @@ export class AdminController {
   }
 
   @Post('payments/:id/validate')
-  validatePayment(@Param('id') id: string, @Req() req: any) {
-    return this.paymentsService.validatePayment(id, req.user.sub);
+  validatePayment(@Param('id') id: string, @Req() req: any, @Body() body: any) {
+    return this.paymentsService.validatePayment(id, req.user.sub, body?.gifted === true);
   }
 
   @Post('payments/:id/reject')
