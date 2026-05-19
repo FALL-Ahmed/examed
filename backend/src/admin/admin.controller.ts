@@ -177,6 +177,11 @@ export class AdminController {
     return this.paymentsService.rejectPayment(id, req.user.sub, body.reason);
   }
 
+  @Post('payments/:id/mark-gifted')
+  markPaymentGifted(@Param('id') id: string) {
+    return this.paymentsService.markPaymentGifted(id);
+  }
+
   @Post('import')
   importData(@Body() body: any) {
     return this.adminService.importFromParser(body);

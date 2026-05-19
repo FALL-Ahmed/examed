@@ -126,6 +126,28 @@ export default function UserDetailPage() {
     setProcessing(false);
   }
 
+  async function validatePayment(paymentId: string, gifted = false) {
+    setProcessing(true);
+    await adminApi.validatePayment(paymentId, gifted).catch(() => {});
+    await load();
+    setProcessing(false);
+  }
+
+  async function rejectPayment(paymentId: string) {
+    const reason = prompt('Raison du rejet (optionnel)') ?? '';
+    setProcessing(true);
+    await adminApi.rejectPayment(paymentId, reason).catch(() => {});
+    await load();
+    setProcessing(false);
+  }
+
+  async function markGifted(paymentId: string) {
+    setProcessing(true);
+    await adminApi.markPaymentGifted(paymentId).catch(() => {});
+    await load();
+    setProcessing(false);
+  }
+
   async function deleteUser() {
     if (!confirm(`Supprimer définitivement "${user.fullName}" ? Cette action est irréversible.`)) return;
     setProcessing(true);
@@ -417,6 +439,32 @@ export default function UserDetailPage() {
                   <p className="text-xs text-slate-400">Soumis le {new Date(p.createdAt).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' })}</p>
                   {p.validatedAt && <p className="text-xs text-emerald-600 mt-0.5">Validé le {new Date(p.validatedAt).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' })}</p>}
                   {p.rejectionReason && <p className="text-xs text-red-500 mt-0.5">Raison : {p.rejectionReason}</p>}
+                  {/* Actions PENDING */}
+                  {p.status === 'PENDING' && (
+                    <div className="flex gap-2 mt-3 flex-wrap">
+                      <button onClick={() => validatePayment(p.id)} disabled={processing}
+                        className="flex items-center gap-1.5 px-3 py-1.5 bg-emerald-500 hover:bg-emerald-600 text-white rounded-lg text-xs font-semibold transition disabled:opacity-50">
+                        <CheckCircle className="w-3.5 h-3.5" /> Valider
+                      </button>
+                      <button onClick={() => validatePayment(p.id, true)} disabled={processing}
+                        className="flex items-center gap-1.5 px-3 py-1.5 bg-violet-100 hover:bg-violet-200 text-violet-700 border border-violet-200 rounded-lg text-xs font-semibold transition disabled:opacity-50">
+                        🎁 Offert
+                      </button>
+                      <button onClick={() => rejectPayment(p.id)} disabled={processing}
+                        className="flex items-center gap-1.5 px-3 py-1.5 bg-red-50 hover:bg-red-100 text-red-600 border border-red-200 rounded-lg text-xs font-semibold transition disabled:opacity-50">
+                        <XCircle className="w-3.5 h-3.5" /> Rejeter
+                      </button>
+                    </div>
+                  )}
+                  {/* Marquer comme offert si déjà validé avec montant > 0 */}
+                  {p.status === 'VALIDATED' && p.amount > 0 && (
+                    <div className="mt-3">
+                      <button onClick={() => markGifted(p.id)} disabled={processing}
+                        className="flex items-center gap-1.5 px-3 py-1.5 bg-violet-100 hover:bg-violet-200 text-violet-700 border border-violet-200 rounded-lg text-xs font-semibold transition disabled:opacity-50">
+                        🎁 Marquer comme offert
+                      </button>
+                    </div>
+                  )}
                 </div>
               </div>
             );

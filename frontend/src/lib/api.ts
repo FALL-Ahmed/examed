@@ -184,6 +184,7 @@ export const adminApi = {
   pendingPayments: () => api.get('/admin/payments/pending'),
   validatePayment: (id: string, gifted = false) => api.post(`/admin/payments/${id}/validate`, { gifted }),
   rejectPayment: (id: string, reason?: string) => api.post(`/admin/payments/${id}/reject`, { reason }),
+  markPaymentGifted: (id: string) => api.post(`/admin/payments/${id}/mark-gifted`),
   previewPdf: (file: File, lang = 'fr') => {
     const fd = new FormData();
     fd.append('file', file);

@@ -102,6 +102,13 @@ export class PaymentsService {
     });
   }
 
+  async markPaymentGifted(paymentId: string) {
+    return this.prisma.payment.update({
+      where: { id: paymentId },
+      data: { amount: 0 },
+    });
+  }
+
   async checkGroupInvite(email: string) {
     const invite = await (this.prisma as any).groupInvite.findFirst({
       where: { email: email.trim().toLowerCase(), isActive: true, isUsed: false },
