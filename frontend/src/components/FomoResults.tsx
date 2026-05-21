@@ -158,8 +158,11 @@ export function FomoResults({ score, totalQ, correctQ, themeName, subThemeName, 
           {isAr ? 'من أفضل المترشحين' : 'des meilleurs candidats'}
         </p>
 
-        <div className="inline-flex items-center gap-1.5 bg-white/15 border border-white/25 rounded-full px-3 py-1.5 text-white/80 text-xs font-medium">
-          🔒 {isAr ? 'سجّل لرؤية رقمك الدقيق' : 'Inscrivez-vous pour révéler votre rang exact'}
+        <div className="inline-flex items-center gap-1.5 bg-white/20 border border-white/40 rounded-full px-4 py-2 text-white text-xs font-bold animate-pulse">
+          🔒 {isAr
+            ? <><span className="font-black">سجّل</span> لرؤية <span className="font-black underline">رتبتك الدقيقة وطنياً</span></>
+            : <>Inscrivez-vous pour révéler <span className="font-black underline">votre rang à l'échelle nationale</span></>
+          }
         </div>
       </div>
 
