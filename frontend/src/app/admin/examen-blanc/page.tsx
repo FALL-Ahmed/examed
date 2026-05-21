@@ -72,6 +72,7 @@ export default function AdminExamenBlancPage() {
   const [selectedSession, setSelectedSession] = useState<any>(null);
   const [stats, setStats] = useState<any>(null);
   const [leads, setLeads] = useState<any[]>([]);
+  const [leadsSession, setLeadsSession] = useState<string>('all');
   const [leadsFilter, setLeadsFilter] = useState<'all' | 'prospects' | 'registered'>('all');
   const [scoreFilter, setScoreFilter] = useState<'all' | 'incomplete' | 'lt30' | '30-50' | '50-65' | 'gt65'>('all');
   const [sendQueue, setSendQueue] = useState<any[] | null>(null);
@@ -545,9 +546,10 @@ export default function AdminExamenBlancPage() {
 
       {/* ── LEADS ── */}
       {tab === 'leads' && (() => {
-        const prospects = leads.filter(l => !l.isRegistered);
-        const registered = leads.filter(l => l.isRegistered);
-        const byStatus = leadsFilter === 'prospects' ? prospects : leadsFilter === 'registered' ? registered : leads;
+        const bySession = leadsSession === 'all' ? leads : leads.filter(l => l.examenBlancId === leadsSession);
+        const prospects = bySession.filter(l => !l.isRegistered);
+        const registered = bySession.filter(l => l.isRegistered);
+        const byStatus = leadsFilter === 'prospects' ? prospects : leadsFilter === 'registered' ? registered : bySession;
         const filtered = byStatus.filter(l => {
           if (scoreFilter === 'incomplete') return !l.isCompleted;
           if (!l.isCompleted || l.score == null) return scoreFilter === 'all';
@@ -559,16 +561,31 @@ export default function AdminExamenBlancPage() {
         });
         return (
         <div className="space-y-4">
+          {/* Filtre session */}
+          <div className="flex items-center gap-2 flex-wrap">
+            <span className="text-xs font-semibold text-muted-foreground">Session :</span>
+            <button onClick={() => { setLeadsSession('all'); setLeadsFilter('all'); setScoreFilter('all'); }}
+              className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition ${leadsSession === 'all' ? 'bg-violet-600 text-white' : 'bg-muted text-muted-foreground hover:bg-muted/80'}`}>
+              Toutes ({leads.length})
+            </button>
+            {sessions.map(s => (
+              <button key={s.id} onClick={() => { setLeadsSession(s.id); setLeadsFilter('all'); setScoreFilter('all'); }}
+                className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition ${leadsSession === s.id ? 'bg-violet-600 text-white' : 'bg-muted text-muted-foreground hover:bg-muted/80'}`}>
+                {s.title} ({leads.filter(l => l.examenBlancId === s.id).length})
+              </button>
+            ))}
+          </div>
+
           <div className="flex items-center justify-between flex-wrap gap-3">
             <h2 className="font-bold text-foreground flex items-center gap-2">
-              <Users className="w-4 h-4 text-violet-500" /> Participants ({leads.length})
-              <span className="text-xs font-normal text-muted-foreground">— {prospects.length} prospects · {registered.length} inscrits</span>
+              <Users className="w-4 h-4 text-violet-500" /> Participants ({bySession.length})
+              <span className="text-xs font-normal text-muted-foreground">— {prospects.length} prospects · {registered.length} inscrits{leadsSession !== 'all' ? ` · ${sessions.find(s => s.id === leadsSession)?.title}` : ''}</span>
             </h2>
             <div className="flex items-center gap-2 flex-wrap">
               {(['all', 'prospects', 'registered'] as const).map(f => (
                 <button key={f} onClick={() => { setLeadsFilter(f); setScoreFilter('all'); }}
                   className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition ${leadsFilter === f ? 'bg-violet-600 text-white' : 'bg-muted text-muted-foreground hover:bg-muted/80'}`}>
-                  {f === 'all' ? `Tous (${leads.length})` : f === 'prospects' ? `Prospects (${prospects.length})` : `Inscrits (${registered.length})`}
+                  {f === 'all' ? `Tous (${bySession.length})` : f === 'prospects' ? `Prospects (${prospects.length})` : `Inscrits (${registered.length})`}
                 </button>
               ))}
               {leadsFilter === 'prospects' && (<>
