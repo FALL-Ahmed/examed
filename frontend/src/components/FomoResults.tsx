@@ -158,7 +158,7 @@ export function FomoResults({ score, totalQ, correctQ, themeName, subThemeName, 
           {isAr ? 'من أفضل المترشحين' : 'des meilleurs candidats'}
         </p>
 
-        <div className="flex flex-col items-center gap-1 bg-white/20 border border-white/40 rounded-2xl px-5 py-3 text-white font-bold animate-pulse max-w-xs w-full text-center">
+        <div className="flex flex-col items-center gap-1 bg-white/20 border border-white/40 rounded-2xl px-5 py-3 text-white font-bold animate-pulse max-w-xs w-full text-center mx-auto">
           <span className="text-sm">🔒 {isAr ? <><span className="font-black">سجّل</span> لرؤية</> : 'Inscrivez-vous pour révéler'}</span>
           <span className="font-black underline text-base">
             {isAr ? 'رتبتك الدقيقة وطنياً' : 'votre rang à l\'échelle nationale'}
