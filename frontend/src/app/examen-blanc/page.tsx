@@ -212,12 +212,18 @@ export default function ExamenBlancPage() {
             <div className="flex flex-col items-center gap-3 mb-10">
               {!isOpen && !isClosed && (
                 <>
-                  <p className="text-white/50 text-sm">
-                    {isAr
-                      ? `📅 يفتح في ${new Date(session.startsAt).toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' })}`
-                      : `📅 Ouverture le ${new Date(session.startsAt).toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' })}`}
-                  </p>
-                  <Countdown target={new Date(session.startsAt)} label={isAr ? 'يفتح خلال' : 'Ouverture dans'} isAr={isAr} />
+                  <div className="flex flex-col items-center gap-1">
+                    <span className="text-white/40 text-xs font-semibold uppercase tracking-widest">
+                      {isAr ? 'موعد الانطلاق' : 'Bientôt…'}
+                    </span>
+                    <span className="text-white font-black text-2xl sm:text-3xl tracking-tight">
+                      {new Date(session.startsAt).toLocaleDateString(isAr ? 'ar-MA' : 'fr-FR', { weekday: 'long', day: 'numeric', month: 'long' })}
+                    </span>
+                    <span className="text-violet-300 font-bold text-xl">
+                      {new Date(session.startsAt).toLocaleTimeString(isAr ? 'ar-MA' : 'fr-FR', { hour: '2-digit', minute: '2-digit' })}
+                    </span>
+                  </div>
+                  <Countdown target={new Date(session.startsAt)} label={isAr ? 'يفتح خلال' : 'dans'} isAr={isAr} />
                 </>
               )}
               {isOpen && (
