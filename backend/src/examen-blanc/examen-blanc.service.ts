@@ -448,6 +448,31 @@ export class ExamenBlancService {
   }
 
   async generateQuestions(totalQ = 80, lang: 'FR' | 'AR' = 'FR'): Promise<string[]> {
+    // Sessions précédentes du plus ancien au plus récent
+    const previousSessions = await db(this.prisma).examenBlanc.findMany({
+      orderBy: { createdAt: 'asc' },
+      select: { questionIdsFr: true, questionIdsAr: true },
+    });
+
+    // usedAge : index de la session où la question a été utilisée en dernier
+    // Plus l'index est bas (vieille session), plus la question est "recyclable" en priorité
+    const usedAge = new Map<string, number>();
+    previousSessions.forEach((s: any, idx: number) => {
+      const ids: string[] = lang === 'FR' ? s.questionIdsFr : s.questionIdsAr;
+      ids.forEach(id => usedAge.set(id, idx));
+    });
+
+    // Jamais utilisée = Infinity (priorité max), sinon index de dernière utilisation
+    const freshness = (id: string): number => usedAge.has(id) ? usedAge.get(id)! : Infinity;
+
+    const byFreshness = (a: string, b: string) => {
+      const fa = freshness(a), fb = freshness(b);
+      if (fa === fb) return Math.random() - 0.5;
+      if (fa === Infinity) return -1;
+      if (fb === Infinity) return 1;
+      return fa - fb; // plus vieille utilisation = priorité
+    };
+
     const subThemes = await this.prisma.subTheme.findMany({
       where: { theme: { language: lang } },
       include: {
@@ -463,15 +488,15 @@ export class ExamenBlancService {
     const pool: string[] = [];
 
     for (const st of available) {
-      const shuffled = [...st.questions].sort(() => Math.random() - 0.5);
-      selected.push(shuffled[0].id);
-      if (shuffled.length > 1) pool.push(...shuffled.slice(1).map(q => q.id));
+      const sorted = [...st.questions.map(q => q.id)].sort(byFreshness);
+      selected.push(sorted[0]);
+      if (sorted.length > 1) pool.push(...sorted.slice(1));
     }
 
     const needed = totalQ - selected.length;
     if (needed > 0 && pool.length > 0) {
-      const shuffledPool = pool.sort(() => Math.random() - 0.5);
-      selected.push(...shuffledPool.slice(0, Math.min(needed, shuffledPool.length)));
+      pool.sort(byFreshness);
+      selected.push(...pool.slice(0, Math.min(needed, pool.length)));
     }
 
     return selected.sort(() => Math.random() - 0.5).slice(0, totalQ);
