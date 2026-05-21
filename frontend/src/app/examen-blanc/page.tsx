@@ -180,14 +180,14 @@ export default function ExamenBlancPage() {
           <h1 className="text-4xl sm:text-5xl lg:text-6xl font-black text-white leading-tight mb-4">
             {isAr ? 'الامتحان التجريبي' : 'Examen Blanc'}
             <span className="block" style={{ background: 'linear-gradient(135deg,#a78bfa,#818cf8)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
-              {isAr ? 'الوطني' : 'National'}
+              {isAr ? 'الوطني' : 'À l\'échelle nationale'}
             </span>
           </h1>
 
           <p className="text-white/60 text-lg sm:text-xl max-w-2xl mx-auto mb-8 leading-relaxed">
             {isAr
               ? 'اختبر مستواك الحقيقي قبل المسابقة الرسمية. ترتيب وطني. نتائج مفصّلة.'
-              : 'Teste ton vrai niveau avant le concours officiel. Classement national. Analyse détaillée.'}
+              : 'Teste ton vrai niveau avant le concours officiel. Classement à l\'échelle nationale. Analyse détaillée.'}
           </p>
 
           {/* Stats live */}
@@ -327,7 +327,7 @@ export default function ExamenBlancPage() {
           {[
             { icon: FileText, title: session?.totalQ ?? 80, sub: isAr ? 'سؤال طبي' : 'Questions médicales' },
             { icon: Clock, title: `${session?.durationMin ?? 120} min`, sub: isAr ? 'مدة الاختبار' : "Durée de l'examen" },
-            { icon: Trophy, title: isAr ? 'وطني' : 'National', sub: isAr ? 'ترتيب وطني' : 'Classement national' },
+            { icon: Trophy, title: isAr ? 'وطني' : 'Nationale', sub: isAr ? 'ترتيب وطني' : 'À l\'échelle nationale' },
             { icon: Zap, title: isAr ? '24 ساعة' : '24h', sub: isAr ? 'للنتائج المفصّلة' : 'Pour les résultats' },
           ].map(({ icon: Icon, title, sub }, i) => (
             <div key={i} className="bg-white/5 backdrop-blur border border-white/10 rounded-2xl p-5 text-center hover:bg-white/8 transition">
