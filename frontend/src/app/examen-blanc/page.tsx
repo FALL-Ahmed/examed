@@ -193,7 +193,7 @@ export default function ExamenBlancPage() {
           {/* Stats live */}
           <div className="flex items-center justify-center gap-6 sm:gap-10 mb-10 flex-wrap">
             {[
-              { icon: Users, val: stats.participants > 0 ? stats.participants : (stats.totalAllTime || '—'), label: isAr ? 'مشارك' : 'participants' },
+              { icon: Users, val: stats.participants > 0 ? stats.participants : '—', label: isAr ? 'مشارك' : 'participants' },
               { icon: FileText, val: session?.totalQ ?? 80, label: isAr ? 'سؤال' : 'questions' },
               { icon: Clock, val: `${session?.durationMin ?? 120}min`, label: isAr ? 'مدة' : 'durée' },
             ].map(({ icon: Icon, val, label }, i) => (
