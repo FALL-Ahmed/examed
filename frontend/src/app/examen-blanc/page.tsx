@@ -209,9 +209,16 @@ export default function ExamenBlancPage() {
 
           {/* Countdown */}
           {session && (
-            <div className="flex justify-center mb-10">
+            <div className="flex flex-col items-center gap-3 mb-10">
               {!isOpen && !isClosed && (
-                <Countdown target={new Date(session.startsAt)} label={isAr ? 'يفتح خلال' : 'Ouverture dans'} isAr={isAr} />
+                <>
+                  <p className="text-white/50 text-sm">
+                    {isAr
+                      ? `📅 يفتح في ${new Date(session.startsAt).toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' })}`
+                      : `📅 Ouverture le ${new Date(session.startsAt).toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' })}`}
+                  </p>
+                  <Countdown target={new Date(session.startsAt)} label={isAr ? 'يفتح خلال' : 'Ouverture dans'} isAr={isAr} />
+                </>
               )}
               {isOpen && (
                 <Countdown target={new Date(session.endsAt)} label={isAr ? 'يغلق خلال' : 'Fermeture dans'} isAr={isAr} />
