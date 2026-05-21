@@ -107,6 +107,7 @@ export default function FreePracticePage() {
     if (currentIdx + 1 >= questions.length) {
       trackPracticeEvent('complete', { count: questions.length });
       setPhase('results');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     } else {
       setCurrentIdx((i) => i + 1);
       setSelected([]);
