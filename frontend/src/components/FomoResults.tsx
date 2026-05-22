@@ -132,8 +132,8 @@ export function FomoResults({ score, totalQ, correctQ, themeName, subThemeName, 
 
         <p className="text-white/80 text-sm mb-6">
           {isAr
-            ? '+500 مرشح موريتاني يتابعون ترتيبهم على Al Bourour.'
-            : '+500 candidats mauritaniens suivent leur classement sur Al Bourour.'}
+            ? '+150 مرشح موريتاني يتابعون ترتيبهم على Al Bourour.'
+            : '+150 candidats mauritaniens suivent leur classement sur Al Bourour.'}
         </p>
 
         <Link href="/register" onClick={() => onCtaClick?.()}
