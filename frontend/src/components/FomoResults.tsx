@@ -158,12 +158,13 @@ export function FomoResults({ score, totalQ, correctQ, themeName, subThemeName, 
           {isAr ? 'من أفضل المترشحين' : 'des meilleurs candidats'}
         </p>
 
-        <div className="flex flex-col items-center gap-1 bg-white/20 border border-white/40 rounded-2xl px-5 py-3 text-white font-bold animate-pulse max-w-xs w-full text-center mx-auto">
-          <span className="text-sm">🔒 {isAr ? <><span className="font-black">سجّل</span> لرؤية</> : 'Inscrivez-vous pour révéler'}</span>
-          <span className="font-black underline text-base">
-            {isAr ? 'رتبتك الدقيقة وطنياً' : 'votre rang à l\'échelle nationale'}
-          </span>
-        </div>
+        <Link href="/examen-blanc"
+          style={{ background: 'linear-gradient(135deg,#7c3aed,#6366f1)', boxShadow: '0 6px 28px rgba(124,58,237,0.55)', textDecoration: 'none' }}
+          className="flex items-center justify-center gap-2 rounded-2xl px-6 py-4 text-white font-black text-base max-w-xs w-full text-center mx-auto transition active:scale-95">
+          <span>🔒</span>
+          <span>{isAr ? 'سجّل لرؤية رتبتك وطنياً' : 'Révéler votre rang à l\'échelle nationale'}</span>
+          <ArrowRight className="w-4 h-4 flex-shrink-0" />
+        </Link>
       </div>
 
       {/* ── 3. Stats + Histogramme ── */}
