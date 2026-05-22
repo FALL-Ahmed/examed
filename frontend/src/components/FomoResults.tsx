@@ -189,14 +189,24 @@ export function FomoResults({ score, totalQ, correctQ, themeName, subThemeName, 
                 key={op.id}
                 type="button"
                 onClick={() => setSelectedOp(selectedOp === op.id ? '' : op.id)}
-                className={`flex flex-col items-center gap-1.5 p-3 rounded-xl border-2 transition ${
+                className={`relative flex flex-col items-center gap-1.5 p-3 rounded-xl border-2 transition ${
                   selectedOp === op.id
-                    ? 'border-violet-500 bg-violet-50'
+                    ? 'border-violet-500 bg-violet-50 shadow-md shadow-violet-100'
                     : 'border-gray-100 bg-gray-50 hover:border-violet-200'
                 }`}
               >
+                {selectedOp === op.id && (
+                  <div className="absolute top-1.5 right-1.5 w-3.5 h-3.5 rounded-full bg-violet-500 flex items-center justify-center">
+                    <svg className="w-2 h-2 text-white" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" /></svg>
+                  </div>
+                )}
                 <img src={op.image} alt={op.name} className="h-8 w-auto object-contain" />
                 <span className="text-[10px] font-semibold text-gray-600">{op.name}</span>
+                {operators[op.id] && (
+                  <span className="text-[10px] font-black text-violet-600 tracking-wider" dir="ltr">
+                    {operators[op.id].replace(/^\+?222\s*/, '')}
+                  </span>
+                )}
               </button>
             ))}
           </div>
