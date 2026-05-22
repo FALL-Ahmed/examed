@@ -50,7 +50,7 @@ export default function FreePracticePage() {
   const [results, setResults] = useState<{ correct: boolean }[]>([]);
   const [loadingQ, setLoadingQ] = useState(false);
   const configRef = useRef<HTMLDivElement>(null);
-  const practiceSession = useRef<{ sessionId: string; themeId: string; themeName: string; lang: string } | null>(null);
+  const practiceSession = useRef<{ sessionId: string; themeId: string; themeName: string; subThemeId?: string; subThemeName?: string; lang: string } | null>(null);
 
   function trackPracticeEvent(eventType: string, extra?: { questionN?: number; isCorrect?: boolean; count?: number }) {
     const s = practiceSession.current;
