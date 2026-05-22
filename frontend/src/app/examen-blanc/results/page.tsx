@@ -468,12 +468,13 @@ export default function ResultsPage() {
                   {/* Navigation */}
                   <div className="flex items-center justify-between pt-2 no-print">
                     <button onClick={() => setSelectedQIdx(i => Math.max(0, i - 1))} disabled={selectedQIdx === 0}
-                      className="flex items-center gap-1 px-4 py-2 rounded-xl border border-gray-200 text-gray-600 text-sm font-semibold hover:bg-gray-50 transition disabled:opacity-30">
-                      <ChevronLeft className="w-4 h-4" /> {isAr ? 'السابق' : 'Précédente'}
+                      className="flex items-center justify-center w-10 h-10 rounded-xl border-2 border-gray-300 text-gray-700 hover:bg-gray-100 hover:border-gray-400 transition disabled:opacity-30">
+                      <ChevronLeft className="w-6 h-6" />
                     </button>
                     <span className="text-gray-400 text-xs">{selectedQIdx + 1} / {qs.length}</span>
                     <button onClick={() => setSelectedQIdx(i => Math.min(qs.length - 1, i + 1))} disabled={selectedQIdx === qs.length - 1}
-                      className="flex items-center gap-1 px-4 py-2 rounded-xl border border-gray-200 text-gray-600 text-sm font-semibold hover:bg-gray-50 transition disabled:opacity-30">
+                      className="flex items-center gap-1.5 px-5 py-2 rounded-xl text-sm font-bold text-white transition disabled:opacity-30"
+                      style={{ background: 'linear-gradient(135deg,#7c3aed,#6366f1)' }}>
                       {isAr ? 'التالي' : 'Suivante'} <ChevronRight className="w-4 h-4" />
                     </button>
                   </div>

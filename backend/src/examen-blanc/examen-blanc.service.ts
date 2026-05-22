@@ -594,7 +594,7 @@ export class ExamenBlancService {
   async getSessions() {
     const sessions = await db(this.prisma).examenBlanc.findMany({
       orderBy: { createdAt: 'desc' },
-      include: { _count: { select: { participants: true } } },
+      include: { _count: { select: { participants: { where: { isTest: false } } } } },
     });
     return sessions.map((s: any) => ({ ...s, participantCount: s._count.participants }));
   }
