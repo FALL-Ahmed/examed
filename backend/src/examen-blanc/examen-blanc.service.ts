@@ -40,12 +40,12 @@ export class ExamenBlancService {
     const stats = {
       participants: 0,
       completed: 0,
-      totalAllTime: await db(this.prisma).examenBlancParticipant.count({ where: { isCompleted: true } }),
+      totalAllTime: await db(this.prisma).examenBlancParticipant.count({ where: { isCompleted: true, isTest: false } }),
     };
 
     if (session) {
-      stats.participants = await db(this.prisma).examenBlancParticipant.count({ where: { examenBlancId: session.id } });
-      stats.completed = await db(this.prisma).examenBlancParticipant.count({ where: { examenBlancId: session.id, isCompleted: true } });
+      stats.participants = await db(this.prisma).examenBlancParticipant.count({ where: { examenBlancId: session.id, isTest: false } });
+      stats.completed = await db(this.prisma).examenBlancParticipant.count({ where: { examenBlancId: session.id, isCompleted: true, isTest: false } });
     }
 
     return {
@@ -335,12 +335,12 @@ export class ExamenBlancService {
     const lang = participant.lang || 'fr';
     const [allCompleted, totalRegistered] = await Promise.all([
       db(this.prisma).examenBlancParticipant.findMany({
-        where: { examenBlancId: participant.examenBlancId, isCompleted: true },
+        where: { examenBlancId: participant.examenBlancId, isCompleted: true, isTest: false },
         orderBy: [{ score: 'desc' }, { timeTaken: 'asc' }],
         select: { id: true, score: true },
       }),
       db(this.prisma).examenBlancParticipant.count({
-        where: { examenBlancId: participant.examenBlancId },
+        where: { examenBlancId: participant.examenBlancId, isTest: false },
       }),
     ]);
 
@@ -603,7 +603,7 @@ export class ExamenBlancService {
     const session = await db(this.prisma).examenBlanc.findUnique({ where: { id } });
     if (!session) throw new NotFoundException('Session introuvable');
 
-    const where: any = { examenBlancId: id };
+    const where: any = { examenBlancId: id, isTest: false };
     if (lang) where.lang = lang;
 
     const allParticipants = await db(this.prisma).examenBlancParticipant.findMany({
@@ -626,11 +626,11 @@ export class ExamenBlancService {
     }));
 
     // Histogram combiné FR+AR toujours
-    const totalFr = await db(this.prisma).examenBlancParticipant.count({ where: { examenBlancId: id, lang: 'fr' } });
-    const totalAr = await db(this.prisma).examenBlancParticipant.count({ where: { examenBlancId: id, lang: 'ar' } });
+    const totalFr = await db(this.prisma).examenBlancParticipant.count({ where: { examenBlancId: id, lang: 'fr', isTest: false } });
+    const totalAr = await db(this.prisma).examenBlancParticipant.count({ where: { examenBlancId: id, lang: 'ar', isTest: false } });
 
     const allCompleted = lang
-      ? await db(this.prisma).examenBlancParticipant.findMany({ where: { examenBlancId: id, isCompleted: true } })
+      ? await db(this.prisma).examenBlancParticipant.findMany({ where: { examenBlancId: id, isCompleted: true, isTest: false } })
       : completed;
     const allScores = lang ? allCompleted.map((p: any) => p.score ?? 0) : scores;
     const histogramAll = Array.from({ length: 10 }, (_, i) => ({
@@ -731,6 +731,7 @@ export class ExamenBlancService {
   async getAllParticipants() {
     const [participants, users] = await Promise.all([
       db(this.prisma).examenBlancParticipant.findMany({
+        where: { isTest: false },
         orderBy: { createdAt: 'desc' },
         select: {
           id: true, examenBlancId: true, nom: true, prenom: true, telephone: true, ville: true,
