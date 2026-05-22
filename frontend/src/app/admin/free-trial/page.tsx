@@ -282,6 +282,36 @@ export default function FreeTrialStatsPage() {
                           })()}
                         </div>
                       </div>
+
+                      {/* Sous-thèmes de ce thème */}
+                      {t.subThemes?.length > 0 && (
+                        <div className="border-t border-border px-5 py-4">
+                          <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-3">Sous-thèmes</p>
+                          <div className="space-y-2">
+                            {t.subThemes.map((st: any) => (
+                              <div key={st.subThemeName} className="flex items-center gap-3 bg-secondary/40 rounded-xl px-3 py-2">
+                                <span className="flex-1 text-sm font-medium truncate">{st.subThemeName}</span>
+                                <span className="text-xs font-bold text-violet-600 w-14 text-right flex-shrink-0">{st.totalSessions} sess.</span>
+                                <span className="text-xs font-semibold w-12 text-right flex-shrink-0"
+                                  style={{ color: st.successRate >= 60 ? '#10b981' : st.successRate >= 40 ? '#f59e0b' : '#ef4444' }}>
+                                  {st.successRate}% ✓
+                                </span>
+                                {st.questionFunnel?.length > 0 && (
+                                  <div className="flex items-end gap-0.5 flex-shrink-0" style={{ width: 48, height: 20 }}>
+                                    {st.questionFunnel.map((f: any) => {
+                                      const pct = st.questionFunnel[0].count > 0 ? (f.count / st.questionFunnel[0].count) * 100 : 0;
+                                      return (
+                                        <div key={f.q} className="flex-1 rounded-t"
+                                          style={{ height: `${Math.max(10, pct)}%`, background: pct > 70 ? '#10b981' : pct > 40 ? '#f59e0b' : '#ef4444' }} />
+                                      );
+                                    })}
+                                  </div>
+                                )}
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      )}
                     </div>
                   ))}
                 </div>
@@ -289,63 +319,6 @@ export default function FreeTrialStatsPage() {
                 <div className="bg-card border border-border rounded-2xl p-8 text-center">
                   <BookOpen className="w-8 h-8 text-muted-foreground mx-auto mb-3" />
                   <p className="text-sm text-muted-foreground">Aucune session trackée sur les 30 derniers jours.</p>
-                </div>
-              )}
-
-              {/* Sous-thèmes les plus choisis */}
-              {practiceData.bySubTheme?.length > 0 && (
-                <div className="space-y-3">
-                  <p className="text-xs font-bold text-muted-foreground uppercase tracking-wide">Sous-thèmes les plus choisis</p>
-                  {practiceData.bySubTheme.map((st: any) => (
-                    <div key={st.subThemeName} className="bg-card border border-border rounded-2xl overflow-hidden">
-                      <div className="p-4 flex items-center justify-between gap-4 flex-wrap">
-                        <div className="flex-1 min-w-0">
-                          <p className="font-semibold text-sm truncate">{st.subThemeName}</p>
-                          <p className="text-xs text-muted-foreground mt-0.5">{st.themeName}</p>
-                        </div>
-                        <div className="flex items-center gap-3 flex-shrink-0 flex-wrap">
-                          <div className="text-center px-3 py-1.5 rounded-xl bg-violet-100 dark:bg-violet-900/30 min-w-[70px]">
-                            <p className="text-lg font-black text-violet-700 dark:text-violet-300">{st.totalSessions}</p>
-                            <p className="text-[10px] text-violet-600 dark:text-violet-400 font-semibold">sessions</p>
-                          </div>
-                          <div className="text-center px-3 py-1.5 rounded-xl bg-emerald-100 dark:bg-emerald-900/30 min-w-[70px]">
-                            <p className="text-lg font-black text-emerald-700 dark:text-emerald-300">{st.completionRate}%</p>
-                            <p className="text-[10px] text-emerald-600 font-semibold">complétion</p>
-                          </div>
-                          <div className="text-center px-3 py-1.5 rounded-xl min-w-[70px]"
-                            style={{ background: st.successRate >= 70 ? '#d1fae5' : st.successRate >= 50 ? '#fef3c7' : '#fee2e2' }}>
-                            <p className="text-lg font-black" style={{ color: st.successRate >= 70 ? '#065f46' : st.successRate >= 50 ? '#92400e' : '#991b1b' }}>{st.successRate}%</p>
-                            <p className="text-[10px] font-semibold" style={{ color: st.successRate >= 70 ? '#065f46' : st.successRate >= 50 ? '#92400e' : '#991b1b' }}>réussite</p>
-                          </div>
-                        </div>
-                      </div>
-                      {st.questionFunnel?.length > 0 && (
-                        <div className="px-4 pb-4 border-t border-border pt-3">
-                          <p className="text-xs font-semibold text-muted-foreground mb-2">Entonnoir par question</p>
-                          <div className="flex items-end gap-1" style={{ height: 48 }}>
-                            {st.questionFunnel.map((f: any, i: number) => {
-                              const pct = st.questionFunnel[0].count > 0 ? (f.count / st.questionFunnel[0].count) * 100 : 0;
-                              const drop = i > 0 ? st.questionFunnel[i - 1].count - f.count : 0;
-                              return (
-                                <div key={f.q} className="flex-1 flex flex-col items-center gap-0.5" title={`Q${f.q}: ${f.count} sessions${drop > 0 ? ` (-${drop})` : ''}`}>
-                                  <div className="w-full rounded-t" style={{ height: `${Math.max(4, pct)}%`, background: pct > 70 ? '#10b981' : pct > 40 ? '#f59e0b' : '#ef4444' }} />
-                                  <span className="text-[9px] text-muted-foreground">{f.q}</span>
-                                </div>
-                              );
-                            })}
-                          </div>
-                          {(() => {
-                            const maxDrop = st.questionFunnel.reduce((best: any, f: any, i: number) => {
-                              if (i === 0) return best;
-                              const d = st.questionFunnel[i - 1].count - f.count;
-                              return d > (best?.drop ?? 0) ? { q: f.q, drop: d } : best;
-                            }, null);
-                            return maxDrop ? <p className="text-[10px] text-muted-foreground mt-1">Plus grande chute à la Q{maxDrop.q} (−{maxDrop.drop} sessions)</p> : null;
-                          })()}
-                        </div>
-                      )}
-                    </div>
-                  ))}
                 </div>
               )}
 

@@ -819,37 +819,22 @@ export class AdminService {
       orderBy: { createdAt: 'asc' },
     });
 
-    // Grouper par themeId pour fusionner FR et AR du même thème
-    const themeIds = [...new Set<string>(events.filter((e: any) => e.themeId).map((e: any) => e.themeId as string))];
-    // Fallback: événements sans themeId groupés par themeName
-    const themeNamesNoId = [...new Set<string>(events.filter((e: any) => !e.themeId).map((e: any) => e.themeName as string))];
-
-    // Sous-thèmes les plus choisis
-    const subThemeEvents = events.filter((e: any) => e.subThemeName);
-    const subThemeNames = [...new Set<string>(subThemeEvents.map((e: any) => e.subThemeName as string))];
-    const bySubTheme = subThemeNames.map((subThemeName) => {
-      const se = subThemeEvents.filter((e: any) => e.subThemeName === subThemeName);
-      const sessions = new Set(se.map((e: any) => e.sessionId));
-      const completed = new Set(se.filter((e: any) => e.eventType === 'complete').map((e: any) => e.sessionId));
-      const answers = se.filter((e: any) => e.eventType === 'answer');
-      const correct = answers.filter((e: any) => e.isCorrect);
-      const themeName = se[0]?.themeName ?? '—';
-      const maxQ = se.reduce((m: number, e: any) => Math.max(m, e.questionN ?? 0), 0);
-      const questionFunnel = maxQ > 0
-        ? Array.from({ length: maxQ }, (_, i) => {
-            const sessionsAtQ = new Set(se.filter((e: any) => (e.questionN ?? 0) >= i + 1).map((e: any) => e.sessionId));
-            return { q: i + 1, count: sessionsAtQ.size };
-          })
-        : [];
-      return {
-        subThemeName,
-        themeName,
-        totalSessions: sessions.size,
-        completionRate: sessions.size > 0 ? Math.round((completed.size / sessions.size) * 100) : 0,
-        successRate: answers.length > 0 ? Math.round((correct.length / answers.length) * 100) : 0,
-        questionFunnel,
-      };
-    }).sort((a, b) => b.totalSessions - a.totalSessions);
+    // Mapping AR→FR (même thème, deux langues)
+    const AR_TO_FR: Record<string, string> = {
+      'الأمراض المعدية': 'LES MALADIES INFECTIEUSES',
+      'التشريح وعلم وظائف الأعضاء (Anatomie et Physiologie)': 'ANATOMIE ET PHYSIOLOGIE',
+      'طب القلب والأوعية الدموية': 'CARDIOLOGIE',
+      'الغدد الصماء': 'ENDOCRINOLOGIE',
+      'طب الأطفال': 'PEDIATRIE',
+      'علم الأعصاب': 'NEUROLOGIE',
+      'أمراض الجهاز الهضمي': 'GASTROLOGIE',
+      'الطوارئ الجراحية': 'URGENCES CHIRURGICALES',
+      'جراحة العظام والحروق': 'ORTHOPEDIE',
+      'الدوائية والعلاج': 'PHARMACOLOGIE',
+      'السيميولوجيا': 'SEMIOLOGIE',
+      'الممارسة التمريضية': 'PRATIQUE DE LA SCIENCE INFIRMIERE',
+    };
+    const canonicalName = (name: string) => AR_TO_FR[name] ?? name;
 
     const buildThemeStats = (te: any[], displayName: string) => {
       const sessions = new Map<string, { completed: boolean; answered: number; correct: number; maxQ: number }>();
@@ -878,6 +863,30 @@ export class AdminService {
             count: arr.filter((s) => s.maxQ >= i + 1).length,
           }))
         : [];
+      // Sous-thèmes imbriqués dans ce thème
+      const stEvents = te.filter((e: any) => e.subThemeName);
+      const stNames = [...new Set<string>(stEvents.map((e: any) => e.subThemeName as string))];
+      const subThemes = stNames.map((subThemeName) => {
+        const se = stEvents.filter((e: any) => e.subThemeName === subThemeName);
+        const stSessions = new Set(se.map((e: any) => e.sessionId));
+        const stCompleted = new Set(se.filter((e: any) => e.eventType === 'complete').map((e: any) => e.sessionId));
+        const stAnswers = se.filter((e: any) => e.eventType === 'answer');
+        const stMaxQ = se.reduce((m: number, e: any) => Math.max(m, e.questionN ?? 0), 0);
+        const stFunnel = stMaxQ > 0
+          ? Array.from({ length: stMaxQ }, (_, i) => ({
+              q: i + 1,
+              count: new Set(se.filter((e: any) => (e.questionN ?? 0) >= i + 1).map((e: any) => e.sessionId)).size,
+            }))
+          : [];
+        return {
+          subThemeName,
+          totalSessions: stSessions.size,
+          completionRate: stSessions.size > 0 ? Math.round((stCompleted.size / stSessions.size) * 100) : 0,
+          successRate: stAnswers.length > 0 ? Math.round((stAnswers.filter((e: any) => e.isCorrect).length / stAnswers.length) * 100) : 0,
+          questionFunnel: stFunnel,
+        };
+      }).sort((a, b) => b.totalSessions - a.totalSessions);
+
       return {
         themeName: displayName,
         totalSessions: total,
@@ -888,24 +897,16 @@ export class AdminService {
         conversionRate: total > 0 ? Math.round((ctaClicks / total) * 100) : 0,
         langSplit: { fr: frCount, ar: arCount },
         questionFunnel,
+        subThemes,
       };
     };
 
-    const byThemeFromId = themeIds.map((themeId) => {
-      const te = events.filter((e: any) => e.themeId === themeId);
-      // Afficher le nom FR en priorité, sinon AR
-      const frName = te.find((e: any) => e.lang === 'fr')?.themeName;
-      const arName = te.find((e: any) => e.lang === 'ar')?.themeName;
-      const displayName = frName ?? arName ?? themeId;
-      return buildThemeStats(te, displayName);
-    });
-
-    const byThemeFromName = themeNamesNoId.map((themeName) => {
-      const te = events.filter((e: any) => !e.themeId && e.themeName === themeName);
-      return buildThemeStats(te, themeName);
-    });
-
-    const byTheme = [...byThemeFromId, ...byThemeFromName].sort((a, b) => b.totalSessions - a.totalSessions);
+    // Grouper tous les événements par nom canonique (AR traduit en FR)
+    const canonicalNames = [...new Set<string>(events.map((e: any) => canonicalName(e.themeName)))];
+    const byTheme = canonicalNames.map((cName) => {
+      const te = events.filter((e: any) => canonicalName(e.themeName) === cName);
+      return buildThemeStats(te, cName);
+    }).sort((a, b) => b.totalSessions - a.totalSessions);
 
     // Entonnoir global (toutes sessions confondues)
     const allSessionsMaxQ = new Map<string, number>();
@@ -962,7 +963,7 @@ export class AdminService {
 
     return {
       byTheme,
-      bySubTheme,
+
       globalFunnel,
       dailyStats,
       totalSessions,
