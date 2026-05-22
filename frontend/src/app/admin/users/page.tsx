@@ -4,7 +4,7 @@ import { useRouter } from 'next/navigation';
 import { adminApi } from '@/lib/api';
 import {
   CheckCircle, Shield, User, Search, ToggleLeft, ToggleRight,
-  RotateCcw, Trash2, Users, Crown, UserCheck,
+  RotateCcw, Trash2, Users, Crown, UserCheck, X,
 } from 'lucide-react';
 
 type Tab = 'ALL' | 'SOLO_1M' | 'GROUP' | 'EXPIRING';
@@ -39,6 +39,9 @@ export default function AdminUsersPage() {
   const [search, setSearch] = useState('');
   const [page, setPage] = useState(1);
   const [processing, setProcessing] = useState<string | null>(null);
+  const [selected, setSelected] = useState<Set<string>>(new Set());
+  const [bulkModal, setBulkModal] = useState(false);
+  const [customDays, setCustomDays] = useState('');
 
   useEffect(() => {
     if (tab === 'GROUP') { loadGroups(); }
@@ -93,6 +96,29 @@ export default function AdminUsersPage() {
     setSearch('');
     setData(null);
     setGroups([]);
+    setSelected(new Set());
+  }
+
+  function toggleSelect(id: string) {
+    setSelected(prev => {
+      const next = new Set(prev);
+      next.has(id) ? next.delete(id) : next.add(id);
+      return next;
+    });
+  }
+
+  function toggleSelectAll() {
+    const ids = data?.users?.map((u: any) => u.id) ?? [];
+    setSelected(prev => prev.size === ids.length ? new Set() : new Set(ids));
+  }
+
+  async function bulkGrant(days: number) {
+    setBulkModal(false);
+    setProcessing('bulk');
+    await adminApi.bulkGrantPremium([...selected], days).catch(() => {});
+    setSelected(new Set());
+    await load();
+    setProcessing(null);
   }
 
   const expiringCount = tab === 'EXPIRING' ? data?.total : null;
@@ -111,6 +137,52 @@ export default function AdminUsersPage() {
 
   return (
     <div className="space-y-6">
+
+      {/* Barre de sélection flottante */}
+      {selected.size > 0 && (
+        <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 flex items-center gap-3 bg-gray-900 text-white px-5 py-3 rounded-2xl shadow-2xl">
+          <span className="text-sm font-semibold">{selected.size} sélectionné{selected.size > 1 ? 's' : ''}</span>
+          <button onClick={() => { setCustomDays(''); setBulkModal(true); }}
+            className="flex items-center gap-1.5 px-4 py-2 bg-violet-600 hover:bg-violet-500 rounded-xl text-sm font-bold transition">
+            <CheckCircle className="w-4 h-4" /> Renouveler
+          </button>
+          <button onClick={() => setSelected(new Set())} className="text-gray-400 hover:text-white transition">
+            <X className="w-4 h-4" />
+          </button>
+        </div>
+      )}
+
+      {/* Modal renouvellement bulk */}
+      {bulkModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+          <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setBulkModal(false)} />
+          <div className="relative bg-white rounded-2xl shadow-2xl w-full max-w-xs p-6 space-y-4">
+            <div className="flex items-center justify-between">
+              <p className="font-bold text-gray-900">Renouveler {selected.size} abonnement{selected.size > 1 ? 's' : ''}</p>
+              <button onClick={() => setBulkModal(false)} className="text-gray-400 hover:text-gray-600"><X className="w-4 h-4" /></button>
+            </div>
+            <div className="grid grid-cols-3 gap-2">
+              {[7, 15, 30, 60, 90, 180].map((d) => (
+                <button key={d} onClick={() => bulkGrant(d)}
+                  className="py-2.5 rounded-xl border-2 border-violet-200 bg-violet-50 text-violet-700 font-bold text-sm hover:bg-violet-100 hover:border-violet-400 transition">
+                  {d}j
+                </button>
+              ))}
+            </div>
+            <div className="flex gap-2">
+              <input type="number" min="1" placeholder="Autre (jours)"
+                value={customDays} onChange={(e) => setCustomDays(e.target.value)}
+                className="flex-1 px-3 py-2 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-violet-300" />
+              <button onClick={() => { const d = parseInt(customDays); if (d > 0) bulkGrant(d); }}
+                disabled={!customDays || parseInt(customDays) < 1}
+                className="px-4 py-2 rounded-xl bg-violet-600 text-white text-sm font-bold hover:bg-violet-700 transition disabled:opacity-40">
+                OK
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       <div>
         <h1 className="text-2xl font-bold">Utilisateurs</h1>
         {tab === 'EXPIRING' && data && (
@@ -163,6 +235,12 @@ export default function AdminUsersPage() {
             <table className="w-full text-sm">
               <thead className="bg-slate-50 border-b">
                 <tr>
+                  <th className="px-4 py-3 w-8">
+                    <input type="checkbox"
+                      checked={!!data?.users?.length && selected.size === data.users.length}
+                      onChange={toggleSelectAll}
+                      className="rounded cursor-pointer accent-violet-600" />
+                  </th>
                   <th className="text-left px-4 py-3 font-medium text-muted-foreground">Utilisateur</th>
                   <th className="text-left px-4 py-3 font-medium text-muted-foreground hidden md:table-cell">Statut</th>
                   <th className="text-left px-4 py-3 font-medium text-muted-foreground hidden xl:table-cell">Opérateur</th>
@@ -177,9 +255,13 @@ export default function AdminUsersPage() {
                   const daysLeft = subEnd ? Math.ceil((subEnd.getTime() - Date.now()) / 86400000) : null;
                   return (
                     <tr key={u.id}
-                      onClick={() => router.push(`/admin/users/${u.id}`)}
-                      className={`hover:bg-slate-50 cursor-pointer ${!u.isActive ? 'opacity-50' : ''}`}>
-                      <td className="px-4 py-3">
+                      className={`hover:bg-slate-50 ${!u.isActive ? 'opacity-50' : ''}`}>
+                      <td className="px-4 py-3 w-8" onClick={(e) => e.stopPropagation()}>
+                        <input type="checkbox" checked={selected.has(u.id)}
+                          onChange={() => toggleSelect(u.id)}
+                          className="rounded cursor-pointer accent-violet-600" />
+                      </td>
+                      <td className="px-4 py-3 cursor-pointer" onClick={() => router.push(`/admin/users/${u.id}`)}>
                         <div className="flex items-center gap-2">
                           {roleIcon(u.role)}
                           <div>
@@ -189,7 +271,7 @@ export default function AdminUsersPage() {
                           </div>
                         </div>
                       </td>
-                      <td className="px-4 py-3 hidden md:table-cell">
+                      <td className="px-4 py-3 hidden md:table-cell cursor-pointer" onClick={() => router.push(`/admin/users/${u.id}`)}>
                         {(() => { const r = roleLabel(u.role); return (
                           <span className={`px-2 py-1 rounded-full text-xs font-medium ${r.cls}`}>{r.label}</span>
                         ); })()}

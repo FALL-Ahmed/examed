@@ -246,6 +246,16 @@ export class AdminService {
     });
   }
 
+  async bulkGrantPremium(ids: string[], days: number) {
+    const subscriptionEnd = new Date();
+    subscriptionEnd.setDate(subscriptionEnd.getDate() + days);
+    const { count } = await this.prisma.user.updateMany({
+      where: { id: { in: ids } },
+      data: { role: 'PREMIUM', subscriptionEnd },
+    });
+    return { updated: count };
+  }
+
   async getQuestions(page = 1, limit = 20, themeId?: string, search?: string, subThemeId?: string, language?: string) {
     const where: any = {};
     if (subThemeId) {

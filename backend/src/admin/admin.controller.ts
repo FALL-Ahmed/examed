@@ -106,6 +106,11 @@ export class AdminController {
     return this.adminService.grantPremium(id, body.days ?? 30);
   }
 
+  @Post('users/bulk-grant-premium')
+  bulkGrantPremium(@Body() body: { ids: string[]; days: number }) {
+    return this.adminService.bulkGrantPremium(body.ids, body.days ?? 30);
+  }
+
   @Put('users/:id/password')
   changePassword(@Param('id') id: string, @Body() body: { password: string }) {
     return this.adminService.changeUserPassword(id, body.password);

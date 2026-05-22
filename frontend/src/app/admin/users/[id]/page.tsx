@@ -66,6 +66,8 @@ export default function UserDetailPage() {
   const [newEmail, setNewEmail] = useState('');
   const [emailLoading, setEmailLoading] = useState(false);
   const [emailError, setEmailError] = useState('');
+  const [renewModal, setRenewModal] = useState(false);
+  const [customDays, setCustomDays] = useState('');
 
   useEffect(() => { load(); }, [id]);
 
@@ -115,11 +117,8 @@ export default function UserDetailPage() {
     }
   }
 
-  async function grantPremium() {
-    const input = prompt('Durée en jours (ex: 30, 90) :');
-    if (!input) return;
-    const days = parseInt(input);
-    if (!days || days < 1) return;
+  async function grantPremium(days: number) {
+    setRenewModal(false);
     setProcessing(true);
     await adminApi.grantPremium(id, days).catch(() => {});
     await load();
@@ -185,10 +184,10 @@ export default function UserDetailPage() {
           <ArrowLeft className="w-4 h-4" /> Retour
         </button>
         <div className="flex items-center gap-2">
-          {user.role === 'FREE' && (
-            <button onClick={grantPremium} disabled={processing}
+          {(user.role === 'FREE' || user.role === 'PREMIUM') && (
+            <button onClick={() => { setCustomDays(''); setRenewModal(true); }} disabled={processing}
               className="flex items-center gap-1.5 px-3 py-2 rounded-xl text-sm font-semibold border border-emerald-200 text-emerald-600 hover:bg-emerald-50 transition disabled:opacity-50">
-              <CheckCircle className="w-3.5 h-3.5" /> Activer Premium
+              <CheckCircle className="w-3.5 h-3.5" /> {user.role === 'PREMIUM' ? 'Renouveler' : 'Activer Premium'}
             </button>
           )}
           {user.role === 'PREMIUM' && (
@@ -503,6 +502,42 @@ export default function UserDetailPage() {
       )}
 
       {previewUrl && <ReceiptModal url={previewUrl} onClose={() => setPreviewUrl(null)} />}
+
+      {renewModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+          <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setRenewModal(false)} />
+          <div className="relative bg-white rounded-2xl shadow-2xl w-full max-w-xs p-6 space-y-4">
+            <div className="flex items-center justify-between">
+              <p className="font-bold text-gray-900">{user.role === 'PREMIUM' ? 'Renouveler l\'abonnement' : 'Activer Premium'}</p>
+              <button onClick={() => setRenewModal(false)} className="text-gray-400 hover:text-gray-600"><X className="w-4 h-4" /></button>
+            </div>
+            {subEnd && user.role === 'PREMIUM' && (
+              <p className="text-xs text-gray-500">Expire le <span className="font-semibold text-gray-700">{subEnd.toLocaleDateString('fr-FR')}</span>{daysLeft !== null && daysLeft > 0 ? ` (dans ${daysLeft}j)` : ' (expiré)'}</p>
+            )}
+            <div className="grid grid-cols-3 gap-2">
+              {[7, 15, 30, 60, 90, 180].map((d) => (
+                <button key={d} onClick={() => grantPremium(d)}
+                  className="py-2.5 rounded-xl border-2 border-violet-200 bg-violet-50 text-violet-700 font-bold text-sm hover:bg-violet-100 hover:border-violet-400 transition">
+                  {d}j
+                </button>
+              ))}
+            </div>
+            <div className="flex gap-2">
+              <input
+                type="number" min="1" placeholder="Autre (jours)"
+                value={customDays} onChange={(e) => setCustomDays(e.target.value)}
+                className="flex-1 px-3 py-2 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-violet-300"
+              />
+              <button
+                onClick={() => { const d = parseInt(customDays); if (d > 0) grantPremium(d); }}
+                disabled={!customDays || parseInt(customDays) < 1}
+                className="px-4 py-2 rounded-xl bg-violet-600 text-white text-sm font-bold hover:bg-violet-700 transition disabled:opacity-40">
+                OK
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {emailModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
