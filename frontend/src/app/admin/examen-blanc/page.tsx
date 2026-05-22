@@ -503,6 +503,52 @@ export default function AdminExamenBlancPage() {
                 </div>
               )}
 
+              {/* Questions les plus ratées */}
+              {stats.questionStats?.length > 0 && (
+                <div className="bg-card border border-border rounded-2xl overflow-hidden">
+                  <div className="px-5 py-4 border-b border-border">
+                    <h3 className="font-semibold text-foreground">❌ Questions les plus ratées</h3>
+                    <p className="text-xs text-muted-foreground mt-0.5">Triées par score partiel moyen croissant — top 30</p>
+                  </div>
+                  <div className="overflow-x-auto">
+                    <table className="w-full text-xs">
+                      <thead className="bg-muted">
+                        <tr>
+                          {['#', 'Question', 'Thème', 'Réponses', '% Correct', 'Score moy.'].map(h => (
+                            <th key={h} className="text-left px-4 py-2.5 text-xs font-semibold text-muted-foreground whitespace-nowrap">{h}</th>
+                          ))}
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {stats.questionStats.map((q: any, i: number) => (
+                          <tr key={q.questionId} className="border-t border-border hover:bg-muted/50">
+                            <td className="px-4 py-2.5 font-bold text-muted-foreground">{i + 1}</td>
+                            <td className="px-4 py-2.5 text-foreground max-w-xs">
+                              <p className="line-clamp-2">{q.text}</p>
+                            </td>
+                            <td className="px-4 py-2.5 text-muted-foreground whitespace-nowrap">
+                              <p>{q.theme}</p>
+                              <p className="text-xs opacity-60">{q.subTheme}</p>
+                            </td>
+                            <td className="px-4 py-2.5 text-muted-foreground">{q.total}</td>
+                            <td className="px-4 py-2.5">
+                              <span className={`font-bold ${q.correctPct < 30 ? 'text-red-500' : q.correctPct < 60 ? 'text-amber-500' : 'text-emerald-600'}`}>
+                                {q.correctPct}%
+                              </span>
+                            </td>
+                            <td className="px-4 py-2.5">
+                              <span className={`font-bold ${q.avgPartial < 0 ? 'text-red-500' : q.avgPartial < 0.5 ? 'text-amber-500' : 'text-emerald-600'}`}>
+                                {q.avgPartial.toFixed(3)}
+                              </span>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              )}
+
               {/* Top participants */}
               {stats.topParticipants?.length > 0 && (
                 <div className="bg-card border border-border rounded-2xl overflow-hidden">

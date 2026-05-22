@@ -579,6 +579,50 @@ export class ExamenBlancService {
       count: allScores.filter((s: number) => (i === 0 ? s < 10 : s >= i * 10) && (i === 9 ? s <= 100 : s < (i + 1) * 10)).length,
     }));
 
+    // Stats par question — questions les plus ratées
+    const participantIds = completed.map((p: any) => p.id);
+    const allReponses = participantIds.length > 0
+      ? await db(this.prisma).examenBlancReponse.findMany({
+          where: { participantId: { in: participantIds } },
+          select: { questionId: true, isCorrect: true, partialScore: true },
+        })
+      : [];
+
+    const qMap = new Map<string, { correct: number; total: number; sumPartial: number }>();
+    for (const r of allReponses) {
+      if (!qMap.has(r.questionId)) qMap.set(r.questionId, { correct: 0, total: 0, sumPartial: 0 });
+      const e = qMap.get(r.questionId)!;
+      e.total++;
+      if (r.isCorrect) e.correct++;
+      e.sumPartial += r.partialScore;
+    }
+
+    const questionIds = [...qMap.keys()];
+    const questions = questionIds.length > 0
+      ? await this.prisma.question.findMany({
+          where: { id: { in: questionIds } },
+          select: { id: true, text: true, correctAnswer: true, subTheme: { select: { name: true, theme: { select: { name: true } } } } },
+        })
+      : [];
+
+    const qTextMap = new Map(questions.map((q: any) => [q.id, q]));
+
+    const questionStats = [...qMap.entries()]
+      .map(([qId, data]) => {
+        const q: any = qTextMap.get(qId);
+        return {
+          questionId: qId,
+          text: q?.text ?? '—',
+          theme: q?.subTheme?.theme?.name ?? '—',
+          subTheme: q?.subTheme?.name ?? '—',
+          total: data.total,
+          correctPct: Math.round((data.correct / data.total) * 100),
+          avgPartial: Math.round((data.sumPartial / data.total) * 1000) / 1000,
+        };
+      })
+      .sort((a, b) => a.avgPartial - b.avgPartial)
+      .slice(0, 30);
+
     return {
       session,
       lang: lang ?? 'all',
@@ -596,6 +640,7 @@ export class ExamenBlancService {
       histogram,
       histogramAll,
       topParticipants: completed.slice(0, 20).map((p: any, i: number) => ({ rank: i + 1, ...p })),
+      questionStats,
     };
   }
 
