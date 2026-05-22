@@ -834,7 +834,9 @@ export class AdminService {
       'السيميولوجيا': 'SEMIOLOGIE',
       'الممارسة التمريضية': 'PRATIQUE DE LA SCIENCE INFIRMIERE',
     };
-    const canonicalName = (name: string) => AR_TO_FR[name] ?? name;
+    const norm = (s: string) => s.normalize('NFC').trim();
+    const AR_TO_FR_NORM = Object.fromEntries(Object.entries(AR_TO_FR).map(([k, v]) => [norm(k), v]));
+    const canonicalName = (name: string) => AR_TO_FR_NORM[norm(name)] ?? name;
 
     const buildThemeStats = (te: any[], displayName: string) => {
       const sessions = new Map<string, { completed: boolean; answered: number; correct: number; maxQ: number }>();
