@@ -177,48 +177,155 @@ export default function FreeTrialStatsPage() {
                 </div>
               </div>
 
+              {/* Entonnoir global Free Pratique */}
+              {practiceData.globalFunnel?.length > 0 && (
+                <div className="bg-card border border-border rounded-2xl overflow-hidden">
+                  <div className="px-5 py-4 border-b border-border">
+                    <h2 className="font-bold">Entonnoir global</h2>
+                    <p className="text-xs text-muted-foreground mt-0.5">Jusqu'à quelle question vont les visiteurs ?</p>
+                  </div>
+                  <div className="p-5 space-y-2">
+                    {practiceData.globalFunnel.map((f: any, i: number) => {
+                      const q1 = practiceData.globalFunnel[0]?.count ?? 1;
+                      const pct = q1 > 0 ? Math.round((f.count / q1) * 100) : 0;
+                      const dropped = i > 0 ? practiceData.globalFunnel[i - 1].count - f.count : 0;
+                      const color = pct >= 70 ? '#10b981' : pct >= 40 ? '#f59e0b' : '#ef4444';
+                      return (
+                        <div key={f.q} className="flex items-center gap-3">
+                          <span className="text-xs font-bold text-muted-foreground w-5 text-right flex-shrink-0">Q{f.q}</span>
+                          <div className="flex-1 h-7 bg-secondary rounded-lg overflow-hidden relative">
+                            <div className="h-full rounded-lg transition-all duration-500 flex items-center px-3"
+                              style={{ width: `${Math.max(pct, 2)}%`, background: color }}>
+                              {pct >= 20 && <span className="text-white text-xs font-bold">{pct}%</span>}
+                            </div>
+                            {pct < 20 && <span className="absolute left-2 top-1/2 -translate-y-1/2 text-xs font-bold" style={{ color }}>{pct}%</span>}
+                          </div>
+                          <span className="text-xs font-semibold w-16 flex-shrink-0 text-right">{f.count} sess.</span>
+                          {dropped > 0 && <span className="text-xs text-red-500 flex-shrink-0 w-20 text-right">-{dropped} ici</span>}
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
+
               {/* Stats par thème + abandon par question */}
               {practiceData.byTheme?.length > 0 ? (
                 <div className="space-y-4">
                   {practiceData.byTheme.map((t: any) => (
                     <div key={t.themeName} className="bg-card border border-border rounded-2xl overflow-hidden">
-                      <div className="p-4 flex items-center justify-between gap-4 flex-wrap">
-                        <div className="flex-1 min-w-0">
-                          <p className="font-semibold text-sm truncate">{t.themeName}</p>
-                          <div className="flex items-center gap-3 mt-1 text-xs text-muted-foreground flex-wrap">
-                            <span>{t.totalSessions} sessions</span>
-                            <span>·</span>
-                            <span className="flex items-center gap-1">
-                              <CheckCircle2 className="w-3 h-3 text-emerald-500" />
-                              {t.completionRate}% complétées
-                            </span>
-                            <span>·</span>
-                            <span>🇫🇷 {t.langSplit.fr} / 🇸🇦 {t.langSplit.ar}</span>
+                      <div className="px-5 py-4 border-b border-border flex items-center justify-between flex-wrap gap-3">
+                        <div className="flex items-center gap-2">
+                          <Globe className="w-4 h-4 text-violet-500" />
+                          <h3 className="font-bold text-base">{t.themeName}</h3>
+                        </div>
+                        <div className="flex items-center gap-2 flex-wrap">
+                          <Badge value={t.totalSessions} label="sessions" color="#6366f1" />
+                          <Badge value={`${t.successRate}%`} label="réussite" color="#10b981" />
+                          <Badge value={`${t.completionRate}%`} label="complétion" color={t.completionRate >= 50 ? '#10b981' : t.completionRate >= 25 ? '#f59e0b' : '#ef4444'} />
+                          <Badge value={`${t.ctaClicks}`} label={`CTA (${t.conversionRate}%)`} color="#ec4899" />
+                        </div>
+                      </div>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-0 md:divide-x divide-border">
+                        <div className="p-5">
+                          <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-3">Entonnoir</p>
+                          <div className="space-y-1.5">
+                            {t.questionFunnel?.map((f: any, i: number) => {
+                              const base = t.questionFunnel[0].count;
+                              const pct = base > 0 ? Math.round((f.count / base) * 100) : 0;
+                              const dropped = i > 0 ? t.questionFunnel[i - 1].count - f.count : 0;
+                              const color = pct >= 70 ? '#10b981' : pct >= 40 ? '#f59e0b' : '#ef4444';
+                              return (
+                                <div key={f.q} className="flex items-center gap-2">
+                                  <span className="text-xs text-muted-foreground w-5 text-right flex-shrink-0">Q{f.q}</span>
+                                  <div className="flex-1 h-5 bg-secondary rounded overflow-hidden relative">
+                                    <div className="h-full rounded transition-all duration-300" style={{ width: `${Math.max(pct, 2)}%`, background: color }} />
+                                  </div>
+                                  <span className="text-xs font-bold w-8 flex-shrink-0" style={{ color }}>{pct}%</span>
+                                  {dropped > 0 && <span className="text-[10px] text-red-500 w-12 flex-shrink-0">-{dropped}</span>}
+                                </div>
+                              );
+                            })}
                           </div>
                         </div>
-                        <div className="flex items-center gap-4 flex-shrink-0">
-                          <div className="text-right">
-                            <p className="text-xs text-muted-foreground">Réussite</p>
-                            <p className="font-bold text-sm" style={{ color: t.successRate >= 70 ? '#10b981' : t.successRate >= 50 ? '#f59e0b' : '#ef4444' }}>
-                              {t.successRate}%
-                            </p>
+                        <div className="p-5 space-y-5">
+                          <div>
+                            <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-3">Langue</p>
+                            <div className="space-y-2">
+                              {[{ flag: '🇫🇷', label: 'Français', count: t.langSplit.fr }, { flag: '🇲🇷', label: 'Arabe', count: t.langSplit.ar }].map((l) => {
+                                const pct = t.totalSessions > 0 ? Math.round((l.count / t.totalSessions) * 100) : 0;
+                                return (
+                                  <div key={l.label} className="flex items-center gap-2">
+                                    <span className="text-sm">{l.flag}</span>
+                                    <div className="flex-1 h-4 bg-secondary rounded overflow-hidden">
+                                      <div className="h-full rounded bg-violet-500/70" style={{ width: `${pct}%` }} />
+                                    </div>
+                                    <span className="text-xs font-semibold w-16 text-right">{l.count} ({pct}%)</span>
+                                  </div>
+                                );
+                              })}
+                            </div>
                           </div>
-                          <div className="text-right">
-                            <p className="text-xs text-muted-foreground">Clics CTA</p>
-                            <p className="font-bold text-sm text-pink-600">
-                              {t.ctaClicks} <span className="font-normal text-muted-foreground">({t.conversionRate}%)</span>
-                            </p>
+                          {(() => {
+                            const biggestDrop = t.questionFunnel?.reduce((acc: any, f: any, i: number) => {
+                              if (i === 0) return acc;
+                              const dropped = t.questionFunnel[i - 1].count - f.count;
+                              return dropped > (acc?.dropped ?? 0) ? { q: f.q, dropped } : acc;
+                            }, null);
+                            if (!biggestDrop || biggestDrop.dropped === 0) return null;
+                            return (
+                              <div className="bg-red-500/10 border border-red-500/20 rounded-xl p-3">
+                                <p className="text-xs font-semibold text-red-600">⚠️ Point de chute principal</p>
+                                <p className="text-sm font-bold mt-0.5">Question {biggestDrop.q} — {biggestDrop.dropped} abandon{biggestDrop.dropped > 1 ? 's' : ''}</p>
+                              </div>
+                            );
+                          })()}
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div className="bg-card border border-border rounded-2xl p-8 text-center">
+                  <BookOpen className="w-8 h-8 text-muted-foreground mx-auto mb-3" />
+                  <p className="text-sm text-muted-foreground">Aucune session trackée sur les 30 derniers jours.</p>
+                </div>
+              )}
+
+              {/* Sous-thèmes les plus choisis */}
+              {practiceData.bySubTheme?.length > 0 && (
+                <div className="space-y-3">
+                  <p className="text-xs font-bold text-muted-foreground uppercase tracking-wide">Sous-thèmes les plus choisis</p>
+                  {practiceData.bySubTheme.map((st: any) => (
+                    <div key={st.subThemeName} className="bg-card border border-border rounded-2xl overflow-hidden">
+                      <div className="p-4 flex items-center justify-between gap-4 flex-wrap">
+                        <div className="flex-1 min-w-0">
+                          <p className="font-semibold text-sm truncate">{st.subThemeName}</p>
+                          <p className="text-xs text-muted-foreground mt-0.5">{st.themeName}</p>
+                        </div>
+                        <div className="flex items-center gap-3 flex-shrink-0 flex-wrap">
+                          <div className="text-center px-3 py-1.5 rounded-xl bg-violet-100 dark:bg-violet-900/30 min-w-[70px]">
+                            <p className="text-lg font-black text-violet-700 dark:text-violet-300">{st.totalSessions}</p>
+                            <p className="text-[10px] text-violet-600 dark:text-violet-400 font-semibold">sessions</p>
+                          </div>
+                          <div className="text-center px-3 py-1.5 rounded-xl bg-emerald-100 dark:bg-emerald-900/30 min-w-[70px]">
+                            <p className="text-lg font-black text-emerald-700 dark:text-emerald-300">{st.completionRate}%</p>
+                            <p className="text-[10px] text-emerald-600 font-semibold">complétion</p>
+                          </div>
+                          <div className="text-center px-3 py-1.5 rounded-xl min-w-[70px]"
+                            style={{ background: st.successRate >= 70 ? '#d1fae5' : st.successRate >= 50 ? '#fef3c7' : '#fee2e2' }}>
+                            <p className="text-lg font-black" style={{ color: st.successRate >= 70 ? '#065f46' : st.successRate >= 50 ? '#92400e' : '#991b1b' }}>{st.successRate}%</p>
+                            <p className="text-[10px] font-semibold" style={{ color: st.successRate >= 70 ? '#065f46' : st.successRate >= 50 ? '#92400e' : '#991b1b' }}>réussite</p>
                           </div>
                         </div>
                       </div>
-                      {/* Abandon par question */}
-                      {t.questionFunnel?.length > 0 && (
+                      {st.questionFunnel?.length > 0 && (
                         <div className="px-4 pb-4 border-t border-border pt-3">
-                          <p className="text-xs font-semibold text-muted-foreground mb-2">Abandon par question</p>
+                          <p className="text-xs font-semibold text-muted-foreground mb-2">Entonnoir par question</p>
                           <div className="flex items-end gap-1" style={{ height: 48 }}>
-                            {t.questionFunnel.map((f: any, i: number) => {
-                              const pct = t.questionFunnel[0].count > 0 ? (f.count / t.questionFunnel[0].count) * 100 : 0;
-                              const drop = i > 0 ? t.questionFunnel[i - 1].count - f.count : 0;
+                            {st.questionFunnel.map((f: any, i: number) => {
+                              const pct = st.questionFunnel[0].count > 0 ? (f.count / st.questionFunnel[0].count) * 100 : 0;
+                              const drop = i > 0 ? st.questionFunnel[i - 1].count - f.count : 0;
                               return (
                                 <div key={f.q} className="flex-1 flex flex-col items-center gap-0.5" title={`Q${f.q}: ${f.count} sessions${drop > 0 ? ` (-${drop})` : ''}`}>
                                   <div className="w-full rounded-t" style={{ height: `${Math.max(4, pct)}%`, background: pct > 70 ? '#10b981' : pct > 40 ? '#f59e0b' : '#ef4444' }} />
@@ -227,25 +334,18 @@ export default function FreeTrialStatsPage() {
                               );
                             })}
                           </div>
-                          <p className="text-[10px] text-muted-foreground mt-1">
-                            {t.questionFunnel.length > 1 && (() => {
-                              const maxDrop = t.questionFunnel.reduce((best: any, f: any, i: number) => {
-                                if (i === 0) return best;
-                                const d = t.questionFunnel[i - 1].count - f.count;
-                                return d > (best?.drop ?? 0) ? { q: f.q, drop: d } : best;
-                              }, null);
-                              return maxDrop ? `Plus grande chute à la Q${maxDrop.q} (−${maxDrop.drop} sessions)` : '';
-                            })()}
-                          </p>
+                          {(() => {
+                            const maxDrop = st.questionFunnel.reduce((best: any, f: any, i: number) => {
+                              if (i === 0) return best;
+                              const d = st.questionFunnel[i - 1].count - f.count;
+                              return d > (best?.drop ?? 0) ? { q: f.q, drop: d } : best;
+                            }, null);
+                            return maxDrop ? <p className="text-[10px] text-muted-foreground mt-1">Plus grande chute à la Q{maxDrop.q} (−{maxDrop.drop} sessions)</p> : null;
+                          })()}
                         </div>
                       )}
                     </div>
                   ))}
-                </div>
-              ) : (
-                <div className="bg-card border border-border rounded-2xl p-8 text-center">
-                  <BookOpen className="w-8 h-8 text-muted-foreground mx-auto mb-3" />
-                  <p className="text-sm text-muted-foreground">Aucune session trackée sur les 30 derniers jours.</p>
                 </div>
               )}
 

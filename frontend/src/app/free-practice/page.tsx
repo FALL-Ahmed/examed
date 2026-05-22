@@ -79,6 +79,8 @@ export default function FreePracticePage() {
         sessionId: `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
         themeId: selectedTheme.id ?? '',
         themeName: selectedTheme.name ?? '',
+        subThemeId: selectedSubTheme?.id ?? undefined,
+        subThemeName: selectedSubTheme?.name ?? undefined,
         lang,
       };
       localStorage.setItem('albourour_source', 'free-practice');

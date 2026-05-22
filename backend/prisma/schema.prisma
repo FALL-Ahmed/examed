@@ -278,16 +278,18 @@ model FreeTrialEvent {
 }
 
 model FreePracticeEvent {
-  id        String   @id @default(cuid())
-  sessionId String
-  themeId   String?
-  themeName String
-  lang      String   @default("fr")
-  eventType String   // 'start' | 'answer' | 'complete'
-  questionN Int?
-  isCorrect Boolean?
-  count     Int?
-  createdAt DateTime @default(now())
+  id           String   @id @default(cuid())
+  sessionId    String
+  themeId      String?
+  themeName    String
+  subThemeId   String?
+  subThemeName String?
+  lang         String   @default("fr")
+  eventType    String   // 'start' | 'answer' | 'complete' | 'cta_click'
+  questionN    Int?
+  isCorrect    Boolean?
+  count        Int?
+  createdAt    DateTime @default(now())
 
   @@index([themeName, createdAt])
   @@index([sessionId])

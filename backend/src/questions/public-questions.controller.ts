@@ -48,6 +48,8 @@ export class PublicQuestionsController {
     sessionId: string;
     themeId?: string;
     themeName: string;
+    subThemeId?: string;
+    subThemeName?: string;
     lang: string;
     eventType: string;
     questionN?: number;

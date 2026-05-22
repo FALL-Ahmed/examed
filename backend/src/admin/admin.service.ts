@@ -821,6 +821,33 @@ export class AdminService {
 
     const themeNames = [...new Set<string>(events.map((e: any) => e.themeName))];
 
+    // Sous-thèmes les plus choisis
+    const subThemeEvents = events.filter((e: any) => e.subThemeName);
+    const subThemeNames = [...new Set<string>(subThemeEvents.map((e: any) => e.subThemeName as string))];
+    const bySubTheme = subThemeNames.map((subThemeName) => {
+      const se = subThemeEvents.filter((e: any) => e.subThemeName === subThemeName);
+      const sessions = new Set(se.map((e: any) => e.sessionId));
+      const completed = new Set(se.filter((e: any) => e.eventType === 'complete').map((e: any) => e.sessionId));
+      const answers = se.filter((e: any) => e.eventType === 'answer');
+      const correct = answers.filter((e: any) => e.isCorrect);
+      const themeName = se[0]?.themeName ?? '—';
+      const maxQ = se.reduce((m: number, e: any) => Math.max(m, e.questionN ?? 0), 0);
+      const questionFunnel = maxQ > 0
+        ? Array.from({ length: maxQ }, (_, i) => {
+            const sessionsAtQ = new Set(se.filter((e: any) => (e.questionN ?? 0) >= i + 1).map((e: any) => e.sessionId));
+            return { q: i + 1, count: sessionsAtQ.size };
+          })
+        : [];
+      return {
+        subThemeName,
+        themeName,
+        totalSessions: sessions.size,
+        completionRate: sessions.size > 0 ? Math.round((completed.size / sessions.size) * 100) : 0,
+        successRate: answers.length > 0 ? Math.round((correct.length / answers.length) * 100) : 0,
+        questionFunnel,
+      };
+    }).sort((a, b) => b.totalSessions - a.totalSessions);
+
     const byTheme = themeNames.map((themeName) => {
       const te = events.filter((e: any) => e.themeName === themeName);
       const sessions = new Map<string, { completed: boolean; answered: number; correct: number; maxQ: number }>();
@@ -867,6 +894,22 @@ export class AdminService {
       };
     });
 
+    // Entonnoir global (toutes sessions confondues)
+    const allSessionsMaxQ = new Map<string, number>();
+    for (const e of events) {
+      if (e.eventType === 'answer' && (e.questionN ?? 0) > 0) {
+        const prev = allSessionsMaxQ.get(e.sessionId) ?? 0;
+        if ((e.questionN ?? 0) > prev) allSessionsMaxQ.set(e.sessionId, e.questionN ?? 0);
+      }
+    }
+    const globalMaxQ = allSessionsMaxQ.size > 0 ? Math.max(...allSessionsMaxQ.values()) : 0;
+    const globalFunnel = globalMaxQ > 0
+      ? Array.from({ length: globalMaxQ }, (_, i) => ({
+          q: i + 1,
+          count: [...allSessionsMaxQ.values()].filter((maxQ) => maxQ >= i + 1).length,
+        }))
+      : [];
+
     // Stats journalières
     const dailyMap = new Map<string, Set<string>>();
     for (const e of events) {
@@ -906,6 +949,8 @@ export class AdminService {
 
     return {
       byTheme,
+      bySubTheme,
+      globalFunnel,
       dailyStats,
       totalSessions,
       completionRate: totalSessions > 0 ? Math.round((totalCompleted / totalSessions) * 100) : 0,
