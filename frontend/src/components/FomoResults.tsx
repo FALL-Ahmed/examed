@@ -158,7 +158,7 @@ export function FomoResults({ score, totalQ, correctQ, themeName, subThemeName, 
           {isAr ? 'من أفضل المترشحين' : 'des meilleurs candidats'}
         </p>
 
-        <Link href="/examen-blanc/register"
+        <Link href="/register"
           style={{ textDecoration: 'none', boxShadow: '0 6px 28px rgba(255,255,255,0.2)' }}
           className="flex items-center justify-center gap-2 rounded-2xl px-6 py-4 bg-white text-violet-700 font-black text-base max-w-xs w-full text-center mx-auto transition active:scale-95">
           <span>🔒</span>
