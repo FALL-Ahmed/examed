@@ -819,7 +819,10 @@ export class AdminService {
       orderBy: { createdAt: 'asc' },
     });
 
-    const themeNames = [...new Set<string>(events.map((e: any) => e.themeName))];
+    // Grouper par themeId pour fusionner FR et AR du même thème
+    const themeIds = [...new Set<string>(events.filter((e: any) => e.themeId).map((e: any) => e.themeId as string))];
+    // Fallback: événements sans themeId groupés par themeName
+    const themeNamesNoId = [...new Set<string>(events.filter((e: any) => !e.themeId).map((e: any) => e.themeName as string))];
 
     // Sous-thèmes les plus choisis
     const subThemeEvents = events.filter((e: any) => e.subThemeName);
@@ -848,10 +851,8 @@ export class AdminService {
       };
     }).sort((a, b) => b.totalSessions - a.totalSessions);
 
-    const byTheme = themeNames.map((themeName) => {
-      const te = events.filter((e: any) => e.themeName === themeName);
+    const buildThemeStats = (te: any[], displayName: string) => {
       const sessions = new Map<string, { completed: boolean; answered: number; correct: number; maxQ: number }>();
-
       for (const e of te) {
         const s = sessions.get(e.sessionId) ?? { completed: false, answered: 0, correct: 0, maxQ: 0 };
         if (e.eventType === 'complete') s.completed = true;
@@ -862,7 +863,6 @@ export class AdminService {
         }
         sessions.set(e.sessionId, s);
       }
-
       const arr = [...sessions.values()];
       const total = arr.length;
       const completed = arr.filter((s) => s.completed).length;
@@ -871,8 +871,6 @@ export class AdminService {
       const frCount = new Set(te.filter((e: any) => e.lang === 'fr').map((e: any) => e.sessionId)).size;
       const arCount = new Set(te.filter((e: any) => e.lang === 'ar').map((e: any) => e.sessionId)).size;
       const ctaClicks = new Set(te.filter((e: any) => e.eventType === 'cta_click').map((e: any) => e.sessionId)).size;
-
-      // Funnel par question : combien de sessions ont atteint la question N
       const maxQ = arr.length > 0 ? Math.max(...arr.map((s) => s.maxQ)) : 0;
       const questionFunnel = maxQ > 0
         ? Array.from({ length: maxQ }, (_, i) => ({
@@ -880,9 +878,8 @@ export class AdminService {
             count: arr.filter((s) => s.maxQ >= i + 1).length,
           }))
         : [];
-
       return {
-        themeName,
+        themeName: displayName,
         totalSessions: total,
         completions: completed,
         completionRate: total > 0 ? Math.round((completed / total) * 100) : 0,
@@ -892,7 +889,23 @@ export class AdminService {
         langSplit: { fr: frCount, ar: arCount },
         questionFunnel,
       };
+    };
+
+    const byThemeFromId = themeIds.map((themeId) => {
+      const te = events.filter((e: any) => e.themeId === themeId);
+      // Afficher le nom FR en priorité, sinon AR
+      const frName = te.find((e: any) => e.lang === 'fr')?.themeName;
+      const arName = te.find((e: any) => e.lang === 'ar')?.themeName;
+      const displayName = frName ?? arName ?? themeId;
+      return buildThemeStats(te, displayName);
     });
+
+    const byThemeFromName = themeNamesNoId.map((themeName) => {
+      const te = events.filter((e: any) => !e.themeId && e.themeName === themeName);
+      return buildThemeStats(te, themeName);
+    });
+
+    const byTheme = [...byThemeFromId, ...byThemeFromName].sort((a, b) => b.totalSessions - a.totalSessions);
 
     // Entonnoir global (toutes sessions confondues)
     const allSessionsMaxQ = new Map<string, number>();
