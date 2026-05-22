@@ -85,6 +85,7 @@ export const userApi = {
   stats: () => api.get('/users/me/stats'),
   myPayments: () => api.get('/payments/me'),
   trackPdf: (filename: string, source = 'app') => api.post('/users/track-pdf', { filename, source }),
+  updateMe: (data: { gender?: string; phone?: string; wilaya?: string; profession?: string }) => api.patch('/users/me', data),
 };
 
 // Themes
@@ -231,6 +232,8 @@ export const examenBlancApi = {
   adminUpdateSession: (id: string, data: any) => api.put(`/examen-blanc/admin/sessions/${id}`, data),
   adminParticipants: () => api.get('/examen-blanc/admin/participants'),
   recover: (telephone: string) => axios.post(`${API_URL}/examen-blanc/recover`, { telephone }),
+  adminTestSession: (examenBlancId: string, lang: 'fr' | 'ar') =>
+    api.post('/examen-blanc/admin/test-session', { examenBlancId, lang }),
 };
 
 export const pushApi = {

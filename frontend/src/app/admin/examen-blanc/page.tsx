@@ -1,7 +1,7 @@
 'use client';
 import { useEffect, useState, useCallback } from 'react';
 import { examenBlancApi } from '@/lib/api';
-import { Trophy, Users, TrendingUp, MapPin, AlertTriangle, Plus, RefreshCw, Eye, CheckCircle, XCircle, Clock, Download, ChevronDown, Pencil } from 'lucide-react';
+import { Trophy, Users, TrendingUp, MapPin, AlertTriangle, Plus, RefreshCw, Eye, CheckCircle, XCircle, Clock, Download, ChevronDown, Pencil, FlaskConical } from 'lucide-react';
 
 const pad = (n: number) => String(n).padStart(2, '0');
 function formatDate(d: string) { return new Date(d).toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' }); }
@@ -223,6 +223,7 @@ export default function AdminExamenBlancPage() {
                       }`}>{statusLabel}</span>
                     </div>
                     <div className="flex items-center gap-1.5 flex-shrink-0">
+                      <TestButton sessionId={s.id} />
                       <button onClick={() => { setSelectedSession(s); setTab('stats'); loadStats(s.id, statsLang); }}
                         className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg border border-border text-muted-foreground text-xs hover:bg-accent transition">
                         <Eye className="w-3.5 h-3.5" /> Stats
@@ -759,6 +760,38 @@ export default function AdminExamenBlancPage() {
         </div>
         );
       })()}
+    </div>
+  );
+}
+
+function TestButton({ sessionId }: { sessionId: string }) {
+  const [loading, setLoading] = useState(false);
+  const [lang, setLang] = useState<'fr' | 'ar'>('fr');
+
+  const handleTest = async () => {
+    setLoading(true);
+    try {
+      const { data } = await examenBlancApi.adminTestSession(sessionId, lang);
+      window.open(`/examen-blanc/session/${data.sessionId}`, '_blank');
+    } catch (err: any) {
+      alert(err.response?.data?.message || 'Erreur lors du démarrage du test');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <div className="flex items-center gap-0.5">
+      <button onClick={handleTest} disabled={loading}
+        className="flex items-center gap-1 px-2.5 py-1.5 rounded-l-lg bg-amber-50 text-amber-700 border border-amber-300 text-xs font-semibold hover:bg-amber-100 dark:bg-amber-900/20 dark:text-amber-400 dark:border-amber-700 transition disabled:opacity-50">
+        <FlaskConical className="w-3.5 h-3.5" />
+        {loading ? '...' : 'Tester'}
+      </button>
+      <select value={lang} onChange={(e) => setLang(e.target.value as 'fr' | 'ar')}
+        className="px-1.5 py-1.5 rounded-r-lg bg-amber-50 text-amber-700 border border-l-0 border-amber-300 text-xs font-semibold focus:outline-none hover:bg-amber-100 dark:bg-amber-900/20 dark:text-amber-400 dark:border-amber-700 transition">
+        <option value="fr">FR</option>
+        <option value="ar">AR</option>
+      </select>
     </div>
   );
 }

@@ -67,6 +67,65 @@ export class ExamenBlancService {
     };
   }
 
+  async adminTestSession(examenBlancId: string, lang: 'fr' | 'ar' = 'fr') {
+    const session = await db(this.prisma).examenBlanc.findUnique({ where: { id: examenBlancId } });
+    if (!session) throw new NotFoundException('Session introuvable');
+
+    const allIds: string[] = lang === 'ar' ? session.questionIdsAr : session.questionIdsFr;
+    const questionIds = allIds.slice(0, session.totalQ);
+    if (!questionIds?.length) throw new BadRequestException(`Aucune question disponible en ${lang.toUpperCase()}`);
+
+    const sessionId = `eb_test_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
+
+    await db(this.prisma).examenBlancParticipant.create({
+      data: {
+        examenBlancId,
+        nom: 'Admin',
+        prenom: 'Test',
+        telephone: '00000000',
+        ville: 'Test',
+        lang,
+        sessionId,
+        isTest: true,
+      },
+    });
+
+    const questions = await this.prisma.question.findMany({
+      where: { id: { in: questionIds }, isActive: true },
+      include: { subTheme: { include: { theme: true } } },
+    });
+
+    const ordered = questionIds
+      .map((id: string) => questions.find((q: any) => q.id === id))
+      .filter(Boolean);
+
+    return {
+      sessionId,
+      examenBlancId: session.id,
+      durationMin: session.durationMin,
+      totalQ: session.totalQ,
+      startsAt: session.startsAt,
+      endsAt: session.endsAt,
+      resultsAt: session.resultsAt,
+      startedAt: new Date(),
+      participant: { nom: 'Admin', prenom: 'Test', ville: 'Test' },
+      questions: ordered.map((q: any, idx: number) => ({
+        index: idx,
+        id: q.id,
+        text: q.text,
+        choiceA: q.choiceA,
+        choiceB: q.choiceB,
+        choiceC: q.choiceC,
+        choiceD: q.choiceD,
+        choiceE: q.choiceE,
+        imageUrl: q.imageUrl || null,
+        isMultiple: q.correctAnswer.split(',').length > 1,
+        subTheme: q.subTheme?.name || null,
+        theme: q.subTheme?.theme?.name || null,
+      })),
+    };
+  }
+
   async register(dto: { nom: string; prenom: string; telephone: string; ville: string; examenBlancId: string; lang: string }) {
     const session = await db(this.prisma).examenBlanc.findUnique({ where: { id: dto.examenBlancId } });
     if (!session) throw new NotFoundException('Session introuvable');
@@ -368,13 +427,13 @@ export class ExamenBlancService {
     if (new Date() < new Date(session.resultsAt)) return { locked: true, resultsAt: session.resultsAt, participants: [] };
 
     const participants = await db(this.prisma).examenBlancParticipant.findMany({
-      where: { examenBlancId: sessionId, isCompleted: true },
+      where: { examenBlancId: sessionId, isCompleted: true, isTest: false },
       orderBy: [{ score: 'desc' }, { timeTaken: 'asc' }],
       take: 100,
       select: { id: true, nom: true, prenom: true, ville: true, score: true, timeTaken: true },
     });
 
-    const total = await db(this.prisma).examenBlancParticipant.count({ where: { examenBlancId: sessionId, isCompleted: true } });
+    const total = await db(this.prisma).examenBlancParticipant.count({ where: { examenBlancId: sessionId, isCompleted: true, isTest: false } });
 
     const cityBreakdown = await db(this.prisma).examenBlancParticipant.groupBy({
       by: ['ville'], where: { examenBlancId: sessionId, isCompleted: true },

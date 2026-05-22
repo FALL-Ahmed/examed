@@ -10,6 +10,7 @@ export class UsersService {
       where: { id },
       select: {
         id: true, email: true, fullName: true, phone: true,
+        gender: true, profession: true, wilaya: true,
         role: true, subscriptionEnd: true, createdAt: true,
         dailyQuestionCount: true, lastQuestionDate: true,
       },
@@ -23,6 +24,15 @@ export class UsersService {
     }
 
     return user;
+  }
+
+  async updateMe(id: string, data: { gender?: string; phone?: string; wilaya?: string; profession?: string }) {
+    const update: any = {};
+    if (data.gender !== undefined)     update.gender = data.gender;
+    if (data.phone !== undefined)      update.phone = data.phone;
+    if (data.wilaya !== undefined)     update.wilaya = data.wilaya;
+    if (data.profession !== undefined) update.profession = data.profession;
+    return this.prisma.user.update({ where: { id }, data: update, select: { id: true, gender: true, phone: true, wilaya: true, profession: true } });
   }
 
   async getStats(userId: string) {

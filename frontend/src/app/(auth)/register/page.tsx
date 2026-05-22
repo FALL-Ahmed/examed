@@ -44,6 +44,7 @@ const CountdownTimer = memo(({ isAr, endDate }: { isAr: boolean; endDate?: strin
   );
 });
 
+
 const PROFESSIONS = [
   { value: 'etudiant_infirmier',      fr: 'Étudiant en sciences infirmières', ar: 'طالب علوم التمريض' },
   { value: 'etudiant_infirmier_3eme', fr: 'Étudiant infirmier 3ème année',    ar: 'طالب تمريض السنة الثالثة' },
@@ -55,12 +56,6 @@ const PROFESSIONS = [
   { value: 'sage_femme',              fr: 'Sage-femme',                       ar: 'قابلة' },
   { value: 'technicien_labo',         fr: 'Technicien de laboratoire',        ar: 'تقني مخبر' },
   { value: 'autre',                   fr: 'Autre professionnel de santé',     ar: 'مهني صحة آخر' },
-];
-
-const WILAYAS = [
-  'Hodh Ech Chargui','Hodh El Gharbi','Assaba','Gorgol','Brakna',
-  'Trarza','Adrar','Dakhlet Nouadhibou','Tagant','Guidimaka',
-  'Tiris Zemmour','Inchiri','Nouakchott Ouest','Nouakchott Nord','Nouakchott Sud',
 ];
 
 const OPERATORS = [
@@ -75,8 +70,7 @@ function RegisterContent() {
   const isAr = lang === 'ar';
 
   const [form, setForm] = useState({
-    firstName: '', lastName: '', email: '',
-    phone: '', gender: '', profession: '', wilaya: '', password: '',
+    firstName: '', lastName: '', email: '', password: '', profession: '',
   });
   const [showPwd, setShowPwd] = useState(false);
   const [formError, setFormError] = useState('');
@@ -148,8 +142,6 @@ function RegisterContent() {
 
     if (!form.firstName.trim() || !form.lastName.trim())
       return fail(isAr ? 'الاسم الأول والأخير مطلوبان' : 'Prénom et nom requis', 'field-name', 'missing_name');
-    if (!form.gender)
-      return fail(isAr ? 'يرجى تحديد جنسك' : 'Veuillez sélectionner votre sexe', 'field-gender', 'missing_gender');
     if (!form.email.trim())
       return fail(isAr ? 'البريد الإلكتروني مطلوب' : 'Email requis', 'field-email', 'missing_email');
     if (!form.profession)
@@ -182,10 +174,7 @@ function RegisterContent() {
       fd.append('fullName', `${form.firstName.trim()} ${form.lastName.trim()}`);
       fd.append('email', form.email.trim());
       fd.append('password', form.password);
-      if (form.gender)       fd.append('gender', form.gender);
-      if (form.phone.trim()) fd.append('phone', form.phone.trim());
-      if (form.profession)   fd.append('profession', form.profession);
-      if (form.wilaya)       fd.append('wilaya', form.wilaya);
+      if (form.profession) fd.append('profession', form.profession);
       fd.append('operator', selectedOp);
       fd.append('amount', String(computedAmount));
       fd.append('paymentMethod', 'MOBILE_MONEY');
@@ -226,7 +215,6 @@ function RegisterContent() {
   const inputClass = 'w-full px-4 py-3 bg-white border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-violet-300 focus:border-violet-400 transition text-sm placeholder:text-gray-400 text-gray-800';
   const labelClass = 'block text-sm font-semibold text-gray-700 mb-1.5';
   const selectedPhone = selectedOp ? operators[selectedOp] : null;
-  const opt = isAr ? '(اختياري)' : '(optionnel)';
 
   const checkIcon = (
     <svg className="w-2.5 h-2.5 text-white" fill="currentColor" viewBox="0 0 20 20">
@@ -337,53 +325,10 @@ function RegisterContent() {
                 </div>
               </div>
 
-              <div id="field-gender">
-                <label className={labelClass}>{isAr ? 'الجنس' : 'Sexe'} <span className="text-red-400">*</span></label>
-                <div className="grid grid-cols-2 gap-3">
-                  {[
-                    { value: 'masculin', fr: 'Masculin', ar: 'ذكر' },
-                    { value: 'feminin',  fr: 'Féminin',  ar: 'أنثى' },
-                  ].map((o) => (
-                    <button key={o.value} type="button" onClick={() => set('gender', o.value)}
-                      className={`py-3 rounded-xl border-2 text-sm font-semibold transition-all
-                        ${form.gender === o.value
-                          ? 'border-violet-500 bg-violet-50 text-violet-700'
-                          : 'border-gray-200 bg-white text-gray-600 hover:border-gray-300'}`}>
-                      {isAr ? o.ar : o.fr}
-                    </button>
-                  ))}
-                </div>
-              </div>
-
               <div id="field-email">
                 <label className={labelClass}>{isAr ? 'البريد الإلكتروني' : 'Email'} <span className="text-red-400">*</span></label>
                 <input type="email" value={form.email} onChange={(e) => set('email', e.target.value)}
                   className={inputClass} placeholder="votre@email.com" dir="ltr" />
-              </div>
-
-              <div id="field-profession">
-                <label className={labelClass}>{isAr ? 'المهنة' : 'Profession'} <span className="text-red-400">*</span></label>
-                <select value={form.profession} onChange={(e) => set('profession', e.target.value)}
-                  className={`${inputClass} cursor-pointer`}>
-                  <option value="">{isAr ? 'اختر…' : 'Sélectionner…'}</option>
-                  {PROFESSIONS.map((p) => <option key={p.value} value={p.value}>{isAr ? p.ar : p.fr}</option>)}
-                </select>
-              </div>
-
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label className={labelClass}>{isAr ? 'الهاتف' : 'Téléphone'} <span className="text-gray-400 font-normal text-xs">{opt}</span></label>
-                  <input type="tel" value={form.phone} onChange={(e) => set('phone', e.target.value)}
-                    className={inputClass} placeholder="+222 XX XX XX" dir="ltr" />
-                </div>
-                <div>
-                  <label className={labelClass}>{isAr ? 'الولاية' : 'Wilaya'} <span className="text-gray-400 font-normal text-xs">{opt}</span></label>
-                  <select value={form.wilaya} onChange={(e) => set('wilaya', e.target.value)}
-                    className={`${inputClass} cursor-pointer`}>
-                    <option value="">{isAr ? 'اختر…' : 'Sélectionner…'}</option>
-                    {WILAYAS.map((w) => <option key={w} value={w}>{w}</option>)}
-                  </select>
-                </div>
               </div>
 
               <div id="field-password">
@@ -398,6 +343,15 @@ function RegisterContent() {
                     {showPwd ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                   </button>
                 </div>
+              </div>
+
+              <div id="field-profession">
+                <label className={labelClass}>{isAr ? 'المهنة' : 'Profession'} <span className="text-red-400">*</span></label>
+                <select value={form.profession} onChange={(e) => set('profession', e.target.value)}
+                  className={`${inputClass} cursor-pointer`}>
+                  <option value="">{isAr ? 'اختر…' : 'Sélectionner…'}</option>
+                  {PROFESSIONS.map((p) => <option key={p.value} value={p.value}>{isAr ? p.ar : p.fr}</option>)}
+                </select>
               </div>
 
             </div>

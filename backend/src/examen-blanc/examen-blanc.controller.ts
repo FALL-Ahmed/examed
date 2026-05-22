@@ -88,4 +88,11 @@ export class ExamenBlancController {
   adminGetParticipants() {
     return this.service.getAllParticipants();
   }
+
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('ADMIN')
+  @Post('admin/test-session')
+  adminTestSession(@Body() body: { examenBlancId: string; lang?: 'fr' | 'ar' }) {
+    return this.service.adminTestSession(body.examenBlancId, body.lang ?? 'fr');
+  }
 }

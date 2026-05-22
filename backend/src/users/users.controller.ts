@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Req, UseGuards } from '@nestjs/common';
+import { Controller, Get, Post, Patch, Body, Req, UseGuards } from '@nestjs/common';
 import { ApiTags, ApiBearerAuth } from '@nestjs/swagger';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { UsersService } from './users.service';
@@ -18,6 +18,11 @@ export class UsersController {
   @Get('me/stats')
   getStats(@Req() req: any) {
     return this.usersService.getStats(req.user.sub);
+  }
+
+  @Patch('me')
+  updateMe(@Req() req: any, @Body() body: { gender?: string; phone?: string; wilaya?: string; profession?: string }) {
+    return this.usersService.updateMe(req.user.sub, body);
   }
 
   @Post('track-pdf')

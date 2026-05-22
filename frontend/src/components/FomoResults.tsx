@@ -2,7 +2,7 @@
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { publicApi, settingsApi } from '@/lib/api';
-import { Users, ArrowRight, BarChart2, Copy, CheckCheck } from 'lucide-react';
+import { ArrowRight, BarChart2, Copy, CheckCheck } from 'lucide-react';
 
 const OPERATORS = [
   { id: 'BANKILY', name: 'Bankily', image: '/images/bankily.png' },
@@ -48,15 +48,12 @@ function barColor(val: number): string {
   return '#16a34a';
 }
 
-export function FomoResults({ score, totalQ, correctQ, themeName, subThemeName, themeId, subThemeId, lang, onRestart, onCtaClick, sessionId }: Props) {
+export function FomoResults({ score, totalQ, correctQ, themeName, subThemeName, themeId, subThemeId, lang, onRestart, onCtaClick }: Props) {
   const isAr = lang === 'ar';
   const [stats, setStats] = useState<{ avg: number; percentile: number; total: number; estimated?: boolean; distribution?: { min: number; h: number }[] } | null>(null);
   const [operators, setOperators] = useState<Record<string, string>>({});
   const [selectedOp, setSelectedOp] = useState('');
-  const [copied, setCopied] = useState(false);
-  const [waPhone, setWaPhone] = useState('');
-  const [waSent, setWaSent] = useState(false);
-  const [waSending, setWaSending] = useState(false);
+  const [copied, setCopied] = useState('');
 
   useEffect(() => {
     publicApi.nationalStats(score, themeId, subThemeId)
@@ -69,28 +66,10 @@ export function FomoResults({ score, totalQ, correctQ, themeName, subThemeName, 
     }).catch(() => {});
   }, [score, themeId, subThemeId]);
 
-  const selectedPhone = selectedOp ? operators[selectedOp] : null;
-
-  function copyPhone() {
-    if (!selectedPhone) return;
-    navigator.clipboard.writeText(selectedPhone).catch(() => {});
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
-  }
-
-  async function submitWaLead() {
-    const phone = waPhone.trim().replace(/\s/g, '');
-    if (!phone || waSent) return;
-    setWaSending(true);
-    await publicApi.saveFreeTrialLead({
-      sessionId: sessionId ?? `fp-${Date.now()}`,
-      phone,
-      theme: themeName,
-      lang,
-      source: 'free-practice',
-    });
-    setWaSent(true);
-    setWaSending(false);
+  function copyPhone(phone: string) {
+    navigator.clipboard.writeText(phone).catch(() => {});
+    setCopied(phone);
+    setTimeout(() => setCopied(''), 2000);
   }
 
   const avg = stats?.avg ?? 68;
@@ -101,34 +80,45 @@ export function FomoResults({ score, totalQ, correctQ, themeName, subThemeName, 
   const scoreBorder = isGoodScore ? 'border-emerald-200' : isMidScore ? 'border-amber-200' : 'border-red-200';
   const scoreBg     = isGoodScore ? 'bg-emerald-50'      : isMidScore ? 'bg-amber-50'      : 'bg-red-50';
 
-  const topPct = stats ? `${100 - stats.percentile}` : '??';
+  const NATIONAL_AVG = 60;
 
   return (
     <div className={`max-w-lg mx-auto space-y-4 py-6 px-4 ${isAr ? 'text-right' : ''}`} dir={isAr ? 'rtl' : 'ltr'}>
 
-      {/* ── 1. Score ── */}
-      <div className={`rounded-2xl border ${scoreBorder} ${scoreBg} p-4 flex items-center justify-between gap-4`}>
-        <div className={`flex-1 min-w-0 ${isAr ? 'text-right' : ''}`}>
-          <p className="text-xs text-gray-500 font-medium mb-0.5">
-            {isAr ? 'نتيجتك' : 'Votre score'}
-          </p>
-          <p className="font-bold text-gray-700 leading-tight">
-            <span className="text-3xl font-black" style={{ color: scoreColor }}>{correctQ}</span>
-            <span className="text-xl font-bold text-gray-400">/{totalQ}</span>
-          </p>
-          <p className="text-xs font-semibold text-gray-600 mt-1">
-            📚 {themeName || '—'}{subThemeName ? ` · ${subThemeName}` : ''}
-          </p>
+      {/* ── 0. Score + Motivationnel ── */}
+      <div className={`rounded-2xl border ${scoreBorder} ${scoreBg} p-5 space-y-3`}>
+        <div className="flex items-center justify-between gap-4">
+          <div className={`flex-1 min-w-0 ${isAr ? 'text-right' : ''}`}>
+            <p className="font-extrabold text-gray-900 text-base">
+              {isAr ? '!🎉 لقد أتممت سلسلتك' : 'Vous venez de terminer votre série ! 🎉'}
+            </p>
+            <p className="font-bold text-gray-700 leading-tight mt-1">
+              <span className="text-3xl font-black" style={{ color: scoreColor }}>{correctQ}</span>
+              <span className="text-xl font-bold text-gray-400">/{totalQ}</span>
+            </p>
+            <p className="text-xs font-semibold text-gray-600 mt-1">
+              📚 {themeName || '—'}{subThemeName ? ` · ${subThemeName}` : ''}
+            </p>
+          </div>
+          <div
+            className="w-16 h-16 rounded-full flex items-center justify-center text-white font-black text-lg flex-shrink-0 shadow-md"
+            style={{ background: scoreColor }}
+          >
+            {pct}%
+          </div>
         </div>
-        <div
-          className="w-16 h-16 rounded-full flex items-center justify-center text-white font-black text-lg flex-shrink-0 shadow-md"
-          style={{ background: scoreColor }}
-        >
-          {pct}%
+        <div className="border-t border-current/10 pt-3 space-y-1 text-sm text-gray-700">
+          <p>📈 {isAr ? `المتوسط الوطني : ` : `Moyenne nationale : `}<strong className="font-black text-violet-700">{NATIONAL_AVG}%</strong></p>
+          <p>🎯 {isAr ? 'أفضل المترشحين يتجاوزون 75%' : 'Les meilleurs candidats dépassent 75%'}</p>
+          <p className="font-semibold text-gray-800">
+            💪 {pct < NATIONAL_AVG
+              ? (isAr ? 'واصل التدريب لتحسين ترتيبك الوطني.' : 'Continuez vos entraînements pour améliorer votre classement national.')
+              : (isAr ? 'واصل التدريب للحفاظ على ترتيبك الوطني.' : 'Continuez vos entraînements pour garder votre classement national.')}
+          </p>
         </div>
       </div>
 
-      {/* ── 2. HERO FOMO — Percentile ── */}
+      {/* ── 2. HERO CTA ── */}
       <div
         className="rounded-2xl p-6 text-center text-white relative overflow-hidden"
         style={{ background: 'linear-gradient(135deg,#7c3aed,#6366f1)' }}
@@ -136,177 +126,63 @@ export function FomoResults({ score, totalQ, correctQ, themeName, subThemeName, 
         <div className="absolute -top-8 -right-8 w-40 h-40 rounded-full bg-white/5 pointer-events-none" />
         <div className="absolute -bottom-6 -left-6 w-28 h-28 rounded-full bg-white/5 pointer-events-none" />
 
-        <p className="text-white/70 text-xs font-semibold uppercase tracking-widest mb-4">
-          {isAr ? 'انتهت السلسلة 🎯' : 'Série terminée 🎯'}
+        <p className="text-white font-extrabold text-lg mb-2">
+          {isAr ? 'هل تريد النجاح في مسابقة التمريض؟ 🎯' : 'Tu veux réussir le concours infirmier ? 🎯'}
         </p>
 
-        <p className="text-white/80 text-sm font-medium mb-2">
-          {isAr ? 'مستواك الحالي يضعك ضمن أفضل' : 'Votre niveau actuel vous classe parmi les'}
+        <p className="text-white/80 text-sm mb-6">
+          {isAr
+            ? '+500 مرشح موريتاني يتابعون ترتيبهم على Al Bourour.'
+            : '+500 candidats mauritaniens suivent leur classement sur Al Bourour.'}
         </p>
 
-        {/* Gros chiffre flouté */}
-        <div className="flex items-center justify-center gap-1 my-1">
-          {isAr && <span className="text-white/60 text-3xl font-bold">%</span>}
-          <span
-            className="text-8xl font-black text-white leading-none select-none pointer-events-none"
-            style={{ filter: 'blur(20px)', WebkitFilter: 'blur(20px)' }}
-          >{topPct}</span>
-          {!isAr && <span className="text-white/60 text-3xl font-bold self-end mb-2">%</span>}
-        </div>
-
-        <p className="text-white/80 text-sm font-semibold mb-4">
-          {isAr ? 'من أفضل المترشحين' : 'des meilleurs candidats'}
-        </p>
-
-        <Link href="/register"
+        <Link href="/register" onClick={() => onCtaClick?.()}
           style={{ textDecoration: 'none', boxShadow: '0 6px 28px rgba(255,255,255,0.2)' }}
-          className="flex items-center justify-center gap-2 rounded-2xl px-6 py-4 bg-white text-violet-700 font-black text-base max-w-xs w-full text-center mx-auto transition active:scale-95">
-          <span>🔒</span>
-          <span>{isAr ? 'سجّل لرؤية رتبتك وطنياً' : 'Inscrivez-vous pour révéler votre rang à l\'échelle nationale'}</span>
+          className="flex items-center justify-center gap-2 rounded-2xl px-6 py-4 bg-white text-violet-700 font-black text-base w-full text-center transition active:scale-95">
+          <span>🏆</span>
+          <span>{isAr ? 'مشاهدة ترتيبي في موريتانيا 🇲🇷' : 'Voir mon rang en Mauritanie 🇲🇷'}</span>
           <ArrowRight className="w-4 h-4 flex-shrink-0" />
         </Link>
       </div>
 
-      {/* ── 3. Stats + Histogramme ── */}
-      <div className="bg-white border border-gray-200 rounded-2xl p-5 space-y-4">
-
-        <div className={`flex items-center gap-2 ${isAr ? 'flex-row-reverse' : ''}`}>
-          <div className="w-7 h-7 rounded-lg bg-violet-100 flex items-center justify-center flex-shrink-0">
-            <BarChart2 className="w-4 h-4 text-violet-600" />
-          </div>
-          <p className="font-bold text-gray-900 text-sm">
-            {isAr ? 'إحصائيات بُرُورْ' : 'Statistiques Al Bourour'}
-          </p>
-        </div>
-
-        <p className="text-sm text-gray-700">
-          {isAr ? (
-            <><span>متوسط الطلاب وطنياً : </span><span className="font-black text-violet-700">{avg}%</span></>
-          ) : (
-            <><span>Moyenne nationale : </span><span className="font-black text-violet-700">{avg}%</span></>
-          )}
+      {/* ── Témoignages ── */}
+      <div className="bg-white border border-gray-200 rounded-2xl p-4 space-y-3">
+        <p className="text-xs font-bold text-gray-500 uppercase tracking-wider text-center">
+          {isAr ? 'ماذا يقول الطلاب ؟' : 'Ils ont réussi avec Al Bourour'}
         </p>
-
-        {/* Histogramme */}
-        <div className="mt-2">
-
-          {/* Label seuil 75% */}
-          <div className="relative h-8 mb-1">
-            <div
-              className="absolute bottom-0 flex flex-col items-center pointer-events-none"
-              style={isAr ? { right: `${toPct(THRESHOLD)}%`, transform: 'translateX(50%)' } : { left: `${toPct(THRESHOLD)}%`, transform: 'translateX(-50%)' }}
-            >
-              <span className="text-[10px] font-bold text-gray-500 whitespace-nowrap">75%</span>
-              <span className="text-[9px] text-gray-400 whitespace-nowrap">{isAr ? 'عتبة القبول' : 'seuil'}</span>
+        <div className="grid grid-cols-2 gap-3">
+          {(isAr ? [
+            { name: 'مريم',  role: 'ممرضة متخرجة، نواكشوط',          img: '/images/ar-com-1.jpeg' },
+            { name: 'سيدي',  role: 'طالب في العلوم التمريضية',        img: '/images/ar-com-2.jpeg' },
+          ] : [
+            { name: 'Fatimetou', role: 'Étudiante en sciences infirmières', img: '/images/fr-com-1.jpeg' },
+            { name: 'Mohamed',   role: 'Étudiant en sciences infirmières',  img: '/images/fr-com-2.png'  },
+          ]).map((t) => (
+            <div key={t.name} className="flex flex-col items-center text-center">
+              <div className="mb-2 overflow-hidden rounded-xl shadow-md w-full">
+                <img src={t.img} alt={t.name} className="w-full h-auto object-contain" />
+              </div>
+              <p className="font-bold text-sm text-gray-900">{t.name}</p>
+              <p className="text-[10px] text-gray-400 mt-0.5">{t.role}</p>
             </div>
-          </div>
-
-          {/* Barres — réelles si assez de données, sinon simulées */}
-          <div
-            className="relative flex items-end gap-[2px]"
-            style={{ height: '120px' }}
-          >
-            {(stats?.distribution ?? BARS.map(({ val, h }) => ({ min: val, h }))).map(({ min, h }) => (
-              <div
-                key={min}
-                className="flex-1 rounded-t-sm"
-                style={{ height: `${h}%`, background: barColor(min), minWidth: 0 }}
-              />
-            ))}
-
-            {/* Ligne pointillée — seuil 75% */}
-            <div
-              className="absolute top-0 bottom-0 w-px pointer-events-none z-10"
-              style={{
-                background: 'repeating-linear-gradient(to bottom,#6b7280 0,#6b7280 4px,transparent 4px,transparent 8px)',
-                ...(isAr ? { right: `${toPct(THRESHOLD)}%` } : { left: `${toPct(THRESHOLD)}%` }),
-              }}
-            />
-          </div>
-
-          {/* Axe X */}
-          <div className="flex justify-between text-[10px] text-gray-400 mt-1">
-            <span>20%</span><span>40%</span><span>60%</span><span>80%</span><span>100%</span>
-          </div>
-
-          {/* Légende */}
-          <div className={`flex items-center gap-1.5 mt-2 text-[11px] text-gray-500 ${isAr ? 'flex-row-reverse' : ''}`}>
-            <span className="w-4 h-[2px] inline-block flex-shrink-0" style={{ background: 'repeating-linear-gradient(to right,#6b7280 0,#6b7280 3px,transparent 3px,transparent 6px)' }} />
-            <span>{isAr ? 'عتبة القبول — 75%' : 'Seuil bon candidat — 75%'}</span>
-          </div>
+          ))}
         </div>
-
-        {stats && stats.total > 0 && (
-          <p className="text-xs text-gray-400 text-center">
-            {isAr ? `بناءً على ${stats.total} جلسة` : `Basé sur ${stats.total} sessions`}
-          </p>
-        )}
       </div>
 
-      {/* ── 4. CTA ── */}
+      {/* ── 3. Reste ── */}
       <div className="space-y-3">
         <Link href="/register" onClick={() => onCtaClick?.()}
           className="flex items-center justify-center gap-2 w-full py-4 rounded-2xl font-bold text-white text-sm uppercase tracking-wide shadow-lg shadow-violet-500/30 transition hover:opacity-90"
           style={{ background: 'linear-gradient(135deg,#7c3aed,#6366f1)' }}>
-          <Users className="w-5 h-5 flex-shrink-0" />
           {isAr ? 'فعّل حسابك الآن وتابع تطور مستواك' : 'Activez votre compte et suivez votre progression'}
           <ArrowRight className="w-4 h-4 flex-shrink-0" />
         </Link>
-
-        {/* ── WhatsApp lead ── */}
-        <div className="bg-white rounded-3xl p-6 border border-gray-100 shadow-sm space-y-4">
-          {waSent ? (
-            <div className="text-center py-2">
-              <div className="text-3xl mb-2">✅</div>
-              <p className="font-extrabold text-gray-900 text-base">
-                {isAr ? 'شكراً! سنتواصل معك قريباً على واتساب' : 'Merci ! On vous contactera bientôt sur WhatsApp 🎉'}
-              </p>
-            </div>
-          ) : (
-            <>
-              <div className="text-center">
-                <div className="text-3xl mb-2">✅</div>
-                <h3 className="text-lg font-extrabold text-gray-900 leading-tight">
-                  {isAr ? '!أحسنت! لقد أكملت الجلسة' : 'Bien ! Vous avez terminé la session.'}
-                </h3>
-                <p className="text-sm text-gray-500 mt-2 leading-relaxed">
-                  {isAr
-                    ? 'لحفظ تقدمك واستلام نتيجتك، أدخل رقم واتساب الخاص بك'
-                    : 'Pour sauvegarder votre progression et recevoir votre score, entrez votre numéro WhatsApp :'}
-                </p>
-              </div>
-              <div className="space-y-3">
-                <input
-                  type="tel"
-                  value={waPhone}
-                  onChange={(e) => setWaPhone(e.target.value)}
-                  onKeyDown={(e) => e.key === 'Enter' && submitWaLead()}
-                  placeholder={isAr ? 'رقم واتساب (مثال: 22241000000)' : 'Numéro WhatsApp (ex: 22241000000)'}
-                  className="w-full px-4 py-3 border-2 border-gray-200 rounded-2xl focus:outline-none focus:border-violet-400 text-sm font-medium text-center tracking-wider"
-                  dir="ltr"
-                />
-                <button
-                  type="button"
-                  onClick={submitWaLead}
-                  disabled={!waPhone.trim() || waSending}
-                  className="w-full py-3.5 rounded-2xl font-bold text-white text-sm hover:opacity-90 transition shadow-lg shadow-violet-300/40 flex items-center justify-center gap-2 disabled:opacity-50"
-                  style={{ background: 'linear-gradient(135deg,#7c3aed,#6366f1)' }}
-                >
-                  <svg viewBox="0 0 24 24" className="w-4 h-4 fill-white"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
-                  {waSending ? '…' : (isAr ? 'استلام نتائجي' : 'Recevoir mes résultats')}
-                </button>
-              </div>
-            </>
-          )}
-        </div>
 
         {/* ── Paiement ── */}
         <div className="bg-white border border-gray-200 rounded-2xl p-4 space-y-3">
           <p className="text-xs font-bold text-gray-500 uppercase tracking-wider text-center">
             {isAr ? 'طرق الدفع' : 'Paiement via'}
           </p>
-
-          {/* Logos opérateurs */}
           <div className="grid grid-cols-3 gap-2">
             {OPERATORS.map((op) => (
               <button
@@ -324,18 +200,16 @@ export function FomoResults({ score, totalQ, correctQ, themeName, subThemeName, 
               </button>
             ))}
           </div>
-
-          {/* Numéro */}
-          {selectedOp && selectedPhone && (
+          {selectedOp && operators[selectedOp] && (
             <div className="p-3 rounded-xl bg-violet-50 border border-violet-200">
               <p className="text-[10px] font-bold text-violet-500 uppercase tracking-wide mb-1">
                 {isAr ? 'رقم الدفع' : 'Numéro de paiement'}
               </p>
               <div className="flex items-center justify-between gap-2">
-                <p className="text-lg font-extrabold text-gray-900 tracking-wider" dir="ltr">{selectedPhone}</p>
-                <button type="button" onClick={copyPhone}
+                <p className="text-lg font-extrabold text-gray-900 tracking-wider" dir="ltr">{operators[selectedOp]}</p>
+                <button type="button" onClick={() => copyPhone(operators[selectedOp])}
                   className="flex items-center gap-1 text-xs font-semibold px-2.5 py-1.5 rounded-lg bg-white border border-violet-200 text-violet-600 hover:bg-violet-100 transition">
-                  {copied
+                  {copied === operators[selectedOp]
                     ? <><CheckCheck className="w-3.5 h-3.5" />{isAr ? 'تم' : 'Copié'}</>
                     : <><Copy className="w-3.5 h-3.5" />{isAr ? 'نسخ' : 'Copier'}</>}
                 </button>
@@ -351,6 +225,55 @@ export function FomoResults({ score, totalQ, correctQ, themeName, subThemeName, 
           className="w-full py-3 rounded-xl border border-gray-200 text-sm text-gray-500 hover:text-gray-800 hover:border-gray-400 transition">
           {isAr ? '← إعادة المحاولة' : '← Recommencer'}
         </button>
+      </div>
+
+      {/* ── Histogramme (dernière position) ── */}
+      <div className="bg-white border border-gray-200 rounded-2xl p-5 space-y-4">
+        <div className="flex items-center gap-2">
+          <BarChart2 className="w-5 h-5 text-violet-500" />
+          <p className="font-bold text-sm text-gray-800">
+            {isAr ? 'إحصائيات Al Bourour' : 'Statistiques Al Bourour'}
+          </p>
+        </div>
+        <p className="text-xs text-gray-500">
+          {isAr
+            ? `المتوسط الوطني : ${avg}% — نتيجتك : ${pct}%`
+            : `Moyenne nationale : ${avg}% — Votre score : ${pct}%`}
+        </p>
+        <div className="relative h-24 flex items-end gap-[3px] mt-6">
+          <div
+            className="absolute top-0 bottom-0 w-px bg-emerald-500/60 z-10"
+            style={{ left: `${clampToPct(THRESHOLD)}%` }}
+          >
+            <span className="absolute -top-5 left-1 text-[9px] font-bold text-emerald-600 whitespace-nowrap">
+              {THRESHOLD}%
+            </span>
+          </div>
+          <div
+            className="absolute top-0 bottom-0 w-0.5 bg-violet-500 z-10"
+            style={{ left: `${clampToPct(pct)}%` }}
+          >
+            <span className="absolute -top-5 -translate-x-1/2 text-[9px] font-bold text-violet-600 whitespace-nowrap">
+              {pct}%
+            </span>
+          </div>
+          {BARS.map((b) => (
+            <div
+              key={b.val}
+              className="flex-1 rounded-t-sm"
+              style={{
+                height: `${b.h}%`,
+                background: barColor(b.val),
+                opacity: b.val <= pct ? 1 : 0.25,
+              }}
+            />
+          ))}
+        </div>
+        {stats && stats.total > 0 && (
+          <p className="text-[10px] text-gray-400 text-center">
+            {isAr ? `مبني على ${stats.total.toLocaleString()} جلسة` : `Basé sur ${stats.total.toLocaleString()} sessions`}
+          </p>
+        )}
       </div>
     </div>
   );

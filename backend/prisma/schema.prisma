@@ -327,6 +327,7 @@ model ExamenBlancParticipant {
   classement    Int?
   timeTaken     Int?
   isCompleted   Boolean   @default(false)
+  isTest        Boolean   @default(false)
   tricherie     Boolean   @default(false)
   tabSwitches   Int       @default(0)
   submittedAt      DateTime?

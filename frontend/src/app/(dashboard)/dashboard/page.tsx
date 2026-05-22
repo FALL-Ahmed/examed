@@ -9,6 +9,7 @@ import {
   BookOpen, Zap, RefreshCw, TrendingUp,
   Clock, ArrowRight, Target, Award, Flame, ChevronRight, AlertTriangle, CalendarCheck, Download, FileText, Trophy,
 } from 'lucide-react';
+import { ProfileCompletionModal } from '@/components/ProfileCompletionModal';
 
 function ScoreRing({ value }: { value: number }) {
   const r = 44;
@@ -44,6 +45,7 @@ export default function DashboardPage() {
   const [myRank, setMyRank] = useState<{ rank: number | null; total: number; globalScore: number } | null>(null);
   const [streak, setStreak] = useState(0);
   const [weakTheme, setWeakTheme] = useState<{ themeId: string; name: string; avgScore: number; sessions: number } | null>(null);
+  const [showProfileModal, setShowProfileModal] = useState(false);
 
   useEffect(() => {
     userApi.stats().then((r) => setStats(r.data)).catch(() => {});
@@ -60,7 +62,10 @@ export default function DashboardPage() {
       for (let i = 1; i < days.length; i++) { if ((days[i-1] as number) - (days[i] as number) === 86400000) s++; else break; }
       setStreak(s);
     }).catch(() => {});
-    userApi.me().then((r) => setProfile(r.data)).catch(() => {});
+    userApi.me().then((r) => {
+      setProfile(r.data);
+      if (!r.data.gender) setShowProfileModal(true);
+    }).catch(() => {});
     statsApi.myRank().then((r) => setMyRank(r.data)).catch(() => {});
     attemptsApi.weakTheme().then((r) => setWeakTheme(r.data)).catch(() => {});
   }, []);
@@ -145,6 +150,14 @@ export default function DashboardPage() {
 
   return (
     <div className="max-w-5xl mx-auto space-y-6">
+
+      {showProfileModal && (
+        <ProfileCompletionModal
+          isAr={isAr}
+          onClose={() => setShowProfileModal(false)}
+          onSaved={() => { setShowProfileModal(false); userApi.me().then((r) => setProfile(r.data)).catch(() => {}); }}
+        />
+      )}
 
       {/* ── Hero ── */}
       <div className="rounded-2xl gradient-primary p-6 md:p-8 text-white">
