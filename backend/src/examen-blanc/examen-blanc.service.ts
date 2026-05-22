@@ -588,13 +588,15 @@ export class ExamenBlancService {
         })
       : [];
 
-    const qMap = new Map<string, { correct: number; total: number; sumPartial: number }>();
+    const qMap = new Map<string, { full: number; partial: number; negative: number; total: number; sumPartial: number }>();
     for (const r of allReponses) {
-      if (!qMap.has(r.questionId)) qMap.set(r.questionId, { correct: 0, total: 0, sumPartial: 0 });
+      if (!qMap.has(r.questionId)) qMap.set(r.questionId, { full: 0, partial: 0, negative: 0, total: 0, sumPartial: 0 });
       const e = qMap.get(r.questionId)!;
       e.total++;
-      if (r.isCorrect) e.correct++;
       e.sumPartial += r.partialScore;
+      if (r.partialScore >= 1) e.full++;
+      else if (r.partialScore > 0) e.partial++;
+      else if (r.partialScore < 0) e.negative++;
     }
 
     const questionIds = [...qMap.keys()];
@@ -607,16 +609,25 @@ export class ExamenBlancService {
 
     const qTextMap = new Map(questions.map((q: any) => [q.id, q]));
 
+    // Index de chaque question dans la liste FR (position dans l'examen)
+    const qIndexFr = new Map<string, number>(
+      (session.questionIdsFr as string[]).map((id: string, i: number) => [id, i + 1])
+    );
+
     const questionStats = [...qMap.entries()]
       .map(([qId, data]) => {
         const q: any = qTextMap.get(qId);
         return {
           questionId: qId,
+          numQuestion: qIndexFr.get(qId) ?? null,
           text: q?.text ?? '—',
           theme: q?.subTheme?.theme?.name ?? '—',
           subTheme: q?.subTheme?.name ?? '—',
           total: data.total,
-          correctPct: Math.round((data.correct / data.total) * 100),
+          fullPct: Math.round((data.full / data.total) * 100),
+          partialPct: Math.round((data.partial / data.total) * 100),
+          negativePct: Math.round((data.negative / data.total) * 100),
+          zeroPct: Math.round(((data.total - data.full - data.partial - data.negative) / data.total) * 100),
           avgPartial: Math.round((data.sumPartial / data.total) * 1000) / 1000,
         };
       })

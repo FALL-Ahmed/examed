@@ -514,7 +514,7 @@ export default function AdminExamenBlancPage() {
                     <table className="w-full text-xs">
                       <thead className="bg-muted">
                         <tr>
-                          {['#', 'Question', 'Thème', 'Réponses', '% Correct', 'Score moy.'].map(h => (
+                          {['#', 'Q°', 'Question', 'Thème', 'Rép.', '✅ Juste', '🔶 Partiel', '❌ Négatif', 'Score moy.'].map(h => (
                             <th key={h} className="text-left px-4 py-2.5 text-xs font-semibold text-muted-foreground whitespace-nowrap">{h}</th>
                           ))}
                         </tr>
@@ -523,6 +523,9 @@ export default function AdminExamenBlancPage() {
                         {stats.questionStats.map((q: any, i: number) => (
                           <tr key={q.questionId} className="border-t border-border hover:bg-muted/50">
                             <td className="px-4 py-2.5 font-bold text-muted-foreground">{i + 1}</td>
+                            <td className="px-4 py-2.5 font-mono font-bold text-violet-600 whitespace-nowrap">
+                              {q.numQuestion ? `#${q.numQuestion}` : '—'}
+                            </td>
                             <td className="px-4 py-2.5 text-foreground max-w-xs">
                               <p className="line-clamp-2">{q.text}</p>
                             </td>
@@ -531,11 +534,9 @@ export default function AdminExamenBlancPage() {
                               <p className="text-xs opacity-60">{q.subTheme}</p>
                             </td>
                             <td className="px-4 py-2.5 text-muted-foreground">{q.total}</td>
-                            <td className="px-4 py-2.5">
-                              <span className={`font-bold ${q.correctPct < 30 ? 'text-red-500' : q.correctPct < 60 ? 'text-amber-500' : 'text-emerald-600'}`}>
-                                {q.correctPct}%
-                              </span>
-                            </td>
+                            <td className="px-4 py-2.5 font-bold text-emerald-600">{q.fullPct}%</td>
+                            <td className="px-4 py-2.5 font-bold text-amber-500">{q.partialPct}%</td>
+                            <td className="px-4 py-2.5 font-bold text-red-500">{q.negativePct}%</td>
                             <td className="px-4 py-2.5">
                               <span className={`font-bold ${q.avgPartial < 0 ? 'text-red-500' : q.avgPartial < 0.5 ? 'text-amber-500' : 'text-emerald-600'}`}>
                                 {q.avgPartial.toFixed(3)}
