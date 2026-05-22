@@ -207,37 +207,21 @@ export default function ExamenBlancPage() {
             ))}
           </div>
 
-          {/* Countdown */}
-          {session && (
-            <div className="flex flex-col items-center gap-3 mb-10">
-              {!isOpen && !isClosed && (
-                <>
-                  <div className="flex flex-col items-center gap-1">
-                    <span className="text-white/40 text-xs font-semibold uppercase tracking-widest">
-                      {isAr ? 'موعد الانطلاق' : 'Bientôt…'}
-                    </span>
-                    <span className="text-white font-black text-2xl sm:text-3xl tracking-tight">
-                      {new Date(session.startsAt).toLocaleDateString(isAr ? 'ar-MA' : 'fr-FR', { weekday: 'long', day: 'numeric', month: 'long' })}
-                    </span>
-                    <span className="text-violet-300 font-bold text-xl">
-                      {new Date(session.startsAt).toLocaleTimeString(isAr ? 'ar-MA' : 'fr-FR', { hour: '2-digit', minute: '2-digit' })}
-                    </span>
-                  </div>
-                  <Countdown target={new Date(session.startsAt)} label={isAr ? 'يفتح خلال' : 'dans'} isAr={isAr} />
-                </>
-              )}
-              {isOpen && (
-                <Countdown target={new Date(session.endsAt)} label={isAr ? 'يغلق خلال' : 'Fermeture dans'} isAr={isAr} />
-              )}
-              {isClosed && isResultsReady && (
-                <p className="text-green-400 font-bold text-lg">
-                  {isAr ? '✅ النتائج متاحة الآن' : '✅ Résultats disponibles'}
-                </p>
-              )}
-              {isClosed && !isResultsReady && session && (
-                <Countdown target={new Date(session.resultsAt)} label={isAr ? 'النتائج خلال' : 'Résultats dans'} isAr={isAr} />
-              )}
+          {/* Date ouverture */}
+          {session && !isOpen && !isClosed && (
+            <div className="flex flex-col items-center gap-1 mb-10">
+              <span className="text-white font-black text-2xl sm:text-3xl tracking-tight">
+                {new Date(session.startsAt).toLocaleDateString(isAr ? 'ar-MA' : 'fr-FR', { weekday: 'long', day: 'numeric', month: 'long' })}
+              </span>
+              <span className="text-violet-300 font-bold text-xl">
+                {new Date(session.startsAt).toLocaleTimeString(isAr ? 'ar-MA' : 'fr-FR', { hour: '2-digit', minute: '2-digit' })}
+              </span>
             </div>
+          )}
+          {session && isClosed && isResultsReady && (
+            <p className="text-green-400 font-bold text-lg mb-10">
+              {isAr ? '✅ النتائج متاحة الآن' : '✅ Résultats disponibles'}
+            </p>
           )}
 
           {/* CTA */}
@@ -269,9 +253,10 @@ export default function ExamenBlancPage() {
           {/* Already registered / Recover */}
           <div className="mt-5 flex flex-col items-center gap-3">
             {!showRecover ? (
-              <Link href="/"
-                className="w-full max-w-xs py-3 rounded-2xl border border-white/20 bg-white/5 text-white/70 font-semibold text-sm hover:bg-white/10 hover:text-white transition text-center">
-                {isAr ? '← الذهاب إلى منصة البرور' : 'Accéder à la plateforme Al Bourour →'}
+              <Link href="/free-practice"
+                className="w-full max-w-xs py-4 rounded-2xl font-bold text-sm text-white text-center transition active:scale-95"
+                style={{ background: 'linear-gradient(135deg,#7c3aed,#6366f1)', boxShadow: '0 4px 20px rgba(124,58,237,0.4)' }}>
+                {isAr ? '🎯 تدرّب مجاناً قبل الامتحان' : '🎯 Entraînez-vous gratuitement avant l\'examen'}
               </Link>
             ) : (
               <div className="w-full max-w-xs bg-white/5 border border-violet-500/30 rounded-2xl p-5 space-y-3">
