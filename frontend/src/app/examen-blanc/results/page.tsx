@@ -2,7 +2,7 @@
 import { useEffect, useState, useCallback } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { examenBlancApi } from '@/lib/api';
+import { examenBlancApi, settingsApi } from '@/lib/api';
 import { useLang } from '@/components/LanguageProvider';
 import { Trophy, Clock, ChevronLeft, ChevronRight, CheckCircle2, BookOpen, Download } from 'lucide-react';
 
@@ -53,6 +53,11 @@ export default function ResultsPage() {
   const [showAll, setShowAll] = useState(false);
   const [resultsAt, setResultsAt] = useState<Date | null>(null);
   const [localState, setLocalState] = useState<any>(null);
+  const [promo, setPromo] = useState<{ active: boolean; discount: number } | null>(null);
+
+  useEffect(() => {
+    settingsApi.promo().then((r) => setPromo(r.data)).catch(() => {});
+  }, []);
 
   function handlePrint() {
     setShowAll(true);
@@ -298,7 +303,20 @@ export default function ResultsPage() {
           <h1 className="text-4xl sm:text-5xl font-black text-white mb-2">
             {results.score?.toFixed(1)}<span className="text-2xl text-white/50">%</span>
           </h1>
-          <p className="text-2xl font-bold text-violet-300 mb-8">{noteOn20}/20</p>
+          <p className="text-2xl font-bold text-violet-300 mb-3">{noteOn20}/20</p>
+          <p className="text-sm text-white/70 italic mb-8 max-w-xs mx-auto">
+            {isAr ? (
+              results.score < 30 ? 'بداية عادية، عرفت نِقَاط ضعفك، والآن وقت التّحسّن.'
+              : results.score < 60 ? 'بداية جيّدة، عندك أساس قوي، وبقليل من الجهد تطلع بسرعة.'
+              : results.score < 75 ? 'أنت فوق المتوسّط، مع شغل مركز توصل لمستوى مُطْمَئِن.'
+              : 'مستوى ممتاز، حافظ على هذا الإيقاع لتبقى من الأوائل يوم الامتحان.'
+            ) : (
+              results.score < 30 ? 'Début normal : tu as identifié tes lacunes, maintenant on les travaille.'
+              : results.score < 60 ? 'Bon début, tu as les bases : avec du travail ciblé, tu peux vite monter.'
+              : results.score < 75 ? 'Au-dessus de la moyenne : quelques ajustements et tu sécurises le concours.'
+              : "Excellent niveau : continue comme ça pour rester dans le top jusqu'au jour J."
+            )}
+          </p>
 
           {/* Rang — mis en valeur */}
           <div className="bg-amber-400/10 border-2 border-amber-400/40 rounded-3xl px-8 py-5 max-w-xs mx-auto mb-6">
@@ -306,9 +324,6 @@ export default function ResultsPage() {
             <p className="text-amber-300 text-sm font-bold mb-1">{isAr ? 'ترتيبك الوطني' : 'Ton rang national'}</p>
             <p className="text-white font-black text-5xl">
               {results.classement}<span className="text-2xl text-white/40">/{results.totalParticipants}</span>
-            </p>
-            <p className="text-amber-200/60 text-xs mt-1">
-              {isAr ? `أفضل من ${results.percentile}% من المشاركين` : `Mieux que ${results.percentile}% des participants`}
             </p>
           </div>
 
@@ -325,18 +340,40 @@ export default function ResultsPage() {
             ))}
           </div>
 
-          <div className="flex flex-wrap gap-3 justify-center">
-            <button onClick={handlePrint}
-              className="flex items-center gap-2 px-6 py-3 rounded-xl font-bold text-white transition hover:opacity-80"
-              style={{ background: 'linear-gradient(135deg,#7c3aed,#6366f1)' }}>
-              <Download className="w-4 h-4" />
-              {isAr ? 'تحميل PDF' : 'Télécharger PDF'}
-            </button>
+          <div className="flex flex-col items-center gap-4 w-full max-w-sm mx-auto">
+
+            {/* Bouton CTA principal */}
             <Link href="/register"
-              className="flex items-center gap-2 px-6 py-3 rounded-xl font-bold text-white bg-white/10 border border-white/20 hover:bg-white/15 transition">
+              className="flex items-center justify-center gap-2 w-full py-3.5 rounded-xl font-extrabold text-white text-base transition hover:opacity-90 shadow-lg shadow-violet-900/40"
+              style={{ background: 'linear-gradient(135deg,#7c3aed,#6366f1)' }}>
               <BookOpen className="w-4 h-4" />
-              {isAr ? 'اشترك للتدرب أكثر' : 'S\'inscrire pour s\'entraîner'}
+              {promo?.active
+                ? (isAr ? `استفد من -${promo.discount}% وواصل التدريب` : `Profiter de -${promo.discount} % et continuer à s'entraîner`)
+                : (isAr ? 'واصل التدريب على المنصة' : "Continuer à s'entraîner sur la plateforme")}
             </Link>
+
+            {/* Bloc avantages */}
+            <div className="w-full bg-white/10 border border-white/15 rounded-2xl px-5 py-4 space-y-2">
+              <div className="text-sm text-white/70 space-y-1">
+                <p>✅ {isAr ? '600+ سؤال اختياري 🩺💊💉' : '600+ QCM 🩺💊💉'}</p>
+                <p>✅ {isAr ? 'إحصائيات تفصيلية' : 'Statistiques détaillées'}</p>
+                <p>✅ {isAr ? 'الترتيب الوطني الكامل' : 'Classement national complet'}</p>
+              </div>
+              {promo?.active && (
+                <Link href="/register"
+                  className="block px-3 py-2.5 rounded-xl bg-yellow-400/20 border border-yellow-400/50 text-center hover:bg-yellow-400/30 transition">
+                  <p className="text-yellow-300 font-extrabold text-sm tracking-wide">
+                    🔥 {isAr ? `عرض خاص : -${promo.discount}% على التسجيل اليوم` : `Offre spéciale : -${promo.discount} % sur l'inscription aujourd'hui`}
+                  </p>
+                </Link>
+              )}
+            </div>
+
+            <button onClick={handlePrint}
+              className="flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-semibold text-gray-800 bg-white hover:bg-gray-100 transition shadow-sm">
+              <Download className="w-3.5 h-3.5" />
+              {isAr ? 'تحميل نتائجي PDF' : 'Télécharger mes résultats en PDF'}
+            </button>
           </div>
         </div>
       </div>
