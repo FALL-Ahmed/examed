@@ -311,7 +311,7 @@ export class ExamenBlancService {
 
     const now = new Date();
     const resultsAt = new Date(participant.examenBlanc.resultsAt);
-    if (now < resultsAt) return {
+    if (now < resultsAt && !participant.isTest) return {
       locked: true,
       resultsAt: participant.examenBlanc.resultsAt,
       score: participant.score,
