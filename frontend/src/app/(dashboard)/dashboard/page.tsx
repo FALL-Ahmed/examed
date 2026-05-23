@@ -64,7 +64,9 @@ export default function DashboardPage() {
     }).catch(() => {});
     userApi.me().then((r) => {
       setProfile(r.data);
-      if (!r.data.gender) setShowProfileModal(true);
+      const alreadyDismissed = localStorage.getItem('profile_modal_dismissed');
+      const isComplete = r.data.gender && r.data.phone && r.data.wilaya;
+      if (!isComplete && !alreadyDismissed) setShowProfileModal(true);
     }).catch(() => {});
     statsApi.myRank().then((r) => setMyRank(r.data)).catch(() => {});
     attemptsApi.weakTheme().then((r) => setWeakTheme(r.data)).catch(() => {});
@@ -154,8 +156,8 @@ export default function DashboardPage() {
       {showProfileModal && (
         <ProfileCompletionModal
           isAr={isAr}
-          onClose={() => setShowProfileModal(false)}
-          onSaved={() => { setShowProfileModal(false); userApi.me().then((r) => setProfile(r.data)).catch(() => {}); }}
+          onClose={() => { localStorage.setItem('profile_modal_dismissed', '1'); setShowProfileModal(false); }}
+          onSaved={() => { localStorage.setItem('profile_modal_dismissed', '1'); setShowProfileModal(false); userApi.me().then((r) => setProfile(r.data)).catch(() => {}); }}
         />
       )}
 
