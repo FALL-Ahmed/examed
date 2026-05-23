@@ -66,7 +66,8 @@ export default function ExamPage() {
       setAnswers(s.answers || {});
       startTimeRef.current = new Date(s.startedAt);
       const limit = (s.durationMin || 120) * 60;
-      setExamEndTime(new Date(s.startedAt).getTime() + limit * 1000);
+      const startTs = s.startedAt ? new Date(s.startedAt).getTime() : Date.now();
+      setExamEndTime(startTs + limit * 1000);
     } catch { router.replace('/examen-blanc'); }
   }, [router]);
 

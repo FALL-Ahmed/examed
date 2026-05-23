@@ -40,24 +40,31 @@ function RegisterContent() {
   const isFormAr = formLang === 'ar';
 
   useEffect(() => {
-    // Check if already registered
-    const saved = localStorage.getItem(EB_STATE_KEY);
-    if (saved) {
-      try {
-        const state = JSON.parse(saved);
-        if (state.sessionId && state.examenBlancId) {
-          router.replace('/examen-blanc/exam');
-          return;
-        }
-      } catch {}
-    }
-
-    // Load session info
     examenBlancApi.current().then(r => {
-      setSession(r.data.session);
+      const currentSession = r.data.session;
+      setSession(currentSession);
+
+      // Only redirect if already registered for the SAME session
+      const saved = localStorage.getItem(EB_STATE_KEY);
+      if (saved) {
+        try {
+          const state = JSON.parse(saved);
+          const targetId = examenBlancId || currentSession?.id;
+          if (state.sessionId && state.examenBlancId && state.examenBlancId === targetId) {
+            router.replace(state.isCompleted ? '/examen-blanc/results' : '/examen-blanc/exam');
+            return;
+          } else {
+            // Stale or test session — clear it
+            localStorage.removeItem(EB_STATE_KEY);
+          }
+        } catch {
+          localStorage.removeItem(EB_STATE_KEY);
+        }
+      }
+
       setLoading(false);
     }).catch(() => setLoading(false));
-  }, [router]);
+  }, [router, examenBlancId]);
 
   function set(k: string, v: string) { setForm(p => ({ ...p, [k]: v })); }
 
