@@ -115,18 +115,22 @@ export default function ExamPage() {
     setFinishing(true);
     try {
       await examenBlancApi.finish(state.sessionId, tabSwitchesRef.current);
-      const raw = localStorage.getItem(EB_STATE_KEY);
-      if (raw) {
-        const s = JSON.parse(raw);
-        s.isCompleted = true;
-        s.resultsAt = state.resultsAt;
-        localStorage.setItem(EB_STATE_KEY, JSON.stringify(s));
-      }
-      router.push('/examen-blanc/results');
     } catch (err: any) {
-      alert(err.response?.data?.message || 'Erreur lors de la soumission');
-      setFinishing(false);
+      // Pour les sessions test, on ignore l'erreur et on redirige quand même
+      if (!state.isTest) {
+        alert(err.response?.data?.message || 'Erreur lors de la soumission');
+        setFinishing(false);
+        return;
+      }
     }
+    const raw = localStorage.getItem(EB_STATE_KEY);
+    if (raw) {
+      const s = JSON.parse(raw);
+      s.isCompleted = true;
+      s.resultsAt = state.resultsAt;
+      localStorage.setItem(EB_STATE_KEY, JSON.stringify(s));
+    }
+    router.push('/examen-blanc/results');
   }
 
   if (!state) return (

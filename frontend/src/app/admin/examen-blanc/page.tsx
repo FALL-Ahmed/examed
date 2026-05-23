@@ -775,6 +775,7 @@ function TestButton({ sessionId }: { sessionId: string }) {
       localStorage.setItem('examen_blanc_state', JSON.stringify({
         sessionId: data.sessionId,
         examenBlancId: data.examenBlancId,
+        isTest: true,
         durationMin: data.durationMin,
         totalQ: data.totalQ,
         startedAt: data.startedAt,

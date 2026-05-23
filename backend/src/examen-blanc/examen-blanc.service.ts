@@ -102,6 +102,7 @@ export class ExamenBlancService {
     return {
       sessionId,
       examenBlancId: session.id,
+      isTest: true,
       durationMin: session.durationMin,
       totalQ: session.totalQ,
       startsAt: session.startsAt,
@@ -284,6 +285,10 @@ export class ExamenBlancService {
       where: { sessionId },
       include: { examenBlanc: true, reponses: true },
     });
+    // Session test supprimée de la DB — laisser passer gracieusement
+    if (!participant && sessionId.startsWith('eb_test_')) {
+      return { completed: true, isTest: true, resultsAt: new Date(0) };
+    }
     if (!participant) throw new NotFoundException('Session introuvable');
     if (participant.isCompleted) return { alreadyCompleted: true, resultsAt: participant.examenBlanc.resultsAt };
 
@@ -306,6 +311,9 @@ export class ExamenBlancService {
       where: { sessionId },
       include: { examenBlanc: true, reponses: true },
     });
+    if (!participant && sessionId.startsWith('eb_test_')) {
+      return { isTestExpired: true };
+    }
     if (!participant) throw new NotFoundException('Session introuvable');
     if (!participant.isCompleted) throw new BadRequestException('Examen non terminé');
 

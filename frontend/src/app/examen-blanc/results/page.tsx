@@ -75,10 +75,18 @@ export default function ResultsPage() {
 
     try {
       const { data } = await examenBlancApi.results(state.sessionId);
-      setResults(data);
-      if (data.locked && data.resultsAt) setResultsAt(new Date(data.resultsAt));
+      if (data.isTestExpired) {
+        setResults({ isTestExpired: true });
+      } else {
+        setResults(data);
+        if (data.locked && data.resultsAt) setResultsAt(new Date(data.resultsAt));
+      }
     } catch {
-      setResults(null);
+      if (state.isTest) {
+        setResults({ isTestExpired: true });
+      } else {
+        setResults(null);
+      }
     } finally {
       setLoading(false);
     }
@@ -98,6 +106,19 @@ export default function ResultsPage() {
   if (loading) return (
     <div className="min-h-screen flex items-center justify-center" style={{ background: 'linear-gradient(145deg,#0f0a2e,#1a1040,#0d1b3e)' }}>
       <div className="w-8 h-8 border-4 border-violet-400 border-t-transparent rounded-full animate-spin" />
+    </div>
+  );
+
+  if (results?.isTestExpired) return (
+    <div className="min-h-screen flex flex-col items-center justify-center p-6 text-center"
+      style={{ background: 'linear-gradient(145deg,#0f0a2e 0%,#1a1040 50%,#0d1b3e 100%)' }}>
+      <div className="text-4xl mb-4">🧪</div>
+      <h2 className="text-white font-black text-2xl mb-2">Session test expirée</h2>
+      <p className="text-white/50 text-sm mb-6">Cette session de test a été supprimée de la base de données.<br/>Relancez un nouveau test depuis le panneau admin.</p>
+      <Link href="/admin/examen-blanc" className="px-6 py-3 rounded-xl font-bold text-white text-sm"
+        style={{ background: 'linear-gradient(135deg,#7c3aed,#6366f1)' }}>
+        ← Retour admin
+      </Link>
     </div>
   );
 
