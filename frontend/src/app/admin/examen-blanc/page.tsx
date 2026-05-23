@@ -740,7 +740,9 @@ export default function AdminExamenBlancPage() {
 
       {/* ── LEADS ── */}
       {tab === 'leads' && (() => {
-        const activeSessionTitle = sessions.find((s: any) => s.isActive)?.title ?? 'Examen Blanc';
+        const activeSession = sessions.find((s: any) => s.isActive);
+        const activeSessionTitle = activeSession?.title ?? 'Examen Blanc';
+        const activeSessionId = activeSession?.id ?? null;
         const bySession = leadsSession === 'all' ? leads : leads.filter(l => l.examenBlancId === leadsSession);
         const prospects = bySession.filter(l => !l.isRegistered);
         const registered = bySession.filter(l => l.isRegistered);
@@ -754,11 +756,13 @@ export default function AdminExamenBlancPage() {
           if (scoreFilter === 'gt65') return l.score >= 65;
           return true;
         });
-        // App users filtered
+        // App users filtered — "sans session active" = n'a pas participé à la session courante
+        const notInActiveSession = (u: any) =>
+          !activeSessionId || !u.exams.some((e: any) => e.sessionId === activeSessionId);
         const appUsersFiltered = appUsersFilter === 'with_exam'
           ? appUsers.filter((u: any) => u.hasExam)
           : appUsersFilter === 'without_exam'
-            ? appUsers.filter((u: any) => !u.hasExam)
+            ? appUsers.filter(notInActiveSession)
             : appUsers;
 
         return (
@@ -788,7 +792,7 @@ export default function AdminExamenBlancPage() {
                   {(['all', 'with_exam', 'without_exam'] as const).map(f => (
                     <button key={f} onClick={() => setAppUsersFilter(f)}
                       className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition ${appUsersFilter === f ? 'bg-violet-600 text-white' : 'bg-muted text-muted-foreground hover:bg-muted/80'}`}>
-                      {f === 'all' ? `Tous (${appUsers.length})` : f === 'with_exam' ? `Ont fait l'examen (${appUsers.filter((u: any) => u.hasExam).length})` : `Pas encore (${appUsers.filter((u: any) => !u.hasExam).length})`}
+                      {f === 'all' ? `Tous (${appUsers.length})` : f === 'with_exam' ? `Ont fait l'examen (${appUsers.filter((u: any) => u.hasExam).length})` : `Pas fait session 2 (${appUsers.filter(notInActiveSession).length})`}
                     </button>
                   ))}
                   {appUsersFilter === 'without_exam' && appUsersFiltered.filter((u: any) => u.phone).length > 0 && (
@@ -831,7 +835,7 @@ export default function AdminExamenBlancPage() {
                         const parts = (u.fullName ?? '').trim().split(/\s+/);
                         const remindObj = { telephone: u.phone, lang: 'fr', prenom: parts[0] ?? '' };
                         return (
-                          <tr key={u.id} className={`border-t border-border hover:bg-muted/50 ${!u.hasExam ? 'bg-amber-50/30 dark:bg-amber-900/5' : ''}`}>
+                          <tr key={u.id} className={`border-t border-border hover:bg-muted/50 ${notInActiveSession(u) ? 'bg-amber-50/30 dark:bg-amber-900/5' : ''}`}>
                             <td className="px-3 py-2.5 font-semibold text-foreground whitespace-nowrap">{u.fullName}</td>
                             <td className="px-3 py-2.5 font-mono text-foreground text-xs whitespace-nowrap">{u.phone}</td>
                             <td className="px-3 py-2.5 text-muted-foreground text-xs whitespace-nowrap">{u.wilaya ?? '—'}</td>
@@ -844,9 +848,11 @@ export default function AdminExamenBlancPage() {
                               {new Date(u.createdAt).toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit', year: '2-digit' })}
                             </td>
                             <td className="px-3 py-2.5 whitespace-nowrap">
-                              {u.hasExam
-                                ? <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-bold bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400"><CheckCircle className="w-3 h-3" /> Oui</span>
-                                : <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-bold bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400"><XCircle className="w-3 h-3" /> Non</span>}
+                              {!notInActiveSession(u)
+                                ? <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-bold bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400"><CheckCircle className="w-3 h-3" /> S2 ✓</span>
+                                : u.hasExam
+                                  ? <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-bold bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400">S1 seul.</span>
+                                  : <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-bold bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400"><XCircle className="w-3 h-3" /> Non</span>}
                             </td>
                             <td className="px-3 py-2.5 text-xs text-muted-foreground">
                               {u.exams.length > 0
@@ -860,7 +866,7 @@ export default function AdminExamenBlancPage() {
                                 : <span>—</span>}
                             </td>
                             <td className="px-3 py-2.5">
-                              {!u.hasExam && u.phone ? (
+                              {u.phone && notInActiveSession(u) ? (
                                 <a href={buildReminderUrl(remindObj, activeSessionTitle)} target="_blank" rel="noreferrer"
                                   className="inline-flex items-center justify-center w-8 h-8 rounded-lg bg-[#25D366]/10 hover:bg-[#25D366]/25 transition"
                                   title={`Relancer ${u.fullName}`}>
