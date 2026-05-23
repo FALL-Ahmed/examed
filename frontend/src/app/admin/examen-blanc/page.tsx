@@ -619,7 +619,7 @@ export default function AdminExamenBlancPage() {
                     <table className="w-full text-sm">
                       <thead className="bg-muted">
                         <tr>
-                          {['#', 'Nom', 'Wilaya', 'Téléphone', 'Score', 'Temps', 'Triche'].map(h => (
+                          {['#', 'Nom', 'Wilaya', 'Téléphone', 'Score', 'Temps', 'Triche', 'Historique'].map(h => (
                             <th key={h} className="text-left px-4 py-2.5 text-xs font-semibold text-muted-foreground">{h}</th>
                           ))}
                         </tr>
@@ -637,6 +637,19 @@ export default function AdminExamenBlancPage() {
                               {p.tricherie
                                 ? <span className="flex items-center gap-1 text-red-500 text-xs"><AlertTriangle className="w-3 h-3" />{p.tabSwitches}</span>
                                 : <span className="text-muted-foreground">—</span>}
+                            </td>
+                            <td className="px-4 py-2.5">
+                              {p.previousSessions?.length > 0
+                                ? <div className="flex flex-col gap-1">
+                                    {p.previousSessions.map((s: any) => (
+                                      <span key={s.id} className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-amber-500/10 text-amber-600 text-xs font-semibold whitespace-nowrap">
+                                        🔄 {s.title}
+                                      </span>
+                                    ))}
+                                  </div>
+                                : <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-600 text-xs font-semibold">
+                                    🆕 Nouveau
+                                  </span>}
                             </td>
                           </tr>
                         ))}

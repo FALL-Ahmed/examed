@@ -706,6 +706,22 @@ export class ExamenBlancService {
       .sort((a, b) => a.avgPartial - b.avgPartial)
       .slice(0, 30);
 
+    // Croiser les participants avec les autres sessions (par téléphone)
+    const phones = allParticipants.map((p: any) => p.telephone).filter(Boolean);
+    const otherSessionParticipants = phones.length > 0
+      ? await db(this.prisma).examenBlancParticipant.findMany({
+          where: { telephone: { in: phones }, examenBlancId: { not: id }, isTest: false },
+          select: { telephone: true, examenBlanc: { select: { title: true, id: true } } },
+        })
+      : [];
+
+    const phoneToSessions: Record<string, { title: string; id: string }[]> = {};
+    for (const p of otherSessionParticipants) {
+      if (!phoneToSessions[p.telephone]) phoneToSessions[p.telephone] = [];
+      const already = phoneToSessions[p.telephone].find((s: any) => s.id === p.examenBlanc.id);
+      if (!already) phoneToSessions[p.telephone].push({ title: p.examenBlanc.title, id: p.examenBlanc.id });
+    }
+
     return {
       session,
       lang: lang ?? 'all',
@@ -722,7 +738,10 @@ export class ExamenBlancService {
       cityBreakdown: cityBreakdown.map((c: any) => ({ ville: c.ville, count: c._count.id })),
       histogram,
       histogramAll,
-      topParticipants: completed.slice(0, 20).map((p: any, i: number) => ({ rank: i + 1, ...p })),
+      topParticipants: completed.slice(0, 20).map((p: any, i: number) => ({
+        rank: i + 1, ...p,
+        previousSessions: phoneToSessions[p.telephone] ?? [],
+      })),
       questionStats,
     };
   }
