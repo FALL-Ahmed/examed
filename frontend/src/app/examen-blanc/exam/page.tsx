@@ -293,7 +293,8 @@ export default function ExamPage() {
             </button>
 
             <button onClick={() => setCurrentIdx(i => Math.min(totalQ - 1, i + 1))} disabled={currentIdx === totalQ - 1}
-              className="flex items-center gap-2 px-5 py-2.5 rounded-xl border border-white/10 text-white/60 font-semibold text-sm hover:bg-white/5 transition disabled:opacity-30">
+              className="flex items-center gap-2 px-6 py-2.5 rounded-xl font-bold text-sm text-white transition disabled:opacity-30 disabled:bg-white/5 disabled:border disabled:border-white/10 disabled:text-white/40"
+              style={currentIdx === totalQ - 1 ? {} : { background: 'linear-gradient(135deg,#7c3aed,#6366f1)' }}>
               {isAr ? 'التالي' : 'Suivant'}
               <ChevronRight className="w-4 h-4" />
             </button>
