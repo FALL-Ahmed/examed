@@ -670,7 +670,7 @@ export class ExamenBlancService {
     const questions = questionIds.length > 0
       ? await this.prisma.question.findMany({
           where: { id: { in: questionIds } },
-          select: { id: true, text: true, correctAnswer: true, subTheme: { select: { name: true, theme: { select: { name: true } } } } },
+          select: { id: true, text: true, correctAnswer: true, choiceA: true, choiceB: true, choiceC: true, choiceD: true, choiceE: true, explanation: true, subTheme: { select: { name: true, theme: { select: { name: true } } } } },
         })
       : [];
 
@@ -690,6 +690,10 @@ export class ExamenBlancService {
           text: q?.text ?? '—',
           theme: q?.subTheme?.theme?.name ?? '—',
           subTheme: q?.subTheme?.name ?? '—',
+          correctAnswer: q?.correctAnswer ?? '',
+          choiceA: q?.choiceA ?? '', choiceB: q?.choiceB ?? '', choiceC: q?.choiceC ?? '',
+          choiceD: q?.choiceD ?? '', choiceE: q?.choiceE ?? null,
+          explanation: q?.explanation ?? null,
           total: data.total,
           fullPct: Math.round((data.full / data.total) * 100),
           partialPct: Math.round((data.partial / data.total) * 100),
@@ -698,6 +702,7 @@ export class ExamenBlancService {
           avgPartial: Math.round((data.sumPartial / data.total) * 1000) / 1000,
         };
       })
+      .filter(q => q.fullPct < 100)
       .sort((a, b) => a.avgPartial - b.avgPartial)
       .slice(0, 30);
 

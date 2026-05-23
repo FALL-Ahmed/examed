@@ -71,6 +71,7 @@ export default function AdminExamenBlancPage() {
   const [sessions, setSessions] = useState<any[]>([]);
   const [selectedSession, setSelectedSession] = useState<any>(null);
   const [stats, setStats] = useState<any>(null);
+  const [questionModal, setQuestionModal] = useState<any>(null);
   const [leads, setLeads] = useState<any[]>([]);
   const [leadsSession, setLeadsSession] = useState<string>('all');
   const [leadsFilter, setLeadsFilter] = useState<'all' | 'prospects' | 'registered'>('all');
@@ -149,8 +150,64 @@ export default function AdminExamenBlancPage() {
     </div>
   );
 
+  const choices = ['A', 'B', 'C', 'D', 'E'] as const;
+
   return (
     <div className="space-y-6 max-w-5xl">
+
+      {/* Modal question */}
+      {questionModal && (
+        <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4" onClick={() => setQuestionModal(null)}>
+          <div className="bg-card border border-border rounded-2xl max-w-lg w-full max-h-[90vh] overflow-y-auto shadow-2xl"
+            onClick={e => e.stopPropagation()}>
+            <div className="px-5 py-4 border-b border-border flex items-center justify-between">
+              <div>
+                <span className="text-xs font-mono font-bold text-violet-600">
+                  {questionModal.numQuestion ? `Q°${questionModal.numQuestion}` : 'Question'}
+                </span>
+                <p className="text-xs text-muted-foreground">{questionModal.theme} › {questionModal.subTheme}</p>
+              </div>
+              <div className="flex items-center gap-3 text-xs font-bold">
+                <span className="text-emerald-600">{questionModal.fullPct}% ✅</span>
+                <span className="text-amber-500">{questionModal.partialPct}% 🔶</span>
+                <span className="text-red-500">{questionModal.negativePct}% ❌</span>
+                <button onClick={() => setQuestionModal(null)} className="ml-2 text-muted-foreground hover:text-foreground text-lg">✕</button>
+              </div>
+            </div>
+            <div className="p-5 space-y-4">
+              <p className="text-foreground font-medium leading-relaxed">{questionModal.text}</p>
+              <div className="space-y-2">
+                {choices.map(c => {
+                  const text = questionModal[`choice${c}`];
+                  if (!text) return null;
+                  const correct = questionModal.correctAnswer?.split(',').includes(c);
+                  return (
+                    <div key={c} className={`flex items-start gap-3 px-4 py-3 rounded-xl border text-sm ${
+                      correct ? 'border-emerald-500/50 bg-emerald-500/10 text-emerald-700 dark:text-emerald-300' : 'border-border bg-muted/30 text-foreground'
+                    }`}>
+                      <span className={`font-black w-5 shrink-0 ${correct ? 'text-emerald-600' : 'text-muted-foreground'}`}>{c}</span>
+                      <span className="leading-snug">{text}</span>
+                      {correct && <span className="ml-auto shrink-0 text-emerald-600 font-bold">✓</span>}
+                    </div>
+                  );
+                })}
+              </div>
+              {questionModal.explanation && (
+                <div className="bg-violet-500/10 border border-violet-500/20 rounded-xl px-4 py-3 text-sm text-violet-700 dark:text-violet-300">
+                  <p className="font-bold mb-1">💡 Explication</p>
+                  <p className="leading-relaxed">{questionModal.explanation}</p>
+                </div>
+              )}
+              <div className="flex items-center justify-between text-xs text-muted-foreground pt-2 border-t border-border">
+                <span>{questionModal.total} réponse{questionModal.total > 1 ? 's' : ''}</span>
+                <span className={`font-bold ${questionModal.avgPartial < 0 ? 'text-red-500' : questionModal.avgPartial < 0.5 ? 'text-amber-500' : 'text-emerald-600'}`}>
+                  Score moy. {questionModal.avgPartial.toFixed(3)}
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Header */}
       <div className="flex items-center justify-between">
@@ -522,7 +579,8 @@ export default function AdminExamenBlancPage() {
                       </thead>
                       <tbody>
                         {stats.questionStats.map((q: any, i: number) => (
-                          <tr key={q.questionId} className="border-t border-border hover:bg-muted/50">
+                          <tr key={q.questionId} onClick={() => setQuestionModal(q)}
+                            className="border-t border-border hover:bg-muted/50 cursor-pointer">
                             <td className="px-4 py-2.5 font-bold text-muted-foreground">{i + 1}</td>
                             <td className="px-4 py-2.5 font-mono font-bold text-violet-600 whitespace-nowrap">
                               {q.numQuestion ? `#${q.numQuestion}` : '—'}

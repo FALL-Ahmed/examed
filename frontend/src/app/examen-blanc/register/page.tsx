@@ -44,17 +44,17 @@ function RegisterContent() {
       const currentSession = r.data.session;
       setSession(currentSession);
 
-      // Only redirect if already registered for the SAME session
+      // Only redirect if already registered for the SAME session (and not a test session)
       const saved = localStorage.getItem(EB_STATE_KEY);
       if (saved) {
         try {
           const state = JSON.parse(saved);
           const targetId = examenBlancId || currentSession?.id;
-          if (state.sessionId && state.examenBlancId && state.examenBlancId === targetId) {
+          if (!state.isTest && state.sessionId && state.examenBlancId && state.examenBlancId === targetId) {
             router.replace(state.isCompleted ? '/examen-blanc/results' : '/examen-blanc/exam');
             return;
           } else {
-            // Stale or test session — clear it
+            // Session test ou obsolète — effacer
             localStorage.removeItem(EB_STATE_KEY);
           }
         } catch {
