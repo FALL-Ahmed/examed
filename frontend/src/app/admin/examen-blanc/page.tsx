@@ -772,7 +772,7 @@ function TestButton({ sessionId }: { sessionId: string }) {
     setLoading(true);
     try {
       const { data } = await examenBlancApi.adminTestSession(sessionId, lang);
-      localStorage.setItem('examen_blanc_state', JSON.stringify({
+      localStorage.setItem('examen_blanc_test_state', JSON.stringify({
         sessionId: data.sessionId,
         examenBlancId: data.examenBlancId,
         isTest: true,
@@ -785,7 +785,7 @@ function TestButton({ sessionId }: { sessionId: string }) {
         questions: data.questions,
         answers: {},
       }));
-      window.open('/examen-blanc/exam', '_blank');
+      window.open('/examen-blanc/exam?mode=test', '_blank');
     } catch (err: any) {
       alert(err.response?.data?.message || 'Erreur lors du démarrage du test');
     } finally {

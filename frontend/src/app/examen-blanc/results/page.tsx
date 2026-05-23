@@ -1,12 +1,13 @@
 'use client';
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useState, useCallback, Suspense } from 'react';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { examenBlancApi, settingsApi } from '@/lib/api';
 import { useLang } from '@/components/LanguageProvider';
 import { Trophy, Clock, ChevronLeft, ChevronRight, CheckCircle2, BookOpen, Download } from 'lucide-react';
 
 const EB_STATE_KEY = 'examen_blanc_state';
+const EB_TEST_KEY = 'examen_blanc_test_state';
 const pad = (n: number) => String(n).padStart(2, '0');
 
 function formatTime(sec: number) {
@@ -42,8 +43,12 @@ function Countdown({ target, isAr }: { target: Date; isAr: boolean }) {
   );
 }
 
-export default function ResultsPage() {
+function ResultsContent() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const isTestMode = searchParams.get('mode') === 'test';
+  const stateKey = isTestMode ? EB_TEST_KEY : EB_STATE_KEY;
+
   const { lang } = useLang();
   const isAr = lang === 'ar';
   const [results, setResults] = useState<any>(null);
@@ -65,12 +70,15 @@ export default function ResultsPage() {
   }
 
   const load = useCallback(async () => {
-    const raw = localStorage.getItem(EB_STATE_KEY);
+    const raw = localStorage.getItem(stateKey);
     if (!raw) { router.replace('/examen-blanc'); return; }
     let state: any;
     try { state = JSON.parse(raw); } catch { router.replace('/examen-blanc'); return; }
     if (!state.sessionId) { router.replace('/examen-blanc'); return; }
-    if (!state.isCompleted) { router.replace('/examen-blanc/exam'); return; }
+    if (!state.isCompleted) {
+      router.replace(isTestMode ? '/examen-blanc/exam?mode=test' : '/examen-blanc/exam');
+      return;
+    }
     setLocalState(state);
 
     try {
@@ -82,7 +90,7 @@ export default function ResultsPage() {
         if (data.locked && data.resultsAt) setResultsAt(new Date(data.resultsAt));
       }
     } catch {
-      if (state.isTest) {
+      if (isTestMode) {
         setResults({ isTestExpired: true });
       } else {
         setResults(null);
@@ -523,5 +531,17 @@ export default function ResultsPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function ResultsPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen flex items-center justify-center" style={{ background: 'linear-gradient(145deg,#0f0a2e,#1a1040,#0d1b3e)' }}>
+        <div className="w-8 h-8 border-4 border-violet-400 border-t-transparent rounded-full animate-spin" />
+      </div>
+    }>
+      <ResultsContent />
+    </Suspense>
   );
 }

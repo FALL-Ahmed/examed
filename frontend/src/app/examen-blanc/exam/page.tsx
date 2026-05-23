@@ -1,11 +1,12 @@
 'use client';
-import { useState, useEffect, useRef, useCallback } from 'react';
-import { useRouter } from 'next/navigation';
+import { useState, useEffect, useRef, useCallback, Suspense } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { examenBlancApi } from '@/lib/api';
 import { useLang } from '@/components/LanguageProvider';
 import { Clock, AlertTriangle, ChevronLeft, ChevronRight, CheckCircle2, Loader2, Send, Flag } from 'lucide-react';
 
 const EB_STATE_KEY = 'examen_blanc_state';
+const EB_TEST_KEY = 'examen_blanc_test_state';
 const pad = (n: number) => String(n).padStart(2, '0');
 
 function Timer({ endTime, onExpire, isAr }: { endTime: number; onExpire: () => void; isAr: boolean }) {
@@ -38,8 +39,12 @@ function Timer({ endTime, onExpire, isAr }: { endTime: number; onExpire: () => v
   );
 }
 
-export default function ExamPage() {
+function ExamContent() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const isTestMode = searchParams.get('mode') === 'test';
+  const stateKey = isTestMode ? EB_TEST_KEY : EB_STATE_KEY;
+
   const { lang, setLang } = useLang();
   const isAr = lang === 'ar';
 
@@ -56,12 +61,15 @@ export default function ExamPage() {
   const startTimeRef = useRef<Date | null>(null);
 
   useEffect(() => {
-    const raw = localStorage.getItem(EB_STATE_KEY);
+    const raw = localStorage.getItem(stateKey);
     if (!raw) { router.replace('/examen-blanc'); return; }
     try {
       const s = JSON.parse(raw);
       if (!s.sessionId || !s.questions?.length) { router.replace('/examen-blanc'); return; }
-      if (s.isCompleted) { router.replace('/examen-blanc/results'); return; }
+      if (s.isCompleted) {
+        router.replace(isTestMode ? '/examen-blanc/results?mode=test' : '/examen-blanc/results');
+        return;
+      }
       setState(s);
       setAnswers(s.answers || {});
       startTimeRef.current = new Date(s.startedAt);
@@ -69,7 +77,7 @@ export default function ExamPage() {
       const startTs = s.startedAt ? new Date(s.startedAt).getTime() : Date.now();
       setExamEndTime(startTs + limit * 1000);
     } catch { router.replace('/examen-blanc'); }
-  }, [router]);
+  }, [router, stateKey, isTestMode]);
 
   // Tab switch detection
   useEffect(() => {
@@ -87,13 +95,13 @@ export default function ExamPage() {
 
   const saveAnswer = useCallback((questionId: string, answer: string, sessionId: string) => {
     examenBlancApi.submitAnswer(sessionId, { questionId, reponse: answer });
-    const raw = localStorage.getItem(EB_STATE_KEY);
+    const raw = localStorage.getItem(stateKey);
     if (raw) {
       const s = JSON.parse(raw);
       s.answers = { ...s.answers, [questionId]: answer };
-      localStorage.setItem(EB_STATE_KEY, JSON.stringify(s));
+      localStorage.setItem(stateKey, JSON.stringify(s));
     }
-  }, []);
+  }, [stateKey]);
 
   function toggleAnswer(questionId: string, choice: string, isMultiple: boolean) {
     if (!state) return;
@@ -116,21 +124,21 @@ export default function ExamPage() {
     try {
       await examenBlancApi.finish(state.sessionId, tabSwitchesRef.current);
     } catch (err: any) {
-      // Pour les sessions test, on ignore l'erreur et on redirige quand même
-      if (!state.isTest) {
+      if (!isTestMode) {
         alert(err.response?.data?.message || 'Erreur lors de la soumission');
         setFinishing(false);
         return;
       }
+      // Mode test : on continue même si l'API échoue
     }
-    const raw = localStorage.getItem(EB_STATE_KEY);
+    const raw = localStorage.getItem(stateKey);
     if (raw) {
       const s = JSON.parse(raw);
       s.isCompleted = true;
       s.resultsAt = state.resultsAt;
-      localStorage.setItem(EB_STATE_KEY, JSON.stringify(s));
+      localStorage.setItem(stateKey, JSON.stringify(s));
     }
-    router.push('/examen-blanc/results');
+    router.push(isTestMode ? '/examen-blanc/results?mode=test' : '/examen-blanc/results');
   }
 
   if (!state) return (
@@ -151,6 +159,13 @@ export default function ExamPage() {
   return (
     <div className="min-h-screen flex flex-col" dir={isAr ? 'rtl' : 'ltr'}
       style={{ background: 'linear-gradient(145deg,#0f0a2e 0%,#1a1040 50%,#0d1b3e 100%)' }}>
+
+      {/* Badge test mode */}
+      {isTestMode && (
+        <div className="fixed top-2 left-1/2 -translate-x-1/2 z-50 bg-amber-500/90 text-black px-4 py-1 rounded-full text-xs font-black tracking-wide">
+          🧪 MODE TEST ADMIN
+        </div>
+      )}
 
       {/* Tab warning */}
       {showTabWarning && (
@@ -342,5 +357,17 @@ export default function ExamPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function ExamPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen flex items-center justify-center" style={{ background: 'linear-gradient(145deg,#0f0a2e,#1a1040,#0d1b3e)' }}>
+        <div className="w-8 h-8 border-4 border-violet-400 border-t-transparent rounded-full animate-spin" />
+      </div>
+    }>
+      <ExamContent />
+    </Suspense>
   );
 }
