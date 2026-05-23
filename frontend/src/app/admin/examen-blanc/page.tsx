@@ -64,6 +64,19 @@ function buildWhatsAppUrl(l: any): string {
   return `https://wa.me/${phone}?text=${encodeURIComponent(msg)}`;
 }
 
+function buildReminderUrl(l: any, sessionTitle: string): string {
+  const isAr = l.lang === 'ar';
+  const prenom = l.prenom ?? '';
+  const msg = isAr
+    ? `مرحباً ${prenom}،\n${sessionTitle} قد انطلق الآن! 🎯\nادخل هنا:\nhttps://albourour.com/examen-blanc`
+    : `Bonjour ${prenom},\n${sessionTitle} est maintenant lancé ! 🎯\nAccède à ton examen ici :\nhttps://albourour.com/examen-blanc`;
+  let phone = (l.telephone ?? '').replace(/\D/g, '');
+  if (phone.startsWith('00222')) phone = phone.slice(2);
+  else if (phone.startsWith('0') && phone.length <= 9) phone = '222' + phone.slice(1);
+  else if (phone.length === 8) phone = '222' + phone;
+  return `https://wa.me/${phone}?text=${encodeURIComponent(msg)}`;
+}
+
 const defaultForm = { title: 'Examen Blanc National', descriptionFr: '', descriptionAr: '', startsAt: '', endsAt: '', resultsAt: '', totalQ: 80, durationMin: 120 };
 
 export default function AdminExamenBlancPage() {
@@ -72,7 +85,13 @@ export default function AdminExamenBlancPage() {
   const [selectedSession, setSelectedSession] = useState<any>(null);
   const [stats, setStats] = useState<any>(null);
   const [questionModal, setQuestionModal] = useState<any>(null);
+  const [reminderQueue, setReminderQueue] = useState<any[] | null>(null);
+  const [reminderIdx, setReminderIdx] = useState(0);
   const [leads, setLeads] = useState<any[]>([]);
+  const [leadsView, setLeadsView] = useState<'participants' | 'app_users'>('participants');
+  const [appUsers, setAppUsers] = useState<any[]>([]);
+  const [appUsersLoading, setAppUsersLoading] = useState(false);
+  const [appUsersFilter, setAppUsersFilter] = useState<'all' | 'with_exam' | 'without_exam'>('all');
   const [leadsSession, setLeadsSession] = useState<string>('all');
   const [leadsFilter, setLeadsFilter] = useState<'all' | 'prospects' | 'registered'>('all');
   const [scoreFilter, setScoreFilter] = useState<'all' | 'incomplete' | 'lt30' | '30-50' | '50-65' | 'gt65'>('all');
@@ -98,8 +117,14 @@ export default function AdminExamenBlancPage() {
     try { const { data } = await examenBlancApi.adminParticipants(); setLeads(data); } catch {}
   }, []);
 
+  const loadAppUsers = useCallback(async () => {
+    setAppUsersLoading(true);
+    try { const { data } = await examenBlancApi.adminAppUsers(); setAppUsers(data); } catch {}
+    setAppUsersLoading(false);
+  }, []);
+
   useEffect(() => { loadSessions(); }, [loadSessions]);
-  useEffect(() => { if (tab === 'leads') loadLeads(); }, [tab, loadLeads]);
+  useEffect(() => { if (tab === 'leads') { loadLeads(); loadAppUsers(); } }, [tab, loadLeads, loadAppUsers]);
 
   async function loadStats(id: string, lang?: 'fr' | 'ar') {
     setStatsLoading(true); setStats(null);
@@ -154,6 +179,56 @@ export default function AdminExamenBlancPage() {
 
   return (
     <div className="space-y-6 max-w-5xl">
+
+      {/* Modal relance séquentielle (app users) */}
+      {reminderQueue && reminderIdx < reminderQueue.length && (() => {
+        const activeSessionTitle = sessions.find((s: any) => s.isActive)?.title ?? 'Examen Blanc';
+        const item = reminderQueue[reminderIdx];
+        return (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
+            <div className="bg-card border border-border rounded-3xl p-8 max-w-sm w-full mx-4 shadow-2xl text-center space-y-5">
+              <p className="text-xs text-muted-foreground">{reminderIdx + 1} / {reminderQueue.length}</p>
+              <div className="w-full bg-muted rounded-full h-1.5">
+                <div className="bg-[#25D366] h-1.5 rounded-full transition-all" style={{ width: `${((reminderIdx + 1) / reminderQueue.length) * 100}%` }} />
+              </div>
+              <div>
+                <p className="font-black text-foreground text-xl">{item.prenom} {item.nom}</p>
+                <p className="text-muted-foreground text-sm">{item.telephone}</p>
+              </div>
+              <a href={buildReminderUrl(item, activeSessionTitle)} target="_blank" rel="noreferrer"
+                onClick={() => setTimeout(() => setReminderIdx(i => i + 1), 800)}
+                className="flex items-center justify-center gap-2 w-full py-3 rounded-2xl font-bold text-white bg-[#25D366] hover:opacity-90 transition text-sm">
+                <svg viewBox="0 0 24 24" className="w-5 h-5 fill-white"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+                Envoyer sur WhatsApp
+              </a>
+              <div className="flex gap-2">
+                <button onClick={() => setReminderIdx(i => i + 1)}
+                  className="flex-1 py-2 rounded-xl border border-border text-muted-foreground text-sm hover:bg-muted transition">
+                  Passer →
+                </button>
+                <button onClick={() => { setReminderQueue(null); setReminderIdx(0); }}
+                  className="flex-1 py-2 rounded-xl border border-border text-muted-foreground text-sm hover:bg-muted transition">
+                  Terminer
+                </button>
+              </div>
+            </div>
+          </div>
+        );
+      })()}
+      {reminderQueue && reminderIdx >= reminderQueue.length && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
+          <div className="bg-card border border-border rounded-3xl p-8 max-w-sm w-full mx-4 text-center space-y-4">
+            <div className="text-4xl">✅</div>
+            <p className="font-black text-foreground text-xl">Relances envoyées !</p>
+            <p className="text-muted-foreground text-sm">{reminderQueue.length} messages envoyés</p>
+            <button onClick={() => { setReminderQueue(null); setReminderIdx(0); }}
+              className="w-full py-3 rounded-2xl font-bold text-sm text-white hover:opacity-90 transition"
+              style={{ background: 'linear-gradient(135deg,#7c3aed,#6366f1)' }}>
+              Fermer
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* Modal question */}
       {questionModal && (
@@ -665,6 +740,7 @@ export default function AdminExamenBlancPage() {
 
       {/* ── LEADS ── */}
       {tab === 'leads' && (() => {
+        const activeSessionTitle = sessions.find((s: any) => s.isActive)?.title ?? 'Examen Blanc';
         const bySession = leadsSession === 'all' ? leads : leads.filter(l => l.examenBlancId === leadsSession);
         const prospects = bySession.filter(l => !l.isRegistered);
         const registered = bySession.filter(l => l.isRegistered);
@@ -678,8 +754,135 @@ export default function AdminExamenBlancPage() {
           if (scoreFilter === 'gt65') return l.score >= 65;
           return true;
         });
+        // App users filtered
+        const appUsersFiltered = appUsersFilter === 'with_exam'
+          ? appUsers.filter((u: any) => u.hasExam)
+          : appUsersFilter === 'without_exam'
+            ? appUsers.filter((u: any) => !u.hasExam)
+            : appUsers;
+
         return (
         <div className="space-y-4">
+
+          {/* Sous-onglets vue */}
+          <div className="flex gap-1 p-1 bg-muted rounded-xl w-fit">
+            <button onClick={() => setLeadsView('participants')}
+              className={`px-4 py-1.5 rounded-lg text-sm font-semibold transition ${leadsView === 'participants' ? 'bg-card shadow text-foreground' : 'text-muted-foreground hover:text-foreground'}`}>
+              Participants Examen ({leads.length})
+            </button>
+            <button onClick={() => setLeadsView('app_users')}
+              className={`px-4 py-1.5 rounded-lg text-sm font-semibold transition ${leadsView === 'app_users' ? 'bg-card shadow text-foreground' : 'text-muted-foreground hover:text-foreground'}`}>
+              Utilisateurs App ({appUsers.length || '…'})
+            </button>
+          </div>
+
+          {/* ── VUE UTILISATEURS APP ── */}
+          {leadsView === 'app_users' && (
+            <div className="space-y-4">
+              <div className="flex items-center justify-between flex-wrap gap-3">
+                <h2 className="font-bold text-foreground flex items-center gap-2">
+                  <Users className="w-4 h-4 text-violet-500" /> Utilisateurs inscrits dans l'app
+                  <span className="text-xs font-normal text-muted-foreground">— croisés avec les sessions examen</span>
+                </h2>
+                <div className="flex items-center gap-2 flex-wrap">
+                  {(['all', 'with_exam', 'without_exam'] as const).map(f => (
+                    <button key={f} onClick={() => setAppUsersFilter(f)}
+                      className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition ${appUsersFilter === f ? 'bg-violet-600 text-white' : 'bg-muted text-muted-foreground hover:bg-muted/80'}`}>
+                      {f === 'all' ? `Tous (${appUsers.length})` : f === 'with_exam' ? `Ont fait l'examen (${appUsers.filter((u: any) => u.hasExam).length})` : `Pas encore (${appUsers.filter((u: any) => !u.hasExam).length})`}
+                    </button>
+                  ))}
+                  {appUsersFilter === 'without_exam' && appUsersFiltered.filter((u: any) => u.phone).length > 0 && (
+                    <button onClick={() => {
+                      setReminderQueue(appUsersFiltered.filter((u: any) => u.phone).map((u: any) => {
+                        const parts = (u.fullName ?? '').trim().split(/\s+/);
+                        return { telephone: u.phone, lang: 'fr', prenom: parts[0] ?? '', nom: parts.slice(1).join(' ') };
+                      }));
+                      setReminderIdx(0);
+                    }}
+                      className="flex items-center gap-2 px-4 py-2 rounded-xl font-semibold text-sm text-white hover:opacity-80 transition bg-[#25D366]">
+                      <svg viewBox="0 0 24 24" className="w-4 h-4 fill-white"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+                      Relancer tous ({appUsersFiltered.filter((u: any) => u.phone).length})
+                    </button>
+                  )}
+                  <button onClick={loadAppUsers}
+                    className="flex items-center gap-2 px-3 py-2 rounded-xl border border-border text-muted-foreground text-xs hover:bg-accent transition">
+                    <RefreshCw className="w-3.5 h-3.5" />
+                  </button>
+                </div>
+              </div>
+              {appUsersLoading ? (
+                <div className="flex items-center justify-center py-16">
+                  <div className="w-6 h-6 border-2 border-violet-500 border-t-transparent rounded-full animate-spin" />
+                </div>
+              ) : (
+                <div className="bg-card border border-border rounded-2xl overflow-hidden">
+                  <table className="w-full text-xs">
+                    <thead className="bg-muted border-b border-border">
+                      <tr>
+                        {['Nom complet', 'Téléphone', 'Wilaya', 'Rôle', 'Inscrit le', 'Examen', 'Sessions', 'Relancer'].map(h => (
+                          <th key={h} className="text-left px-3 py-3 text-xs font-semibold text-muted-foreground whitespace-nowrap">{h}</th>
+                        ))}
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {appUsersFiltered.length === 0 ? (
+                        <tr><td colSpan={8} className="text-center py-12 text-muted-foreground">Aucun utilisateur</td></tr>
+                      ) : appUsersFiltered.map((u: any) => {
+                        const parts = (u.fullName ?? '').trim().split(/\s+/);
+                        const remindObj = { telephone: u.phone, lang: 'fr', prenom: parts[0] ?? '' };
+                        return (
+                          <tr key={u.id} className={`border-t border-border hover:bg-muted/50 ${!u.hasExam ? 'bg-amber-50/30 dark:bg-amber-900/5' : ''}`}>
+                            <td className="px-3 py-2.5 font-semibold text-foreground whitespace-nowrap">{u.fullName}</td>
+                            <td className="px-3 py-2.5 font-mono text-foreground text-xs whitespace-nowrap">{u.phone}</td>
+                            <td className="px-3 py-2.5 text-muted-foreground text-xs whitespace-nowrap">{u.wilaya ?? '—'}</td>
+                            <td className="px-3 py-2.5 whitespace-nowrap">
+                              <span className={`px-2 py-0.5 rounded-full text-xs font-bold ${u.role === 'PREMIUM' ? 'bg-violet-100 text-violet-700 dark:bg-violet-900/30 dark:text-violet-400' : 'bg-muted text-muted-foreground'}`}>
+                                {u.role}
+                              </span>
+                            </td>
+                            <td className="px-3 py-2.5 text-muted-foreground text-xs whitespace-nowrap">
+                              {new Date(u.createdAt).toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit', year: '2-digit' })}
+                            </td>
+                            <td className="px-3 py-2.5 whitespace-nowrap">
+                              {u.hasExam
+                                ? <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-bold bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400"><CheckCircle className="w-3 h-3" /> Oui</span>
+                                : <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-bold bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400"><XCircle className="w-3 h-3" /> Non</span>}
+                            </td>
+                            <td className="px-3 py-2.5 text-xs text-muted-foreground">
+                              {u.exams.length > 0
+                                ? <div className="flex flex-col gap-0.5">
+                                    {u.exams.map((e: any) => (
+                                      <span key={e.sessionId} className="whitespace-nowrap">
+                                        {e.sessionTitle} {e.isCompleted ? `· ${e.score?.toFixed(1)}%` : '· Non terminé'}
+                                      </span>
+                                    ))}
+                                  </div>
+                                : <span>—</span>}
+                            </td>
+                            <td className="px-3 py-2.5">
+                              {!u.hasExam && u.phone ? (
+                                <a href={buildReminderUrl(remindObj, activeSessionTitle)} target="_blank" rel="noreferrer"
+                                  className="inline-flex items-center justify-center w-8 h-8 rounded-lg bg-[#25D366]/10 hover:bg-[#25D366]/25 transition"
+                                  title={`Relancer ${u.fullName}`}>
+                                  <svg viewBox="0 0 24 24" className="w-4 h-4 fill-[#25D366]">
+                                    <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
+                                  </svg>
+                                </a>
+                              ) : <span />}
+                            </td>
+                          </tr>
+                        );
+                      })}
+                    </tbody>
+                  </table>
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* ── VUE PARTICIPANTS EXAMEN ── */}
+          {leadsView === 'participants' && (<>
+
           {/* Filtre session */}
           <div className="flex items-center gap-2 flex-wrap">
             <span className="text-xs font-semibold text-muted-foreground">Session :</span>
@@ -828,6 +1031,7 @@ export default function AdminExamenBlancPage() {
               </table>
             </div>
           </div>
+          </>)}
         </div>
         );
       })()}

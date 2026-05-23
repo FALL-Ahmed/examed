@@ -232,6 +232,7 @@ export const examenBlancApi = {
   adminGetStats: (id: string, lang?: 'fr' | 'ar') => api.get(`/examen-blanc/admin/sessions/${id}/stats`, lang ? { params: { lang } } : {}),
   adminUpdateSession: (id: string, data: any) => api.put(`/examen-blanc/admin/sessions/${id}`, data),
   adminParticipants: () => api.get('/examen-blanc/admin/participants'),
+  adminAppUsers: () => api.get('/examen-blanc/admin/app-users'),
   recover: (telephone: string) => axios.post(`${API_URL}/examen-blanc/recover`, { telephone }),
   adminTestSession: (examenBlancId: string, lang: 'fr' | 'ar') =>
     api.post('/examen-blanc/admin/test-session', { examenBlancId, lang }),

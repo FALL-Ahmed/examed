@@ -208,8 +208,9 @@ function RegisterContent() {
 
             <div>
               <label className={labelCls}>{isFormAr ? 'رقم الهاتف' : 'Téléphone'} <span className="text-red-400">*</span></label>
-              <input type="tel" value={form.telephone} onChange={e => set('telephone', e.target.value)}
-                className={inputCls} placeholder="+222 XX XX XX XX" dir="ltr" />
+              <input type="tel" value={form.telephone}
+                onChange={e => set('telephone', e.target.value.replace(/[^0-9+\s]/g, ''))}
+                inputMode="numeric" className={inputCls} placeholder="+222 XX XX XX XX" dir="ltr" />
               <p className="text-white/30 text-xs mt-1.5">
                 {isFormAr ? 'لإرسال نتائجك عبر واتساب' : 'Pour recevoir vos résultats via WhatsApp'}
               </p>

@@ -746,6 +746,64 @@ export class ExamenBlancService {
     };
   }
 
+  async getAppUsersWithExamStatus() {
+    const [users, allParticipants] = await Promise.all([
+      this.prisma.user.findMany({
+        where: { phone: { not: null } },
+        orderBy: { createdAt: 'desc' },
+        select: { id: true, phone: true, fullName: true, email: true, role: true, wilaya: true, createdAt: true, subscriptionEnd: true },
+      }),
+      db(this.prisma).examenBlancParticipant.findMany({
+        where: { isTest: false },
+        select: {
+          telephone: true, isCompleted: true, score: true, createdAt: true,
+          examenBlanc: { select: { id: true, title: true } },
+        },
+        orderBy: { createdAt: 'desc' },
+      }),
+    ]);
+
+    // Map: normalized phone → list of exam sessions
+    const examMap: Record<string, any[]> = {};
+    for (const p of allParticipants) {
+      const norm = normalizePhone(p.telephone ?? '');
+      if (!norm || norm.length < 7) continue;
+      if (!examMap[norm]) examMap[norm] = [];
+      // deduplicate by session id
+      if (!examMap[norm].find((e: any) => e.sessionId === p.examenBlanc.id)) {
+        examMap[norm].push({
+          sessionId: p.examenBlanc.id,
+          sessionTitle: p.examenBlanc.title,
+          isCompleted: p.isCompleted,
+          score: p.score,
+          date: p.createdAt,
+        });
+      }
+    }
+
+    return users
+      .filter((u: any) => {
+        const norm = normalizePhone(u.phone ?? '');
+        return norm.length >= 7; // exclure les numéros invalides (ex: emails stockés comme phone)
+      })
+      .map((u: any) => {
+        const norm = normalizePhone(u.phone ?? '');
+        const exams = examMap[norm] ?? [];
+        return {
+          id: u.id,
+          fullName: u.fullName,
+          phone: u.phone,
+          email: u.email,
+          role: u.role,
+          wilaya: u.wilaya,
+          createdAt: u.createdAt,
+          subscriptionEnd: u.subscriptionEnd,
+          hasExam: exams.length > 0,
+          exams,
+        };
+      });
+  }
+
   async updateSession(id: string, dto: { title?: string; descriptionFr?: string; descriptionAr?: string; startsAt?: string; endsAt?: string; resultsAt?: string; isActive?: boolean; durationMin?: number; totalQ?: number }) {
     const data: any = {};
     if (dto.title !== undefined) data.title = dto.title;

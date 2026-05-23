@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Put, Delete, Param, Body, Query, UseGuards } from '@nestjs/common';
+import { Controller, Get, Post, Put, Param, Body, Query, UseGuards } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
@@ -87,6 +87,13 @@ export class ExamenBlancController {
   @Get('admin/participants')
   adminGetParticipants() {
     return this.service.getAllParticipants();
+  }
+
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('ADMIN')
+  @Get('admin/app-users')
+  adminGetAppUsers() {
+    return this.service.getAppUsersWithExamStatus();
   }
 
   @UseGuards(JwtAuthGuard, RolesGuard)
