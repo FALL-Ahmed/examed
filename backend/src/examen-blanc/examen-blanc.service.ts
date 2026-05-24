@@ -19,9 +19,12 @@ function computePartialScore(userAnswer: string, question: {
 
 const db = (prisma: PrismaService) => prisma as any;
 
+const AR_DIGITS = '٠١٢٣٤٥٦٧٨٩';
 function normalizePhone(phone: string): string {
+  // Convertir chiffres arabes-indiens (٠-٩) en ASCII
+  let p = (phone ?? '').replace(/[٠-٩]/g, d => String(AR_DIGITS.indexOf(d)));
   // Supprimer tout sauf les chiffres (retire +, espaces, tirets, caractères RTL, etc.)
-  let p = (phone ?? '').replace(/\D/g, '');
+  p = p.replace(/\D/g, '');
   // Retirer les préfixes internationaux mauritaniens
   if (p.startsWith('00222')) p = p.slice(5);
   else if (p.startsWith('0222')) p = p.slice(4);
