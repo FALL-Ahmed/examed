@@ -69,6 +69,8 @@ export const authApi = {
   login: (data: any) => api.post('/auth/login', data),
   verifyDevice: (data: { email: string; verificationCode: string; deviceFingerprint: string; deviceName?: string }) =>
     api.post('/auth/devices/verify', data),
+  resendVerificationCode: (data: { email: string; deviceFingerprint: string }) =>
+    axios.post(`${API_URL}/auth/devices/resend-code`, data),
   logout: () => api.post('/auth/logout'),
   getSessions: () => api.get('/auth/sessions'),
   revokeSession: (id: string) => api.delete(`/auth/sessions/${id}`),

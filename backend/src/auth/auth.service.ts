@@ -126,7 +126,7 @@ export class AuthService {
     const user = await this.prisma.user.findUnique({ where: { email: email.trim().toLowerCase() } });
     if (!user || !user.isActive) throw new UnauthorizedException('Identifiants invalides');
 
-    const valid = await bcrypt.compare(password, user.passwordHash);
+    const valid = await bcrypt.compare(password.trim(), user.passwordHash);
     if (!valid) throw new UnauthorizedException('Identifiants invalides');
 
     // ──── VÉRIFIER SI LA VÉRIFICATION D'APPAREIL EST ACTIVÉE ────
@@ -353,6 +353,18 @@ export class AuthService {
       },
     });
 
+    // Marquer l'appareil de setup comme de confiance pour éviter la vérification au prochain login
+    const deviceVerifSetting = await this.prisma.setting.findUnique({ where: { key: 'DEVICE_VERIFICATION' } });
+    if (deviceVerifSetting?.value === 'true') {
+      const deviceFingerprint = generateDeviceFingerprint(deviceInfo);
+      const trustedCount = await this.prisma.trustedDevice.count({ where: { userId: user.id, isActive: true } });
+      if (trustedCount < 2) {
+        await this.prisma.trustedDevice.create({
+          data: { userId: user.id, deviceFingerprint, deviceName: generateDeviceName(deviceInfo.userAgent), isActive: true },
+        });
+      }
+    }
+
     const tokens = await this.generateTokens(user.id, user.role, deviceInfo.deviceId);
     return {
       accessToken: tokens.accessToken,
@@ -526,13 +538,38 @@ export class AuthService {
     });
 
     // Créer la session et générer les tokens
-    await this.enforceSessionLimit(user.id, user.id);
+    await this.enforceSessionLimit(user.id, trustedDevice.deviceFingerprint);
+    await this.prisma.session.create({
+      data: {
+        userId: user.id,
+        deviceId: trustedDevice.deviceFingerprint,
+        deviceInfo: deviceName || 'Appareil vérifié',
+        ipAddress: 'unknown',
+        isActive: true,
+      },
+    });
     const tokens = await this.generateTokens(user.id, user.role, trustedDevice.deviceFingerprint);
     return {
       accessToken: tokens.accessToken,
       refreshToken: tokens.refreshToken,
       user: { id: user.id, email: user.email, fullName: user.fullName, role: user.role, subscriptionEnd: user.subscriptionEnd },
     };
+  }
+
+  async resendVerificationCode(email: string, deviceFingerprint: string) {
+    const user = await this.prisma.user.findUnique({ where: { email: email.trim().toLowerCase() } });
+    if (!user) return { message: 'Code renvoyé' }; // réponse neutre pour ne pas révéler si l'email existe
+
+    const verificationCode = generateVerificationCode();
+    const expiresAt = new Date();
+    expiresAt.setHours(expiresAt.getHours() + 24);
+
+    await this.prisma.deviceVerification.create({
+      data: { userId: user.id, deviceFingerprint, verificationCode, expiresAt },
+    });
+
+    await this.email.sendDeviceVerificationCode(user.email, verificationCode, 'Votre appareil');
+    return { message: 'Code renvoyé' };
   }
 
   /**

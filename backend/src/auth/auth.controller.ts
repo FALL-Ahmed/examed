@@ -87,6 +87,12 @@ export class AuthController {
     return this.authService.verifyDevice(dto);
   }
 
+  @Post('devices/resend-code')
+  @HttpCode(200)
+  resendVerificationCode(@Body() body: { email: string; deviceFingerprint: string }) {
+    return this.authService.resendVerificationCode(body.email, body.deviceFingerprint);
+  }
+
   @Get('devices/trusted')
   @UseGuards(JwtAuthGuard)
   @ApiBearerAuth()

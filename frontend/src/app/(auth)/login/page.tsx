@@ -40,6 +40,8 @@ export default function LoginPage() {
   const [deviceStep, setDeviceStep] = useState(false);
   const [deviceFingerprint, setDeviceFingerprint] = useState('');
   const [verifyCode, setVerifyCode] = useState('');
+  const [resendLoading, setResendLoading] = useState(false);
+  const [resendDone, setResendDone] = useState(false);
 
   // Group member flow
   const [groupView, setGroupView] = useState<'none' | 'email' | 'setup'>('none');
@@ -136,6 +138,14 @@ export default function LoginPage() {
     } finally { setLoading(false); }
   }
 
+  async function handleResendCode() {
+    setResendLoading(true); setResendDone(false);
+    try {
+      await authApi.resendVerificationCode({ email, deviceFingerprint });
+      setResendDone(true);
+    } catch { /* silent */ } finally { setResendLoading(false); }
+  }
+
   return (
     <div className="min-h-screen flex" dir={lang === 'ar' ? 'rtl' : 'ltr'}>
 
@@ -227,31 +237,34 @@ export default function LoginPage() {
           {deviceStep ? (
             /* ── Vérification appareil ── */
             <>
-              <div className="mb-8 flex flex-col items-start gap-3">
+              <div className="mb-6 flex flex-col items-start gap-3">
                 <div className="w-12 h-12 rounded-2xl bg-primary/10 flex items-center justify-center">
                   <Smartphone className="w-6 h-6 text-primary" />
                 </div>
                 <div>
                   <h2 className="text-2xl font-extrabold tracking-tight">Vérification requise</h2>
                   <p className="text-muted-foreground text-sm mt-1">
-                    Un code a été envoyé à <strong>{email}</strong>. Entrez-le ci-dessous pour approuver cet appareil.
+                    Nous avons envoyé un code de vérification à <strong>{email}</strong>. Vérifiez votre boîte mail (et les spams).
                   </p>
                 </div>
               </div>
+              <div className="bg-amber-50 border border-amber-200 text-amber-800 px-4 py-3 rounded-xl mb-5 text-sm">
+                📧 Ouvrez votre email et copiez le code reçu, puis entrez-le ci-dessous.
+              </div>
               {error && (
-                <div className="bg-destructive/10 border border-destructive/20 text-destructive px-4 py-3 rounded-xl mb-6 text-sm flex items-center gap-2">
+                <div className="bg-destructive/10 border border-destructive/20 text-destructive px-4 py-3 rounded-xl mb-5 text-sm flex items-center gap-2">
                   <span className="w-4 h-4 rounded-full bg-destructive/20 flex items-center justify-center text-xs font-bold flex-shrink-0">!</span>
                   {error}
                 </div>
               )}
-              <form onSubmit={handleVerifyDevice} className="space-y-5">
+              <form onSubmit={handleVerifyDevice} className="space-y-4">
                 <div>
                   <label className="block text-sm font-semibold mb-2">Code de vérification</label>
                   <input
                     type="text" value={verifyCode}
                     onChange={(e) => setVerifyCode(e.target.value)}
                     className="w-full px-4 py-3 bg-secondary border border-border rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition text-sm placeholder:text-muted-foreground tracking-widest text-center text-lg font-bold"
-                    placeholder="······" maxLength={8} required
+                    placeholder="······" maxLength={8} required autoFocus
                   />
                 </div>
                 <button type="submit" disabled={loading}
@@ -259,11 +272,17 @@ export default function LoginPage() {
                   {loading && <Loader2 className="w-4 h-4 animate-spin" />}
                   {loading ? t('common.loading') : 'Vérifier l\'appareil'}
                 </button>
-                <button type="button" onClick={() => { setDeviceStep(false); setError(''); setVerifyCode(''); }}
+              </form>
+              <div className="mt-4 flex flex-col gap-2">
+                <button type="button" onClick={handleResendCode} disabled={resendLoading || resendDone}
+                  className="w-full text-sm text-primary font-semibold hover:underline transition text-center disabled:opacity-50">
+                  {resendDone ? '✓ Nouveau code envoyé' : resendLoading ? 'Envoi...' : 'Je n\'ai pas reçu le code — Renvoyer'}
+                </button>
+                <button type="button" onClick={() => { setDeviceStep(false); setError(''); setVerifyCode(''); setResendDone(false); }}
                   className="w-full text-sm text-muted-foreground hover:text-foreground transition text-center">
                   ← Retour à la connexion
                 </button>
-              </form>
+              </div>
             </>
           ) : groupView === 'email' ? (
             /* ── Étape 1 groupe : saisir l'email ── */
