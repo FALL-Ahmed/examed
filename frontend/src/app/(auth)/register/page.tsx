@@ -327,7 +327,7 @@ function RegisterContent() {
 
               <div id="field-email">
                 <label className={labelClass}>{isAr ? 'البريد الإلكتروني' : 'Email'} <span className="text-red-400">*</span></label>
-                <input type="email" value={form.email} onChange={(e) => set('email', e.target.value)}
+                <input type="text" inputMode="email" value={form.email} onChange={(e) => set('email', e.target.value.replace(/[^\x20-\x7E]/g, '').trim())}
                   className={inputClass} placeholder="votre@email.com" dir="ltr" />
               </div>
 

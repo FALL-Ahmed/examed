@@ -308,8 +308,8 @@ export default function LoginPage() {
                 <div>
                   <label className="block text-sm font-semibold mb-2">Votre email</label>
                   <input
-                    type="email" value={groupEmail}
-                    onChange={(e) => setGroupEmail(e.target.value)}
+                    type="text" inputMode="email" value={groupEmail}
+                    onChange={(e) => setGroupEmail(e.target.value.replace(/[^\x20-\x7E]/g, '').trim())}
                     className="w-full px-4 py-3 bg-secondary border border-border rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition text-sm placeholder:text-muted-foreground"
                     placeholder="votre@email.com" required autoFocus dir="ltr"
                   />
@@ -443,8 +443,8 @@ export default function LoginPage() {
                 <div>
                   <label className="block text-sm font-semibold mb-2">{t('auth.login.email')}</label>
                   <input
-                    type="email" value={email}
-                    onChange={(e) => setEmail(e.target.value)}
+                    type="text" inputMode="email" value={email}
+                    onChange={(e) => setEmail(e.target.value.replace(/[^\x20-\x7E@.]/g, '').trim())}
                     className="w-full px-4 py-3 bg-secondary border border-border rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition text-sm placeholder:text-muted-foreground"
                     placeholder="votre@email.com" required dir="ltr"
                   />
