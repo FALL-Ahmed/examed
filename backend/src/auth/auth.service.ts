@@ -16,6 +16,11 @@ import { generateDeviceFingerprint, generateVerificationCode, generateDeviceName
 
 const MAX_ACTIVE_SESSIONS = 2;
 
+// Supprime les caractères Unicode invisibles (RLM, LRM, BOM, etc.) qui peuvent être collés depuis WhatsApp/texte arabe
+function sanitizeEmail(email: string): string {
+  return (email ?? '').replace(/[​-‏﻿‪-‮]/g, '').trim().toLowerCase();
+}
+
 @Injectable()
 export class AuthService {
   constructor(
@@ -36,7 +41,7 @@ export class AuthService {
     },
     receipt?: Express.Multer.File,
   ) {
-    dto.email = dto.email.trim().toLowerCase();
+    dto.email = sanitizeEmail(dto.email);
 
     const existing = await this.prisma.user.findUnique({ where: { email: dto.email } });
     if (existing) throw new BadRequestException('Email déjà utilisé');
@@ -123,7 +128,7 @@ export class AuthService {
     password: string,
     deviceInfo: { deviceId: string; userAgent: string; ip: string },
   ) {
-    const user = await this.prisma.user.findUnique({ where: { email: email.trim().toLowerCase() } });
+    const user = await this.prisma.user.findUnique({ where: { email: sanitizeEmail(email) } });
     if (!user || !user.isActive) throw new UnauthorizedException('Identifiants invalides');
 
     const valid = await bcrypt.compare(password.trim(), user.passwordHash);
@@ -252,7 +257,7 @@ export class AuthService {
   }
 
   async forgotPassword(email: string) {
-    const user = await this.prisma.user.findUnique({ where: { email: email.trim().toLowerCase() } });
+    const user = await this.prisma.user.findUnique({ where: { email: sanitizeEmail(email) } });
     // Toujours répondre avec succès pour ne pas révéler si l'email existe
     if (!user) return { message: 'Si ce compte existe, un email a été envoyé.' };
 
@@ -274,14 +279,14 @@ export class AuthService {
   async checkGroupInvite(email: string) {
     if (!email) return { isInvited: false };
     const invite = await (this.prisma as any).groupInvite.findFirst({
-      where: { email: email.trim().toLowerCase(), isActive: true, isUsed: false },
+      where: { email: sanitizeEmail(email), isActive: true, isUsed: false },
       include: { payment: { select: { durationDays: true } } },
     });
     return { isInvited: !!invite, durationDays: invite?.payment?.durationDays ?? 30 };
   }
 
   async groupAccess(email: string) {
-    email = email.trim().toLowerCase();
+    email = sanitizeEmail(email);
     const invite = await (this.prisma as any).groupInvite.findFirst({
       where: { email, isActive: true, isUsed: false },
       include: { payment: { select: { durationDays: true } } },
@@ -486,7 +491,7 @@ export class AuthService {
   async verifyDevice(dto: VerifyDeviceDto) {
     const { email, verificationCode, deviceFingerprint, deviceName } = dto;
 
-    const user = await this.prisma.user.findUnique({ where: { email } });
+    const user = await this.prisma.user.findUnique({ where: { email: sanitizeEmail(email) } });
     if (!user) throw new BadRequestException('Utilisateur introuvable');
 
     // Chercher la demande de vérification
@@ -557,7 +562,7 @@ export class AuthService {
   }
 
   async resendVerificationCode(email: string, deviceFingerprint: string) {
-    const user = await this.prisma.user.findUnique({ where: { email: email.trim().toLowerCase() } });
+    const user = await this.prisma.user.findUnique({ where: { email: sanitizeEmail(email) } });
     if (!user) return { message: 'Code renvoyé' }; // réponse neutre pour ne pas révéler si l'email existe
 
     const verificationCode = generateVerificationCode();
