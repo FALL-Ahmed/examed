@@ -20,9 +20,16 @@ function computePartialScore(userAnswer: string, question: {
 const db = (prisma: PrismaService) => prisma as any;
 
 function normalizePhone(phone: string): string {
+  // Supprimer tout sauf les chiffres (retire +, espaces, tirets, caractères RTL, etc.)
   let p = (phone ?? '').replace(/\D/g, '');
+  // Retirer les préfixes internationaux mauritaniens
   if (p.startsWith('00222')) p = p.slice(5);
+  else if (p.startsWith('0222')) p = p.slice(4);
   else if (p.startsWith('222')) p = p.slice(3);
+  // Retirer le 0 local si 9 chiffres (ex: 044259204)
+  if (p.length === 9 && p.startsWith('0')) p = p.slice(1);
+  // Si encore trop long (ex: 2233690460 mal saisi), prendre les 8 derniers chiffres
+  if (p.length > 8) p = p.slice(-8);
   return p; // 8 chiffres locaux
 }
 

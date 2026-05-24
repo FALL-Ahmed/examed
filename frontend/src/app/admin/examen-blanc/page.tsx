@@ -16,51 +16,14 @@ function buildWhatsAppUrl(l: any): string {
   const prenom = l.prenom ?? '';
   const nom = l.nom ?? '';
 
-  // Cas : a commencé mais pas terminé
-  if (!l.isCompleted) {
-    const msg = isAr
-      ? `مرحباً ${prenom} ${nom}،\nلقد بدأت امتحان البرور التجريبي ولكنك لم تكمله.\n\nرابط بريميوم: ${LIEN_PREMIUM}\nرابط التجربة المجانية: ${LIEN_FREE}\n\nقرر المراجعة بشكل منظم، تابع تقدمك (الإحصائيات) وترتيبك مقارنة بزملائك.`
-      : `Bonjour ${prenom} ${nom},\nVous avez entamé l'examen Blanc Albourour, mais ne l'avez pas fini.\n\nLien premium : ${LIEN_PREMIUM}\nLien Essai gratuit : ${LIEN_FREE}\n\nDécidez de réviser de façon organisée, suivez votre progression (statistiques) et votre classement par rapport aux autres collègues.`;
-    let phone = (l.telephone ?? '').replace(/\D/g, '');
-    if (phone.startsWith('00222')) phone = phone.slice(2);
-    else if (phone.startsWith('0') && phone.length <= 9) phone = '222' + phone.slice(1);
-    else if (phone.length === 8) phone = '222' + phone;
-    return `https://wa.me/${phone}?text=${encodeURIComponent(msg)}`;
-  }
+  const msg = isAr
+    ? `سلام ${prenom} ${nom}\nهل أجبت بشكل صحيح على هذا السؤال في الامتحان التجريبي؟ 82% من المشاركين أخطأوا في هذا السؤال`
+    : `Salam ${prenom} ${nom}\nAvez-vous répondu correctement à cette question à l'examen Blanc. 82% des participants avaient donné une réponse fausse à cette question`;
 
-  const score = l.score != null ? l.score.toFixed(1) : '—';
-  const classement = l.classement ? `${l.classement}/${l.totalParticipants}` : 'XX';
-
-  const headerFr = `Bonsoir ${prenom} ${nom}, votre score à l'examen blanc était de ${score}%, votre classement est ${classement}.\n`;
-  const headerAr = `مساء الخير ${prenom} ${nom}، درجتك في الامتحان التجريبي كانت ${score}%، وترتيبك هو ${classement}.\n`;
-
-  let body = '';
-  const s = l.score ?? -1;
-
-  if (s < 30) {
-    body = isAr
-      ? `درجة ${score}% هي إنذار: طريقتك الحالية في المراجعة قد لا تكفي. قرر اليوم التوقف عن المراجعة العشوائية. مع أكثر من 600 أسئلة متعددة الاختيارات وتفسيرات أطبائنا، حوّل نقاط ضعفك إلى نقاط قوة. اتقن أخيراً المفاهيم الأساسية، تابع تطورك وارتقِ في الترتيب الوطني لتأمين مستقبلك. استعد بجدية.\n${LIEN_PREMIUM}`
-      : `Ton score de ${score}% est un signal d'alarme : ta méthode actuelle peut ne pas suffire pour le concours. Décide aujourd'hui de ne plus réviser au hasard. Avec plus de 600 QCM et les explications de nos médecins, transforme tes lacunes en forces. Maîtrise enfin les concepts clés, suis ton évolution et remonte dans le classement national pour sécuriser ton avenir. Prépare-toi sérieusement.\n${LIEN_PREMIUM}`;
-  } else if (s < 50) {
-    body = isAr
-      ? `بحصولك على ${score}%، لديك الأساسيات ولكنك لا تزال في منطقة الخطر. للنجاح في الاكتتاب، عليك الانتقال لمستوى أعلى. اتخذ القرار بتنظيم نجاحك: استفد من 600 سؤال مشروح لفهم منطق الامتحان. تابع ترتيبك بين زملائك واضمن تفوقك على المتوسط الوطني يومياً. نجاحك يستحق هذا المجهود.\n${LIEN_PREMIUM}`
-      : `Avec ${score}%, tu as les bases, mais tu es encore dans la zone d'incertitude. Pour réussir le recrutement, tu dois passer à la vitesse supérieure. Décide de structurer ta réussite : accède à nos 600 QCM commentés pour comprendre la logique de l'examen. Suis ton rang par rapport aux autres candidats et assure-toi de dépasser la moyenne nationale chaque jour. Ton succès mérite cet investissement.\n${LIEN_PREMIUM}`;
-  } else if (s < 65) {
-    body = isAr
-      ? `أحسنت بحصولك على ${score}%، أنت قريب من الهدف! لكن احذر، فالاكتتاب يُحسم بالتفاصيل الصغيرة. قرر أن لا تترك شيئاً للصدفة. استخدم منصة "البرور" لإتقان المواضيع الصعبة عبر شروحاتنا الطبية. بمتابعة ترتيبك الوطني المباشر، ستعرف بالضبط كيف تسبق منافسيك. اجعل هدفك التميز وليس فقط النجاح.\n${LIEN_PREMIUM}`
-      : `Bravo pour tes ${score}%, tu es proche du but ! Mais attention, le recrutement se joue sur les détails qui font la différence. Décide de ne rien laisser au hasard. Utilise Albourour pour perfectionner les thèmes difficiles avec nos médecins. En suivant ton évolution et ton classement national en temps réel, tu sauras exactement comment rester devant tes concurrents. Vise l'excellence, pas seulement la moyenne.\n${LIEN_PREMIUM}`;
-  } else {
-    body = isAr
-      ? `هنيئاً لك نتيجتك ${score}%، أنت الآن من النخبة! لم يعد السؤال هو "هل ستنجح؟" بل "كيف تضمن صدارة الناجحين؟". لتبقى في القمة، تحتاج إلى 600 سؤال من المستوى العالي وشروحاتنا الطبية الدقيقة. لا تسمح لأحد بتجاوزك: تابع ترتيبك الوطني لحظة بلحظة وحافظ على تفوقك. قرر تثبيت مكانتك في الصدارة الآن.\n${LIEN_PREMIUM}`
-      : `Félicitations pour ton score de ${score}%, tu fais partie de l'élite ! La question n'est plus de réussir, mais de garantir ta place de Major. Pour rester au sommet, tu as besoin de nos 600 QCM de haut niveau et des commentaires détaillés des médecins. Ne laisse personne te rattraper : suis ton classement national heure par heure et continue de dominer la préparation. Décide de confirmer ton rang dès maintenant.\n${LIEN_PREMIUM}`;
-  }
-
-  const msg = (isAr ? headerAr : headerFr) + body;
   let phone = (l.telephone ?? '').replace(/\D/g, '');
-  // Normalisation indicatif Mauritanie (+222)
-  if (phone.startsWith('00222')) phone = phone.slice(2);       // 00222XXXXXXXX → 222XXXXXXXX
-  else if (phone.startsWith('0') && phone.length <= 9) phone = '222' + phone.slice(1); // 0XXXXXXXX → 222XXXXXXXX
-  else if (phone.length === 8) phone = '222' + phone;          // XXXXXXXX → 222XXXXXXXX
+  if (phone.startsWith('00222')) phone = phone.slice(2);
+  else if (phone.startsWith('0') && phone.length <= 9) phone = '222' + phone.slice(1);
+  else if (phone.length === 8) phone = '222' + phone;
   return `https://wa.me/${phone}?text=${encodeURIComponent(msg)}`;
 }
 
