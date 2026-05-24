@@ -311,7 +311,7 @@ export default function LoginPage() {
                     type="email" value={groupEmail}
                     onChange={(e) => setGroupEmail(e.target.value)}
                     className="w-full px-4 py-3 bg-secondary border border-border rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition text-sm placeholder:text-muted-foreground"
-                    placeholder="votre@email.com" required autoFocus
+                    placeholder="votre@email.com" required autoFocus dir="ltr"
                   />
                 </div>
                 <button type="submit" disabled={groupLoading}
@@ -446,7 +446,7 @@ export default function LoginPage() {
                     type="email" value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     className="w-full px-4 py-3 bg-secondary border border-border rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition text-sm placeholder:text-muted-foreground"
-                    placeholder="votre@email.com" required
+                    placeholder="votre@email.com" required dir="ltr"
                   />
                 </div>
                 <div>
