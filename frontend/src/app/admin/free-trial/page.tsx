@@ -8,7 +8,7 @@ const daysAgo = (n: number) => toIso(new Date(Date.now() - n * 86400000));
 const fmtDay = (iso: string) => new Date(iso).toLocaleDateString('fr-FR', { day: '2-digit', month: 'short' });
 
 export default function FreeTrialStatsPage() {
-  const [tab, setTab] = useState<'trial' | 'practice'>('trial');
+  const [tab, setTab] = useState<'trial' | 'practice' | 'sage-femme'>('trial');
   const today = toIso(new Date());
   const [startDate, setStartDate] = useState(daysAgo(6));
   const [endDate, setEndDate] = useState(today);
@@ -25,6 +25,11 @@ export default function FreeTrialStatsPage() {
   const [pStart, setPStart] = useState(daysAgo(6));
   const [pEnd, setPEnd] = useState(today);
 
+  const [sfData, setSfData] = useState<any>(null);
+  const [sfLoading, setSfLoading] = useState(false);
+  const [sfStart, setSfStart] = useState(daysAgo(6));
+  const [sfEnd, setSfEnd] = useState(today);
+
   const load = useCallback(() => {
     setLoading(true);
     setLeadsPage(0);
@@ -40,15 +45,27 @@ export default function FreeTrialStatsPage() {
 
   const loadPractice = useCallback(() => {
     setPracticeLoading(true);
-    adminApi.freePracticeStats({ startDate: pStart, endDate: pEnd })
+    adminApi.freePracticeStats({ startDate: pStart, endDate: pEnd, target: 'INFIRMIER' })
       .then((r) => setPracticeData(r.data))
       .finally(() => setPracticeLoading(false));
   }, [pStart, pEnd]);
+
+  const loadSf = useCallback(() => {
+    setSfLoading(true);
+    adminApi.freePracticeStats({ startDate: sfStart, endDate: sfEnd, target: 'SAGE_FEMME' })
+      .then((r) => setSfData(r.data))
+      .finally(() => setSfLoading(false));
+  }, [sfStart, sfEnd]);
 
   useEffect(() => {
     if (tab !== 'practice') return;
     loadPractice();
   }, [tab, loadPractice]);
+
+  useEffect(() => {
+    if (tab !== 'sage-femme') return;
+    loadSf();
+  }, [tab, loadSf]);
 
   if (!data && loading) return (
     <div className="flex items-center justify-center py-32">
@@ -76,7 +93,7 @@ export default function FreeTrialStatsPage() {
         </div>
         <div>
           <h1 className="text-xl font-bold">Essais gratuits</h1>
-          <p className="text-xs text-muted-foreground">{tab === 'trial' ? period : 'Free Pratique — /free-practice'}</p>
+          <p className="text-xs text-muted-foreground">{tab === 'trial' ? period : tab === 'sage-femme' ? 'Sage-femme — sessions gratuites' : 'Free Pratique — /free-practice'}</p>
         </div>
       </div>
 
@@ -90,7 +107,12 @@ export default function FreeTrialStatsPage() {
         <button
           onClick={() => setTab('practice')}
           className={`flex items-center gap-2 px-4 py-2.5 text-sm font-semibold border-b-2 transition -mb-px ${tab === 'practice' ? 'border-violet-500 text-violet-600' : 'border-transparent text-muted-foreground hover:text-foreground'}`}>
-          <BookOpen className="w-4 h-4" /> Free Pratique
+          <BookOpen className="w-4 h-4" /> Free Pratique 🏥
+        </button>
+        <button
+          onClick={() => setTab('sage-femme')}
+          className={`flex items-center gap-2 px-4 py-2.5 text-sm font-semibold border-b-2 transition -mb-px ${tab === 'sage-femme' ? 'border-pink-500 text-pink-600' : 'border-transparent text-muted-foreground hover:text-foreground'}`}>
+          <BookOpen className="w-4 h-4" /> Sage-femme 👶
         </button>
       </div>
 
@@ -374,6 +396,161 @@ export default function FreeTrialStatsPage() {
           )}
           {!practiceLoading && !practiceData && (
             <p className="text-center text-muted-foreground py-12">Erreur de chargement.</p>
+          )}
+        </div>
+      )}
+
+      {/* ── Contenu Sage-femme ── */}
+      {tab === 'sage-femme' && (
+        <div className="space-y-6">
+          {/* Filtres dates */}
+          <div className="bg-card border border-border rounded-2xl p-4 flex flex-wrap items-end gap-3">
+            <div className="flex flex-col gap-1">
+              <label className="text-xs font-semibold text-muted-foreground">Du</label>
+              <input type="date" value={sfStart} max={sfEnd}
+                onChange={(e) => setSfStart(e.target.value)}
+                className="px-3 py-2 rounded-xl border border-border bg-secondary text-sm font-medium focus:outline-none focus:border-pink-400" />
+            </div>
+            <div className="flex flex-col gap-1">
+              <label className="text-xs font-semibold text-muted-foreground">Au</label>
+              <input type="date" value={sfEnd} min={sfStart} max={today}
+                onChange={(e) => setSfEnd(e.target.value)}
+                className="px-3 py-2 rounded-xl border border-border bg-secondary text-sm font-medium focus:outline-none focus:border-pink-400" />
+            </div>
+            <div className="flex gap-2">
+              {[7, 14, 30].map((n) => (
+                <button key={n} onClick={() => { setSfStart(daysAgo(n - 1)); setSfEnd(today); }}
+                  className={`px-3 py-2 rounded-xl text-xs font-bold border transition ${sfStart === daysAgo(n - 1) && sfEnd === today ? 'bg-pink-600 text-white border-pink-600' : 'border-border text-muted-foreground hover:text-foreground hover:border-pink-400'}`}>
+                  {n}j
+                </button>
+              ))}
+            </div>
+            <button onClick={loadSf}
+              className="px-4 py-2 rounded-xl bg-pink-600 text-white text-xs font-bold hover:bg-pink-700 transition">
+              Appliquer
+            </button>
+          </div>
+
+          {sfLoading && (
+            <div className="flex items-center justify-center py-16">
+              <div className="w-6 h-6 border-2 border-pink-500 border-t-transparent rounded-full animate-spin" />
+            </div>
+          )}
+
+          {!sfLoading && sfData && (() => {
+            const sfTheme = sfData.byTheme?.[0];
+            return (
+              <>
+                {/* KPIs */}
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+                  {[
+                    { label: 'Sessions', value: sfData.totalSessions, color: 'text-pink-600', bg: 'bg-pink-50' },
+                    { label: 'Complétées (40 Q)', value: sfTheme ? Math.round(sfData.totalSessions * sfData.completionRate / 100) : 0, color: 'text-emerald-600', bg: 'bg-emerald-50' },
+                    { label: 'Taux complétion', value: `${sfData.completionRate}%`, color: 'text-blue-600', bg: 'bg-blue-50' },
+                    { label: 'Taux réussite', value: sfTheme ? `${sfTheme.successRate}%` : '—', color: 'text-violet-600', bg: 'bg-violet-50' },
+                  ].map((k) => (
+                    <div key={k.label} className={`${k.bg} border border-border rounded-2xl p-4 space-y-1`}>
+                      <p className={`text-3xl font-black ${k.color}`}>{k.value}</p>
+                      <p className="text-xs text-muted-foreground font-semibold">{k.label}</p>
+                    </div>
+                  ))}
+                </div>
+
+                {/* Langue */}
+                {sfTheme && (
+                  <div className="bg-card border border-border rounded-2xl p-5">
+                    <p className="text-xs font-bold text-muted-foreground uppercase tracking-wide mb-4">Répartition par langue</p>
+                    <div className="space-y-3">
+                      {[{ flag: '🇫🇷', label: 'Français', count: sfTheme.langSplit.fr }, { flag: '🇲🇷', label: 'Arabe', count: sfTheme.langSplit.ar }].map((l) => {
+                        const pct = sfData.totalSessions > 0 ? Math.round((l.count / sfData.totalSessions) * 100) : 0;
+                        return (
+                          <div key={l.label} className="flex items-center gap-3">
+                            <span className="text-xl">{l.flag}</span>
+                            <div className="flex-1 h-5 bg-secondary rounded-lg overflow-hidden">
+                              <div className="h-full rounded-lg bg-pink-500/70 transition-all duration-500" style={{ width: `${pct}%` }} />
+                            </div>
+                            <span className="text-sm font-bold w-24 text-right">{l.count} ({pct}%)</span>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+                )}
+
+                {/* Entonnoir Q1→Q40 */}
+                {sfTheme?.questionFunnel?.length > 0 && (
+                  <div className="bg-card border border-border rounded-2xl overflow-hidden">
+                    <div className="px-5 py-4 border-b border-border">
+                      <h2 className="font-bold">Entonnoir — jusqu'où vont-ils ?</h2>
+                      <p className="text-xs text-muted-foreground mt-0.5">Session fixe de 40 questions</p>
+                    </div>
+                    <div className="p-5 space-y-1.5 max-h-96 overflow-y-auto">
+                      {sfTheme.questionFunnel.map((f: any, i: number) => {
+                        const base = sfTheme.questionFunnel[0].count;
+                        const pct = base > 0 ? Math.round((f.count / base) * 100) : 0;
+                        const dropped = i > 0 ? sfTheme.questionFunnel[i - 1].count - f.count : 0;
+                        const color = pct >= 70 ? '#10b981' : pct >= 40 ? '#f59e0b' : '#ef4444';
+                        return (
+                          <div key={f.q} className="flex items-center gap-2">
+                            <span className="text-xs text-muted-foreground w-6 text-right flex-shrink-0">Q{f.q}</span>
+                            <div className="flex-1 h-5 bg-secondary rounded overflow-hidden relative">
+                              <div className="h-full rounded transition-all duration-300" style={{ width: `${Math.max(pct, 2)}%`, background: color }} />
+                            </div>
+                            <span className="text-xs font-bold w-8 flex-shrink-0" style={{ color }}>{pct}%</span>
+                            {dropped > 0 && <span className="text-[10px] text-red-500 w-12 flex-shrink-0">-{dropped}</span>}
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+                )}
+
+                {/* Stats journalières */}
+                {sfData.dailyStats?.length > 0 && (() => {
+                  const maxS = Math.max(...sfData.dailyStats.map((d: any) => d.sessions), 1);
+                  return (
+                    <div className="bg-card border border-border rounded-2xl overflow-hidden">
+                      <div className="px-5 py-4 border-b border-border">
+                        <h2 className="font-bold">Sessions journalières</h2>
+                      </div>
+                      <div className="p-5">
+                        <div className="flex items-end gap-1.5" style={{ height: '100px' }}>
+                          {sfData.dailyStats.map((d: any) => {
+                            const h = Math.round((d.sessions / maxS) * 100);
+                            return (
+                              <div key={d.date} className="flex flex-col items-center flex-1 min-w-[28px] group h-full">
+                                <div className="flex-1 flex items-end w-full">
+                                  <div className="w-full bg-pink-500 rounded-t hover:bg-pink-600 transition-all cursor-pointer"
+                                    style={{ height: `${Math.max(h, 2)}%` }} title={`${d.date}: ${d.sessions}`} />
+                                </div>
+                                <span className="text-[8px] text-muted-foreground mt-1 whitespace-nowrap">{fmtDay(d.date)}</span>
+                              </div>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })()}
+
+                <div className="flex justify-end">
+                  <a href="/free-practice?target=SAGE_FEMME" target="_blank" rel="noopener noreferrer"
+                    className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-pink-600 text-white text-sm font-semibold hover:bg-pink-700 transition">
+                    Voir la page 👶 <Globe className="w-4 h-4" />
+                  </a>
+                </div>
+              </>
+            );
+          })()}
+
+          {!sfLoading && !sfData && (
+            <p className="text-center text-muted-foreground py-12">Erreur de chargement.</p>
+          )}
+          {!sfLoading && sfData && sfData.totalSessions === 0 && (
+            <div className="bg-card border border-border rounded-2xl p-8 text-center">
+              <p className="text-4xl mb-3">👶</p>
+              <p className="font-semibold text-muted-foreground">Aucune session sage-femme sur cette période.</p>
+            </div>
           )}
         </div>
       )}

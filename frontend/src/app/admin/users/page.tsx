@@ -135,6 +135,22 @@ export default function AdminUsersPage() {
     return { label: 'En attente', cls: 'bg-amber-100 text-amber-700' };
   };
 
+  const professionBadge = (profession: string | null) => {
+    if (!profession) return null;
+    const map: Record<string, { label: string; cls: string }> = {
+      sage_femme:         { label: '👶 Sage-femme',     cls: 'bg-pink-100 text-pink-700' },
+      etudiant_infirmier: { label: '🏥 Infirmier',      cls: 'bg-blue-100 text-blue-700' },
+      infirmier_diplome:  { label: '🏥 Inf. diplômé',   cls: 'bg-indigo-100 text-indigo-700' },
+      aide_soignant:      { label: '🩺 Aide-soignant',  cls: 'bg-cyan-100 text-cyan-700' },
+      etudiant_medecine:  { label: '⚕️ Médecine',       cls: 'bg-violet-100 text-violet-700' },
+      medecin:            { label: '⚕️ Médecin',        cls: 'bg-violet-100 text-violet-700' },
+      etudiant_pharmacie: { label: '💊 Pharmacie',      cls: 'bg-teal-100 text-teal-700' },
+      technicien_labo:    { label: '🔬 Labo',           cls: 'bg-orange-100 text-orange-700' },
+      autre:              { label: 'Autre',              cls: 'bg-slate-100 text-slate-500' },
+    };
+    return map[profession] ?? { label: profession, cls: 'bg-slate-100 text-slate-500' };
+  };
+
   return (
     <div className="space-y-6">
 
@@ -243,6 +259,7 @@ export default function AdminUsersPage() {
                   </th>
                   <th className="text-left px-4 py-3 font-medium text-muted-foreground">Utilisateur</th>
                   <th className="text-left px-4 py-3 font-medium text-muted-foreground hidden md:table-cell">Statut</th>
+                  <th className="text-left px-4 py-3 font-medium text-muted-foreground hidden lg:table-cell">Filière</th>
                   <th className="text-left px-4 py-3 font-medium text-muted-foreground hidden xl:table-cell">Opérateur</th>
                   <th className="text-left px-4 py-3 font-medium text-muted-foreground hidden lg:table-cell">Expiration</th>
                   <th className="text-left px-4 py-3 font-medium text-muted-foreground hidden md:table-cell">Inscription</th>
@@ -275,6 +292,13 @@ export default function AdminUsersPage() {
                         {(() => { const r = roleLabel(u.role); return (
                           <span className={`px-2 py-1 rounded-full text-xs font-medium ${r.cls}`}>{r.label}</span>
                         ); })()}
+                      </td>
+                      <td className="px-4 py-3 hidden lg:table-cell cursor-pointer" onClick={() => router.push(`/admin/users/${u.id}`)}>
+                        {(() => {
+                          const b = professionBadge(u.profession);
+                          if (!b) return <span className="text-slate-300 text-xs">—</span>;
+                          return <span className={`px-2 py-1 rounded-full text-xs font-medium whitespace-nowrap ${b.cls}`}>{b.label}</span>;
+                        })()}
                       </td>
                       <td className="px-4 py-3 hidden xl:table-cell">
                         {(() => {

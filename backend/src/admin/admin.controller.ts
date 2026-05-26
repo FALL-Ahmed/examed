@@ -49,8 +49,9 @@ export class AdminController {
   getFreePracticeStats(
     @Query('startDate') startDate?: string,
     @Query('endDate') endDate?: string,
+    @Query('target') target?: string,
   ) {
-    return this.adminService.getFreePracticeStats({ startDate, endDate });
+    return this.adminService.getFreePracticeStats({ startDate, endDate, target });
   }
 
   @Get('leaderboard')

@@ -831,13 +831,19 @@ export class AdminService {
     return { byTheme, globalFunnel, totalSessions: allBySession.size, leads, dailyStats };
   }
 
-  async getFreePracticeStats(params?: { startDate?: string; endDate?: string }) {
+  async getFreePracticeStats(params?: { startDate?: string; endDate?: string; target?: string }) {
     const from = params?.startDate ? new Date(params.startDate) : new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
     const to = params?.endDate ? new Date(params.endDate + 'T23:59:59') : new Date();
     const since = from;
     const dateFilter = { gte: from, lte: to };
+
+    const targetFilter =
+      params?.target === 'SAGE_FEMME' ? { themeId: 'sf-free' } :
+      params?.target === 'INFIRMIER'  ? { themeId: { not: 'sf-free' } } :
+      {};
+
     const events = await (this.prisma as any).freePracticeEvent.findMany({
-      where: { createdAt: dateFilter },
+      where: { createdAt: dateFilter, ...targetFilter },
       orderBy: { createdAt: 'asc' },
     });
 
