@@ -10,13 +10,15 @@ datasource db {
 
 model Theme {
   id        String     @id @default(cuid())
-  name      String     @unique
+  name      String
   language  String     @default("FR")
   target    String     @default("INFIRMIER")
   order     Int        @default(0)
   subThemes SubTheme[]
   createdAt DateTime   @default(now())
   updatedAt DateTime   @updatedAt
+
+  @@unique([name, language, target])
 }
 
 model SubTheme {

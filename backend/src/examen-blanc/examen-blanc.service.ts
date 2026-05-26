@@ -560,32 +560,18 @@ export class ExamenBlancService {
 
     const available = allSubThemes.filter((st: any) => st.questions.length > 0);
 
-    // Pour SAGE_FEMME : emprunter ~7 questions depuis ANATOMIE+PRATIQUE (restés dans INFIRMIER)
+    // Pour SAGE_FEMME : cap à SHARED_QUOTA pour ANATOMIE+PRATIQUE (copiés dans SAGE_FEMME)
     if (target === 'SAGE_FEMME') {
-      const sharedSubThemes = await this.prisma.subTheme.findMany({
-        where: {
-          theme: {
-            language: lang,
-            target: 'INFIRMIER',
-            OR: [
-              { name: { contains: 'anatomie',  mode: 'insensitive' } },
-              { name: { contains: 'pratique',  mode: 'insensitive' } },
-              { name: { contains: 'الممارسة', mode: 'insensitive' } },
-              { name: { contains: 'التشريح',  mode: 'insensitive' } },
-            ],
-          },
-        },
-        include: {
-          theme: { select: { name: true } },
-          questions: { where: { isActive: true, explanation: { not: '' } }, select: { id: true } },
-        },
-      });
+      const isSharedTheme = (name: string) => {
+        const n = name.toLowerCase();
+        return n.includes('anatomie') || n.includes('pratique') || n.includes('الممارسة') || n.includes('التشريح');
+      };
 
-      const sharedSubs = sharedSubThemes.filter((st: any) => st.questions.length > 0);
-      const nativeSubs  = available; // tous les sous-thèmes SAGE_FEMME natifs
+      const sharedSubs = available.filter((st: any) => isSharedTheme(st.theme.name));
+      const nativeSubs  = available.filter((st: any) => !isSharedTheme(st.theme.name));
 
       const SHARED_QUOTA = Math.max(1, Math.round(totalQ * 7 / 80));
-      const sharedPool = sharedSubs.flatMap((st: any) => st.questions.map((q: any) => q.id)).sort(() => Math.random() - 0.5);
+      const sharedPool = sharedSubs.flatMap((st: any) => st.questions.map((q: any) => q.id)).sort(byFreshness);
       const sharedSelected = sharedPool.slice(0, Math.min(SHARED_QUOTA, sharedPool.length));
 
       const nativeSelected: string[] = [];

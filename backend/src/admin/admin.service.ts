@@ -531,8 +531,8 @@ export class AdminService {
 
     for (const themeData of parserData.themes) {
       const theme = await this.prisma.theme.upsert({
-        where: { name: themeData.name },
-        update: { language, target },
+        where: { name_language_target: { name: themeData.name, language, target } },
+        update: {},
         create: { name: themeData.name, language, target },
       });
       themesCreated++;
