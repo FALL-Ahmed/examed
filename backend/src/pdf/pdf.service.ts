@@ -75,6 +75,30 @@ export class PdfService {
       };
     };
 
+    // Format C: { "themes": [{ "name": "...", "subThemes": [{ "name": "...", "questions": [{text, choiceA...}] }] }] }
+    if (Array.isArray(json.themes)) {
+      for (const theme of json.themes) {
+        const subThemes: any[] = [];
+        for (const sub of (theme.subThemes ?? [])) {
+          const parsedQuestions = (sub.questions ?? []).map((q: any) => {
+            if (!q.text) { skippedNoOptions++; return null; }
+            return {
+              text: q.text,
+              choiceA: q.choiceA || '',
+              choiceB: q.choiceB || '',
+              choiceC: q.choiceC || '',
+              choiceD: q.choiceD || '',
+              choiceE: q.choiceE || '',
+              correctAnswer: normalizeAnswer(q.correctAnswer || ''),
+              explanation: q.explanation || '',
+              imageUrl: q.imageUrl || null,
+            };
+          }).filter(Boolean);
+          subThemes.push({ name: sub.name, questions: parsedQuestions });
+        }
+        themes.push({ name: theme.name, subThemes });
+      }
+    } else
     // Format A: { "categories": [{ "nom": "...", "themes": [{ "nom": "...", "questions": [...] }] }] }
     if (Array.isArray(json.categories)) {
       for (const cat of json.categories) {
