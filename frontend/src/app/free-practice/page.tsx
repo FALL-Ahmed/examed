@@ -10,7 +10,7 @@ type Target = 'INFIRMIER' | 'SAGE_FEMME';
 
 // Thèmes entièrement gratuits
 const FREE_KEYWORDS: Record<Target, string[]> = {
-  INFIRMIER:  ['maladies infectieuses', 'infectieuses', 'الأمراض المعدية'],
+  INFIRMIER:  ['maladies infectieuses', 'infectieuses', 'الأمراض المعدية', 'anatomie', 'التشريح'],
   SAGE_FEMME: ['grossesse normale', 'الحمل الطبيعي'],
 };
 
