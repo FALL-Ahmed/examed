@@ -45,18 +45,6 @@ const CountdownTimer = memo(({ isAr, endDate }: { isAr: boolean; endDate?: strin
 });
 
 
-const PROFESSIONS = [
-  { value: 'etudiant_infirmier',      fr: 'Étudiant en sciences infirmières', ar: 'طالب علوم التمريض' },
-  { value: 'etudiant_infirmier_3eme', fr: 'Étudiant infirmier 3ème année',    ar: 'طالب تمريض السنة الثالثة' },
-  { value: 'etudiant_medecine',       fr: 'Étudiant en médecine',             ar: 'طالب طب' },
-  { value: 'etudiant_pharmacie',      fr: 'Étudiant en pharmacie',            ar: 'طالب صيدلة' },
-  { value: 'infirmier_diplome',       fr: 'Infirmier diplômé',                ar: 'ممرض متخرج' },
-  { value: 'aide_soignant',           fr: 'Aide-soignant',                    ar: 'مساعد تمريض' },
-  { value: 'medecin',                 fr: 'Médecin',                          ar: 'طبيب' },
-  { value: 'sage_femme',              fr: 'Sage-femme',                       ar: 'قابلة' },
-  { value: 'technicien_labo',         fr: 'Technicien de laboratoire',        ar: 'تقني مخبر' },
-  { value: 'autre',                   fr: 'Autre professionnel de santé',     ar: 'مهني صحة آخر' },
-];
 
 const OPERATORS = [
   { id: 'BANKILY', name: 'Bankily', image: '/images/bankily.png' },
@@ -347,11 +335,24 @@ function RegisterContent() {
 
               <div id="field-profession">
                 <label className={labelClass}>{isAr ? 'المهنة' : 'Profession'} <span className="text-red-400">*</span></label>
-                <select value={form.profession} onChange={(e) => set('profession', e.target.value)}
-                  className={`${inputClass} cursor-pointer`}>
-                  <option value="">{isAr ? 'اختر…' : 'Sélectionner…'}</option>
-                  {PROFESSIONS.map((p) => <option key={p.value} value={p.value}>{isAr ? p.ar : p.fr}</option>)}
-                </select>
+                <div className="grid grid-cols-2 gap-3 mt-1">
+                  {[
+                    { value: 'etudiant_infirmier', fr: 'Infirmier(e)', ar: 'ممرض / ممرضة', icon: '🏥' },
+                    { value: 'sage_femme',          fr: 'Sage-femme',  ar: 'قابلة',         icon: '👶' },
+                  ].map((p) => (
+                    <button key={p.value} type="button" onClick={() => set('profession', p.value)}
+                      className={`flex flex-col items-center gap-2 py-4 px-3 rounded-2xl border-2 font-semibold text-sm transition
+                        ${form.profession === p.value
+                          ? p.value === 'sage_femme'
+                            ? 'border-pink-500 bg-pink-50 text-pink-700'
+                            : 'border-indigo-500 bg-indigo-50 text-indigo-700'
+                          : 'border-gray-200 bg-white text-gray-500 hover:border-gray-300 hover:bg-gray-50'
+                        }`}>
+                      <span className="text-2xl">{p.icon}</span>
+                      <span>{isAr ? p.ar : p.fr}</span>
+                    </button>
+                  ))}
+                </div>
               </div>
 
             </div>
