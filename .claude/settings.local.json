@@ -1,0 +1,9 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(node -e ' *)",
+      "Bash(git -C \"d:/Telechargement/infirmier\" add backend/src/admin/admin.service.ts frontend/src/app/admin/free-trial/page.tsx)",
+      "Bash(git -C \"d:/Telechargement/infirmier\" diff --cached --stat)"
+    ]
+  }
+}

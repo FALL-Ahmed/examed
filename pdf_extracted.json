@@ -1,0 +1,247 @@
+[
+  {
+    "nom": "LES SONDES NASOGASTRIQUES",
+    "questions": [
+      {
+        "numero": 1,
+        "question": "Un homme de 65 ans est admis pour une occlusion intestinale haute. Le médecin prescrit la pose d'une sonde naso-gastrique en aspiration. Quels sont les objectifs prioritaires de ce soin dans ce contexte précis ?",
+        "options": {
+          "A": "Assurer une nutrition entérale précoce",
+          "B": "Permettre la décompression gastrique en évacuant les liquides et gaz stagnants",
+          "C": "Soulager les nausées et les vomissements du patient",
+          "D": "Prévenir le risque d'inhalation bronchique (syndrome de Mendelson)",
+          "E": "Favoriser la remise au repos du tube digestif en amont de l'obstacle"
+        },
+        "reponses": [
+          "B",
+          "C",
+          "D",
+          "E"
+        ],
+        "commentaire": "En cas d'occlusion, la SNG est posée à visée évacuatrice (aspiration). Elle permet de décompresser l'estomac, de soulager les symptômes et surtout de protéger les voies aériennes contre l'inhalation de liquide de stase. La nutrition (A) est contre-indiquée tant que l'occlusion n'est pas levée."
+      },
+      {
+        "numero": 2,
+        "question": "Lors de la préparation du matériel pour la pose d'une sonde naso-gastrique (SNG), quels éléments l'infirmier doit-il réunir conformément aux règles de bonnes pratiques ?",
+        "options": {
+          "A": "Une sonde gastrique de calibre adapté",
+          "B": "Un champ stérile et des gants stériles",
+          "C": "Une seringue à embout cathéter de 50 ml et un stéthoscope",
+          "D": "Un lubrifiant hydrosoluble et un verre d'eau (si le patient peut déglutir)",
+          "E": "Un dispositif de fixation adhésif et un sac de recueil ou système d'aspiration"
+        },
+        "reponses": [
+          "A",
+          "C",
+          "D",
+          "E"
+        ],
+        "commentaire": "La pose d'une SNG est un soin propre mais non stérile. L'usage de gants jetables et de matériel propre suffit. La seringue de 50 ml et le stéthoscope sont indispensables pour le contrôle immédiat du positionnement."
+      },
+      {
+        "numero": 3,
+        "question": "Une infirmière procède à l'insertion d'une SNG chez une patiente de 70 ans. Quelles actions garantissent la sécurité et le succès technique de la procédure ?",
+        "options": {
+          "A": "Installer la patiente en position assise ou demi-assise, tête légèrement inclinée vers l'avant",
+          "B": "Mesurer la distance : bout du nez - lobe de l'oreille - appendice xiphoïde",
+          "C": "Retirer immédiatement la sonde si la patiente présente une toux quinteuse ou une cyanose",
+          "D": "Demander à la patiente de réaliser des mouvements de déglutition lors de la progression",
+          "E": "Injecter 50 ml d'eau tiède pour faciliter le glissement de la sonde dans l'œsophage"
+        },
+        "reponses": [
+          "A",
+          "B",
+          "C",
+          "D"
+        ],
+        "commentaire": "La mesure (B) et la déglutition (D) sont cruciales pour le bon trajet. Une toux ou cyanose (C) indique un passage trachéal, imposant le retrait immédiat. L'injection d'eau (E) est  contre indiqué  avant d'être certain que la sonde est bien dans l'estomac."
+      },
+      {
+        "numero": 4,
+        "question": "Après l'introduction de la sonde, l'infirmier doit vérifier son bon positionnement gastrique. Quelles sont les méthodes de vérification validées ?",
+        "options": {
+          "A": "L'auscultation d'un borborygme (bruit de flot) au niveau de l'épigastre lors de l'injection d'air",
+          "B": "L'aspiration de liquide gastrique et la vérification de son pH (doit être < 5)",
+          "C": "L'immersion de l'extrémité de la sonde dans un verre d'eau pour vérifier l'absence de bulles",
+          "D": "La vérification du repère cutané marqué sur la sonde après la pose pour un éventuel déplacement",
+          "E": "La réalisation d'une radiographie de l'abdomen sans préparation (ASP) ou du thorax"
+        },
+        "reponses": [
+          "A",
+          "B",
+          "D",
+          "E"
+        ],
+        "commentaire": "Le \"test à l'air\" (A) et le pH (B) sont les tests cliniques de référence au lit du patient. La radiographie (E) est la méthode de certitude. Le test du verre d'eau (C) est obsolète et dangereux. La surveillance du repère (D) permet de détecter un déplacement secondaire."
+      },
+      {
+        "numero": 5,
+        "question": "Quelles sont les interventions infirmières quotidiennes indispensables pour prévenir les complications liées au maintien d'une SNG ?",
+        "options": {
+          "A": "Vérifier quotidiennement l'absence de lésion ou de nécrose de l'aile du nez",
+          "B": "Réaliser des soins de bouche pluriquotidiens pour pallier la sécheresse muqueuse",
+          "C": "Rincer la sonde avec 20 à 50 ml d'eau après chaque administration médicamenteuse ou alimentaire",
+          "D": "Changer systématiquement la sonde de narine toutes les 48 heures",
+          "E": "Mobiliser légèrement la sonde et vérifier la position du repère adhésif"
+        },
+        "reponses": [
+          "A",
+          "B",
+          "C",
+          "E"
+        ],
+        "commentaire": "La surveillance prévient les escarres (A), l'inconfort (B) et l'obstruction (C). Le changement de sonde (D) n'est pas systématique et se fait uniquement selon l'état cutané ou le protocole de service. Le contrôle du repère (E) prévient le risque d'inhalation par déplacement de la sonde."
+      }
+    ]
+  },
+  {
+    "nom": "LES ESCARRES",
+    "questions": [
+      {
+        "numero": 1,
+        "question": "L'infirmier prend en charge un patient de 85 ans, alité de façon prolongée suite à une fracture. Quels facteurs favorisant les escarres doit-il identifier en priorité ?",
+        "options": {
+          "A": "La pression prolongée exercée sur les saillies osseuses",
+          "B": "Les forces de frottement lors des rehaussements au lit",
+          "C": "L'humidité cutanée causée par une incontinence urinaire",
+          "D": "L'altération de l'état général et la dénutrition",
+          "E": "La pratique d'une toilette quotidienne à l'eau et au savon doux"
+        },
+        "reponses": [
+          "A",
+          "B",
+          "C",
+          "E"
+        ],
+        "commentaire": "L'escarre est multifactorielle. La pression, les frottements (cisaillement), la macération liée à l'incontinence et l'état nutritionnel sont les principaux risques. La toilette douce (E) est une mesure d'hygiène préventive et non un facteur favorisant. Q2 Les objectifs de la prévention des escarres chez les patients à risque sont  ? A Empêcher l'apparition d'une rougeur cutanée persistante (stade 1) B Assurer une hydratation et une alimentation riche en protéines C Éviter toute douleur liée à la compression prolongée D Masser vigoureusement les talons dès l'apparition d'une rougeur E Contrôler l'hygiène de la literie et de la peau La prévention vise à maintenir l'intégrité de la peau, l'équilibre nutritionnel et le confort. Le massage vigoureux (D) est formellement interdit car il détruit les capillaires sanguins et aggrave l'ischémie."
+      },
+      {
+        "numero": 3,
+        "question": "L'infirmier réalise un effleurage de prévention sur les zones d'appui. Quelles sont les caractéristiques techniques de ce soin ?",
+        "options": {
+          "A": "Réaliser des mouvements circulaires doux",
+          "B": "Pratiquer le soin à main nue avec la paume de la main",
+          "C": "Utiliser exclusivement des produits à base d'alcool pour tanner la peau",
+          "D": "Effectuer le soin sur une peau propre et parfaitement sèche",
+          "E": "Exercer une pression forte pour stimuler le flux sanguin profond"
+        },
+        "reponses": [
+          "A",
+          "B",
+          "D"
+        ],
+        "commentaire": "L'effleurage doit être doux, circulaire, à la paume de la main et sur peau propre/sèche. L'alcool (C) dessèche la peau et favorise les crevasses. Une pression forte (E) est traumatisante pour les tissus à risque."
+      },
+      {
+        "numero": 4,
+        "question": "Pour un patient présentant un score de risque d’escarres élevé , quels matériels et recommandations l'infirmier doit-il intégrer au plan de soins ?",
+        "options": {
+          "A": "Utilisation d'un matelas anti-escarre (statique ou dynamique) adapté",
+          "B": "Changements de posture programmés toutes les 2 à 4 heures",
+          "C": "Application de produits de massage validés par l'établissement",
+          "D": "Utilisation de bouées pour décharger les talons",
+          "E": "Mise en place d'une surveillance nutritionnelle et hydrique"
+        },
+        "reponses": [
+          "A",
+          "B",
+          "C",
+          "E"
+        ],
+        "commentaire": "Le support, la mobilisation régulière et la nutrition sont essentiels. Les bouées (D) sont déconseillées car elles créent une zone de compression circulaire qui aggrave le risque de nécrose au centre."
+      }
+    ]
+  },
+  {
+    "nom": "LES PANSEMENTS :",
+    "questions": [
+      {
+        "numero": 1,
+        "question": "Lors de la prise en charge d'un patient présentant plusieurs plaies, quelles règles de base l'infirmier doit-il respecter pour l'ordre de réfection des pansements ?",
+        "options": {
+          "A": "Commencer impérativement par le pansement le plus sale",
+          "B": "Débuter par le pansement le plus propre et terminer par le plus sale",
+          "C": "Réaliser un lavage simple des mains avant de commencer le soin",
+          "D": "Placer une protection jetable au niveau de la zone du pansement",
+          "E": "Utiliser la même pince pour toutes les plaies afin d'économiser le matériel"
+        },
+        "reponses": [
+          "B",
+          "C",
+          "D"
+        ],
+        "commentaire": "La règle d'asepsie impose d'aller du \"plus propre vers le plus sale\". Le lavage des mains et la protection du site sont des étapes préliminaires indispensables. L'usage d'une pince unique pour plusieurs zones est une faute d'hygiène."
+      },
+      {
+        "numero": 2,
+        "question": "Une infirmière doit refaire le pansement d'une plaie post-opératoire. Quelles étapes du déroulement du soin garantissent le maintien de l'asepsie ?",
+        "options": {
+          "A": "Pratiquer un lavage antiseptique des mains avant d'enfiler les gants stériles",
+          "B": "Enlever le pansement sale et le jeter dans la poubelle à déchets contaminés (DASRI)",
+          "C": "Utiliser une pince jetable différente pour la zone propre et pour la zone stérile",
+          "D": "Nettoyer la plaie en allant du pourtour vers le centre de la lésion",
+          "E": "Laisser la plaie humide avant de poser le pansement occlusif"
+        },
+        "reponses": [
+          "A",
+          "B",
+          "C"
+        ],
+        "commentaire": "Le lavage antiseptique et la séparation des pinces par zone (propre/stérile) sont cruciaux. Le pansement souillé doit être éliminé via la filière des déchets contaminés. La plaie doit être rincée et séchée avant d'être recouverte."
+      },
+      {
+        "numero": 3,
+        "question": "En cas de prescription médicale d'un pansement complexe, quels gestes techniques l'infirmier doit-il effectuer pour le nettoyage de la plaie ?",
+        "options": {
+          "A": "Utiliser des compresses imbibées d'antiseptique selon la prescription",
+          "B": "Désinfecter la plaie ainsi que son pourtour",
+          "C": "Procéder au rinçage de la plaie après l'étape de désinfection",
+          "D": "Sécher soigneusement la plaie avant de la recouvrir",
+          "E": "Frotter vigoureusement le centre de la plaie pour stimuler le saignement"
+        },
+        "reponses": [
+          "A",
+          "B",
+          "C",
+          "D"
+        ],
+        "commentaire": "Le protocole inclut le nettoyage/désinfection (plaie et pourtour), le rinçage et le séchage. Un frottement vigoureux est traumatisant pour les tissus en cours de cicatrisation et doit être évité."
+      },
+      {
+        "numero": 4,
+        "question": "Après avoir terminé la réfection du pansement, quels éléments cliniques l'infirmier doit-il noter dans les transmissions du dossier de soins ?",
+        "options": {
+          "A": "La présence d'une zone de bourgeonnement",
+          "B": "L'état de propreté de la plaie",
+          "C": "Les signes d'épithélialisation (cicatrisation en cours)",
+          "D": "Le suivi général de la cicatrisation",
+          "E": "La marque précise du savon utilisé pour le lavage des mains"
+        },
+        "reponses": [
+          "A",
+          "B",
+          "C",
+          "D"
+        ],
+        "commentaire": "Les transmissions doivent décrire précisément l'aspect de la plaie (bourgeonnement, propreté, épithélialisation) pour permettre un suivi de l'évolution. La marque du savon n'a aucune valeur clinique."
+      },
+      {
+        "numero": 5,
+        "question": "Lors de la phase finale de la réfection du pansement, quelles sont les recommandations de clôture du soin ?",
+        "options": {
+          "A": "Recouvrir la plaie avec des compresses stériles",
+          "B": "Utiliser un pansement occlusif pour protéger la zone",
+          "C": "Laisser la plaie à l'air libre si elle semble propre",
+          "D": "Jeter tous les dispositifs à usage unique utilisés",
+          "E": "S'assurer que le pansement est hermétique"
+        },
+        "reponses": [
+          "A",
+          "B",
+          "D"
+        ],
+        "commentaire": "La plaie doit être protégée par des compresses stériles et un pansement (souvent occlusif). Tout le matériel à usage unique (pinces, gants) doit être éliminé. On ne laisse pas une plaie à l'air libre si un pansement est prescrit."
+      }
+    ]
+  }
+]

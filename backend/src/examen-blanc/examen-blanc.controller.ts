@@ -11,8 +11,8 @@ export class ExamenBlancController {
   constructor(private service: ExamenBlancService) {}
 
   @Get('current')
-  getCurrentSession() {
-    return this.service.getCurrentSession();
+  getCurrentSession(@Query('target') target?: string) {
+    return this.service.getCurrentSession(target?.toUpperCase() || 'INFIRMIER');
   }
 
   @Post('register')

@@ -308,6 +308,7 @@ model ExamenBlanc {
   totalQ         Int      @default(80)
   durationMin    Int      @default(120)
   isActive       Boolean  @default(true)
+  target         String   @default("INFIRMIER")
   createdAt      DateTime @default(now())
   participants   ExamenBlancParticipant[]
 }

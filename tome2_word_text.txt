@@ -1,0 +1,5185 @@
+﻿Soins infirmiers
+LES SONDES NASOGASTRIQUES
+
+Q1
+Un homme de 65 ans est admis pour une occlusion intestinale haute. Le médecin prescrit la pose d'une sonde naso-gastrique en aspiration. Quels sont les objectifs prioritaires de ce soin dans ce contexte précis ?
+A
+Assurer une nutrition entérale précoce
+B
+Permettre la décompression gastrique en évacuant les liquides et gaz stagnants
+C
+Soulager les nausées et les vomissements du patient
+D
+Prévenir le risque d'inhalation bronchique (syndrome de Mendelson)
+E
+Favoriser la remise au repos du tube digestif en amont de l'obstacle
+✓ Bonne(s) réponse(s)
+B, C, D, E
+Commentaire
+En cas d'occlusion, la SNG est posée à visée évacuatrice (aspiration). Elle permet de décompresser l'estomac, de soulager les symptômes et surtout de protéger les voies aériennes contre l'inhalation de liquide de stase. La nutrition (A) est contre-indiquée tant que l'occlusion n'est pas levée.
+
+Q2
+Lors de la préparation du matériel pour la pose d'une sonde naso-gastrique (SNG), quels éléments l'infirmier doit-il réunir conformément aux règles de bonnes pratiques ?
+A
+Une sonde gastrique de calibre adapté 
+B
+Un champ stérile et des gants stériles
+C
+Une seringue à embout cathéter de 50 ml et un stéthoscope
+D
+Un lubrifiant hydrosoluble et un verre d'eau (si le patient peut déglutir)
+E
+Un dispositif de fixation adhésif et un sac de recueil ou système d'aspiration
+✓ Bonne(s) réponse(s)
+A, C, D, E
+Commentaire
+La pose d'une SNG est un soin propre mais non stérile. L'usage de gants jetables et de matériel propre suffit. La seringue de 50 ml et le stéthoscope sont indispensables pour le contrôle immédiat du positionnement.
+
+Q3
+Une infirmière procède à l'insertion d'une SNG chez une patiente de 70 ans. Quelles actions garantissent la sécurité et le succès technique de la procédure ?
+A
+Installer la patiente en position assise ou demi-assise, tête légèrement inclinée vers l'avant
+B
+Mesurer la distance : bout du nez - lobe de l'oreille - appendice xiphoïde
+C
+Retirer immédiatement la sonde si la patiente présente une toux quinteuse ou une cyanose
+D
+Demander à la patiente de réaliser des mouvements de déglutition lors de la progression
+E
+Injecter 50 ml d'eau tiède pour faciliter le glissement de la sonde dans l'œsophage
+✓ Bonne(s) réponse(s)
+A, B, C, D
+Commentaire
+La mesure (B) et la déglutition (D) sont cruciales pour le bon trajet. Une toux ou cyanose (C) indique un passage trachéal, imposant le retrait immédiat. L'injection d'eau (E) est  contre indiqué  avant d'être certain que la sonde est bien dans l'estomac.
+
+Q4
+Après l'introduction de la sonde, l'infirmier doit vérifier son bon positionnement gastrique. Quelles sont les méthodes de vérification validées ?
+A
+L'auscultation d'un borborygme (bruit de flot) au niveau de l'épigastre lors de l'injection d'air
+B
+L'aspiration de liquide gastrique et la vérification de son pH (doit être < 5)
+C
+L'immersion de l'extrémité de la sonde dans un verre d'eau pour vérifier l'absence de bulles
+D
+La vérification du repère cutané marqué sur la sonde après la pose pour un éventuel déplacement
+E
+La réalisation d'une radiographie de l'abdomen sans préparation (ASP) ou du thorax
+✓ Bonne(s) réponse(s)
+A, B, D, E
+Commentaire
+Le "test à l'air" (A) et le pH (B) sont les tests cliniques de référence au lit du patient. La radiographie (E) est la méthode de certitude. Le test du verre d'eau (C) est obsolète et dangereux. La surveillance du repère (D) permet de détecter un déplacement secondaire.
+
+Q5
+Quelles sont les interventions infirmières quotidiennes indispensables pour prévenir les complications liées au maintien d'une SNG ?
+A
+Vérifier quotidiennement l'absence de lésion ou de nécrose de l'aile du nez
+B
+Réaliser des soins de bouche pluriquotidiens pour pallier la sécheresse muqueuse
+C
+Rincer la sonde avec 20 à 50 ml d'eau après chaque administration médicamenteuse ou alimentaire
+D
+Changer systématiquement la sonde de narine toutes les 48 heures
+E
+Mobiliser légèrement la sonde et vérifier la position du repère adhésif
+✓ Bonne(s) réponse(s)
+A, B, C, E
+Commentaire
+La surveillance prévient les escarres (A), l'inconfort (B) et l'obstruction (C). Le changement de sonde (D) n'est pas systématique et se fait uniquement selon l'état cutané ou le protocole de service. Le contrôle du repère (E) prévient le risque d'inhalation par déplacement de la sonde.
+
+
+
+
+LES ESCARRES
+Q1
+L'infirmier prend en charge un patient de 85 ans, alité de façon prolongée suite à une fracture. Quels facteurs favorisant les escarres doit-il identifier en priorité ?
+A
+La pression prolongée exercée sur les saillies osseuses
+B
+Les forces de frottement lors des rehaussements au lit
+C
+L'humidité cutanée causée par une incontinence urinaire
+D
+L'altération de l'état général et la dénutrition
+E
+La pratique d'une toilette quotidienne à l'eau et au savon doux
+✓ Bonne(s) réponse(s)
+A, B, C, D
+Commentaire
+L'escarre est multifactorielle. La pression, les frottements (cisaillement), la macération liée à l'incontinence et l'état nutritionnel sont les principaux risques. La toilette douce (E) est une mesure d'hygiène préventive et non un facteur favorisant.
+
+Q2
+Les objectifs de la prévention des escarres chez les patients à risque sont  ?
+A
+Empêcher l'apparition d'une rougeur cutanée persistante (stade 1)
+B
+Assurer une hydratation et une alimentation riche en protéines
+C
+Éviter toute douleur liée à la compression prolongée
+D
+Masser vigoureusement les talons dès l'apparition d'une rougeur
+E
+Contrôler l'hygiène de la literie et de la peau
+✓ Bonne(s) réponse(s)
+A, B, C, E
+Commentaire
+La prévention vise à maintenir l'intégrité de la peau, l'équilibre nutritionnel et le confort. Le massage vigoureux (D) est formellement interdit car il détruit les capillaires sanguins et aggrave l'ischémie.
+
+Q3
+L'infirmier réalise un effleurage de prévention sur les zones d'appui. Quelles sont les caractéristiques techniques de ce soin ?
+A
+Réaliser des mouvements circulaires doux
+B
+Pratiquer le soin à main nue avec la paume de la main
+C
+Utiliser exclusivement des produits à base d'alcool pour tanner la peau
+D
+Effectuer le soin sur une peau propre et parfaitement sèche
+E
+Exercer une pression forte pour stimuler le flux sanguin profond
+✓ Bonne(s) réponse(s)
+A, B, D
+Commentaire
+L'effleurage doit être doux, circulaire, à la paume de la main et sur peau propre/sèche. L'alcool (C) dessèche la peau et favorise les crevasses. Une pression forte (E) est traumatisante pour les tissus à risque.
+
+Q4
+Pour un patient présentant un score de risque d’escarres élevé , quels matériels et recommandations l'infirmier doit-il intégrer au plan de soins ?
+A
+Utilisation d'un matelas anti-escarre (statique ou dynamique) adapté
+B
+Changements de posture programmés toutes les 2 à 4 heures
+C
+Application de produits de massage validés par l'établissement
+D
+Utilisation de bouées pour décharger les talons
+E
+Mise en place d'une surveillance nutritionnelle et hydrique
+✓ Bonne(s) réponse(s)
+A, B, C, E
+Commentaire
+Le support, la mobilisation régulière et la nutrition sont essentiels. Les bouées (D) sont déconseillées car elles créent une zone de compression circulaire qui aggrave le risque de nécrose au centre.
+
+
+
+
+LES PANSEMENTS : 
+Q1
+Lors de la prise en charge d'un patient présentant plusieurs plaies, quelles règles de base l'infirmier doit-il respecter pour l'ordre de réfection des pansements ?
+A
+Commencer impérativement par le pansement le plus sale
+B
+Débuter par le pansement le plus propre et terminer par le plus sale
+C
+Réaliser un lavage simple des mains avant de commencer le soin
+D
+Placer une protection jetable au niveau de la zone du pansement
+E
+Utiliser la même pince pour toutes les plaies afin d'économiser le matériel
+✓ Bonne(s) réponse(s)
+B, C, D
+Commentaire
+La règle d'asepsie impose d'aller du "plus propre vers le plus sale". Le lavage des mains et la protection du site sont des étapes préliminaires indispensables. L'usage d'une pince unique pour plusieurs zones est une faute d'hygiène.
+
+Q2
+Une infirmière doit refaire le pansement d'une plaie post-opératoire. Quelles étapes du déroulement du soin garantissent le maintien de l'asepsie ?
+A
+Pratiquer un lavage antiseptique des mains avant d'enfiler les gants stériles
+B
+Enlever le pansement sale et le jeter dans la poubelle à déchets contaminés (DASRI)
+C
+Utiliser une pince jetable différente pour la zone propre et pour la zone stérile
+D
+Nettoyer la plaie en allant du pourtour vers le centre de la lésion
+E
+Laisser la plaie humide avant de poser le pansement occlusif
+✓ Bonne(s) réponse(s)
+A, B, C
+Commentaire
+Le lavage antiseptique et la séparation des pinces par zone (propre/stérile) sont cruciaux. Le pansement souillé doit être éliminé via la filière des déchets contaminés. La plaie doit être rincée et séchée avant d'être recouverte.
+
+Q3
+En cas de prescription médicale d'un pansement complexe, quels gestes techniques l'infirmier doit-il effectuer pour le nettoyage de la plaie ?
+A
+Utiliser des compresses imbibées d'antiseptique selon la prescription
+B
+Désinfecter la plaie ainsi que son pourtour
+C
+Procéder au rinçage de la plaie après l'étape de désinfection
+D
+Sécher soigneusement la plaie avant de la recouvrir
+E
+Frotter vigoureusement le centre de la plaie pour stimuler le saignement
+✓ Bonne(s) réponse(s)
+A, B, C, D
+Commentaire
+Le protocole inclut le nettoyage/désinfection (plaie et pourtour), le rinçage et le séchage. Un frottement vigoureux est traumatisant pour les tissus en cours de cicatrisation et doit être évité.
+
+Q4
+Après avoir terminé la réfection du pansement, quels éléments cliniques l'infirmier doit-il noter dans les transmissions du dossier de soins ?
+A
+La présence d'une zone de bourgeonnement
+B
+L'état de propreté de la plaie
+C
+Les signes d'épithélialisation (cicatrisation en cours)
+D
+Le suivi général de la cicatrisation
+E
+La marque précise du savon utilisé pour le lavage des mains
+✓ Bonne(s) réponse(s)
+A, B, C, D
+Commentaire
+Les transmissions doivent décrire précisément l'aspect de la plaie (bourgeonnement, propreté, épithélialisation) pour permettre un suivi de l'évolution. La marque du savon n'a aucune valeur clinique.
+
+Q5
+Lors de la phase finale de la réfection du pansement, quelles sont les recommandations de clôture du soin ?
+A
+Recouvrir la plaie avec des compresses stériles
+B
+Utiliser un pansement occlusif pour protéger la zone
+C
+Laisser la plaie à l'air libre si elle semble propre
+D
+Jeter tous les dispositifs à usage unique utilisés
+E
+S'assurer que le pansement est hermétique
+✓ Bonne(s) réponse(s)
+A, B, D
+Commentaire
+La plaie doit être protégée par des compresses stériles et un pansement (souvent occlusif). Tout le matériel à usage unique (pinces, gants) doit être éliminé. On ne laisse pas une plaie à l'air libre si un pansement est prescrit.
+
+
+
+
+OXYGENOTHERAPIE
+
+Q2
+Un patient souffrant de BPCO reçoit de l'oxygène. Quel est le risque d'une administration excessive ?
+A
+Augmentation du risque d'hypercapnie
+B
+Toxicité renale à long terme
+C
+Induction d'une dépression respiratoire
+D
+Hypotension artérielle sévère
+E
+Déséquilibre hydrique
+✓
+A, C
+Commentaire
+L'hyperoxygénation peut entraîner une rétention de CO2 et une dépression respiratoire; la toxicité pulmonaire peut survenir avec une FiO2 élevée prolongée.
+
+
+
+Q3
+Quel est le bon objectif de saturation en oxygène pour un patient BPCO en exacerbation ?
+A
+SpO2 < 85 %
+B
+SpO2 88–92 %
+C
+SpO2 95–100 %
+D
+SpO2 80–85 %
+E
+SpO2 93–98 %
+✓
+B
+Commentaire
+Viser une SpO2 de 88–92% chez les patients BPCO pour éviter l'hypercapnie tout en prévenant l'hypoxémie.
+
+
+Q4
+Une infirmière remarque une sécheresse nasale chez un patient sous oxygène. Quelle est une cause possible ?
+A
+Débit d'oxygène trop élevé sans humidification
+B
+Mauvais ajustement de la lunette nasale
+C
+Trop basse FiO2
+D
+FiO2 élevée prolongée
+E
+Administration intermittente
+✓
+A
+Commentaire
+Un débit d'oxygène élevé sans humidification peut causer sécheresse et inconfort dans les voies respiratoires supérieures.
+
+
+
+
+
+
+LA NUTRITION ENTERALE ET PARENTERALE
+
+Q1
+Un infirmier administre une nutrition entérale à un patient. Quelle est l'objectif principal de cette alimentation ?
+A
+Prévention et correction d'une dénutrition
+B
+Réduction du poids corporel
+C
+Stimuler l'appétit du patient
+D
+Améliorer l'hydratation
+E
+Administrer des médicaments par voie orale
+✓
+A, D, E
+Commentaire
+L'alimentation par voie entérale vise à prévenir et corriger la dénutrition et à assurer une bonne hydratation.
+
+Q2
+Dans quel cas un infirmier devrait-il envisager l'utilisation d'une sonde naso-gastrique ?
+A
+Patient incapable de s'alimenter par voie orale
+B
+Patient avec des antécédents d'ulcères gastriques
+C
+Patient en récupération postopératoire de chirurgie orale
+D
+Patient  en refus d’alimentation marqué par une perte de poids significative
+E
+Patient conscient et capable de déglutir
+✓
+A, D
+Commentaire
+La sonde naso-gastrique est utilisée pour les patients qui ne peuvent pas s'alimenter par voie orale et qui présentent une perte de poids significative.
+
+
+
+
+
+
+Q1
+Un infirmier débute une nutrition parentérale pour un patient en état critique. Quel est l'objectif principal de cette alimentation ?
+A
+Assurer un approvisionnement calorique
+B
+Stimuler l'appétit du patient
+C
+Fournir des protéines essentielles
+D
+Hydrater le patient de manière excessive
+E
+Réduire le poids corporel
+✓
+A, C
+Commentaire
+L'objectif principal de la nutrition parentérale est d'assurer un approvisionnement calorique et de fournir des protéines essentielles pour les patients qui ne peuvent pas s'alimenter par voie orale.
+
+
+
+Q2
+Un patient est placé sous nutrition parentérale. Quelle voie d'administration est souvent préférée pour un traitement à long terme ?
+A
+Voie intraveineuse centrale
+B
+Voie intraveineuse périphérique
+C
+Voie sous-cutanée
+D
+Voie orale
+E
+Voie intramusculaire
+✓
+A
+Commentaire
+La voie intraveineuse centrale est généralement préférée pour les traitements à long terme en raison de la capacité à administrer des volumes plus importants et des solutions nutritives plus concentrées.
+
+Q3
+Lors de l'administration de nutrition parentérale, quelles complications potentielles l'infirmier doit-il surveiller ?
+A
+Obstruction du cathéter
+B
+Hyperglycémie
+C
+Infection locale au niveau du site d'insertion du cathéter
+D
+Hypertension artérielle
+E
+Anémie
+✓
+A, B, C
+Commentaire
+Les complications à surveiller incluent l'obstruction du cathéter, l'hyperglycémie et l'infection locale au niveau de l'insertion.
+
+
+
+Q4
+Un infirmier remarque que le patient sous nutrition parentérale présente des signes de thrombose. Quelle mesure devrait-il prendre en priorité ?
+A
+Arrêter immédiatement l'administration de la nutrition
+B
+Augmenter le débit de la perfusion
+C
+Évaluer la nécessité d'un échographie vasculaire
+D
+Vérifier la perméabilité du cathéter
+E
+Consulter le médecin pour ajustement du traitement
+✓
+A, D, E
+Commentaire
+L'infirmier doit arrêter l'administration et vérifier la perméabilité du cathéter. Il est également important de consulter un médecin pour évaluer la situation.
+
+
+Q5
+Quel élément est essentiel lors de la surveillance d'un patient recevant une nutrition parentérale ?
+A
+Le poids du patient
+B
+La température ambiante
+C
+La fréquence cardiaque
+D
+La glycémie
+E
+La saturation en oxygène
+✓
+A, D
+Commentaire
+La surveillance du poids et de la glycémie est essentielle pour ajuster le traitement de la nutrition parentérale et prévenir d'éventuelles complications.
+
+
+
+
+
+Q1
+Un infirmier s'occupe d'un patient présentant un risque d'hyperglycémie. Quel type de nutrition entérale devrait-il privilégier pour éviter ce risque ?
+A
+Solution hyperprotéinée
+B
+Nutrition riche en glucides
+C
+Nutrition sans glucides
+D
+Nutrition à index glycémique bas
+E
+Nutrition enrichie en lipides
+✓
+C, D
+Commentaire
+Une nutrition sans glucides et à index glycémique bas aide à limiter le risque d'hyperglycémie chez les patients vulnérables.
+
+Q2
+Un patient ayant des difficultés à déglutir nécessite une alimentation par sonde. Quelle voie d’administration est la plus indiquée pour un traitement à long terme ?
+A
+Voie nasogastrique
+B
+Voie intraveineuse
+C
+Voie naso-jéjunale
+D
+Voie gastrique par gastrostomie
+E
+Voie orale
+✓
+C, D
+Commentaire
+La voie naso-jéjunale et la gastrostomie sont adaptées pour une alimentation à long terme, surtout en cas de risque d'aspiration.
+
+
+
+
+Q3
+Lors de l'alimentation par sonde, un infirmier remarque une régurgitation au moment de l'administration. Quelle est la première mesure à prendre ?
+A
+Arrêter immédiatement l'alimentation
+B
+Augmenter le débit de la nutrition
+C
+Changer la formule nutritive
+D
+Élever le lit du patient
+E
+Administrer un antiémétique avant chaque alimentation
+✓
+A, D
+Commentaire
+Il est crucial d'arrêter l'alimentation et d'élever le lit pour éviter des complications telles que l'aspiration.
+
+
+
+Q4
+Un patient en soins intensifs reçoit une nutrition entérale continue. Quel est le suivi essentiel à réaliser ?
+A
+Surveiller seulement le poids du patient
+B
+Évaluer la tolérance digestive et vérifier les résidus gastriques
+C
+Contrôler la glycémie
+D
+Compter les calories uniquement
+E
+Mesurer la saturation en oxygène
+✓
+B, C
+Commentaire
+Le suivi de la tolérance digestive et des résidus gastriques, ainsi que la glycémie, est essentiel pour ajuster la nutrition et prévenir les complications.
+
+
+Q5
+Quel est un des risques associés à l'administration de nutrition entérale par sonde ?
+A
+Insuffisance cardiaque
+B
+Aspiration et pneumonie
+C
+Diarrhée due à une intolérance
+D
+Allergies alimentaires
+E
+Déshydratation
+✓
+B, C, E
+Commentaire
+L'aspiration, la pneumonie, la diarrhée dues à une intolérance et la déshydratation sont des risques majeurs lors de l'administration de nutrition entérale.
+
+
+
+Q3
+Un patient reçoit une nutrition entérale par sonde. Quelles sont les complications possibles ?
+A
+Aspiration et pneumonie
+B
+Occlusion de la sonde
+C
+Érosion de l'œsophage
+D
+Hyperglycémie
+E
+Insuffisance hépatique
+✓
+A, B, C, D
+Commentaire
+Les complications incluent l'aspiration, l'occlusion de la sonde, l'érosion de l'œsophage et le risque d'hyperglycémie.
+
+
+
+
+Q4
+Lors de la mise en place d'une nutrition entérale, quel est un élément essentiel à surveiller ?
+A
+Le poids du patient
+B
+Les résidus gastriques
+C
+La fréquence cardiaque
+D
+La température ambiante
+E
+La saturation en oxygène
+✓
+A, B
+Commentaire
+Il est crucial de surveiller le poids du patient et les résidus gastriques pour évaluer la tolérance à la nutrition entérale.
+
+
+
+
+Q5
+Quelles sont les voies d'administration possibles de la nutrition entérale ?
+A
+Voie naso-gastrique
+B
+Voie intraveineuse
+C
+Voie naso-jéjunale
+D
+Voie sous-cutanée
+E
+Voie gastrique par gastrostomie
+✓
+A, C, E
+Commentaire
+Les voies d'administration pour la nutrition entérale incluent la voie naso-gastrique, la voie naso-jéjunale et la gastrostomie.
+
+
+
+
+
+
+LAVEMENT
+Q1
+Lors de l'administration d'un lavement, quelle étape est importante pour préparer le matériel ?
+A
+Lubrifier la sonde rectale avec des compresses non stériles
+B
+Déterminer le volume de soluté à administrer
+C
+Élever le patient à une position accroupie
+D
+Vérifier l'intégrité du soluté avant utilisation
+E
+Utiliser une sonde naso-gastrique pour l'administration
+✓
+A, B
+Commentaire
+Lubrification de la sonde : Cela aide à insérer la sonde plus facilement et réduit l'inconfort. Détermination du volume : Connaître le volume approprié à administrer est crucial pour l'efficacité du lavement et le confort du patient. Assurez-vous d'adapter le volume en fonction de l'âge et de l'état du patient.
+
+Q2
+Quel est un signe d'irritation à surveiller chez un patient recevant un lavement ?
+A
+Fatigue
+B
+Crampes abdominales
+C
+Incontinence
+D
+Éruption cutanée
+E
+Hyperglycémie
+✓
+B
+Commentaire
+Crampes abdominales : Elles peuvent indiquer une irritation du tractus intestinal dû à la solution de lavage ou à la technique d'administration. Surveillez le patient de près pendant et après le lavement pour vous assurer que ces crampes ne s'intensifient pas, ce qui pourrait nécessiter l'arrêt immédiat du lavage.
+
+
+
+Q3
+Quel est le bon déroulement pour administrer un lavement via une sonde rectale ?
+A
+Insérer la sonde à 10 cm pour un adulte
+B
+Effectuer la manœuvre en position assise
+C
+Administrer le soluté lentement
+D
+Retirer la sonde immédiatement après l'administration
+E
+Maintenir la sonde en place jusqu'à l'évacuation complète
+✓
+A, C
+Commentaire
+Insertion de la sonde : Insérez-la à environ 10 cm pour un adulte afin de vous assurer qu'elle est correctement positionnée dans le rectum. Administration lente : Cela permet au soluté de se répartir uniformément et réduit le risque de crampes. Il est essentiel de maintenir la sonde en place pour permettre une absorption adéquate et éviter le reflux du soluté.
+
+
+Q4
+Quel patient est susceptible de bénéficier d'un lavement ?
+A
+Patient avec constipation chronique
+B
+Patient avec diarrhée aiguë
+C
+Patient se préparant pour une intervention chirurgicale
+D
+Patient ayant des troubles urinaires
+E
+Patient en soins palliatifs
+✓
+A, C
+Commentaire
+Constipation chronique : Les lavements peuvent aider à évacuer les selles en ramollissant celles-ci, rendant l'élimination plus facile. Préparation chirurgicale : Un lavement avant une chirurgie abdominale est souvent requis pour nettoyer le côlon, minimisant les risques d'infection pendant la procédure.
+
+
+Q5
+Quelles sont les recommandations sur le positionnement du patient lors d'un lavement ?
+A
+Position allongée sur le dos
+B
+Position en décubitus latéral droit
+C
+Position debout
+D
+Position semi-assise à 45 degrés
+E
+Position couchée sur le côté gauche
+✓
+B, E
+Commentaire
+Position en décubitus latéral droit : Cela aide le soluté à se déplacer plus facilement dans le côlon descendant. Couchée sur le côté gauche : Cette position favorise également le passage du soluté à travers le côlon, facilitant l'évacuation des selles. Veillez à maintenir cette position pendant la durée nécessaire pour maximiser l'efficacité du lavement.
+
+
+
+
+
+LAVAGE OCULAIRE : 
+Q1
+Lors d'un lavage oculaire, quel est l'objectif principal de la procédure ?
+A
+Éliminer les débris étrangers
+B
+Réduire l'inflammation de l'œil
+C
+Administrer des médicaments
+D
+Préparer l'œil à une chirurgie
+E
+Évaluer la vision après récupération
+✓
+A, B
+Commentaire
+L'objectif principal est d'éliminer les débris, comme des corps étrangers ou des produits irritants, tout en réduisant l'inflammation localisée pour apaiser l'œil.
+
+Q2
+Quel matériel est nécessaire pour effectuer un lavage oculaire ?
+A
+Solution saline stérile
+B
+Compresses stériles
+C
+Gants non stériles
+D
+Un dispositif de protection pour les yeux
+E
+Un aspirateur à lame fine
+✓
+A, B, D
+Commentaire
+Une solution saline stérile, des compresses stériles et un dispositif de protection sont essentiels pour garantir l'hygiène et l'efficacité de la procédure de lavage oculaire.
+
+
+
+
+
+
+Q3
+Lors de l'installation d'un patient pour un lavage oculaire, quelle position doit-il adopter ?
+A
+Couché sur le dos, tête inclinée en arrière
+B
+Couché sur le côté non blessé, tête inclinée
+C
+En position assise, tête droite
+D
+Couché sur le ventre
+E
+En position debout
+✓
+B
+Commentaire
+Le patient doit être en position couchée sur le côté non blessé avec la tête inclinée pour faciliter le drainage du liquide de lavage et éviter tout reflux.
+
+
+
+
+
+
+Q4
+Quel est un élément essentiel du déroulement du lavage oculaire ?
+A
+Utiliser une quantité minimale de solution saline
+B
+Commencer par le coin externe de l'œil
+C
+Lavage des deux yeux en même temps
+D
+Appliquer une pression sur l'œil pendant le lavage
+E
+Utiliser un mouvement de va-et-vient pour rincer
+✓
+B, E
+Commentaire
+Il est crucial de commencer le lavage près du coin externe et d'utiliser un mouvement doux de va-et-vient pour rincer efficacement l'œil tout en utilisant le bon volume de solution saline.
+
+
+
+
+
+Q5
+Quelles complications peuvent survenir lors d'un lavage oculaire ?
+A
+Irritation de la cornée
+B
+Infection de l'œil
+C
+Écoulement nasal de produit de lavage
+D
+Réaction allergique à la solution saline
+E
+Vision floue temporaire
+✓
+A, B, D
+Commentaire
+Des complications telles que l'irritation de la cornée, les risques d'infection, et des réactions allergiques à la solution saline doivent être surveillées durant et après le lavage.
+
+
+
+
+
+
+Lavage de l’oreille 
+Q1
+Un infirmier doit réaliser un lavage d’oreille. Quelles vérifications préalables sont essentielles avant de commencer ?
+A
+S’assurer qu’il n’y a pas de perforation tympanique connue
+B
+Vérifier les antécédents de chirurgie auriculaire récente
+C
+Confirmer que le patient est à jeun depuis 6 heures
+D
+Contrôler la présence d’un bouchon de cérumen visible à l’otoscope
+E
+Vérifier la glycémie capillaire systématique
+Réponses correctes
+A, B, D
+Commentaire
+Avant lavage, rechercher contreindications (perforation du tympan, chirurgie auriculaire récente). Examiner le conduit avec l’otoscope pour situer le bouchon (taille, consistance, proximité du tympan) et adapter la technique. Le jeûne et la glycémie ne sont pas requis systématiquement.
+ 
+Q2
+Concernant la position du patient et la technique d’irrigation, quelles sont les bonnes pratiques ?
+A
+Patient assis, tête légèrement inclinée vers l’arrière
+B
+Patient couché sur le côté opposé à l’oreille traitée
+C
+Introduire la seringue ou l’embout en direction du tympan
+D
+Diriger le jet vers la paroi supérieure du conduit auditif
+E
+Utiliser de l’eau tiède (≈ 37°C) et irriguer par pressions modérées
+Réponses correctes
+B, E
+Commentaire
+Positionner le patient en décubitus latéral (côté sain en bas) pour faciliter le drainage. Utiliser solution tiède (~37°C) pour éviter vertiges; irriguer doucement par pressions modérées. Ne jamais diriger le jet vers le tympan ni insérer l’embout profondément.
+ 
+Q3
+Quelles complications doivent être surveillées pendant et après un lavage d’oreille ?
+A
+Vertiges et malaise
+B
+Nausées et vomissements
+C
+Douleur ou irritation du conduit auditif
+D
+Hypertension artérielle aiguë
+E
+Hémorragie digestive
+Réponses correctes
+A, B, C
+Commentaire
+Complications fréquentes : vertiges (stimulation vestibulaire par liquide froid/chaud), malaise, nausées et douleur locale. En cas de douleur intense, vertige majeur, saignement ou écoulement purulent, arrêter immédiatement et alerter le médecin.
+ 
+
+Q4
+Quel matériel et quelles précautions d’hygiène sont appropriés pour un lavage d’oreille ?
+A
+Plateau décontaminé, solution stérile tiède et seringue de 20 ml
+B
+Compresses stériles et un récipient (haricot) pour recueillir le liquide
+C
+Gants non stériles à usage unique
+D
+Utiliser un cotontige après lavage pour sécher le conduit
+E
+Préparer un otoscope pour vérifier le conduit avant et après
+Réponses correctes
+A, B, C, E
+Commentaire
+Préparer plateau propre avec solution stérile tiède (~37°C), seringue adaptée, compresses et récipient. Porter gants non stériles. Vérifier le conduit avec un otoscope avant et après. Éviter le cotontige qui tasse le cérumen et peut blesser le conduit.
+
+ 
+Q5
+Après un lavage d’oreille réussi, quelles consignes donner au patient ?
+A
+Signaler toute sensation de vertige, douleur persistante ou écoulement purulent
+B
+Utiliser un cotontige pour nettoyer le conduit quotidiennement
+C
+Éviter l’immersion prolongée de l’oreille (bain, natation) pendant 24–48 h
+D
+Si gêne persistante, consulter un médecin pour contrôle de la perméabilité et du tympan
+E
+Appliquer une pommade antibiotique dans le conduit sans prescription
+Réponses correctes
+A, C, D
+Commentaire
+Informer le patient : surveiller vertiges, douleur ou écoulement
+
+
+
+
+
+
+
+Les immobilisations plâtrées : 
+Platres :  bottes pédieusess
+ 
+Q1
+Un infirmier prépare le matériel pour la pose d'une botte plâtrée chez un patient présentant une fracture de la cheville. Quel élément est indispensable pour protéger la peau avant l'application du plâtre ?
+A
+Une bande de résine humidifiée
+B
+Un tube de jersey et du coton (ou ouate)
+C
+Une solution de désinfectant alcoolique sur tout le membre
+D
+Des gants stériles obligatoires
+E
+Une pommade hydratante
+Réponses correctes
+B
+Commentaire
+Selon le déroulement du soin, il est impératif d'enfiler le tube de jersey puis d'enrouler du coton avant de poser la bande plâtrée. Cela protège la peau des irritations et des brûlures thermiques lors de la prise du plâtre. Les gants peuvent être non stériles.
+ 
+Q2
+Lors de l'installation du patient pour la pose d'une botte pédieuse, quelles sont les recommandations pour la réalisation de la procedure ?
+A
+Position assise, jambe pendante
+B
+Position allongée avec un coussin sous le genou pour surélever la jambe
+C
+Cheville maintenue à un angle de 45°
+D
+La botte doit s'arrêter juste au-dessus du genou
+E
+Maintenir la cheville à 90° (sauf contre-indication)
+Réponses correctes
+B, E
+Commentaire
+Le patient doit être allongé avec un coussin sous le genou. La limite supérieure de la botte doit être en dessous du genou pour dégager le creux poplité. La cheville doit être maintenue à 90° pour garantir une position fonctionnelle.
+ 
+Q3
+Un infirmier réalise une botte en résine. Quelles sont les particularités de manipulation de ce matériau par rapport au plâtre traditionnel ?
+A
+La bande de résine s'utilise toujours après trempage dans l'eau tiède
+B
+La bande de résine s'utilise sèche lors de la pose
+C
+La résine doit être humidifiée seulement en fin de soin
+D
+La résine ne nécessite pas de coton de protection
+E
+La résine est modelée après avoir border le jersey
+Réponses correctes
+B, C, E
+Commentaire
+Contrairement à la bande plâtrée qui est trempée au préalable, la bande de résine est posée sèche. Elle est humidifiée à la fin du soin pour activer la polymérisation. Le modelage final est essentiel pour l'ajustement.
+ 
+Q4
+Quelques heures après la pose d'un plâtre, l'infirmier effectue une surveillance. Quels signes indiquent un trouble trophique ou circulatoire grave ?
+A
+Présence d'un œdème des orteils
+B
+Cyanose (coloration bleue) des orteils
+C
+Diminution de la sensibilité au toucher
+D
+Sensation de chaleur normale sous le plâtre
+E
+Douleur persistante et intense
+Réponses correctes
+A, B, C, E
+Commentaire
+L'œdème, la cyanose, la perte de sensibilité et la douleur sont des signes d'alerte majeurs évoquant un syndrome des loges ou une compression circulatoire. L'infirmier doit vérifier la coloration et la mobilité des extrémités.
+ 
+Q5
+Dans le cadre de l'éducation du patient porteur d'une botte pédieuse, quelles informations l'infirmier doit-il transmettre en priorité ?
+A
+Enseigner les signes d'alerte (coloration de la peau, chaleur, douleur)
+B
+Apprendre au patient à réaliser certains gestes quotidiens adaptés
+C
+Conseiller de mouiller le plâtre régulièrement pour le refroidir
+D
+Ne jamais gratter sous le plâtre avec un objet pointu
+E
+Maintenir le membre surélevé pour limiter l'œdème
+Réponses correctes
+A, B, D, E
+Commentaire
+Le patient doit savoir identifier les signes de complication. Il doit apprendre à se déplacer sans abîmer l'immobilisation. Il est crucial de ne pas introduire d'objets pour gratter (risque de plaie infectée invisible) et de ne pas mouiller le plâtre.
+
+
+
+
+
+Q1
+Un infirmier surveille un patient porteur d'une botte plâtrée. Quels sont les signes cliniques précoces et caractéristiques évoquant un syndrome des loges selon la règle des 5P ?
+A
+Douleur intense, disproportionnée et non soulagée par les antalgiques habituels
+B
+Douleur augmentée lors de l'étirement passif des muscles (ex: extension des orteils)
+C
+Absence de pouls distal dès les premières minutes de la douleur
+D
+Paresthésies (fourmillements, picotements ou sensation de "jambe endormie")
+E
+Peau tendue, luisante et parfois pâle ou bleutée
+Réponses correctes
+A, B, D, E
+Commentaire
+L'infirmier doit évaluer la règle des 5P :1. Pain (Douleur) : C'est le signe le plus précoce. Elle est intense, résiste aux médicaments et s'aggrave à l'étirement passif.2. Paresthesia (Paresthésie) : Sensations de fourmillements traduisant une souffrance nerveuse débutante.3. Pallor (Pâleur) : La peau est tendue, luisante, et peut devenir pâle par manque de microcirculation.4. Paralysis (Paralysie) : Incapacité à bouger les orteils (signe de gravité).5. Pulselessness (Absence de pouls) : ATTENTION, c'est un signe tardif. Un pouls présent n'élimine pas le diagnostic.
+
+Q2
+Concernant la gravité et la surveillance infirmière du syndrome des loges, quelles affirmations relatives à la règle des 5P sont exactes ?
+A
+La "Paralysie" (Paralysis) est un signe de complication avancée montrant une perte de force musculaire
+B
+L'absence de pouls (Pulselessness) doit être présente pour confirmer le diagnostic en urgence
+C
+La douleur (Pain) à l'étirement passif des orteils est le test le plus sensible pour détecter une hyperpression
+D
+Les paresthésies (Paresthesia) traduisent une compression des fibres nerveuses sensitives à l'intérieur de la loge
+E
+Une peau chaude et rouge exclut systématiquement la "Pâleur" (Pallor) et donc le diagnostic
+Réponses correctes
+A, C, D
+Commentaire
+La surveillance repose sur l'évolution des 5P :1. Pain (Douleur) : L'aggravation à l'étirement passif est fondamentale pour le diagnostic précoce. 2. Paresthesia (Paresthésie) : Indique que les nerfs sensitifs sont comprimés par l'œdème interne. 3. Paralysis (Paralysie) : Reflète une atteinte motrice irréversible ou grave si elle n'est pas traitée en urgence. 4. Pallor (Pâleur) : Peut être remplacée par une cyanose (bleutée), mais traduit toujours un trouble de perfusion. 5. Pulselessness (Absence de pouls) : C'est le stade ultime. On ne doit jamais attendre l'absence de pouls pour alerter le chirurgien.
+
+Platres  Brachio-Anté-Brachio- Palmaire ( BABP)
+Q1
+Un infirmier doit réaliser une immobilisation par plâtre BABP chez un patient. Quelles sont les positions articulaires du coude recommandées?
+A
+Coude en extension complète (180°)
+B
+Coude à 90°
+C
+Coude à 45°
+D
+Coude à 60°
+E
+Coude en flexion maximale (120°)
+Réponses correctes
+B, D
+Commentaire
+L’immobilisation BAB  peut se faire dans deux positions principales pour le coude : 90° ou 60°, selon la prescription médicale et le type de lésion à traiter.
+ 
+Q2
+Concernant le positionnement du poignet et de la main dans un plâtre BABP, quelles affirmations sont exactes?
+A
+Le poignet peut être mis en flexion palmaire ou dorsale
+B
+Le poignet doit obligatoirement être en inclinaison radiale
+C
+Le pouce doit être maintenu pour une fracture du scaphoïde
+D
+La prono-supination peut être réglée en "main du mendiant"
+E
+Les doigts doivent être totalement recouverts par le plâtre
+Réponses correctes
+A, C, D
+Commentaire
+le poignet peut être en flexion palmaire, dorsale ou inclinaison cubitale (notamment pour le scaphoïde où le pouce est maintenu). La position de prono-supination est qualifiée de "main du mendiant" (paume vers le ciel). 
+
+ 
+Q3
+Un infirmier installe un plâtre BABP. Quelle est la limite proximale (haute) correcte de cette immobilisation illustrée sur l'image ?
+A
+Elle s'arrête au niveau du poignet
+B
+Elle s'arrête au milieu de l'avant-bras
+C
+Elle englobe le coude et remonte sur le bras (partie brachiale)
+D
+Elle doit libérer totalement l'articulation du coude
+E
+Elle s'arrête à l'épaule
+Réponses correctes
+C
+Commentaire
+Le terme BABP signifie Brachio (bras) - Anté-Brachio (avant-bras) - Palmaire (main). L'immobilisation doit donc impérativement englober le coude pour bloquer les mouvements de prono-supination et remonter sur le tiers moyen ou supérieur du bras.
+ 
+Q4
+Dans le cadre des transmissions infirmières après la pose d'une immobilisation BABP, quel élément doit être impérativement noté dans le dossier de soins?
+A
+Le coût du matériel utilisé
+B
+La date de l'immobilisation
+C
+La marque de la résine ou du plâtre
+D
+Le nom du fournisseur du jersey
+E
+La couleur du plâtre choisie par le patient
+Réponses correctes
+B
+Commentaire
+Il faut noter dans le dossier de soins la date de l'immobilisation. C'est un élément légal et de suivi indispensable.
+ 
+Q5
+Un infirmier surveille un patient porteur d'un BABP. Il vérifie la règle des 5P pour dépister un syndrome des loges. Quelle position de la main favorise le retour veineux et réduit l'œdème ?
+A
+Laisser le bras ballant le long du corps
+B
+Maintenir la main plus basse que le niveau du coude
+C
+Surélever le membre (main plus haute que le cœur)
+D
+Porter une écharpe de bras bien ajustée
+E
+Serrer davantage le plâtre si la main gonfle
+Réponses correctes
+C, D
+Commentaire
+Bien que non détaillé sur cette page précise, la surveillance d'un BABP impose de prévenir l'œdème. La surélévation et le port d'une écharpe permettent de respecter les principes de lutte contre la stase veineuse et de surveiller l'apparition des 5P (Pain (douleur) , Pallor (paleur), Pulselessness (absence de pouls), Paresthesia (Paresthesie) , Paralysis (Paralysie)).
+
+
+
+
+Platres manchettes : 
+ 
+Q1
+Un infirmier installe un patient pour la pose d'une manchette plâtrée suite à une fracture du poignet. Quelles sont les limites anatomiques à respecter pour cette immobilisation ?
+A
+Le coude doit être immobilisé à 90°
+B
+La flexion du coude doit rester libre
+C
+Le plâtre doit s'arrêter aux têtes des métacarpes
+D
+Le plâtre doit s'arrêter au pli palmaire distal
+E
+Le poignet doit être en flexion palmaire complète
+Réponses correctes
+B, C, D
+Commentaire
+Pour une manchette (antébrachial), il est crucial de laisser le coude libre pour permettre la mobilité. En distal, le plâtre doit s'arrêter au pli palmaire distal et aux têtes des métacarpes pour permettre la flexion des doigts. Le poignet, lui, doit être en position de fonction (20° d'extension).
+
+ 
+Q2
+Lors de la préparation du matériel et du membre avant la pose de l'immobilisation, quelles étapes l'infirmier doit-il valider ?
+A
+Vérifier l'état local du membre (plaie, infection)
+B
+Désinfecter et recouvrir toute plaie par un pansement stérile
+C
+Tremper la bande de résine dans l'eau tiède avant la pose
+D
+Utiliser des gants non stériles
+E
+Prévoir une cuvette d'eau tiède pour le tissu plâtré
+Réponses correctes
+A, B, D, E
+Commentaire
+L'examen cutané est la première étape : toute plaie doit être protégée. Le tissu plâtré nécessite de l'eau tiède. En revanche, la résine se pose sèche et n'est humidifiée qu'à la fin du soin avec de l'eau froide. Les gants non stériles suffisent pour ce soin.
+ 
+Q3
+Un infirmier débute la pose d'une manchette en résine. Quelles sont les règles de manipulation technique correctes ?
+A
+Commencer l'enroulement au-dessus du coude
+B
+Commencer en dessous du poignet, de l'intérieur vers l'extérieur
+C
+Faire deux circulaires en tendant légèrement la bande
+D
+Passer entre le pouce et l'index avec beaucoup d'épaisseur
+E
+Faire une légère pression de maintien sur la paume de la main
+Réponses correctes
+B, C, E
+Commentaire
+La pose commence distalement (en dessous du poignet). Il faut faire deux tours circulaires sans trop serrer. Le passage entre le pouce et l'index doit comporter "peu d'épaisseur" pour ne pas gêner la pince pouce-index. La pression sur la paume aide au modelage final.
+ 
+Q4
+Un patient porteur d'une manchette revient en consultation. Quels signes cliniques doivent alerter l'infirmier sur une mauvaise tolérance du plâtre ?
+A
+Coloration bleutée (cyanose) des ongles
+B
+Fourmillements et diminution de la sensibilité
+C
+Capacité de bouger librement tous les doigts
+D
+Douleur vive persistante sous le plâtre
+E
+Apparition d'un œdème important au niveau des doigts
+Réponses correctes
+A, B, D, E
+Commentaire
+La surveillance repose sur la détection des troubles trophiques et circulatoires (5P). La cyanose, l'œdème, la douleur et les paresthésies (diminution de sensibilité) sont des signes d'alerte imposant parfois l'ouverture du plâtre en urgence.
+ 
+Q5
+Concernant l'installation et la finition de la manchette, quelles affirmations sont exactes ?
+A
+Le patient est assis face au soignant, le coude sur la table
+B
+Le poignet doit être maintenu en rectitude parfaite (0°)
+C
+Il faut border le jersey avant de modeler la manchette
+D
+La résine est humidifiée à l'eau froide en fin de soin
+E
+Le plâtre doit recouvrir le pouce jusqu'à l'ongle
+Réponses correctes
+A, C, D
+Commentaire
+L'installation face au soignant avec coude en appui assure la stabilité. Le jersey est replié (bordé) sur les bords du plâtre pour le confort. La résine nécessite de l'eau froide en finition pour durcir. Le poignet doit être à 20° d'extension et non à 0°.
+
+
+
+
+
+Mayo Clinique
+Q1
+Un infirmier reçoit un patient pour la mise en place d'une immobilisation de type Mayo clinique. Quels sont les objectifs et les indications de cette technique ?
+A
+Immobiliser uniquement l'articulation du poignet
+B
+Immobiliser l'ensemble avant-bras, bras et épaule
+C
+Traiter une fracture de l'humérus
+D
+Traiter une fracture du trochanter
+E
+Immobiliser l'épaule en cas de luxation simple
+Réponses correctes
+B, C, D
+Commentaire
+L'objectif du Mayo clinique est global pour le membre supérieur : il bloque l'avant-bras, le bras et l'épaule. Ses indications principales sont les fractures de l'humérus 
+ 
+ 
+Q2
+Lors de la préparation du matériel pour réaliser un Mayo clinique, quels éléments l'infirmier doit-il disposer sur son plateau ?
+A
+Un jersey tubulaire de 7 cm de large
+B
+Une écharpe triangulaire standard
+C
+Trois pansements américains
+D
+Deux épingles de sûreté
+E
+Un rouleau de coton pour le rembourrage
+Réponses correctes
+A, C, D
+Commentaire
+Le matériel spécifique comprend un jersey tubulaire de 7 cm, deux épingles pour fixer le montage et trois pansements américains destinés à protéger les points de pression (aisselle, coude, poignet).
+ 
+Q3
+Un infirmier procède à la pose d'un Mayo clinique. Quelles sont les étapes techniques de mesure et de positionnement à respecter ?
+A
+Faire plier le coude du patient à 90°
+B
+Mesurer le jersey de l'épaule au bout des doigts et multiplier par deux
+C
+Mesurer le jersey de l'épaule au bout des doigts et multiplier par trois
+D
+Faire une fente dans le jersey au niveau de l'épaule
+E
+Installer le patient en position allongée
+Réponses correctes
+A, C, D
+Commentaire
+La technique exige que le coude soit à 90°. La longueur du jersey doit être trois fois la distance épaule-doigts pour permettre les différents passages (bras, cou, thorax). Une fente à l'épaule est nécessaire pour le passage du membre. Le patient doit être assis sur un tabouret.
+ 
+Q4
+Pendant le déroulement du soin, l'infirmier doit protéger les zones de frottement. Quelles zones doivent recevoir un pansement américain ?
+A
+L'aisselle du côté traumatisé
+B
+Le pli du coude
+C
+Le poignet
+D
+Les doigts pour éviter qu'ils ne se touchent
+E
+La nuque sous le passage du jersey
+Réponses correctes
+A, B, C
+Commentaire
+Pour prévenir les irritations cutanées et les macérations, les pansements américains sont placés au niveau de l'aisselle, du poignet et du coude avant de finaliser l'immobilisation.
+ 
+Q5
+Un infirmier assure le suivi d'un patient sous Mayo clinique. Quels signes de complications doit-il rechercher et quelle transmission est obligatoire ?
+A
+Apparition d'un œdème ou d'une cyanose (doigts bleus)
+B
+Diminution de la sensibilité des doigts
+C
+Douleur persistante malgré l'immobilisation
+D
+Noter la date de l'immobilisation dans le dossier de soins
+E
+Vérifier uniquement la propreté du jersey
+Réponses correctes
+A, B, C, D
+Commentaire
+La surveillance clinique repose sur le dépistage de troubles trophiques ou circulatoires (douleur, œdème, cyanose, perte de sensibilité). L'éducation du patient sur ces signes est essentielle. Enfin, la date de pose doit être obligatoirement tracée dans le dossier de soins.
+
+
+
+
+
+Les hémocultures : 
+Q1
+Un infirmier doit réaliser une hémoculture quantitative sur une chambre implantable (PAC). Quelle est la procédure de prélèvement initiale pour éviter la contamination ou l'interférence avec le verrou ?
+A
+Prélever 10 ml de sang et les injecter directement dans le flacon aérobie
+B
+Prélever 3 ml de sang et les jeter impérativement
+C
+Réaliser un rinçage au sérum physiologique avant de prélever le sang de culture
+D
+Prélever 5 ml après la purge pour remplir le tube hépariné spécifique
+E
+Prélever directement dans le tube hépariné sans purge préalable
+Réponses correctes
+B, D
+Commentaire
+Pour un prélèvement sur cathéter ou chambre implantable, il faut d'abord éliminer le sang stagnant ou le verrou : on prélève 3 ml de sang que l'on jette. Ensuite, on prélève 5 ml pour le tube hépariné destiné à l'hémoculture quantitative.
+ 
+Q2
+Concernant les volumes de sang à prélever pour les flacons d'hémoculture (aérobie et anaérobie) chez l'adulte, quelles affirmations sont exactes ?
+A
+Prélever 5 ml par flacon est le volume standard recommandé
+B
+Prélever 10 ml de sang pour le flacon anaérobie
+C
+Prélever 10 ml de sang pour le flacon aérobie
+D
+Injecter d'abord le flacon anaérobie puis le flacon aérobie
+E
+Prélever uniquement sur un tube stérile hépariné pour les flacons
+Réponses correctes
+B, C, D
+Commentaire
+Le protocole exige un volume de 10 ml par flacon. On utilise une seringue de 20 ml pour prélever 10 ml pour le flacon anaérobie, puis on prélève à nouveau 10 ml pour le flacon aérobie.
+ 
+ 
+Q4
+Quelles informations doivent obligatoirement figurer sur l'étiquette ou le bon de demande pour identifier l'origine du prélèvement ?
+A
+Heure et origine du prélèvement (cathéter ou périphérie)
+B
+Le numéro du prélèvement (1er ou 2e prélèvement)
+C
+La température du patient au moment du soin
+D
+Indiquer si un traitement antibiotique est en cours
+E
+Le nom du fabricant des flacons utilisés
+Réponses correctes
+A, B, C, D
+Commentaire
+Une identification complète est vitale : étiquette patient, heure, site de prélèvement (origine), rang du prélèvement, température et contexte d'antibiothérapie pour aider l'interprétation du laboratoire.
+ 
+Q5
+Quelles sont les recommandations concernant la conservation et l'acheminement des prélèvements d'hémoculture quantitative ?
+A
+Faire parvenir les prélèvements le plus rapidement possible au laboratoire
+B
+Les flacons doivent être gardés à température ambiante en attendant
+C
+Les tubes pour hémoculture quantitative sont conservés au réfrigérateur
+D
+Les prélèvements peuvent attendre 24h dans le service
+E
+On peut pratiquer les prélèvements sur site central et périphérique au même moment fébrile
+Réponses correctes
+A, C, E
+Commentaire
+La rapidité d'envoi est cruciale. Notez une particularité : si les flacons standards se gardent à température ambiante, les tubes spécifiques pour l'hémoculture quantitative doivent être conservés au réfrigérateur. Il est recommandé de prélever simultanément sur cathéter et en périphérie lors du pic fébrile.
+
+
+
+
+Les sondes urinaires
+
+Q1
+Un infirmier prépare un sondage vésical chez un patient présentant une rétention aiguë d’urine. Quel geste est essentiel pour prévenir l’infection ?
+A
+Lavage des mains à la solution hydro-alcoolique (SHA)
+B
+Utilisation de gants stériles lors de la pose
+C
+Réaliser la toilette urogénitale au savon doux avant la pose
+D
+Utiliser un champ stérile
+E
+Prendre la température du patient avant la pose
+Réponses correctes
+A, B, C, D
+Commentaire
+La prévention de l’infection repose sur le respect strict des règles d’asepsie : hygiène des mains, toilette locale douce, matériel et gants stériles, champ stérile.
+
+Q2
+Chez le patient en sondage à demeure, quelle est la principale complication à surveiller ?
+A
+Infection urinaire associée aux soins (IUAS)
+B
+Constipation
+C
+Embolie pulmonaire
+D
+Thrombose veineuse profonde
+E
+Réaction allergique aux antibiotiques
+Réponses correctes
+A
+Commentaire
+L’infection urinaire est la complication la plus fréquente du sondage vésical à demeure.
+
+
+
+Q3
+Lors de la pose d'une sonde urinaire à demeure chez l’homme, quels points techniques permettent de limiter les traumatismes ?
+A
+Lubrification abondante de la sonde
+B
+Introduction lente et sans forcer
+C
+Ne pas forcer en cas de résistance
+D
+Utilisation d’une sonde trop fine pour aller plus vite
+E
+Information préalable du patient
+Réponses correctes
+A, B, C, E
+Commentaire
+Lubrification, douceur, respect de l’anatomie et information du patient limitent le risque de traumatisme urétral.
+
+Q4
+Quelle affirmation est fausse concernant les indications du sondage urinaire à demeure (SAD) ?
+A
+Suivi de la diurèse lors de choc septique
+B
+INCONTINENCE urinaire isolée, pour faciliter la toilette uniquement
+C
+Rétention urinaire aiguë ou chronique
+D
+Prévention d’escarre sacrée chez le patient grabataire
+E
+Surveillance postopératoire spécifique
+Réponses correctes
+B, D
+Commentaire
+L’incontinence ou la simple prévention d’escarre ne justifient pas un SAD. Les autres réponses sont, selon le contexte, des indications valides.
+
+
+Q5
+Quel(s) matériel(s) doit comporter la préparation pour la pose d’une sonde à demeure ?
+A
+Sonde urinaire adaptée (calibre, utilisée selon la durée prévue)
+B
+Système de recueil stérile
+C
+gants stériles, gel anesthésiant/lubrifiant, champ stérile
+D
+Eau stérile pour le ballonnet
+E
+Perfalgan (Paracetamol injectable)  pour gonfler le ballonnet et assurer le soulagement du patient
+Réponses correctes
+A, B, C, D
+Commentaire
+Il faut impérativement gonfler le ballonnet avec de l’eau stérile (et non du sérum physiologique). Le reste constitue le matériel standard de pose.
+
+
+Q6
+Sur la fiche de surveillance d’un patient porteur de sonde à demeure, que doit-on retrouver en traçabilité ?
+A
+Date/heure de pose de la sonde
+B
+Type et calibre (charrière) de la sonde
+C
+Volume de gonflage du ballonnet
+D
+Aspect et quantités d'urines
+E
+Traçabilité de chaque vidange ou événement
+Réponses correctes
+A, B, C, D, E
+Commentaire
+La traçabilité complète est obligatoire pour une surveillance optimale et pour la sécurité du patient.
+
+Q7
+Un patient porteur d'une sonde à demeure a un écoulement urine >500 ml. Quelle est la bonne attitude ?
+A
+Vidanger en plusieurs étapes en clampant la sonde
+B
+Vidanger d’un seul coup pour aller vite
+ C
+Noter la quantité totale dans le dossier
+D
+Manipuler le robinet avec une compresse alcoolisée
+E
+Jeter le sac collecteur à chaque vidange
+Réponses correctes
+A, C, D
+Commentaire
+Pour éviter un collapsus vésical, la vidange se fait progressivement. Le robinet ne doit pas toucher le bocal de recueil. La traçabilité exacte est indispensable.
+
+
+Q8
+Quelles règles sont à respecter pour la fixation de la sonde et du sac de recueil ?
+A
+Fixer la sonde sur la cuisse (femme) ou l'abdomen (homme)
+B
+Le sac doit toujours être en position déclive, hors du sol
+C
+Sac attaché au lit lors du repos, sac de jambe si déambulation
+D
+Fixer la sonde au bras pour éviter de tirer dessus
+E
+Toujours vider le sac avant qu'il soit plein aux 3/4
+Réponses correctes
+A, B, C, E
+Commentaire
+Une fixation correcte évite les tractions, le reflux, et le risque d'infection. Le sac ne doit jamais traîner au sol.
+
+
+Q9
+Lors de la vidange du sac collecteur, quelles sont les mesures d’hygiène à respecter ?
+A
+Se frictionner les mains (SHA) avant et après la manipulation
+B
+Utiliser des compresses stériles alcoolisées pour le robinet
+C
+Éviter le contact direct du robinet avec le bocal
+D
+Jeter le contenu directement dans les toilettes sans laver le récipient
+E
+Nettoyer le bocal de recueil et le désinfecter chaque jour
+Réponses correctes
+A, B, C, E
+Commentaire
+L’hygiène lors de la manipulation est essentielle pour limiter la contamination croisée et l’infection ascendante.
+
+
+Q10
+Chez un patient porteur de SAD développant de la fièvre et une altération de l’état général, comment évoquer une infection liée à la sonde ?
+A
+Recherche de fièvre ou de malaise général
+B
+Recherche de douleurs sus-pubiennes ou pollakiurie
+C
+Signe urinaire isolé sans fièvre
+D
+Prélèvement urines au fond du sac collecteur
+E
+ECBU au site de prélèvement dédié, après clampage et antisepsie
+Réponses correctes
+A, B, E
+Commentaire
+Les IUAS peuvent se manifester par fièvre, douleurs, troubles de la vigilance. L’ECBU ne se fait pas dans le sac, mais bien sur la tubulure après clampage, en conditions aseptiques.
+
+Q11
+Selon la durée prévue de la sonde ,quelle propositions sur les caractéristique du matériel  qui constituent la sondes sont vraies ?
+A
+Latex standard : moins de 24h
+B
+latex enduit de Téflon : jusqu’à 21 jours
+C
+100% Silicone : 21 jours à 6 semaines
+D
+Tissu uniquement pour les séjours courts
+E
+Résine acrylique pour les enfants
+Réponses correctes
+A, B, C
+Commentaire
+Il faut adapter le choix à la durée pour limiter les risques de lésion, d’infection et de détérioration du ballon.
+
+
+Q12
+Quelle conduite adopter lors de l’ablation d’une sonde à demeure ?
+A
+Sur prescription médicale
+B
+Dégonfler le ballonnet avant retrait
+C
+Hygiène des mains par FSHA et toilette urogénitale préalable
+D
+Surveillance de la reprise des mictions spontanées
+E
+Traçabilité du soin et de la diurèse
+Réponses correctes
+A, B, C, D, E
+Commentaire
+L’ablation d’une SAD doit toujours être tracée, réalisée sous prescription, avec dégonflage du ballonnet, hygiène stricte, et contrôle de la reprise mictionnelle.
+
+
+Q13
+Comment diagnostiquer une obstruction de sonde urinaire à demeure ?
+A
+Absence de diurèse malgré hydratation suffisante
+B
+Ballonnement ou globe vésical
+C
+Sonde coudée ou tuyau collecteur pincé
+D
+Persistance d’urine claire et abondante
+E
+Écoulement d’urine par fuites autour de la sonde
+Réponses correctes
+A, B, C, E
+Commentaire
+Le diagnostic repose sur l’absence d’écoulement malgré l’hydratation, la tension vésicale, les coudes et fuites autour de la sonde.
+
+
+Q14
+Concernant les prélèvements d’urine pour ECBU chez le patient ayant une sonde urinaire, quelles affirmations sont justes ?
+A
+Il faut toujours un prélèvement à partir des urines  de la tubulure et non du sac à urine
+B
+Le prélèvement se fait 15 min après clampage
+C
+Désinfection préalable du site avec compresse alcoolisée
+D
+Prélèvement dans la poche à urines pour plus de sécurité
+E
+Prescription médicale obligatoire
+Réponses correctes
+A, B, C, E
+Commentaire
+Le prélèvement sur sonde doit suivre un protocole rigoureux pour éviter les contaminations et a une valeur diagnostique. Jamais dans le sac collecteur.
+
+
+Q15
+Quelle attitude globale permet de prévenir l’infection urinaire liée à la sonde urinaire ?
+A
+Respect strict des indications et réévaluation quotidienne
+B
+Techniques aseptiques rigoureuses à chaque manipulation
+C
+Prise systématique d’antibiotiques en présence de la sonde
+D
+Éducation du patient sur l’hygiène
+E
+Surveillance rapprochée du moindre signe clinique
+Réponses correctes
+A, B, D, E
+Commentaire
+La prévention repose sur la stricte justification de la pose, l’asepsie, l’éducation du patient et la surveillance. Les antibiotiques ne sont pas systématiques ni préventifs.
+
+
+
+
+
+
+La Ponction lombaire 
+Q1
+Quel est le but principal de la ponction lombaire ?
+A
+Mesurer la pression artérielle
+B
+Prélever et analyser le liquide céphalo-rachidien (LCR)
+C
+Injecter un médicament dans la moelle osseuse
+D
+Effectuer une biopsie de la moelle épinière
+E
+Prendre la température corporelle
+Réponses correctes
+B
+Commentaire
+La ponction lombaire permet de recueillir et d’analyser le liquide céphalo-rachidien (LCR), situé dans l’espace sous-arachnoïdien, afin de rechercher diverses pathologies neurologiques infectieuses, inflammatoires, dégénratives.
+
+Q2
+Parmi les précautions après une ponction lombaire, lesquelles sont recommandées?
+A
+Rester allongé à plat strict sans oreiller pendant deux heures
+B
+Se lever et marcher juste après le geste
+C
+Boire abondamment pour stimuler la sécrétion de LCR
+D
+Garder le silence complet
+E
+Limiter les levers pendant les 12 heures suivantes
+Réponses correctes
+A, C, E
+Commentaire
+Après la PL, il est crucial de rester allongé 2h à plat (sans oreiller), de boire beaucoup et de minimiser les levers sur 12h, pour limiter les complications comme les céphalées post-PL.
+
+
+Q3
+Quelle est la position optimale du patient pour faciliter la réalisation de la ponction lombaire ?
+A
+Assis ou allongé, en s’enroulant sur soi-même
+B
+Debout, bras croisés
+C
+Allongé sur le dos, jambes tendues
+D
+Assis mais le dos bien droit
+E
+Allongé sur le ventre, tête relevée
+Réponses correctes
+A
+Commentaire
+En position assise ou allongée fœtale, le fait de s'enrouler expose mieux les espaces intervertébraux lombaires et facilite le geste médical.
+
+
+Q4
+Pour quelles indications la ponction lombaire est-elle réalisée ?
+A
+Recherche d’une méningite ou d’une encéphalite
+B
+Exploration d’une maladie inflammatoire (ex : SEP)
+C
+Suspicion de maladie neuro-dégénérative ou cancérologique
+D
+Dépistage d’une infection urinaire
+E
+Dépistage d’une hémorragie méningée non vue au scanner
+Réponses correctes
+A, B, C, E
+Commentaire
+La PL est un examen clé pour les infections méningées, maladies inflammatoires (ex. SEP), troubles neurodégénératifs, suspicion d’hémorragie non vue au scanner et recherche de diffusion cancéreuse au SNC.
+
+
+Q5
+Quelle(s) complication(s) peuvent survenir après une ponction lombaire ?
+A
+Douleur locale au point de ponction
+B
+Syndrome post-PL avec maux de tête à la verticalisation
+C
+Evolution vers un AVC hémorragique
+D
+Infection systémique grave
+E
+Céphalées nécessitant le repos au lit
+Réponses correctes
+A, B, E
+Commentaire
+Les principales complications de la PL sont une douleur locale, le syndrome post-PL avec céphalées lors du lever (nécessitant de prolonger le repos), les complications graves infectieuses étant rares avec une technique stérile.
+
+
+
+
+
+La Ponction Pleurale 
+Q1
+Quel est l’objectif principal d’une ponction pleurale ?
+A
+Prélever du liquide pleural à visée diagnostique
+B
+Évacuer du liquide pleural abondant ou symptomatique
+C
+Injecter un médicament dans le péricarde
+D
+Mesurer la pression artérielle pulmonaire
+E
+Pratiquer une biopsie hépatique simultanée
+Réponses correctes
+A, B
+Commentaire
+La ponction pleurale permet le prélèvement pour analyse (diagnostic) et l’évacuation d’un épanchement liquidien symptomatique (thérapeutique).
+
+Q2
+Parmi les contre-indications suivantes, lesquelles sont absolues pour une ponction pleurale ?
+A
+Épanchement pleural < 10 mm à l’échographie
+B
+Patient non collaborant ou toux incoercible
+C
+Prise d’anticoagulants non arrêtée
+D
+Infection cutanée au site de ponction
+E
+Suspicion de coagulopathie
+Réponses correctes
+A, B, D
+Commentaire
+Taille d’épanchement insuffisante, patient non collaborant, ou infection au point de ponction sont des CI absolues. Les troubles de la coagulation représentent des contre-indications « relatives ».
+
+
+Q3
+Dans quelle(s) situation(s) la ponction pleurale a-t-elle un intérêt thérapeutique ?
+A
+Lavage de la cavité pleurale
+B
+Injection de fibrinolytique en cas de pleurésie purulente
+C
+Évacuation d’un œdème pulmonaire aigu
+D
+Évacuer un épanchement responsable de dyspnée
+E
+Contrôle du volume de transsudat cardiaque
+Réponses correctes
+A, B, D
+Commentaire
+Outre le diagnostic, la ponction pleurale permet le lavage pleural, le traitement des pleurésies purulentes, et surtout l’évacuation d’un épanchement gênant la ventilation.
+
+
+Q4
+Quelle est la position recommandée pour le patient lors d’une ponction pleurale ?
+A
+Assis, jambes pendantes, légèrement penché en avant sur une table
+B
+Décubitus latéral, bras surélevé au-dessus de la tête
+C
+Debout, bras croisés
+D
+Assis, tête penchée en arrière
+E
+Allongé sur le dos, bras le long du corps
+Réponses correctes
+A, B
+Commentaire
+La position assise, penché en avant, est recommandée ; si non possible, décubitus latéral bras surélevé.
+
+
+Q5
+Quelles précautions d’asepsie sont recommandées avant une ponction pleurale ?
+A
+Désinfection des mains par friction
+B
+Port de gants stériles
+C
+Utilisation de champ stérile fenêtré
+D
+Rasage de la zone de ponction
+E
+Port du masque et des lunettes de protection
+Réponses correctes
+A, B, C, E
+Commentaire
+L’asepsie stricte comprend friction des mains, champs stériles, port du masque/lunettes et gants stériles. Il faut dépiler, mais éviter de raser (risque infectieux accru).
+
+
+Q6
+Le volume maximal recommandé lors d’une première ponction pleurale est :
+A
+500 mL
+B
+1 000 mL
+C
+2 000 mL
+D
+Il n’y a pas de limite
+E
+250 mL
+Réponses correctes
+B
+Commentaire
+Ne pas dépasser 1 000 mL lors de la première ponction pour réduire le risque d’œdème pulmonaire (en rapport avec l’expansion pulmonaire rapide)
+
+
+Q7
+Quelles complications peuvent survenir lors ou après une ponction pleurale ?
+A
+Pneumothorax
+B
+Malaise vagal
+C
+Hémothorax
+D
+Oedème de réexpansion pulmonaire
+E
+Choc anaphylactique à la xylocaïne
+Réponses correctes
+A, B, C, D, E
+Commentaire
+Pneumothorax, malaise vagal, hémothorax, œdème de réexpansion et réaction allergique figurent dans les complications majeures voire graves du geste.
+
+
+Q8
+Quelle surveillance infirmière est essentielle immédiatement après une ponction pleurale ?
+A
+Surveillance de la douleur et du point de ponction
+B
+Recherche d’un pneumothorax (radio ou écho thoracique)
+C
+Contrôle du pansement
+D
+Surveillance des signes vitaux
+E
+Observation du volume d’urines
+Réponses correctes
+A, B, C, D
+Commentaire
+Contrôle du pansement, surveillance de la douleur, signes vitaux et recherche d’un pneumothorax sont systématiques après ce geste invasif.
+
+
+
+
+
+
+Les ponctions d’ascites
+Q1
+Quelle est l’indication principale d’une ponction diagnostique d’ascite ?
+A
+Recherche d’une infection du liquide d’ascite
+B
+Différencier transsudat et exsudat
+C
+Réalisation d’un drainage massif immédiat
+D
+Contrôle systématique du périmètre abdominal
+E
+Analyse biochimique, bactériologique, cytologique
+Réponses correctes
+A, B, E
+Commentaire
+La ponction d’ascite diagnostique permet de rechercher une origine infectieuse ou tumorale, de différencier un transsudat (hypertension portale) d’un exsudat (infection/tumeur) et d’analyser le liquide prélevé.
+
+Q2
+Avant de débuter une ponction d’ascite, quelles démarches sont obligatoires ?
+A
+Vérifier l’identité du patient
+B
+Informer le patient sur le déroulement et les risques
+C
+Demander au patient de vider sa vessie
+D
+Installer le patient en décubitus dorsal, légèrement incliné à gauche
+E
+Arrêter la respiration pendant la ponction
+Réponses correctes
+A, B, C, D
+Commentaire
+Identification, information, vessie vide, installation adaptée et dossier à jour sont des prérequis indispensables avant tout geste invasif.
+
+
+Q3
+Quelle sont les  complications immédiates ou secondaires d’une ponction d’ascite ?
+A
+Hématome pariétal
+B
+Écoulement persistant au point de ponction
+C
+Choc hypovolémique ou hypotension
+D
+Survenue d’une fièvre
+E
+Urines foncées
+Réponses correctes
+A, B, C, D
+Commentaire
+Après la ponction, surveiller fièvre, hématome, saignement, pertes liquidiennes et hypotension est essentiel. L’apparition de ces signes nécessite un contact médical rapide.
+L’hypotension peut être en rapport un drainage excessif du liquide d’ascite.
+
+
+Q4
+Quel aspect de liquide d’ascite doit alerter lors de la ponction et conduire à une adaptation du geste ou de la surveillance ?
+A
+Liquide jaune-citrin
+B
+Liquide marron-noir
+C
+Liquide hémorragique
+D
+Liquide purulent
+E
+Liquide limpide
+Réponses correctes
+B, C, D
+Commentaire
+Les liquides marron-noir (perforation intestinale), hémorragiques (saignement), et purulents (infection) nécessitent une gestion adaptée et une surveillance clinique et biologique rapprochées.
+
+Q5
+Quelques heures après une ponction évacuatrice, quels soins et surveillances doivent être systématiquement réalisés par l’équipe soignante ?
+A
+Contrôle des signes vitaux
+B
+Surveillance du pansement et du point de ponction
+C
+Prise de poids et mesure du périmètre abdominal si prescrit
+D
+Compensation des pertes par perfusion selon prescription
+E
+Écarter toute perfusion systématiquement
+Réponses correctes
+A, B, C, D
+Commentaire
+Après ponction d’ascite, surveiller constantes, point de ponction, aspect du pansement, poids et périmètre abdominal. La compensation des pertes, par exemple avec perfusion d’albumine, est décidée médicalement 
+
+
+
+
+
+Intubation trachéale : 
+Q1
+Un infirmier prépare le matériel pour une intubation trachéale en urgence. Quels sont les éléments indispensables à vérifier sur son plateau ?
+A
+Un laryngoscope avec plusieurs lames (vérifier que la lumière fonctionne).
+B
+Des sondes d'intubation de différentes tailles avec le ballonnet vérifié.
+C
+Une seringue de 10 ml pour gonfler le ballonnet.
+D
+Un système d'aspiration fonctionnel avec une sonde d'aspiration forte.
+E
+Un stéthoscope pour vérifier la position de la sonde après l'insertion.
+Bonnes réponses
+A, B, C, D, E
+Commentaires
+La check-list est vitale. L'infirmier doit s'assurer que le laryngoscope éclaire, que le ballonnet de la sonde n'est pas percé et que l'aspiration est prête en cas de vomissements.
+
+Q2
+L'anesthésiste demande à l'infirmière de pratiquer une pré-oxygénation au patient avant l'intubation. Quel est l'objectif principal de cette étape ?
+A
+Endormir le patient plus rapidement.
+B
+Remplacer l'azote des poumons par de l'oxygène (dénitrogénation).
+C
+Créer une réserve d'oxygène pour éviter l'hypoxie pendant la phase d'apnée.
+D
+Nettoyer les bronches du patient.
+E
+Augmenter la pression artérielle.
+Bonnes réponses
+B, C
+Commentaires
+La pré-oxygénation (O2 à 100% au masque pendant 3 min) permet d'augmenter le temps de sécurité pendant lequel le patient peut rester en apnée sans que sa saturation ne chute, le temps que le médecin insère la sonde.
+
+Q3
+Juste après l'insertion de la sonde, l'infirmier doit aider à confirmer qu'elle est bien dans la trachée et non dans l'œsophage. Quelles sont les méthodes de vérification ?
+A
+La présence d'une courbe de CO2 sur le moniteur (Capnographie / EtCO2).
+B
+L'observation de la buée dans la sonde à l'expiration.
+C
+L'auscultation symétrique des deux poumons.
+D
+L'absence de bruits de "glouglou" au niveau de l'estomac (épigastre).
+E
+Le soulèvement symétrique de la cage thoracique à l'insufflation.
+Bonnes réponses
+A, C, D, E
+Commentaires
+La capnographie (EtCO2) est le "Gold Standard" : si le moniteur détecte du CO2, la sonde est dans la trachée. L'auscultation élimine aussi une intubation sélective (sonde trop loin dans une seule bronche).
+
+Q4
+Pendant l'intubation d'un patient à "estomac plein", le médecin demande à l'infirmier de pratiquer la manœuvre de Sellick. En quoi consiste-t-elle ?
+A
+Appuyer sur le cartilage cricoïde pour comprimer l'œsophage.
+B
+Appuyer sur le ventre pour vider l'estomac.
+C
+Maintenir la tête du patient en arrière.
+D
+Empêcher la régurgitation du contenu gastrique vers les poumons.
+E
+Faciliter la vision des cordes vocales par le médecin.
+Bonnes réponses
+A, D
+Commentaires
+La manœuvre de Sellick consiste à Appuyer sur le cartilage cricoïde qui se trouve sur la trachée pour comprimer l'œsophage et écraser l'œsophage contre les vertèbres cervicales pour éviter que du liquide gastrique ne remonte et ne passe dans les poumons (risque d'inhalation )
+
+Q5
+Une fois le patient intubé et stabilisé, quelle surveillance l'infirmier doit-il exercer concernant le ballonnet de la sonde ?
+A
+Le dégonfler toutes les deux heures pour laisser respirer la trachée.
+B
+Maintenir une pression entre 25 et 30 cm H2O à l'aide d'un manomètre.
+C
+Le gonfler au maximum pour que la sonde ne bouge pas.
+D
+Vérifier qu'il n'y a pas de fuite d'air audible à la bouche.
+E
+Éviter de trop gonfler le ballonnet de la sonde et entrainer une pression trop forte qui risquerait de provoquer une nécrose de la trachée.
+Bonnes réponses
+B, D, E
+Commentaires
+La pression du ballonnet doit être surveillée : trop faible, il y a un risque de fuite ou d'inhalation ; trop forte (> 30 cm H2O), il y a un risque de couper la circulation sanguine de la paroi trachéale et de créer des lésions graves.
+
+Les Vaccinations
+Q1
+Un infirmier doit expliquer le principe d’un vaccin à un parent. Quelle définition est correcte ?
+A
+Un médicament qui détruit directement les microbes.
+B
+Une préparation contenant des substances antigéniques induisant une immunité active spécifique.
+C
+Un antibiotique à large spectre.
+D
+Une solution d’anticorps spécifiques injectée lors d’une infection.
+E
+Un traitement préventif contre toute maladie non infectieuse.
+Réponses correctes
+B
+Commentaire
+Un vaccin contient des substances antigéniques permettant d’induire une immunité active spécifique contre un agent infectieux ciblé.
+
+Q2
+Parmi les types de vaccins suivants, lesquels sont dits « vivants atténués » ?
+A
+ROR (Rougeole-Oreillons-Rubéole)
+B
+BCG
+C
+Hépatite B
+D
+Grippe par voie nasale
+E
+Diphtérie
+Réponses correctes
+A, B, D
+Commentaire
+Les vaccins vivants atténués contiennent l’agent infectieux entier rendu non dangereux: ROR, BCG et grippe nasal en sont des exemples.
+
+
+
+
+
+
+
+Q7
+Un infirmier vaccine un patient immunodéprimé. Quels vaccins sont contre-indiqués dans cette situation ?
+A
+ROR
+B
+BCG
+C
+Hépatite B
+D
+Varicelle
+E
+Grippe injectable
+Réponses correctes
+A, B, D
+Commentaire
+Les vaccins vivants (ROR, BCG, varicelle) sont contre-indiqués chez l’immunodéprimé à cause du risque d’infection vraie.
+
+
+
+Q9
+Un infirmier prépare un vaccin combiné pentavalent chez le nourrisson. Quelles valences sont incluses ?
+A
+Diphtérie
+B
+Tétanos
+C
+Polio
+D
+Hépatite B
+E
+Coqueluche acellulaire
+Réponses correctes
+A, B, C, D, E
+Commentaire
+Le pentavalent comprend : diphtérie, tétanos, coqueluche, polio et hépatite B ou Haemophilus selon la formule.
+
+Q10
+Une famille refuse la vaccination chez leur nourrisson. Quelles informations transmettre sur le risque collectif ?
+A
+Le risque individuel augmente seulement
+B
+La protection collective diminue (baisse de l’immunité de groupe)
+C
+Le refus ne concerne que l’enfant de la famille
+D
+La maladie peut réapparaître dans la population
+E
+Les vaccins n’ont d’effet que sur l’individu vacciné
+Réponses correctes
+B, D
+Commentaire
+Le refus vaccinal abaisse la couverture communautaire donc le risque de résurgence de maladies évitables.
+
+
+Q11
+Un enfant entre en crèche. Quelles vaccinations doivent être obligatoirement à jour ?
+A
+Diphtérie, Tétanos, Poliomyélite
+B
+Coqueluche, Hib
+C
+Méningocoque C
+D
+Rubéole
+E
+Varicelle
+Réponses correctes
+A, B, C
+Commentaire
+L’entrée en crèche requiert l’actualisation des vaccins obligatoires du calendrier : DTP, coqueluche, Hib, et méningocoque C.
+
+
+
+
+Q14
+Un étudiant infirmier souhaite travailler à l’hôpital. Quelles vaccinations sont obligatoires ?
+A
+Diphtérie, Tétanos, Poliomyélite
+B
+Hépatite B
+C
+Grippe saisonnière
+D
+Méningocoque B
+E
+Rougéole
+Réponses correctes
+A, B
+Commentaire
+DTP et hépatite B sont obligatoires pour les professionnels de santé ; grippe et autres recommandations dépendent du service.
+
+
+Q15
+Quelle situation impose un schéma de rattrapage vaccinal contre le HPV jusqu’à 19 ans ?
+A
+Non vaccination à l’âge recommandé (11–14 ans)
+B
+Antécédent d’infection HPV confirmé
+C
+Début de vie sexuelle tardif
+D
+Adolescente enceinte
+E
+Allergie prouvée au vaccin
+Réponses correctes
+A
+Commentaire
+Le rattrapage HPV est recommandé pour les adolescents non vaccinés avant 15 ans, jusque 19 ans révolus (2 à 3 doses).
+
+
+Q16
+Concernant l’administration simultanée de vaccins, quelles règles pratiques respecter ?
+A
+Meme seringue possible pour tous les vaccins
+B
+Combinaisons tétra, penta, hexavalentes sont autorisées
+C
+Les vaccins non combinés doivent être injectés sur des sites séparés (≥ 2,5 cm)
+D
+Tous les vaccins doivent être espacés de 6 mois minimum
+E
+Les injections simultanées augmentent le risque d’effets secondaires grave
+Réponses correctes
+B, C
+Commentaire
+Seuls les vaccins combinés peuvent être injectés ensemble ; les autres doivent être en sites séparés pour éviter les interférences.
+
+
+
+Q18
+Quels sont les principaux effets indésirables bénins après vaccination chez l’enfant ?
+A
+Rougeur au point d’injection
+B
+Fièvre modérée
+C
+Réaction anaphylactique
+D
+Douleurs ou gonflement local
+E
+Convulsions fébriles rares
+Réponses correctes
+A, B, D
+Commentaire
+Les réactions bénignes locales (rougeur, gonflement, douleur) et la fièvre sont fréquentes. Les effets graves restent exceptionnels.
+
+
+Q19
+Un parent inquiet demande les contre-indications générales à la vaccination. Lesquelles sont fondées ?
+A
+Allergie grave connue à un composant du vaccin
+B
+Infection aiguë sévère ou forte fièvre
+C
+Immunodépression pour les vaccins vivants
+D
+Rhume simple
+E
+Antécédent familial de réaction indésirable
+Réponses correctes
+A, B, C
+Commentaire
+Les contre-indications absolues : allergie connue, infection aiguë sévère/température >38.5 °C, immunodépression pour les vivants. Le rhume n’est pas une CI générale.
+
+
+
+
+
+Q1
+Une infirmière s’apprête à vacciner un enfant. Quels sont des motifs généraux de contre-indication à la vaccination ?
+A
+Antécédent d’hypersensibilité grave à un composant du vaccin
+B
+Infection aiguë sévère avec forte fièvre
+C
+Déficit immunitaire pour un vaccin vivant
+D
+Maladie dermatologique stable (ex : eczéma contrôlé)
+E
+Traitement immunosuppresseur en cours pour un vaccin vivant
+Réponses correctes
+A, B, C, E
+Commentaire
+L’hypersensibilité grave, l’infection aiguë sévère, un déficit immunitaire ou une immunosuppression sont des contre-indications pour la plupart des vaccins, en particulier les vivants. L’eczéma contrôlé n’en est pas une.
+ 
+Q2
+Après une injection de vaccin DTCaPHib-HB chez le nourrisson, quels effets indésirables bénins peuvent être observés dans les 48h ?
+A
+Rougeur ou induration locale
+B
+Fièvre légère
+C
+Hypotonie-hyporéactivité transitoire
+D
+Syndrome des cris persistants pendant plus de 3h
+E
+Oedème étendu du membre vacciné
+Réponses correctes
+A, B, C, D, E
+Commentaire
+Les réactions locales, la fièvre, les épisodes de cris persistants, un épisode d’hypotonie-hyporéactivité, et un œdème transitoire du membre sont des effets secondaires assez classiques et généralement bénins.
+ 
+Q3
+Quelle(s) voie(s) d’administration sont appropriées pour les différentes vaccinations de l’enfant ?
+A
+Intramusculaire dans la cuisse avant 2 ans
+B
+Intramusculaire dans le deltoïde dès la marche acquise ou dès 1 an ou >10kg
+C
+Sous-cutanée profonde sur la face postérieure du bras après 1 an
+D
+Voie intradermique pour le BCG
+E
+Voie orale ou nasale pour certains vaccins spécifiques
+Réponses correctes
+A, B, C, D, E
+Commentaire
+La plupart des vaccins sont injectés en IM dans la cuisse avant 2 ans puis dans le deltoïde après 1 an. BCG se fait en intradermique. Certains vaccins (rotavirus, grippe nasal) s’administrent par voie orale ou nasale.
+ 
+Q4
+Un rattrapage vaccinal est envisagé chez un enfant présentant un retard du calendrier. Quels principes s’appliquent ?
+A
+Chaque dose reçue compte, on ne recommence pas la primovaccination
+B
+Utiliser autant que possible les associations vaccinales
+C
+Privilégier la protection contre infections graves d’abord
+D
+Augmenter l’intervalle entre deux doses si nécessaire (protection différée)
+E
+Les vaccins vivants doivent être espacés d’au moins 4 semaines s’ils ne sont pas donnés le même jour
+Réponses correctes
+A, B, C, D, E
+Commentaire
+Pour le rattrapage on complète simplement selon l’âge, on optimise avec les combinaisons, on respecte les intervalles, et les vaccins vivants non combinés sont espacés d’au moins 4 semaines.
+ 
+Q5
+Un parent s’inquiète d’une infection mineure (rhume) chez son bébé juste avant la vaccination. Quelle attitude est correcte ?
+A
+Reporter la vaccination systématiquement
+B
+Administrer la vaccination si la fièvre est faible et l’état général bon
+C
+Reporter seulement si infection aiguë fébrile ou sévère
+D
+L’infection mineure et fièvre légère ne sont pas des contre-indications
+E
+Consulter chaque fois un spécialiste allergologue
+Réponses correctes
+B, C, D
+Commentaire
+Les vaccins ne doivent être reportés qu’en cas d’infection aiguë ou de forte fièvre. Un simple rhume ou une fièvre légère ne justifie pas le report.
+
+
+
+
+
+Orthopédie
+Les brulures : 
+Q1
+En cas de brûlure, quelle est l’attitude à privilégier immédiatement sur le lieu de l’accident ?
+A
+Refroidir la brûlure par rinçage à l’eau fraîche (15°C) pendant 15 minutes
+B
+Utiliser de l’eau glacée
+C
+Garder les vêtements en place
+D
+Déshabiller la victime tout en protégeant la zone brûlée
+E
+Évaluer l’étendue et la profondeur des brûlures
+Réponses correctes
+A, D, E
+Commentaire
+Un rinçage prolongé à l’eau fraîche, le déshabillage prudent, et une première estimation de la gravité sont essentiels. L’eau glacée et la conservation des vêtements brûlés sont à éviter.
+
+Q2
+Quelle règle pratique aide à estimer la surface corporelle brûlée chez l’adulte ?
+A
+Règle de Wallace (« règle des 9 »)
+B
+Utilisation de la paume de la main du patient (1 % SCT)
+C
+Règle de Berkow
+D
+Règle de Parkland
+E
+Prise de photographies pour documentation
+Réponses correctes
+A, B, E
+Commentaire
+La règle des 9 et la méthode de la paume sont utilisées chez l’adulte ; la prise de photos garantit la traçabilité. La règle de Berkow s’applique plutôt à l’enfant.
+
+
+Q3
+Quels aspects caractérisent une brûlure du 2e degré profond ?
+A
+Phlyctènes, sensibilité modifiée (hypoesthésie)
+B
+Lésion blanche, mal vascularisée
+C
+Absence totale de cicatrisation spontanée
+D
+Risque de cicatrice indélébile
+E
+Douleur vive, sensibilité cutanée conservée
+Réponses correctes
+A, B, D
+Commentaire
+1er degré : Atteint les couches superficielles de l’épiderme ; érythème rouge, chaud et douloureux sans décollement. Membrane basale intacte. Cicatrisation spontanée en quelques jours, sans cicatrice.
+2e degré (superficiel) : Atteinte du derme superficiel ; érythème douloureux avec phlyctènes, sensibilité conservée. Cicatrisation en 1–2 semaines, généralement sans cicatrice.
+2e degré (profond) : Atteinte du derme profond ; lésion blanchâtre/rosée, mal vascularisée, phlyctènes, hypoesthésie. Annexes profondes partiellement préservées. Cicatrisation lente (15–30 jours), risque de complications et cicatrices possibles.
+3e degré : Destruction complète de l’épiderme et du derme, atteinte du tissu souscutané ; peau rigide, nécrotique (blanc à brun), insensible, sans phlyctènes. Pas de cicatrisation spontanée ; prises en charge chirurgicale et greffes nécessaires.
+
+
+Q4
+Parmi ces éléments, quels sont des critères de brûlure grave chez l’enfant ou l’adulte ?
+A
+Surface brûlée > 15 % chez l’enfant
+B
+Surface brûlée > 30 % chez l’adulte
+C
+Présence de brûlure des voies respiratoires
+D
+Brûlure du visage, cou, mains, périnée
+E
+Brûlure chimique, électrique, blast
+Réponses correctes
+A, B, C, D, E
+Commentaire
+Toutes ces situations définissent une brûlure grave, nécessitant une surveillance et une prise en charge spécialisée.
+
+Q5
+Quelles complications précoces peuvent survenir après une brûlure grave ?
+A
+Détresse respiratoire aiguë
+B
+Choc hypovolémique (perte de plasma)
+C
+Troubles du rythme liés à une brûlure électrique
+D
+Rhabdomyolyse
+E
+Hyperthermie persistante
+Réponses correctes
+A, B, C, D
+Commentaire
+Les complications précoces comprennent le choc, l’atteinte cardiaque (particulièrement après brûlure électrique), la rhabdomyolyse, la détresse respiratoire et non l’hyperthermie persistante.
+
+
+Q6
+Quel score utilise-t-on pour évaluer la gravité des brûlures selon l’âge et la surface brûlée ?
+A
+Score de Baux
+B
+Score UBS
+C
+Score de Glasgow
+D
+Score SCORTEN
+E
+Rule of Nines
+Réponses correctes
+A, B
+Commentaire
+Le score de Baux (âge + % brûlé) ou UBS (surface brûlée + 3 × (surface 3e degré)) mesurent la gravité et le pronostic.
+
+
+Q7
+Lors d’une brûlure circonférentielle d’un membre, quel est le principal risque ?
+A
+Syndrome des loges avec ischémie distale
+B
+Hémorragie massive
+C
+Infection urinaire
+D
+Œdème pulmonaire
+E
+Complication digestive
+Réponses correctes
+A
+Commentaire
+La brûlure circulaire risque d’entraîner un effet garrot et une ischémie , nécessitant  des escarrotomies.
+
+
+
+
+Q9
+Quelles mesures contribuent à la prévention des infections chez le brûlé ?
+A
+Pansements occlusifs stériles
+B
+Utilisation raisonnée des cathéters et sondes
+C
+Vérification de la couverture vaccinale antitétanique
+D
+Antibiothérapie préventive systématique
+E
+Asepsie stricte lors des soins locaux
+Réponses correctes
+A, B, C, E
+Commentaire
+La prévention passe par l’asepsie, les pansements adaptés, la limitation des dispositifs invasifs et la vérification de la vaccination. Les antibiotiques ne sont donnés qu’en cas d’infection avérée.
+
+Q10
+En cas de suspicion de brûlure des voies aériennes supérieures, quels signes doivent faire évoquer cette atteinte ?
+A
+Voix rauque
+B
+Stridor
+C
+Présence d’un wheezing (sifflement)
+D
+Perte de connaissance
+E
+Brûlure du visage ou du cou
+Réponses correctes
+A, B, C, E
+Commentaire
+Les signes ORL/respiratoires chez un brûlé de la face/cou doivent systématiquement faire suspecter une atteinte des voies aériennes et conduire à une surveillance rapprochée, voire une intubation précoce.
+
+
+
+
+
+Orthopédie
+Infection des parties molles : 
+Q21
+Une infirmière examine un patient présentant plusieurs furoncles regroupés en "grappe" et communiquant entre eux sous la peau. Comment appelle-t-on cette lésion ?
+A
+Une folliculite simple.
+B
+Une furonculose.
+C
+Un anthrax.
+D
+Un panaris herpétique.
+E
+Une simple piqûre d'insecte.
+Bonnes réponses
+C
+Commentaires
+L'anthrax est un conglomérat de plusieurs furoncles reliés entre eux sur le plan sous-cutané. C'est une infection plus étendue et plus profonde qu'un furoncle isolé.
+
+
+Q22
+Concernant les infections du follicule pilo-sébacé, quelles affirmations sont exactes pour la pratique infirmière ?
+A
+La folliculite est le stade initial de l'inflammation du poil.
+B
+Le furoncle est une infection profonde causée par le Staphylococcus aureus.
+C
+La furonculose désigne la répétition de furoncles sur une longue période (mois ou années).
+D
+Un follicule pilo-sébacé comprend uniquement une glande sébacée sans poil.
+E
+L'anthrax et la folliculite sont exactement la même chose.
+Bonnes réponses
+A, B, C
+Commentaires
+La folliculite est le premier stade. Le furoncle est l'étape suivante, plus profonde et bactérienne (Staphylocoque doré). La furonculose est une pathologie chronique (répétition). Un follicule contient toujours un poil associé à une glande sébacée.
+
+Q1
+Une infirmière reçoit un patient présentant une inflammation rouge et douloureuse autour de l'ongle suite à une manucure. De quoi s'agit-il probablement ?
+A
+Un phlegmon des gaines.
+B
+Une paronychie aiguë (ou périonyxis).
+C
+Un panaris superficiel.
+D
+Une endocardite d'Osler.
+E
+Une fasciite nécrosante.
+Bonnes réponses
+B, C
+Commentaires
+Le périonyxis est un panaris superficiel localisé au niveau du repli de peau qui entoure l'ongle . C'est l'infection la plus fréquente après un microtraumatisme de cette zone.
+
+
+Q3
+Un patient arrive avec une plaie à la main. Quels antécédents ou facteurs de risque l'infirmier doit-il rechercher en priorité ?
+A
+Le statut vaccinal antitétanique.
+B
+Un diabète, même équilibré.
+C
+Une éventuelle automédication par Anti-Inflammatoires (AINS).
+D
+La présence de bagues au doigt
+E
+Une immunodépression (traitement corticoïde, VIH).
+Bonnes réponses
+A, B, C, D,E
+Commentaires
+Le diabète et l'immunodépression favorisent la diffusion de l'infection. Les AINS sont à proscrire car ils masquent les signes d'alerte tout en aggravant l'infection. La vaccination tétanique est systématique devant toute brèche cutanée.
+Les bagues doivent être retirés afin d’éviter l’effet garrot suite à l’œdème 
+
+Q4
+Un patient présente un doigt gonflé ("fuselé") plié en crochet, avec une douleur vive lorsqu'on essaie d'étendre le doigt. À quelle urgence cela fait-il penser ?
+A
+Un panaris herpétique.
+B
+Un phlegmon des gaines des fléchisseurs.
+C
+Une simple piqûre d'insecte.
+D
+Une fracture spontanée
+E
+Une arthrose aiguë.
+Bonnes réponses
+B
+Commentaires
+Le phlegmon des gaines est une urgence chirurgicale. On l'appelle souvent "péritonite du doigt" car l'infection se propage dans la gaine qui entoure le tendon, comme dans le péritoine.
+
+
+
+Q7
+Devant une morsure animale, quels sont les trois risques infectieux majeurs que l'infirmier doit anticiper ?
+A
+Le risque de gellure
+B
+Le risque tétanique.
+C
+Le risque rabique (rage).
+D
+L'infection bactérienne locale (Pasteurelle, Staphylocoque).
+E
+Le risque de varicelle.
+Bonnes réponses
+B, C, D
+Commentaires
+Toute morsure impose de vérifier le Tétanos, d'évaluer le risque de Rage (selon l'animal et le pays) et de traiter/prévenir l'infection bactérienne de la plaie.
+
+
+Q8
+Quelle est la définition exacte d'un panaris ?
+A
+Une infection d'une articulation de la main.
+B
+Une infection aiguë des parties molles des doigts.
+C
+Une tumeur bénigne de l'ongle.
+D
+Une infection qui se développe après une inoculation (piqûre, plaie).
+E
+Une inflammation uniquement due au froid.
+Bonnes réponses
+B, D
+Commentaires
+Le panaris est une infection bactérienne des tissus mous du doigt, survenant presque toujours après une petite blessure passée inaperçue ou négligée.
+
+
+
+
+
+Q12
+Un patient diabétique présente une plaie au doigt qui traîne depuis 10 jours. Quel risque l'infirmier doit-il craindre en particulier ?
+A
+Une extension à l'os (ostéite).
+B
+Une guérison trop rapide.
+C
+Une nécrose des tissus (gangrène digitale).
+D
+Une diffusion vers les gaines synoviales (phlegmon).
+E
+Que le patient devienne allergique au pansement.
+Bonnes réponses
+A, C, D
+Commentaires
+Chez le diabétique, les infections sont plus graves et diffusent plus vite vers l'os, les articulations ou les tendons, avec un risque majeur d'amputation.
+
+Q13
+Lors de la préparation d'un patient pour une chirurgie de panaris, quels éléments sont importants ?
+A
+Vérifier si le patient est à jeun.
+B
+Retirer les bagues et bijoux du membre concerné (impératif).
+C
+Marquer le côté à opérer selon le protocole.
+D
+Faire une manucure complète du côté sain.
+E
+Préparer le dossier avec la radiographie du doigt.
+Bonnes réponses
+A, B, C, E
+Commentaires
+Le retrait des bagues est crucial car l'œdème post-opératoire peut couper la circulation du doigt. La radiographie est nécessaire pour vérifier l'absence d'atteinte osseuse ou de corps étranger.
+
+
+
+
+
+Q15
+Après une chirurgie de la main pour infection, pourquoi laisse-t-on souvent la plaie ouverte (sans points de suture) ?
+A
+Parce que le chirurgien a oublié de coudre.
+B
+Pour permettre l'évacuation des résidus d'infection (drainage).
+C
+Pour favoriser une cicatrisation "dirigée" de l'intérieur vers l'extérieur.
+D
+Parce que la peau est trop infectée pour être fermée.
+E
+Pour économiser du fil de suture.
+Bonnes réponses
+B, C, D
+Commentaires
+Fermer une plaie infectée reviendrait à enfermer les bactéries dans une boîte, favorisant un nouvel abcès. On laisse la plaie cicatriser toute seule avec des pansements réguliers.
+
+
+Q17
+Quel est le germe le plus souvent responsable des panaris et des phlegmons ?
+A
+Escherichia coli.
+B
+Staphylococcus aureus (Staphylocoque doré).
+C
+Le virus de la grippe.
+D
+Le Bacille de Koch.
+E
+Des bactéries de la peau devenues agressives.
+Bonnes réponses
+B, E
+Commentaires
+Le Staphylocoque doré est présent sur la peau (portage nasal) et profite de la moindre brèche pour provoquer une infection.
+
+
+Q18
+Pourquoi est-il interdit d'appliquer des pommades anti-inflammatoires sur un début de panaris ?
+A
+Elles tachent les vêtements.
+B
+Elles diminuent les défenses naturelles de l'organisme contre les bactéries.
+C
+Elles masquent la douleur et la rougeur alors que l'infection continue de progresser.
+D
+Elles transforment le pus en liquide transparent.
+E
+Elles favorisent la diffusion de l'infection en profondeur.
+Bonnes réponses
+B, C, E
+Commentaires
+Les anti-inflammatoires "éteignent l'incendie" visuellement (moins de rougeur) mais empêchent les globules blancs de lutter, ce qui permet aux bactéries de se multiplier sans obstacle.
+
+
+Q20
+En post-opératoire, l'infirmier installe le bras du patient sur un coussin en hauteur. Pourquoi ?
+A
+Pour que le patient ne puisse pas s'enfuir.
+B
+Pour diminuer l'œdème (gonflement) par retour veineux.
+C
+Pour diminuer la douleur pulsatile.
+D
+Pour faciliter le travail du kinésithérapeute.
+E
+Parce que c'est plus joli.
+Bonnes réponses
+B, C
+Commentaires
+La surélévation du membre opéré favorise le drainage lymphatique et veineux, ce qui réduit le gonflement et, par conséquent, la douleur.
+
+
+
+
+
+
+Les urgences chirurgicaux : 
+Les appendicites :
+Q23
+Une infirmière accueille un patient suspect d'appendicite aiguë. Quels signes cliniques doit-elle rechercher en priorité pour confirmer cette hypothèse ?
+A
+Une douleur localisée dans la fosse iliaque droite (FID).
+B
+Une douleur intense dans le bras gauche.
+C
+Des vomissements associés à de la fièvre.
+D
+Une altération de l'état général (fatigue, malaise).
+E
+Une faim intense et une envie de manger.
+Bonnes réponses
+A, C, D
+Commentaires
+Le trépied classique de l'appendicite comprend la douleur en fosse iliaque droite, les signes digestifs (vomissements/nausées) et la fièvre. L'altération de l'état général est fréquente. À l'inverse, le patient est généralement anorexique (perte d'appétit).
+
+Q24
+Concernant les complications possibles d'une appendicite non traitée, que doit savoir l'infirmier ?
+A
+L'appendicite peut évoluer vers un abcès (collection de pus locale).
+B
+Elle peut se compliquer en péritonite (infection généralisée du ventre).
+C
+Elle guérit toujours spontanément sans chirurgie.
+D
+Elle peut former un "plastron" appendiculaire.
+E
+Le risque de choc septique est inexistant.
+Bonnes réponses
+A, B, D
+Commentaires
+Sans prise en charge, l'inflammation progresse vers la perforation. Cela peut créer un abcès localisé, un plastron (masse inflammatoire) ou une péritonite généralisée, qui est une urgence vitale.
+
+Q25
+Quelles sont les premières mesures de prise en charge (CAT) qu'une infirmière doit mettre en place pour une appendicite aiguë ?
+A
+Mettre le patient au repos digestif strict (à jeun).
+B
+Poser deux voies veineuses (VV) de bon calibre.
+C
+Donner immédiatement à manger pour reprendre des forces.
+D
+Débuter une réhydratation par perfusion de sérum glucosé et électrolytes.
+E
+Administrer des antibiotiques avant même d'avoir vu le médecin.
+Bonnes réponses
+A, B, D
+Commentaires
+Le repos digestif (à jeun) est impératif en vue de la chirurgie. La pose de voies veineuses permet la réhydratation et l'administration des traitements. Les antibiotiques ne sont généralement débutés qu'après confirmation ou en cas de signe de choc.
+
+Q26
+À propos des examens utiles au diagnostic de l'appendicite, quelles affirmations sont vraies ?
+A
+Le diagnostic est avant tout clinique (examen du patient).
+B
+La biologie montre souvent une hausse des globules blancs (PNN) et de la CRP.
+C
+L'échographie abdominale ou le scanner (TDM) permettent de confirmer le diagnostic.
+D
+Une radiographie des poumons suffit pour poser le diagnostic.
+E
+On n'a jamais besoin d'examens complémentaires, le regard suffit.
+Bonnes réponses
+A, B, C
+Commentaires
+Bien que le diagnostic soit d'abord clinique, il est appuyé par la biologie (signes d'infection comme l'hyperleucocytose et la CRP élevée) et l'imagerie (Écho ou Scanner) pour visualiser l'inflammation de l'appendice.
+
+
+
+
+
+Péritonite aigue
+Q27
+Une infirmière examine un patient suspect de péritonite. Elle palpe un abdomen extrêmement dur, rigide et douloureux. Quel terme décrit cet état ?
+A
+Un abdomen souple.
+B
+Une défense abdominale.
+C
+Un ventre de bois (contracture).
+D
+Un ballonnement abdominal.
+E
+Une hernie ombilicale.
+Bonnes réponses
+C
+Commentaires
+La contracture ou "ventre de bois" est le signe caractéristique de la péritonite. C'est une contraction permanente, invincible et douloureuse des muscles de la paroi abdominale.
+
+
+Q28
+Quelle est la définition d'une péritonite aiguë ?
+A
+Une inflammation de la paroi de l'estomac.
+B
+Une inflammation aiguë du péritoine (membrane tapissant l'abdomen).
+C
+Une simple constipation prolongée.
+D
+Une infection qui fait souvent suite à la perforation d'un organe (appendice, ulcère).
+E
+Une inflammation des gencives.
+Bonnes réponses
+B, D
+Commentaires
+La péritonite est une urgence vitale correspondant à l'infection du liquide péritonéal, souvent causée par la rupture d'un organe digestif qui déverse son contenu septique dans l'abdomen.
+
+
+Q29
+Devant une suspicion de péritonite, quelles sont les actions infirmières prioritaires ?
+A
+Laisser le patient à jeun strict (repos digestif).
+B
+Poser une voie veineuse de bon calibre pour la réhydratation.
+C
+Donner un laxatif pour vider les intestins.
+D
+Prélever un bilan biologique (NFS, CRP, Ionogramme).
+E
+Installer le patient en position confortable, souvent demi-assise.
+Bonnes réponses
+A, B, D, E
+Commentaires
+Le jeun est impératif car une chirurgie est presque toujours nécessaire. La réhydratation et le bilan biologique préparent l'intervention et évaluent le retentissement général.
+
+
+
+
+
+
+PANCRÉATITES
+Q31
+Un patient se présente avec une douleur épigastrique violente, décrite "en barre", irradiant dans le dos. À quoi cela fait-il penser ?
+A
+Une infection urinaire.
+B
+Une pancréatite aiguë.
+C
+Une angine de poitrine.
+D
+Une fracture des côtes.
+E
+Une crise de foie bénigne.
+Bonnes réponses
+B
+Commentaires
+La douleur de la pancréatite est typiquement épigastrique, transfixiante (irradiant vers les vertèbres dorsales) et très intense, souvent déclenchée après un repas riche ou une prise d'alcool.
+
+Q32
+Quel examen biologique est le "Gold Standard" pour confirmer le diagnostic de pancréatite aiguë ?
+A
+Le dosage de la glycémie.
+B
+Le dosage de la Lipase sanguine (Lipasémie).
+C
+La numération formule sanguine (NFS).
+D
+Le dosage du cholestérol.
+E
+L'examen cytobactériologique des urines (ECBU).
+Bonnes réponses
+B
+Commentaires
+Une lipasémie supérieure à 3 fois la normale confirme le diagnostic de pancréatite dans un contexte de douleur abdominale évocatrice.
+
+
+Q33
+Quelles sont les deux causes principales de pancréatite aiguë ?
+A
+La présence de calculs biliaires (lithiase biliaire).
+B
+La consommation excessive d'alcool.
+C
+La consommation excessive de sucre.
+D
+L'activité sportive intense.
+E
+Le stress au travail.
+Bonnes réponses
+A, B
+Commentaires
+Les calculs qui bloquent le canal pancréatique et l'alcoolisme chronique sont responsables de la grande majorité des pancréatites aiguës. D’autres causes telles que le traumatisme (guidon de velo) , les médicament (metformine) , Infection , peuvent entraient la pancréatite aigue 
+En Mauritanie les calculs constituent la cause majeure
+
+
+Q34
+Dans la prise en charge infirmière d'une pancréatite, pourquoi la réhydratation est-elle cruciale ?
+A
+Pour laver l'estomac.
+B
+Pour compenser les pertes liquidiennes et prévenir l'insuffisance rénale.
+C
+Pour diluer les graisses dans le sang.
+D
+Car le patient est à jeun et risque la déshydratation.
+E
+Pour faire baisser la température instantanément.
+Bonnes réponses
+B, D
+Commentaires
+La pancréatite crée une inflammation majeure avec une fuite de liquide vers les tissus (secteur tiers), nécessitant un remplissage vasculaire important.
+
+
+
+
+
+ULCÈRES GASTRO-DUODÉNAUX
+Q35
+Comment se définit un ulcère gastro-duodénal ?
+A
+Une simple brûlure d'estomac passagère.
+B
+Une perte de substance (une "plaie") de la muqueuse de l'estomac ou du duodénum.
+C
+Une tumeur cancéreuse d'emblée.
+D
+Une lésion souvent liée à la bactérie Helicobacter pylori.
+E
+Une infection virale contagieuse.
+Bonnes réponses
+B, D
+Commentaires
+L'ulcère est une érosion profonde de la paroi digestive. La bactérie H. pylori et la prise d'AINS (aspirine, ibuprofène) en sont les causes principales.
+
+Q36
+Un patient souffrant d'un ulcère présente des selles noires, collantes et malodorantes. Quel terme sémiologique décrit ce signe ?
+A
+Une hématémèse.
+B
+Une diarrhée infectieuse.
+C
+Un méléna.
+D
+Des rectorragies.
+E
+Une stéatorrhée.
+Bonnes réponses
+C
+Commentaires
+Le méléna correspond à l'évacuation de sang digéré par l'anus. C'est le signe d'une hémorragie digestive haute (estomac ou duodénum).
+
+
+Q37
+Quels sont les signes d'une complication majeure de l'ulcère : la perforation ?
+A
+Une douleur soudaine, "en coup de poignard" au ventre.
+B
+Un abdomen qui devient dur et contracté (péritonite).
+C
+Une disparition immédiate de la douleur.
+D
+Une envie pressante d'uriner.
+E
+Des signes de choc (pâleur, sueurs, pouls rapide).
+Bonnes réponses
+A, B, E
+Commentaires
+La perforation d'ulcère est une urgence chirurgicale car le contenu de l'estomac se vide dans le péritoine, provoquant une péritonite brutale.
+
+
+Q38
+Quels conseils l'infirmier doit-il donner pour éviter les récidives d'ulcère ?
+A
+Arrêter la consommation de tabac (ralentit la cicatrisation).
+B
+Éviter l'automédication par anti-inflammatoires (AINS).
+C
+Boire du café à jeun tous les matins.
+D
+Respecter le traitement par IPP (Inhibiteurs de la Pompe à Protons).
+E
+Manger très épicé pour désinfecter l'estomac.
+Bonnes réponses
+A, B, D
+Commentaires
+Le tabac et les AINS sont des ennemis de la muqueuse gastrique. Le traitement par IPP réduit l'acidité et permet la cicatrisation de la plaie.
+
+
+
+
+
+
+OCCLUSION INTESTINALE
+Q39
+Quels sont les quatre signes cardinaux d'une occlusion intestinale ?
+A
+Douleur abdominale.
+B
+Vomissements (parfois fécaloïdes).
+C
+Arrêt des matières et des gaz.
+D
+Météorisme (ventre gonflé).
+E
+Faim de loup.
+Bonnes réponses
+A, B, C, D
+Commentaires
+L'arrêt des gaz est souvent le premier signe et le plus fiable d'une occlusion (arrêt du transit).
+
+
+Q40
+Un patient en occlusion a le ventre très tendu et sonore à la percussion. Quel est le terme médical ?
+A
+Le météorisme abdominal.
+B
+L'ascite.
+C
+La contracture.
+D
+Le globe vésical.
+E
+La distension abdominale.
+Bonnes réponses
+A, E
+Commentaires
+Le météorisme est dû à l'accumulation de gaz en amont de l'obstacle qui bouche l'intestin.
+
+
+Q41
+Dans la prise en charge d'une occlusion, quel est le rôle de la pose d'une sonde naso-gastrique (SNG) ?
+A
+Pour nourrir le patient.
+B
+Pour décomprimer l'estomac et l'intestin (aspirer le contenu).
+C
+Pour administrer des antibiotiques.
+D
+Pour éviter les vomissements et le risque d'inhalation.
+E
+Pour mesurer la température interne.
+Bonnes réponses
+B, D
+Commentaires
+La SNG en aspiration permet de vider l'estomac du liquide qui s'accumule, soulageant ainsi la douleur et évitant que le patient ne s'étouffe avec ses vomissements.
+
+
+
+
+
+HÉPATITES AIGUËS
+Q43
+Quelle est la définition d'une hépatite ?
+A
+Une infection des poumons.
+B
+Une inflammation aiguë ou chronique du foie.
+C
+Une maladie liée uniquement à l'alcool.
+D
+Une lésion qui peut être d'origine virale, toxique ou médicamenteuse.
+E
+Une inflammation de la vésicule biliaire uniquement.
+Bonnes réponses
+B, D
+Commentaires
+L'hépatite est une atteinte des cellules du foie (hépatocytes). Elle peut être causée par des virus (A, B, C, etc.) ou des substances toxiques (alcool, paracétamol en excès).
+
+Q44
+Un patient présente un ictère. Comment cela se traduit-il cliniquement pour l'infirmier ?
+A
+Une coloration jaune de la peau et des conjonctives (yeux).
+B
+Une coloration bleue des doigts.
+C
+Des urines foncées (couleur bière).
+D
+Des selles très foncées, presque noires.
+E
+Des selles qui peuvent décolorées (mastic/blanchâtres).
+Bonnes réponses
+A, C, E
+Commentaires
+L'ictère (jaunisse) est dû à l'accumulation de bilirubine. Les urines sont foncées car le rein élimine le surplus, et les selles sont claires car la bile n'arrive plus dans l'intestin par cholestase.
+
+
+Q45
+Concernant l'hépatite A, quelle est la principale voie de transmission ?
+A
+Par le sang (seringues).
+B
+Par voie fécale-orale (eau ou aliments souillés).
+C
+Par voie sexuelle uniquement.
+D
+Par les mains sales (manque d'hygiène).
+E
+Par les piqûres de moustiques.
+Bonnes réponses
+B, D
+Commentaires
+L'hépatite A est une maladie du péril fécal. L'hygiène des mains et le contrôle de l'eau sont essentiels pour prévenir sa transmission.
+
+
+
+
+
+
+Q1
+Une infirmière en salle de naissance prend en charge un nouveau-né dont la mère est porteuse de l'antigène HBs (Hépatite B). Quelle est la conduite à tenir immédiate pour prévenir la transmission ?
+A
+Administrer uniquement le vaccin contre l'hépatite B à l'âge de 2 mois.
+B
+Pratiquer la sérovaccination (Vaccin + Immunoglobulines spécifiques) dans les 12 à 24 premières heures de vie.
+C
+Isoler le bébé de sa mère pendant 10 jours.
+D
+Contre-indiquer l'allaitement maternel de façon définitive.
+E
+Injecter des immunoglobulines anti-HBs en intramusculaire sur un site différent du vaccin.
+Bonnes réponses
+B, E
+Commentaires
+La sérovaccination précoce est la clé pour prévenir la transmission mère-enfant de l'hépatite B. L'allaitement est autorisé si la sérovaccination a été correctement effectuée.
+
+
+Q2
+Lors d'une consultation prénatale, une infirmière explique l'importance du dépistage de l'hépatite B. Pourquoi la transmission de la mère à l'enfant est-elle si redoutée ?
+A
+Parce que 90 % des nouveau-nés infectés à la naissance développeront une hépatite chronique.
+B
+Parce que le virus de l'hépatite B ne se transmet que par le lait maternel.
+C
+Parce qu'il existe un risque élevé de cirrhose et de cancer du foie à l'âge adulte pour l'enfant.
+D
+Parce qu'il n'existe aucun vaccin pour l'enfant après la naissance.
+E
+Parce que le dépistage est obligatoire au cours du 6ème mois de grossesse.
+Bonnes réponses
+A, C, E
+Commentaires
+Plus l'infection par l'hépatite B survient tôt dans la vie, plus le risque de passage à la chronicité est élevé (90% chez le nouveau-né contre 5-10% chez l'adulte). Le dépistage chez la femme enceinte est légalement obligatoire.
+
+Q3
+Une infirmière suit une patiente enceinte porteuse de l'hépatite B et de l'hépatite D (Delta). Que doit-elle savoir sur la transmission de l'hépatite D ?
+A
+Le virus Delta est un virus "défectueux" qui a besoin du virus B pour exister.
+B
+En protégeant l'enfant contre l'hépatite B, on le protège indirectement contre l'hépatite D.
+C
+L'hépatite D se transmet principalement par l'eau souillée comme l'hépatite A.
+D
+L'association B + D augmente le risque d'hépatite grave (fulminante).
+E
+Le vaccin contre l'hépatite D est un vaccin différent de celui de l'hépatite B.
+Bonnes réponses
+A, B, D
+Commentaires
+Le virus Delta (VHD) ne peut pas infecter une personne seule ; il nécessite la présence de l'enveloppe du virus B (Ag HBs). Vacciner contre l'hépatite B empêche donc toute infection par le virus Delta.
+
+Q4
+Une femme enceinte de 8 mois revient d'un voyage en zone d'endémie où l'hygiène de l'eau est précaire. Elle présente une jaunisse. L'infirmier suspecte une hépatite E. Pourquoi est-ce une urgence ?
+A
+L'hépatite E est particulièrement grave chez la femme enceinte au 3ème trimestre.
+B
+Il existe un risque d'hépatite fulminante avec une mortalité maternelle élevée (jusqu'à 20%).
+C
+La transmission mère-enfant du virus E est possible et très dangereuse pour le fœtus.
+D
+L'hépatite E se transmet par voie fécale-orale (eau/aliments).
+E
+Un vaccin est systématiquement disponible partout pour traiter l'hépatite E.
+Bonnes réponses
+A, B, C, D
+Commentaires
+Si l'hépatite E est souvent bénigne dans la population générale, elle est redoutable chez la femme enceinte (risque de décès par insuffisance hépatique aiguë). La prévention repose sur l'hygiène alimentaire et de l'eau.
+
+
+
+
+ANATOMIE ET PHYSIOLOGIE
+ANATOMIE DE L'APPAREIL RESPIRATOIRE
+Q1
+Une infirmière explique à un patient la structure de l'appareil respiratoire supérieur. Quel organe marque la limite entre les voies aériennes supérieures et inférieures ?
+A
+Le pharynx.
+B
+Le larynx.
+C
+La trachée.
+D
+Les fosses nasales.
+E
+L'épiglotte.
+Bonnes réponses
+B
+Commentaires
+Le larynx est l'organe de transition. Tout ce qui est au-dessus (nez, bouche, pharynx) est considéré comme supérieur ; la trachée et les poumons sont inférieurs.
+
+Q2
+Lors de la pose d'une sonde naso-gastrique, l'infirmier doit connaître l'anatomie pour éviter la "fausse route". Quel cartilage mobile ferme l'entrée du larynx lors de la déglutition ?
+A
+Le cartilage thyroïde.
+B
+Le cartilage cricoïde.
+C
+L'épiglotte.
+D
+La luette.
+E
+Les cordes vocales.
+Bonnes réponses
+C
+Commentaires
+L'épiglotte agit comme un clapet qui s'abaisse pour boucher les voies respiratoires quand on avale, dirigeant ainsi les aliments vers l'œsophage.
+
+Q3
+Un infirmier observe une radiographie thoracique. Quelles sont les caractéristiques anatomiques normales des poumons ?
+A
+Le poumon droit possède 2 lobes.
+B
+Le poumon droit possède 3 lobes.
+C
+Le poumon gauche possède 2 lobes (à cause de la place du cœur).
+D
+Le poumon gauche est plus volumineux que le droit.
+E
+Les deux poumons sont parfaitement symétriques.
+Bonnes réponses
+B, C
+Commentaires
+Le poumon droit est plus gros et a 3 lobes (supérieur, moyen, inférieur). Le gauche n'en a que 2 pour laisser de la place au cœur.
+
+Q4
+En service de réanimation, l'infirmier surveille un patient intubé. À quel niveau de l'arbre bronchique se produisent les échanges gazeux ?
+A
+Dans la trachée.
+B
+Dans les bronches souches.
+C
+Dans les bronchioles terminales.
+D
+Dans les alvéoles pulmonaires.
+E
+Dans la plèvre.
+Bonnes réponses
+D
+Commentaires
+Les alvéoles sont les petits sacs terminaux entourés de capillaires où l'oxygène passe dans le sang et le CO2 en sort.
+
+Q5
+Une infirmière assiste un médecin pour la pose d'un drain thoracique. Elle doit savoir que la plèvre est constituée de deux feuillets. Lesquels ?
+A
+Le feuillet muqueux et le feuillet séreux.
+B
+La plèvre viscérale (collée au poumon).
+C
+La plèvre pariétale (collée à la cage thoracique).
+D
+Le diaphragme et le péricarde.
+E
+La plèvre alvéolaire.
+Bonnes réponses
+B, C
+Commentaires
+La plèvre est une enveloppe double. Entre les deux feuillets se trouve un vide (pression négative) qui permet au poumon de suivre les mouvements de la cage thoracique.
+
+Q6
+Quel est le muscle principal de la respiration qu'un infirmier observe lors d'une respiration abdominale ?
+A
+Le muscle grand pectoral.
+B
+Les muscles intercostaux.
+C
+Le diaphragme.
+D
+Le muscle sterno-cléido-mastoïdien.
+E
+Les muscles abdominaux.
+Bonnes réponses
+C
+Commentaires
+Le diaphragme est le muscle moteur principal. En se contractant, il descend et crée un appel d'air (inspiration).
+
+Q7
+L'infirmier sait qu'un patient a plus de risque de faire une inhalation ("fausse route") dans une bronche spécifique à cause de son inclinaison. Laquelle ?
+A
+La bronche souche gauche.
+B
+La bronche souche droite (car elle est plus verticale).
+C
+La trachée directement.
+D
+Les deux bronches ont le même risque.
+E
+Le larynx uniquement.
+Bonnes réponses
+B
+Commentaires
+La bronche souche droite est plus large et plus verticale que la gauche. Les corps étrangers y tombent donc plus facilement.
+
+Q8
+Quelle structure anatomique permet de maintenir la trachée ouverte en permanence pour laisser passer l'air ?
+A
+Des anneaux de cartilage en forme de "C".
+B
+Des muscles lisses uniquement.
+C
+Un os rigide.
+D
+La pression de l'air ambiant.
+E
+La muqueuse ciliée.
+Bonnes réponses
+A
+Commentaires
+La trachée est composée de 16 à 20 anneaux cartilagineux rigides qui l'empêchent de s'affaisser lors de l'inspiration.
+
+
+Q9
+Comment s'appelle l'endroit où la trachée se divise en deux bronches souches ?
+A
+Le hile pulmonaire.
+B
+La carène.
+C
+Le médiastin.
+D
+L'isthme.
+E
+L'alvéole.
+Bonnes réponses
+B
+Commentaires
+La carène est le "Y" de séparation de la trachée. C'est une zone très sensible qui déclenche une toux violente si on la touche avec une sonde d'aspiration.
+
+
+Q10
+Qu'est-ce que le "médiastin" pour un infirmier travaillant en cardiologie ou pneumologie ?
+A
+Une membrane qui entoure les poumons.
+B
+L'espace situé entre les deux poumons.
+C
+Une partie du cerveau qui contrôle le souffle.
+D
+La zone contenant le cœur, la trachée et l'œsophage.
+E
+Le nom scientifique du diaphragme.
+Bonnes réponses
+B, D
+Commentaires
+Le médiastin est la région centrale du thorax. Il sépare les deux cavités pleurales et contient les organes vitaux (cœur, gros vaisseaux, trachée, œsophage).
+
+
+
+
+
+
+PHYSIOLOGIE DE L'APPAREIL RESPIRATOIRE
+Q11
+Un infirmier observe un patient respirer. Quelles sont les caractéristiques physiologiques des phases de la respiration ?
+A
+L'inspiration est un phénomène actif (contraction musculaire).
+B
+L'expiration normale est un phénomène passif (relâchement).
+C
+L'inspiration est toujours passive au repos.
+D
+L'expiration devient active lors d'un effort (muscles abdominaux).
+E
+L'air entre dans les poumons parce que la pression interne devient supérieure à l'air ambiant.
+Bonnes réponses
+A, B, D
+Commentaires
+L'air entre car la pression interne baisse (appel d'air). Au repos, on ne fait d'effort que pour inspirer ; l'air ressort tout seul par élasticité.
+
+Q12
+Qu'est-ce que l'hématose  ?
+A
+La fabrication des globules rouges par la moelle osseuse.
+B
+La transformation du sang pauvre en oxygène en sang riche en oxygène au niveau des alvéoles.
+C
+La destruction des vieux globules rouges par la rate.
+D
+L'échange de gaz entre le sang et les cellules du corps.
+E
+Un synonyme de l'expiration.
+Bonnes réponses
+B
+Commentaires
+L'hématose est le phénomène de "recharge" du sang en O2 et de décharge du CO2 au contact de l'air alvéolaire.
+
+
+
+Q14
+Un patient a une fréquence respiratoire de 28 cycles/min. Quel terme l'infirmier doit-il utiliser ?
+A
+Bradypnée.
+B
+Tachypnée (ou polypnée).
+C
+Eupné.
+D
+Apnée.
+E
+Dyspnée.
+Bonnes réponses
+B
+Commentaires
+La fréquence normale est de 12 à 20 cycles/min. Au-dessus de 20, on parle de tachypnée.
+
+
+Q15
+Qu'est-ce que le "Surfactant" et quel est son rôle physiologique ?
+A
+Un mucus qui piège les poussières.
+B
+Une substance liquide sécrétée dans les alvéoles.
+C
+Elle empêche les alvéoles de s'affaisser (collapsus) à l'expiration.
+D
+Elle permet de transporter l'oxygène dans le sang.
+E
+Elle facilite l'expansion des poumons.
+Bonnes réponses
+B, C, E
+Commentaires
+Sans surfactant, les alvéoles se colleraient entre elles comme un ballon mouillé, rendant la respiration impossible. Ce phénomène s’observe chez les prématurés entrainant une détresse néonatale précoce.
+
+
+Q16
+Comment l'oxygène est-il principalement transporté dans le sang ?
+A
+Dissous directement dans le plasma (majorité).
+B
+Fixé à l'hémoglobine des globules rouges (97%).
+C
+Sous forme de bulles de gaz.
+D
+Fixé aux globules blancs.
+E
+Transformé en bicarbonate.
+Bonnes réponses
+B
+Commentaires
+L'hémoglobine est le "camion" de transport de l'oxygène. Si le patient est anémié (manque de fer/hémoglobine), il sera essoufflé car il manque de transporteurs.
+
+
+
+
+
+Q19
+Quel gaz est le principal déchet de l'activité cellulaire évacué par les poumons ?
+A
+L'oxygène (O2).
+B
+L'azote (N2).
+C
+Le monoxyde de carbone (CO).
+D
+Le dioxyde de carbone (CO2).
+E
+L'hélium.
+Bonnes réponses
+D
+Commentaires
+Les cellules consomment de l'O2 et produisent du CO2. Le sang ramène ce CO2 aux poumons pour qu'il soit expiré.
+
+
+
+
+
+
+ANATOMIE ET PHYSIOLOGIE DU SNC
+Q1
+Une infirmière explique à un étudiant la composition du Système Nerveux Central (SNC). Quelles structures en font partie ?
+A
+Le cerveau et la moelle épinière.
+B
+Les nerfs crâniens et les nerfs rachidiens.
+C
+L'encéphale (cerveau, cervelet, tronc cérébral) et la moelle épinière.
+D
+Le système nerveux sympathique uniquement.
+E
+Les ganglions nerveux périphériques.
+Bonnes réponses
+C
+Commentaires
+Le SNC est protégé par la boîte crânienne et la colonne vertébrale. Il comprend l'encéphale et la moelle épinière. Tout le reste appartient au système nerveux périphérique.
+
+Q2
+Un infirmier prend en charge un patient ayant un traumatisme crânien frontal. Quelles fonctions risquent d'être altérées ?
+A
+La vision.
+B
+La motricité volontaire, le raisonnement et la personnalité.
+C
+L'audition.
+D
+La compréhension du langage (aire de Broca).
+E
+L'équilibre.
+Bonnes réponses
+B, D
+Commentaires
+Le lobe frontal est le siège de la motricité, de la planification et du comportement social. L'aire de Broca (langage articulé) s'y trouve également. La vision est dans le lobe occipital.
+
+Q3
+L'infirmière sait que le SNC est entouré de membranes protectrices appelées méninges. Dans quel ordre se trouvent-elles, de l'extérieur vers l'intérieur ?
+A
+Pie-mère, arachnoïde, dure-mère.
+B
+Dure-mère, arachnoïde, pie-mère.
+C
+Arachnoïde, dure-mère, pie-mère.
+D
+Périoste, dure-mère, arachnoïde.
+E
+Dure-mère, pie-mère, arachnoïde.
+Bonnes réponses
+B
+Commentaires
+La dure-mère est la plus externe et résistante. L'arachnoïde est au milieu. La pie-mère est la plus interne, collée au tissu nerveux.
+
+Q4
+Un infirmier assiste à une ponction lombaire. Où circule normalement le Liquide Céphalo-Rachidien (LCR) ?
+A
+Entre la dure-mère et l'os.
+B
+Dans l'espace sous-arachnoïdien (entre l'arachnoïde et la pie-mère).
+C
+Dans les ventricules cérébraux.
+D
+Dans les vaisseaux sanguins cérébraux.
+E
+Dans le canal de l'épendyme (centre de la moelle).
+Bonnes réponses
+B, C, E
+Commentaires
+Le LCR baigne le SNC, circulant dans les ventricules, le canal central de la moelle et l'espace sous-arachnoïdien pour amortir les chocs.
+
+Q5
+Un patient présente des troubles de la coordination et une marche ébrieuse (instable) sans avoir bu d'alcool. Quel organe du SNC est probablement atteint ?
+A
+Le lobe temporal.
+B
+Le cervelet.
+C
+L'hypophyse.
+D
+La moelle épinière.
+E
+Le thalamus.
+Bonnes réponses
+B
+Commentaires
+Le cervelet est le centre de l'équilibre, de la coordination des mouvements et de la posture.
+
+
+Q6
+Un infirmier surveille un patient dont le tronc cérébral est lésé. Pourquoi est-ce une situation d'extrême gravité ?
+A
+Car il contient les centres de contrôle de la respiration.
+B
+Car il contrôle la fréquence cardiaque.
+C
+Car il régule le sommeil et l'éveil (système réticulé).
+D
+Car il gère la mémoire à long terme.
+E
+Car il permet la sécrétion d'insuline.
+Bonnes réponses
+A, B, C
+Commentaires
+Le tronc cérébral (bulbe rachidien, pont, mésencéphale) gère les fonctions vitales autonomes (cœur, poumons). Une lésion peut entraîner un arrêt cardio-respiratoire immédiat.
+
+
+Q7
+L'infirmière sait que la moelle épinière s'arrête normalement à un certain niveau vertébral chez l'adulte. Lequel ?
+A
+Au niveau du sacrum (S1).
+B
+Au niveau de la 1ère ou 2ème vertèbre lombaire (L1-L2).
+C
+Tout en bas du coccyx.
+D
+Au niveau de la 12ème vertèbre thoracique (T12).
+E
+Au milieu du dos.
+Bonnes réponses
+B
+Commentaires
+La moelle épinière est plus courte que la colonne. Elle finit en L1-L2, se prolongeant par les nerfs de la "queue de cheval". C'est pourquoi on pique en L4-L5 pour une ponction lombaire (pour ne pas blesser la moelle).
+
+Q8
+Quel est le rôle de la barrière hémato-encéphalique (BHE) 
+A
+Empêcher le passage de toutes les substances du sang vers le cerveau.
+B
+Filtrer de manière sélective les substances (médicaments, toxines, germes).
+C
+Protéger le cerveau contre les variations brusques de la composition du sang.
+D
+Elle n'existe que chez l'enfant.
+E
+Elle facilite le passage des antibiotiques.
+Bonnes réponses
+B, C
+Commentaires
+La BHE est une barrière protectrice. Certains médicaments (comme beaucoup d'antibiotiques) la franchissent mal, ce qui rend le traitement des méningites complexe.
+
+
+
+Q9
+Qu'est-ce que la gaine de myéline qui entoure les axones des neurones ?
+A
+Une couche protectrice qui ralentit l'influx nerveux.
+B
+Une gaine de graisse qui accélère la conduction de l'influx nerveux.
+C
+La substance qui compose la "matière grise".
+D
+La substance qui compose la "matière blanche".
+E
+Une membrane présente uniquement dans le cerveau.
+Bonnes réponses
+B, D
+Commentaires
+La myéline permet une conduction "saltatoire" très rapide de l'influx. La matière blanche est blanche précisément à cause de la myéline.
+
+
+Q10
+Un patient a une température de 40°C sans infection apparente. Quel organe du cerveau régule le "thermostat" corporel ?
+A
+L'hippocampe.
+B
+L'hypothalamus.
+C
+Le corps calleux.
+D
+Le bulbe rachidien.
+E
+Le lobe pariétal.
+Bonnes réponses
+B
+Commentaires
+L'hypothalamus est le grand régulateur de l'homéostasie : température, soif, faim, et contrôle du système hormonal.
+
+Q11
+Lorsqu'un patient retire brusquement sa main d'une plaque chauffante, il s'agit d'un arc réflexe. Quel est le trajet de l'influx ?
+A
+Récepteur → Nerf sensitif → Moelle épinière → Nerf moteur → Muscle.
+B
+Récepteur → Nerf moteur → Cerveau → Muscle.
+C
+Le cerveau n'intervient pas dans le déclenchement immédiat du réflexe.
+D
+C'est un mouvement conscient et réfléchi.
+E
+L'influx passe par la corne postérieure de la moelle (sensitif).
+Bonnes réponses
+A, C, E
+Commentaires
+Le réflexe est involontaire et rapide car il est intégré directement dans la moelle épinière sans attendre l'ordre du cerveau.
+
+
+
+
+Q13
+Un infirmier observe un patient dont la pupille est très dilatée (mydriase) après une forte peur. Quel système est activé ?
+A
+Le système nerveux somatique (volontaire).
+B
+Le système nerveux sympathique (système d'alerte/stress).
+C
+Le système nerveux parasympathique (système de repos).
+D
+Le système limbique (émotions).
+E
+La moelle épinière uniquement.
+Bonnes réponses
+B, D
+Commentaires
+Le système sympathique prépare le corps à l'action ou à la fuite (augmentation du rythme cardiaque, dilatation des pupilles).
+
+
+Q14
+À l'inverse, quel système favorise la digestion et le ralentissement cardiaque ?
+A
+Le système sympathique.
+B
+Le système parasympathique.
+C
+Le nerf vague (Xème paire crânienne) en est le principal vecteur.
+D
+Les nerfs rachidiens lombaires uniquement.
+E
+Le lobe frontal.
+Bonnes réponses
+B, C
+Commentaires
+Le système parasympathique est le système de la récupération et du repos. Le nerf vague est le grand nerf de la détente cardiaque et de la digestion.
+
+
+Q15
+Un patient victime d'un AVC ne peut plus bouger le côté droit de son corps. Où se situe probablement la lésion cérébrale ?
+A
+Dans l'hémisphère droit.
+B
+Dans l'hémisphère gauche.
+C
+Dans la moelle épinière basse.
+D
+Car les voies motrices se croisent (décussation) au niveau du tronc cérébral.
+E
+Dans le cervelet.
+Bonnes réponses
+B, D
+Commentaires
+Le cerveau commande de façon "croisée" : l'hémisphère gauche contrôle la moitié droite du corps, et inversement.
+
+
+Q16
+Le lobe occipital, situé à l'arrière du crâne, est principalement responsable de :
+A
+L'odorat.
+B
+L'audition.
+C
+La vision.
+D
+Le toucher.
+E
+La parole.
+Bonnes réponses
+C
+Commentaires
+C'est l'aire visuelle primaire. Un choc à l'arrière de la tête peut provoquer une cécité même si les yeux sont intacts.
+
+
+Q17
+L'infirmier sait qu'un neurone est composé de plusieurs parties. Lesquelles ?
+A
+Un corps cellulaire (contenant le noyau).
+B
+Des dendrites (qui reçoivent l'information).
+C
+Un axone (qui transmet l'information).
+D
+Des néphrons.
+E
+Des synapses (zones de contact).
+Bonnes réponses
+A, B, C, E
+Commentaires
+Le néphron est l'unité du rein. Le neurone est l'unité du système nerveux.
+
+
+
+Q18
+Quelle structure fait le lien entre les deux hémisphères cérébraux pour qu'ils communiquent ?
+A
+Le cervelet.
+B
+Le corps calleux.
+C
+Le thalamus.
+D
+La dure-mère.
+E
+L'hypophyse.
+Bonnes réponses
+B
+Commentaires
+Le corps calleux est un large faisceau de fibres nerveuses reliant les deux hémisphères pour coordonner leurs activités.
+
+
+
+
+Q20
+Le polygone de Willis est une structure anatomique située à la base du cerveau. Quel est son rôle ?
+A
+Sécréter le LCR.
+B
+Assurer la vascularisation artérielle du cerveau de façon sécurisée (anastomose).
+C
+Protéger les nerfs optiques.
+D
+Permettre une suppléance sanguine si une artère est bouchée.
+E
+Filtrer l'air inspiré.
+Bonnes réponses
+B, D
+Commentaires
+C'est un cercle d'artères qui permet au sang d'arriver au cerveau même si l'une des artères principales (carotides ou vertébrales) est partiellement obstruée.
+
+
+
+
+
+ANATOMIE ET PHYSIOLOGIE CARDIOVASCULAIRE
+Q1
+Une infirmière explique la circulation cardiaque à un étudiant. Quelles sont les caractéristiques des cavités du cœur ?
+A
+Le cœur droit reçoit le sang riche en oxygène.
+B
+L'oreillette droite reçoit le sang désaturé (pauvre en O2) via les veines caves.
+C
+Le ventricule gauche a une paroi beaucoup plus épaisse que le ventricule droit.
+D
+Le sang passe des oreillettes aux ventricules.
+E
+Les deux ventricules communiquent entre eux par un orifice normal.
+Bonnes réponses
+B, C, D
+Commentaires
+Le ventricule gauche est plus musclé car il doit propulser le sang dans tout le corps (haute pression). Le cœur droit et le cœur gauche sont normalement séparés par un septum étanche.
+
+Q2
+le cœur est entouré d'une enveloppe protectrice. Comment s'appelle-t-elle ?
+A
+La plèvre.
+B
+Le péritoine.
+C
+Le péricarde.
+D
+L'endocarde.
+E
+Le myocarde.
+Bonnes réponses
+C
+Commentaires
+Le péricarde est le sac fibreux qui entoure le cœur. Le myocarde est le muscle cardiaque lui-même et l'endocarde est la fine membrane tapissant l'intérieur des cavités.
+
+
+Q3
+Lors de l'auscultation cardiaque, les bruits entendus (B1 et B2) correspondent à la fermeture des valves. Quelles sont les valves situées entre les oreillettes et les ventricules ?
+A
+La valve aortique.
+B
+La valve mitrale (à gauche).
+C
+La valve tricuspide (à droite).
+D
+La valve pulmonaire.
+E
+Les valves sigmoïdes.
+Bonnes réponses
+B, C
+Commentaires
+Les valves auriculo-ventriculaires (mitrale et tricuspide) empêchent le sang de refluer vers les oreillettes lors de la contraction des ventricules (systole).
+
+Q4
+Un patient présente un infarctus du myocarde. Quelles artères irriguent directement le muscle cardiaque ?
+A
+Les artères carotides.
+B
+Les artères coronaires.
+C
+L'artère aorte.
+D
+Les artères pulmonaires.
+E
+Les veines coronaires.
+Bonnes réponses
+B
+Commentaires
+Les artères coronaires (droite et gauche) naissent à la base de l'aorte et apportent le sang oxygéné au muscle cardiaque (myocarde).
+
+Q5
+Sur un moniteur d'ECG, l'infirmier observe l'activité électrique du cœur. Quel est le "chef d'orchestre" naturel (pacemaker) qui déclenche l'influx électrique ?
+A
+Le nœud auriculoventriculaire.
+B
+Le faisceau de His.
+C
+Le nœud sinusal (ou sino-atrial).
+D
+Le réseau de Purkinje.
+E
+Le nerf vague.
+Bonnes réponses
+C
+Commentaires
+Le nœud sinusal, situé dans l'oreillette droite, impose le rythme de base du cœur (rythme sinusal).
+
+
+Q6
+Comment appelle-t-on la phase du cycle cardiaque où les ventricules se contractent pour expulser le sang ?
+A
+La diastole.
+B
+La systole.
+C
+La précharge.
+D
+La postcharge.
+E
+La fibrillation.
+Bonnes réponses
+B
+Commentaires
+La systole est la phase de contraction (éjection). La diastole est la phase de relâchement et de remplissage des cavités.
+
+
+Q7
+L'infirmière mesure le débit cardiaque d'un patient. De quels facteurs dépend-il ?
+A
+De la fréquence cardiaque uniquement.
+B
+De la fréquence cardiaque multipliée par le volume d'éjection systolique (VES).
+C
+De la couleur du sang.
+D
+De la force de contraction du myocarde.
+E
+Du volume de sang qui remplit le cœur (précharge).
+Bonnes réponses
+B, D, E
+Commentaires
+Débit cardiaque = Fréquence Cardiaque x Volume d'Éjection. Si l'un des deux baisse, le débit diminue, sauf si l'autre compense.
+
+
+Q8
+Quelle est la particularité anatomique et physiologique des artères pulmonaires ?
+A
+Elles transportent du sang riche en oxygène vers les poumons.
+B
+Elles sont les seules artères du corps à transporter du sang pauvre en oxygène (désaturé).
+C
+Elles partent du ventricule droit.
+D
+Elles arrivent dans l'oreillette gauche.
+E
+Elles possèdent des valvules sur toute leur longueur.
+Bonnes réponses
+B, C
+Commentaires
+Par définition, une artère part du cœur. Les artères pulmonaires partent du cœur droit vers les poumons pour réoxygéner le sang.
+
+
+Q9
+Quelles sont les caractéristiques des veines pulmonaires ?
+A
+Elles sont au nombre de quatre.
+B
+Elles ramènent le sang oxygéné des poumons vers l'oreillette gauche.
+C
+Elles transportent du sang pauvre en oxygène.
+D
+Elles se jettent dans la veine cave supérieure.
+E
+Elles sont essentielles pour la grande circulation.
+Bonnes réponses
+A, B
+Commentaires
+Les veines pulmonaires sont une exception : ce sont des veines qui transportent du sang "rouge" (oxygéné).
+
+
+Q10
+Qu'est-ce que la tension artérielle (ou pression artérielle) mesurée par l'infirmier ?
+A
+La force exercée par le sang sur la paroi des artères.
+B
+La vitesse à laquelle le sang circule dans les veines.
+C
+Elle dépend de la résistance des petits vaisseaux (artérioles).
+D
+Elle est constante tout au long du cycle cardiaque.
+E
+Elle comprend une valeur maximale (systolique) et minimale (diastolique).
+Bonnes réponses
+A, C, E
+Commentaires
+La pression systolique correspond à la poussée du cœur, la diastolique à la résistance résiduelle quand le cœur se repose.
+
+
+Q11
+Un patient présente des œdèmes des membres inférieurs. L'infirmier suspecte une défaillance du retour veineux. Quelles structures facilitent ce retour ?
+A
+Les valvules anti-reflux dans les veines.
+B
+La contraction des muscles des jambes (pompe musculaire).
+C
+La pression négative dans le thorax lors de l'inspiration.
+D
+L'élasticité des parois veineuses.
+E
+La force de gravité uniquement.
+Bonnes réponses
+A, B, C
+Commentaires
+Les veines n'ont pas de pompe propre comme le cœur. Elles comptent sur les muscles et les valvules pour faire remonter le sang contre la gravité.
+
+
+
+Q13
+L'infirmier sait que le système nerveux autonome régule le cœur. Quel est l'effet du système sympathique sur le cœur ?
+A
+Il diminue la fréquence cardiaque (bradycardie).
+B
+Il augmente la fréquence cardiaque (tachycardie).
+C
+Il augmente la force de contraction du muscle cardiaque.
+D
+Il ralentit la conduction électrique.
+E
+Il prépare le corps à l'effort.
+Bonnes réponses
+B, C, E
+Commentaires
+Le système sympathique est le système du stress et de l'effort (adrénaline).
+
+
+Q14
+À l'inverse, quel est l'effet du nerf vague (système parasympathique) sur le cœur ?
+A
+Il provoque une accélération cardiaque.
+B
+Il est cardiomodérateur (ralentit le cœur).
+C
+Il peut provoquer des malaises (syncope vasovagale) s'il est trop stimulé.
+D
+Il augmente la pression artérielle.
+E
+Il favorise la récupération au repos.
+Bonnes réponses
+B, C, E
+Commentaires
+Le nerf vague est le frein du cœur.
+
+
+
+
+Q15
+Quelle structure anatomique sépare le cœur droit du cœur gauche chez l'adulte ?
+A
+La valve mitrale.
+B
+Le septum (inter-auriculaire et inter-ventriculaire).
+C
+L'aorte.
+D
+Le diaphragme.
+E
+La paroi musculaire centrale.
+Bonnes réponses
+B, E
+Commentaires
+Le septum empêche le mélange du sang bleu (veineux) et du sang rouge (artériel).
+
+
+
+
+
+
+Q16
+Un infirmier prend le pouls radial d'un patient. Que représente physiquement le pouls ?
+A
+Le passage des globules rouges sous les doigts.
+B
+L'onde de choc de la systole ventriculaire transmise le long des parois artérielles.
+C
+Le retour du sang vers le cœur.
+D
+La pression diastolique uniquement.
+E
+La fréquence des contractions cardiaques.
+Bonnes réponses
+B, E
+Commentaires
+Le pouls est le reflet direct de l'activité mécanique du cœur sur les artères périphériques.
+
+
+
+
+Q17
+Où se produisent les échanges de nutriments et de gaz entre le sang et les cellules du corps ?
+A
+Dans les grosses artères.
+B
+Dans les veines caves.
+C
+Dans les capillaires.
+D
+Dans les oreillettes.
+E
+Car la paroi  des capillaires est très fine (une seule couche de cellules).
+Bonnes réponses
+C, E
+Commentaires
+Les capillaires sont si fins qu'ils permettent la diffusion de l'O2, du CO2 et des nutriments vers les organes.
+
+
+
+Q19
+Quelle artère est la plus grosse du corps et part du ventricule gauche ?
+A
+L'artère pulmonaire.
+B
+L'artère fémorale.
+C
+L'aorte.
+D
+L'artère carotide.
+E
+La veine cave.
+Bonnes réponses
+C
+Commentaires
+L'aorte est le tronc commun de la grande circulation (systémique).
+
+
+
+Q20
+Un patient a une fréquence cardiaque de 110 battements/minute au repos. Quel terme sémiologique désigne cela ?
+A
+Bradycardie.
+B
+Tachycardie.
+C
+Arythmie.
+D
+Eurythmie.
+E
+Polypnée.
+Bonnes réponses
+B
+Commentaires
+La fréquence cardiaque normale au repos se situe entre 60 et 100 battements/min. Au-dessus de 100, c'est une tachycardie.
+
+
+
+
+
+Anatomie de l’abdomen et physiologie de l’appareil digestif
+Q1
+Un infirmier examine un patient se plaignant d'une douleur à l'hypocondre droit. Quels organes se situent principalement dans cette région anatomique ?
+A
+La rate.
+B
+Le foie.
+C
+La vésicule biliaire.
+D
+L'appendice.
+E
+L'angle colique droit.
+Bonnes réponses
+B, C, E
+Commentaires
+Le foie et la vésicule biliaire occupent la majeure partie de l'hypocondre droit avec l’angle colique droit. La rate est à gauche (hypocondre gauche) et l'appendice est en bas (fosse iliaque droite).
+
+Q2
+L'infirmière sait que la paroi de l'abdomen est tapissée par une membrane séreuse. Quelles sont ses caractéristiques ?
+A
+Elle s'appelle le péritoine.
+B
+Le feuillet pariétal tapisse la face interne de la paroi abdominale.
+C
+Le feuillet viscéral enveloppe les organes digestifs.
+D
+Entre les deux feuillets se trouve une cavité réelle remplie de 2 litres d'air.
+E
+Elle protège et maintient les organes en place.
+Bonnes réponses
+A, B, C, E
+Commentaires
+Le péritoine est une séreuse double. L'espace entre les feuillets est virtuel et contient très peu de liquide ; s'il y a du liquide en excès, on parle d'ascite.
+
+
+Q3
+Lors de l'alimentation, où commence précisément la digestion chimique des glucides (amidon) ?
+A
+Dans l'œsophage.
+B
+Dans la bouche grâce à l'amylase salivaire.
+C
+Dans l'estomac sous l'action de l'acide chlorhydrique.
+D
+Dans le duodénum.
+E
+Elle ne commence qu'après l'absorption.
+Bonnes réponses
+B
+Commentaires
+La salive contient de l'amylase qui commence à découper les sucres complexes dès la mastication.
+
+
+Q4
+L'infirmier sait que l'estomac assure plusieurs fonctions. Lesquelles ?
+A
+Le stockage temporaire des aliments.
+B
+La sécrétion de facteur intrinsèque (nécessaire à la vitamine B12).
+C
+L'absorption de la majorité des nutriments.
+D
+La transformation des aliments en une bouillie appelée "chyme".
+E
+La production d'acide chlorhydrique par les cellules pariétales.
+Bonnes réponses
+A, B, D, E
+Commentaires
+L'estomac prépare la digestion, mais l'absorption des nutriments (vitamines, fer, glucose...) se fait presque exclusivement dans l'intestin grêle.
+
+
+Q5
+Comment s'appellent les deux sphincters (valves) situés à l'entrée et à la sortie de l'estomac ?
+A
+Le cardia (entrée).
+B
+Le pylore (sortie).
+C
+L'anus.
+D
+La valvule iléo-cécale.
+E
+Le sphincter d'Oddi.
+Bonnes réponses
+A, B
+Commentaires
+Le cardia empêche le reflux vers l'œsophage. Le pylore régule le passage du chyme vers le duodénum.
+
+Q6
+Un patient présente une malabsorption intestinale. Quelle structure anatomique de l'intestin grêle est responsable de l'absorption des nutriments ?
+A
+Les bandelettes coliques.
+B
+Les villosités et microvillosités intestinales.
+C
+Elles augmentent considérablement la surface d'échange (environ 200 m²).
+D
+Les cryptes de l'estomac.
+E
+Les plaques de Peyer.
+Bonnes réponses
+B, C
+Commentaires
+Les villosités sont des replis de la muqueuse qui permettent le passage des nutriments vers le sang et la lymphe.
+
+Q7
+L'infirmière sait que l'intestin grêle est composé de trois parties. Dans quel ordre le chyme les traverse-t-il ?
+A
+Jéjunum → Duodénum → Iléon.
+B
+Duodénum → Jéjunum → Iléon.
+C
+Iléon → Jéjunum → Duodénum.
+D
+Duodénum → Colon → Rectum.
+E
+Le duodénum est la partie fixe qui reçoit la bile et le suc pancréatique.
+Bonnes réponses
+B, E
+Commentaires
+Le duodénum est le premier segment (en forme de C), suivi du jéjunum et de l'iléon (les anses grêles).
+
+
+Q8
+Quel est le rôle physiologique de la bile produite par le foie et stockée dans la vésicule ?
+A
+Digérer les protéines.
+B
+Émulsionner les graisses (lipides) pour faciliter leur digestion.
+C
+Neutraliser l'acidité du chyme gastrique.
+D
+Permettre l'élimination de la bilirubine (déchet des globules rouges).
+E
+Tuer toutes les bactéries de l'intestin.
+Bonnes réponses
+B, C, D
+Commentaires
+La bile agit comme un "savon" qui fractionne les graisses en fines gouttelettes pour que les lipases puissent les digérer.
+
+
+Q9
+À propos de l'anatomie du foie, quelles affirmations sont exactes ?
+A
+C'est la plus grosse glande de l'organisme.
+B
+Il reçoit du sang oxygéné par l'artère hépatique.
+C
+Il reçoit du sang riche en nutriments par la veine porte.
+D
+Il est situé dans l'hypocondre gauche.
+E
+Il est divisé en plusieurs lobes.
+Bonnes réponses
+A, B, C, E
+Commentaires
+Le foie a une double irrigation sanguine : l'artère hépatique (O2) et la veine porte (sang venant de l'intestin chargé de nutriments à traiter).
+
+
+Q10
+Le pancréas est une glande mixte (endocrine et exocrine). Que sécrète sa partie exocrine dans le tube digestif ?
+A
+L'insuline et le glucagon.
+B
+Le suc pancréatique riche en enzymes (lipase, amylase, protéase).
+C
+Du bicarbonate de sodium pour neutraliser l'acide.
+D
+De la bile.
+E
+De la gastrine.
+Bonnes réponses
+B, C
+Commentaires
+L'insuline est la partie endocrine (vers le sang). Le suc pancréatique (exocrine) est déversé dans le duodénum pour achever la digestion des aliments.
+
+
+Q11
+Un infirmier prend en charge un patient opéré du colon. Quelles sont les différentes parties du gros intestin (côlon) dans l'ordre du transit ?
+A
+Cæcum (avec l'appendice).
+B
+Côlon ascendant, transverse, descendant.
+C
+Jéjunum.
+D
+Côlon sigmoïde et rectum.
+E
+L'intestin grêle est situé après le colon.
+Bonnes réponses
+A, B, D
+Commentaires
+Le gros intestin commence au cæcum (bas à droite) et finit au rectum. Le jéjunum appartient à l'intestin grêle.
+
+
+Q12
+Quelle est la fonction principale du gros intestin (côlon) ?
+A
+Digérer les protéines de la viande.
+B
+Réabsorber l'eau et les électrolytes pour compacter les selles.
+C
+Héberger la flore intestinale (microbiote) qui synthétise certaines vitamines (K).
+D
+Sécréter de l'acide chlorhydrique.
+E
+Absorber les graisses.
+Bonnes réponses
+B, C
+Commentaires
+Le côlon ne digère presque plus rien ; son rôle est de recycler l'eau et de former les matières fécales grâce aux bactéries.
+
+
+Q13
+Un patient présente une douleur à la fosse iliaque droite. Quel organe s'y trouve et peut être responsable ?
+A
+La vésicule biliaire.
+B
+L'appendice vermiforme.
+C
+Le cæcum.
+D
+Le sigmoïde.
+E
+L'ovaire droit (chez la femme).
+Bonnes réponses
+B, C, E
+Commentaires
+La fosse iliaque droite est la zone de l'appendicite, mais aussi du cæcum et des annexes gynécologiques droites.
+
+
+Q14
+Comment appelle-t-on les mouvements musculaires qui font progresser les aliments dans tout le tube digestif ?
+A
+La segmentation.
+B
+Le péristaltisme.
+C
+La mastication.
+D
+Des ondes de contraction des muscles lisses.
+E
+Le reflux gastro-œsophagien.
+Bonnes réponses
+B, D
+Commentaires
+Le péristaltisme est une onde de contraction automatique qui pousse le bol alimentaire de l'œsophage jusqu'à l'anus.
+
+
+Q15
+D'où provient le sang qui irrigue les organes digestifs (estomac, intestin, foie) ?
+A
+De l'artère aorte abdominale.
+B
+Du tronc cœliaque.
+C
+Des artères mésentériques (supérieure et inférieure).
+D
+Des artères rénales.
+E
+Des veines pulmonaires.
+Bonnes réponses
+A, B, C
+Commentaires
+Le tronc cœliaque et les artères mésentériques sont les branches principales de l'aorte pour la digestion.
+
+
+
+
+
+Q17
+L'infirmière sait qu'un organe lymphoïde se situe dans l'hypocondre gauche, bien qu'il ne participe pas directement à la digestion. Lequel ?
+A
+Le foie.
+B
+La rate.
+C
+Le pancréas.
+D
+L'estomac.
+E
+Le rein gauche.
+Bonnes réponses
+B
+Commentaires
+La rate est située à gauche de l'estomac. Elle filtre le sang, mais ne digère pas les aliments.
+
+
+Q18
+Quelle hormone gastrique stimule la sécrétion d'acide par l'estomac lors de l'arrivée des aliments ?
+A
+L'insuline.
+B
+La gastrine.
+C
+La sécrétine.
+D
+L'adrénaline.
+E
+Le cortisol.
+Bonnes réponses
+B
+Commentaires
+La gastrine est produite par l'estomac lui-même pour s'auto-stimuler et produire du suc gastrique acide.
+
+
+Q19
+À propos de l'œsophage, quelles sont les affirmations correctes ?
+A
+C'est un conduit musculeux d'environ 25 cm.
+B
+Il traverse le diaphragme par un orifice appelé hiatus.
+C
+Il sécrète des enzymes digestives puissantes.
+D
+Il relie le pharynx à l'estomac.
+E
+Sa paroi contient du cartilage comme la trachée.
+Bonnes réponses
+A, B, D
+Commentaires
+L'œsophage n'a pas de cartilage (il est souple) et ne digère rien ; il sert uniquement au transport du bol alimentaire.
+
+
+Q20
+Le mécanisme de la défécation est contrôlé par deux sphincters anaux. Quelle est la différence physiologique entre les deux ?
+A
+Le sphincter interne est composé de muscle lisse (involontaire).
+B
+Le sphincter externe est composé de muscle strié (volontaire).
+C
+On peut contrôler le sphincter interne par la volonté.
+D
+L'arrivée des selles dans le rectum déclenche le réflexe de défécation (interne).
+E
+La continence dépend principalement du sphincter externe.
+Bonnes réponses
+A, B, D, E
+Commentaires
+Le sphincter interne s'ouvre automatiquement quand le rectum est plein. Le sphincter externe nous permet de "retenir" les selles jusqu'au moment voulu.
+
+
+
+
+
+ANATOMIE ET PHYSIOLOGIE DE L'APPAREIL URINAIRE
+Q1
+Un infirmier étudie la localisation des reins. Quelles sont les caractéristiques anatomiques exactes de ces organes ?
+A
+Ils sont situés dans la cavité péritonéale, avec l'estomac.
+B
+Ils sont situés en position rétro-péritonéale (derrière le péritoine).
+C
+Le rein droit est généralement un peu plus bas que le rein gauche (à cause du foie).
+D
+Ils sont protégés en partie par les dernières côtes (11e et 12e).
+E
+Ils sont situés au niveau des vertèbres cervicales.
+Bonnes réponses
+B, C, D
+Commentaires
+Les reins sont des organes profonds, plaqués contre la paroi dorsale. Le foie repousse le rein droit vers le bas. Ils se situent entre la 12e vertèbre thoracique et la 3e lombaire.
+
+Q2
+Quelle est l'unité structurelle et fonctionnelle du rein capable de former l'urine ?
+A
+Le calice.
+B
+Le néphron.
+C
+On en compte environ 1 million de nephrons par rein.
+D
+Le bassinet.
+E
+La pyramide de Malpighi.
+Bonnes réponses
+B, C
+Commentaires
+Le néphron est l'unité de filtration. Chaque rein possède une réserve massive de néphrons, ce qui explique pourquoi on peut vivre avec un seul rein.
+
+
+Q3
+L'infirmier sait que le néphron est composé de plusieurs parties. Dans quel ordre le filtrat circule-t-il ?
+A
+Capsule de Bowman → Tubule contourné proximal → Anse de Henle → Tubule contourné distal.
+B
+Tubule distal → Anse de Henle → Tubule proximal.
+C
+Glomérule → Capsule de Bowman → Tubules.
+D
+Bassinet → Uretère → Urètre.
+E
+Canal collecteur → Tubule proximal → Glomérule.
+Bonnes réponses
+A, C
+Commentaires
+La filtration commence dans le glomérule (réseau de capillaires), le liquide est recueilli dans la capsule de Bowman puis traité tout au long des tubules.
+
+
+Q4
+Qu'est-ce que la filtration glomérulaire  ?
+A
+Le passage de l'eau et des solutés du sang vers la capsule de Bowman.
+B
+Un processus sélectif qui laisse passer les grosses protéines.
+C
+Elle produit l'urine primitive (environ 180 litres par jour).
+D
+Elle dépend de la pression artérielle dans les capillaires du glomérule.
+E
+Elle ne laisse passer que les déchets toxiques.
+Bonnes réponses
+A, C, D
+Commentaires
+La filtration est "mécanique" : la pression pousse tout ce qui est petit (eau, glucose, ions, urée) à travers le filtre. Les protéines et les cellules sanguines sont trop grosses pour passer normalement.
+
+Q5
+Le rein possède une fonction endocrine importante. Quelle hormone sécrétée par le rein stimule la production de globules rouges ?
+A
+L'insuline.
+B
+L'érythropoïétine (EPO).
+C
+La rénine.
+D
+L'aldostérone.
+E
+Le cortisol.
+Bonnes réponses
+B
+Commentaires
+En cas de manque d'oxygène, le rein sécrète de l'EPO pour stimuler la moelle osseuse. C'est pourquoi les insuffisants rénaux chroniques sont souvent anémiés.
+
+Q6
+Un patient présente une chute de tension artérielle. Quelle substance le rein sécrète-t-il pour réguler la pression artérielle ?
+A
+La vasopressine.
+B
+La rénine.
+C
+Elle déclenche le système Rénine-Angiotensine-Aldostérone.
+D
+L'adrénaline.
+E
+Le glucose.
+Bonnes réponses
+B, C
+Commentaires
+La rénine est une enzyme qui active une cascade de réactions pour provoquer une vasoconstriction et une rétention de sel, ce qui fait remonter la tension.
+
+Q7
+L'infirmière administre de l'eau à un patient déshydraté. Quelle hormone agit sur le rein pour réabsorber l'eau et concentrer l'urine ?
+A
+L'ocytocine.
+B
+L'hormone antidiurétique (ADH ou Vasopressine).
+C
+Elle est produite par l'hypophyse.
+D
+Elle augmente la perméabilité des canaux collecteurs à l'eau.
+E
+Elle favorise l'élimination de l'eau (diurèse).
+Bonnes réponses
+B, C, D
+Commentaires
+L'ADH "ouvre les vannes" pour que l'eau retourne dans le sang au lieu de finir dans la vessie. Sans ADH, on urine en très grande quantité (diabète insipide).
+
+
+Q8
+Quelle est la fonction principale des uretères ?
+A
+Filtrer le sang une seconde fois.
+B
+Transporter l'urine des reins vers la vessie.
+C
+L'urine progresse par gravité uniquement.
+D
+L'urine progresse grâce à des ondes de contraction (péristaltisme).
+E
+Stocker l'urine pendant la nuit.
+Bonnes réponses
+B, D
+Commentaires
+Les uretères sont des conduits musculeux. Le péristaltisme permet à l'urine d'avancer même si l'on est allongé.
+
+
+Q9
+La vessie est un réservoir musculeux. Comment s'appelle le muscle de la paroi vésicale qui se contracte pour l'expulsion de l'urine ?
+A
+Le myocarde.
+B
+Le détrusor.
+C
+Le sphincter interne.
+D
+Le muscle lisse vésical.
+E
+Le diaphragme.
+Bonnes réponses
+B, D
+Commentaires
+Le détrusor est un muscle puissant dont la contraction volontaire et involontaire permet la miction.
+
+
+
+Q11
+Un infirmier pose une sonde urinaire. Quelles sont les différences anatomiques de l'urètre entre l'homme et la femme ?
+A
+L'urètre féminin est court (environ 3 à 4 cm).
+B
+L'urètre masculin est long (environ 20 cm).
+C
+L'urètre masculin ne sert qu'à l'élimination de l'urine.
+D
+La brièveté de l'urètre féminin favorise les infections urinaires (cystites).
+E
+L'urètre masculin traverse la prostate.
+Bonnes réponses
+A, B, D, E
+Commentaires
+Chez l'homme, l'urètre est une voie commune urogénitale (urine et sperme). Chez la femme, le trajet court facilite la remontée des bactéries vers la vessie.
+
+
+
+Q14
+Où est recueillie l'urine terminale juste avant de quitter le rein vers l'uretère ?
+A
+Dans la capsule de Bowman.
+B
+Dans le bassinet (ou pyélon).
+C
+Dans le sinus rénal.
+D
+Dans les grands calices.
+E
+Dans le cortex.
+Bonnes réponses
+B, D
+Commentaires
+L'urine s'écoule des pyramides vers les calices, puis se regroupe dans le bassinet, qui est l'entonnoir collecteur du rein.
+
+
+Q15
+Quelle vitamine est activée par le rein pour permettre l'absorption du calcium dans l'intestin ?
+A
+Vitamine C.
+B
+Vitamine D (Calcitriol).
+C
+Vitamine K.
+D
+Vitamine B12.
+E
+Vitamine A.
+Bonnes réponses
+B
+Commentaires
+Le rein assure la dernière étape de transformation de la vitamine D en sa forme active. C'est pourquoi les maladies rénales entraînent souvent des problèmes osseux.
+
+
+Q16
+Le rein participe à l'équilibre acido-basique du sang. Comment agit-il ?
+A
+En excrétant des ions hydrogène (H+).
+B
+En réabsorbant des bicarbonates (HCO3-).
+C
+En produisant de l'oxygène.
+D
+En régulant le pH sanguin (autour de 7,40).
+E
+Il ne joue aucun rôle dans l'acidité.
+Bonnes réponses
+A, B, D
+Commentaires
+Le rein élimine les acides produits par le métabolisme et recycle les tampons (bicarbonates) pour maintenir le pH stable.
+
+
+Q17
+L'irrigation sanguine du rein est massive. D'où provient le sang artériel et quel pourcentage du débit cardiaque reçoit-il ?
+A
+De l'artère mésentérique.
+B
+De l'artère rénale (branche de l'aorte).
+C
+Les reins reçoivent environ 20 à 25 % du débit cardiaque total au repos.
+D
+Le sang ressort par la veine rénale vers la veine cave inférieure.
+E
+Le rein reçoit seulement 5 % du sang.
+Bonnes réponses
+B, C, D
+Commentaires
+Bien que petits, les reins sont extrêmement irrigués car leur rôle est de nettoyer le sang en permanence.
+
+
+
+
+
+APPAREIL GÉNITAL MASCULIN
+Q1
+Un infirmier explique à un patient le rôle des testicules. Quelles sont les deux fonctions principales de ces organes ?
+A
+La production de spermatozoïdes (spermatogénèse).
+B
+La sécrétion d'urine.
+C
+La sécrétion de testostérone (fonction endocrine).
+D
+Le stockage définitif des spermatozoïdes.
+E
+La régulation du taux de glucose.
+Bonnes réponses
+A, C
+Commentaires
+Les testicules sont des glandes mixtes : exocrines (spermatozoïdes) et endocrines (testostérone). Ils ne produisent pas d'urine et le stockage se fait ailleurs.
+
+
+Q3
+Un infirmier suit le trajet des spermatozoïdes. Dans quel organe terminent-ils leur maturation et sont-ils stockés avant l'éjaculation ?
+A
+La prostate.
+B
+L'épididyme.
+C
+Les vésicules séminales.
+D
+Le canal déférent.
+E
+La vessie.
+Bonnes réponses
+B
+Commentaires
+L'épididyme est un long conduit replié situé sur le testicule. C'est là que les spermatozoïdes acquièrent leur mobilité.
+
+Q4
+Un patient âgé présente une hypertrophie de la prostate. Quels sont les rôles physiologiques de la prostate et des vésicules séminales ?
+A
+Produire la majorité du liquide séminal (sperme).
+B
+Nourrir et protéger les spermatozoïdes.
+C
+Produire des hormones de croissance.
+D
+Neutraliser l'acidité de l'urètre et du vagin.
+E
+Filtrer le sang.
+Bonnes réponses
+A, B, D
+Commentaires
+Le sperme est composé de spermatozoïdes (10%) et de sécrétions de la prostate et des vésicules séminales (90%) qui fournissent énergie (fructose) et protection aux cellules.
+
+
+Q6
+Concernant l'anatomie du pénis, quelles sont les structures responsables de l'érection sous l'effet de l'afflux sanguin ?
+A
+Les corps caverneux.
+B
+Le corps spongieux (entourant l'urètre).
+C
+Le muscle détrusor.
+D
+Le prépuce.
+E
+Le gland.
+Bonnes réponses
+A, B
+Commentaires
+L'érection est un phénomène vasculaire : le sang remplit les espaces caverneux et spongieux, rendant l'organe rigide.
+
+
+Q7
+Quelles hormones produites par l'hypophyse contrôlent la fonction testiculaire ?
+A
+L'insuline.
+B
+La FSH (Hormone folliculo-stimulante).
+C
+La LH (Hormone lutéinisante).
+D
+L'ocytocine.
+E
+La prolactine.
+Bonnes réponses
+B, C
+Commentaires
+Chez l'homme, la FSH stimule la production de spermatozoïdes et la LH stimule la production de testostérone.
+
+
+Q8
+Quelle est la particularité de l'urètre chez l'homme par rapport à la femme ?
+A
+Il est beaucoup plus court.
+B
+Il est une voie commune pour l'urine et le sperme (voie urogénitale).
+C
+Il ne transporte jamais d'urine.
+D
+Il traverse la prostate.
+E
+Il est situé derrière le rectum.
+Bonnes réponses
+B, D
+Commentaires
+L'urètre masculin a une double fonction (excrétrice et reproductrice). Il traverse successivement la prostate, le périnée et le pénis.
+
+
+Q9
+Qu'est-ce que la spermatogénèse ?
+A
+La destruction des spermatozoïdes usagés.
+B
+Le processus de formation des spermatozoïdes.
+C
+Elle dure environ 64 à 74 jours.
+D
+Elle commence à la naissance.
+E
+Elle commence à la puberté et se poursuit toute la vie.
+Bonnes réponses
+B, C, E
+Commentaires
+Contrairement à la femme qui naît avec son stock d'ovocytes, l'homme produit des spermatozoïdes en continu à partir de la puberté.
+
+
+
+
+
+
+APPAREIL GÉNITAL FÉMININ
+Q11
+Une infirmière explique l'anatomie interne à une patiente. Quels organes composent l'appareil génital interne féminin ?
+A
+Les ovaires et les trompes de Fallope.
+B
+L'utérus.
+C
+Le vagin.
+D
+La vulve.
+E
+Le clitoris.
+Bonnes réponses
+A, B, C
+Commentaires
+La vulve, le clitoris et les lèvres font partie des organes génitaux externes. Le vagin, l'utérus, les trompes et les ovaires sont internes.
+
+
+Q12
+Où a lieu normalement la fécondation (rencontre entre l'ovule et le spermatozoïde) ?
+A
+Dans le vagin.
+B
+Dans la cavité utérine.
+C
+Dans le tiers externe de la trompe de Fallope.
+D
+Directement dans l'ovaire.
+E
+Dans le col de l'utérus.
+Bonnes réponses
+C
+Commentaires
+L'ovule est capté par la trompe. Si des spermatozoïdes sont présents, la rencontre se fait dans la trompe, puis l'œuf descend vers l'utérus.
+
+
+Q13
+L'infirmière sait que l'utérus est un muscle puissant. Comment s'appellent sa couche musculaire et sa muqueuse interne ?
+A
+Le péricarde et l'endocarde.
+B
+Le myomètre (muscle).
+C
+L'endomètre (muqueuse qui saigne pendant les règles).
+D
+Le péritoine.
+E
+L'épimysium.
+Bonnes réponses
+B, C
+Commentaires
+Le myomètre permet les contractions lors de l'accouchement. L'endomètre s'épaissit chaque mois pour accueillir un éventuel embryon.
+
+
+Q14
+Concernant le cycle ovarien, quelles hormones sont produites par les ovaires ?
+A
+L'adrénaline.
+B
+Les œstrogènes.
+C
+La progestérone.
+D
+La testostérone uniquement.
+E
+Le cortisol.
+Bonnes réponses
+B, C
+Commentaires
+Les œstrogènes dominent la première partie du cycle, et la progestérone la seconde partie (après l'ovulation).
+
+
+Q15
+Une patiente interroge l'infirmière sur la date de son ovulation pour un cycle régulier de 28 jours. Quand a-t-elle lieu théoriquement ?
+A
+Au 1er jour des règles.
+B
+Au 14e jour du cycle.
+C
+Juste avant les règles suivantes.
+D
+Environ 14 jours avant le premier jour des règles suivantes.
+E
+Tous les jours.
+Bonnes réponses
+B, D
+Commentaires
+L'ovulation divise le cycle. La phase après l'ovulation (phase lutéale) est fixe (14 jours). Pour un cycle de 28 jours, l'ovulation a lieu au milieu (J14).
+
+
+Q16
+Qu'est-ce que le corps jaune pour une infirmière en maternité ?
+A
+Une infection de l'ovaire.
+B
+Ce qui reste du follicule après l'expulsion de l'ovule.
+C
+Une structure qui sécrète de la progestérone pour maintenir la grossesse.
+D
+Un kyste dangereux.
+E
+La partie externe du vagin.
+Bonnes réponses
+B, C
+Commentaires
+Après l'ovulation, le follicule se transforme en corps jaune. S'il n'y a pas de grossesse, il dégénère, provoquant la chute des hormones et l'arrivée des règles.
+
+
+Q17
+Le col de l'utérus produit une substance facilitant ou barrant le passage des spermatozoïdes. Laquelle ?
+A
+Le suc gastrique.
+B
+La glaire cervicale.
+C
+Elle devient filante et transparente au moment de l'ovulation.
+D
+Le surfactant.
+E
+L'urine.
+Bonnes réponses
+B, C
+Commentaires
+La glaire cervicale change d'aspect selon le cycle. Elle protège l'utérus des bactéries et aide les spermatozoïdes à monter lors de la période fertile.
+
+
+
+
+
+Q1
+Un infirmier étudie l'ostéologie du bassin. Quelles pièces osseuses constituent la ceinture pelvienne ?
+A
+Les deux os coxaux (ou os iliaques).
+B
+Le sacrum.
+C
+Le coccyx.
+D
+Le fémur.
+E
+La symphyse pubienne (qui est une articulation).
+Bonnes réponses
+A, B, C
+Commentaires
+Le bassin est un anneau osseux formé par les deux os coxaux en avant et sur les côtés, et par le sacrum et le coccyx en arrière. Le fémur s'articule avec le bassin mais n'en fait pas partie.
+
+
+
+
+
+Les Maladies infectieuses : 
+La Dengue
+Q1
+Un infirmier prend en charge un patient suspect de Dengue de retour de zone tropicale. Quelles affirmations sont correctes concernant cette pathologie ?
+A
+C'est une infection virale transmise par la piqûre de moustiques du genre Aedes.
+B
+La transmission directe d'homme à homme est la voie principale de contagion.
+C
+Elle se manifeste souvent par une fièvre brutale, des céphalées et des douleurs articulaires ("fièvre rouge").
+D
+Le signe du lacet positif peut indiquer un risque de complications hémorragiques.
+E
+Le traitement de référence repose sur l'administration précoce d'aspirine pour la fièvre.
+✓ Bonnes réponses
+A, C, D
+Commentaire
+La dengue est transmise par un vecteur (moustique). L'aspirine et les AINS sont strictement contre-indiqués en raison du risque hémorragique (on utilise uniquement le paracétamol). Le signe du lacet permet de tester la fragilité capillaire.
+
+Les Schistosomiases (Bilharziose)
+Q2
+Concernant la Schistosomiase (ou Bilharziose), que doit savoir l'infirmier sur la transmission et les signes cliniques ?
+A
+La contamination se fait par pénétration transcutanée lors de bains en eau douce stagnante.
+B
+Le parasite nécessite un hôte intermédiaire qui est un mollusque d'eau douce.
+C
+L'hématurie (sang dans les urines) est un signe classique de la forme uro-génitale.
+D
+Le port de bottes en caoutchouc lors de la marche en zone boueuse est une mesure préventive.
+E
+La maladie se transmet principalement par la consommation de viande de porc mal cuite.
+✓ Bonnes réponses
+A, B, C, D
+Commentaire
+La bilharziose est une péril fécal/urinaire lié à l'eau douce. Les larves (furcocercaires) pénètrent la peau saine. La prévention repose sur l'évitement des contacts cutanés avec l'eau douce contaminée et la lutte contre les mollusques.
+
+
+
+ La Rougeole
+Q3
+Une infirmière scolaire fait face à une épidémie de rougeole. Quelles sont les caractéristiques de cette maladie ?
+A
+C'est une infection virale extrêmement contagieuse par voie aérienne.
+B
+Le signe de Köplik (petites taches blanches sur muqueuse buccale) est pathognomonique.
+C
+L'éruption cutanée (exanthème) débute classiquement au niveau des pieds et remonte.
+D
+La vaccination (Rappel ROR) est le seul moyen de prévention efficace.
+E
+Elle peut entraîner des complications graves comme des pneumopathies ou des encéphalites.
+✓ Bonnes réponses
+A, B, D, E
+Commentaire
+La rougeole est très contagieuse avant même l'apparition des boutons. L'éruption commence toujours par la face (derrière les oreilles) avant de descendre sur le corps. Le signe de Köplik apparaît 2 jours avant l'éruption.
+
+
+
+
+La Toxoplasmose
+Q4
+Un infirmier donne des conseils de prévention à une femme enceinte non immunisée (séro-négative) contre la toxoplasmose. Quelles sont les recommandations correctes ?
+A
+Consommer la viande bien cuite ou l'avoir congelée au préalable.
+B
+Éviter le contact direct avec la litière des chats.
+C
+Laver soigneusement les fruits et légumes pouvant être souillés par de la terre.
+D
+Le risque majeur est la transmission au fœtus, pouvant causer des lésions cérébrales ou oculaires.
+E
+La patiente doit être vaccinée immédiatement pendant sa grossesse.
+✓ Bonnes réponses
+A, B, C, D
+Commentaire
+Il n'existe pas de vaccin contre la toxoplasmose. La prévention est purement hygiéno-diététique. Le parasite (Toxoplasma gondii) se trouve dans la viande crue, la terre et les excréments de chats.
+
+
+
+
+ Les Hépatites Virales (B et C)
+Q5
+À propos des hépatites virales B (VHB) et C (VHC), quelles sont les connaissances indispensables pour un infirmier ?
+A
+Les deux virus peuvent évoluer vers une forme chronique, une cirrhose ou un cancer du foie.
+B
+L'hépatite B est évitable par une vaccination efficace.
+C
+La transmission de l'hépatite C est principalement féco-orale (eau et aliments).
+D
+L'hépatite B se transmet par le sang, les rapports sexuels et de la mère à l'enfant.
+E
+En cas d'Accident d'Exposition au Sang (AES), le risque de transmission est plus élevé pour le VHB que pour le VIH.
+✓ Bonnes réponses
+A, B, D, E
+Commentaires
+L'hépatite C se transmet essentiellement par le sang (usage de drogues, matériel souillé) ; c'est l'hépatite A qui est féco-orale. Le VHB est très infectieux (100 fois plus que le VIH lors d'une piqûre accidentelle).
+

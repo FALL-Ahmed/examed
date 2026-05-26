@@ -29,6 +29,7 @@ function RegisterContent() {
   const { lang } = useLang();
   const isAr = lang === 'ar';
   const examenBlancId = searchParams.get('id') || '';
+  const targetParam = (searchParams.get('target') || 'INFIRMIER').toUpperCase();
 
   const [session, setSession] = useState<any>(null);
   const [loading, setLoading] = useState(true);
@@ -40,7 +41,7 @@ function RegisterContent() {
   const isFormAr = formLang === 'ar';
 
   useEffect(() => {
-    examenBlancApi.current().then(r => {
+    examenBlancApi.current(targetParam).then(r => {
       const currentSession = r.data.session;
       setSession(currentSession);
 

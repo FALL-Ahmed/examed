@@ -40,7 +40,7 @@ function buildReminderUrl(l: any, sessionTitle: string): string {
   return `https://wa.me/${phone}?text=${encodeURIComponent(msg)}`;
 }
 
-const defaultForm = { title: 'Examen Blanc National', descriptionFr: '', descriptionAr: '', startsAt: '', endsAt: '', resultsAt: '', totalQ: 80, durationMin: 120 };
+const defaultForm = { title: 'Examen Blanc National', descriptionFr: '', descriptionAr: '', startsAt: '', endsAt: '', resultsAt: '', totalQ: 80, durationMin: 120, target: 'INFIRMIER' };
 
 export default function AdminExamenBlancPage() {
   const [tab, setTab] = useState<'sessions' | 'create' | 'stats' | 'leads'>('sessions');
@@ -309,6 +309,9 @@ export default function AdminExamenBlancPage() {
                     <div className="flex items-center gap-2.5 min-w-0">
                       <div className={`w-2 h-2 rounded-full flex-shrink-0 ${statusColor}`} />
                       <h3 className="font-bold text-foreground truncate">{s.title}</h3>
+                      <span className={`px-2 py-0.5 rounded-full text-xs font-semibold flex-shrink-0 ${s.target === 'SAGE_FEMME' ? 'bg-pink-100 text-pink-700 dark:bg-pink-900/30 dark:text-pink-400' : 'bg-indigo-100 text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-400'}`}>
+                        {s.target === 'SAGE_FEMME' ? '👶 Sage-femme' : '🏥 Infirmier'}
+                      </span>
                       <span className={`px-2 py-0.5 rounded-full text-xs font-semibold flex-shrink-0 ${
                         !s.isActive ? 'bg-muted text-muted-foreground' :
                         isOpen ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400' :
@@ -428,6 +431,19 @@ export default function AdminExamenBlancPage() {
           {createError && <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 text-red-700 dark:text-red-400 px-4 py-3 rounded-xl text-sm">{createError}</div>}
           {createSuccess && <div className="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 text-green-700 dark:text-green-400 px-4 py-3 rounded-xl text-sm">{createSuccess}</div>}
 
+          <div>
+            <label className={labelCls}>Filière <span className="text-red-400">*</span></label>
+            <div className="flex gap-2">
+              {([{ val: 'INFIRMIER', label: '🏥 Infirmier(e)', color: 'indigo' }, { val: 'SAGE_FEMME', label: '👶 Sage-femme', color: 'pink' }] as const).map(({ val, label, color }) => (
+                <button key={val} type="button" onClick={() => setForm(p => ({ ...p, target: val }))}
+                  className={`flex-1 py-2 rounded-xl text-sm font-semibold border transition ${form.target === val
+                    ? color === 'indigo' ? 'bg-indigo-600 border-indigo-600 text-white' : 'bg-pink-600 border-pink-600 text-white'
+                    : 'border-border text-muted-foreground hover:bg-muted'}`}>
+                  {label}
+                </button>
+              ))}
+            </div>
+          </div>
           <div>
             <label className={labelCls}>Titre</label>
             <input className={inputCls} value={form.title} onChange={e => setForm(p => ({ ...p, title: e.target.value }))} />
@@ -861,8 +877,9 @@ export default function AdminExamenBlancPage() {
             </button>
             {sessions.map(s => (
               <button key={s.id} onClick={() => { setLeadsSession(s.id); setLeadsFilter('all'); setScoreFilter('all'); }}
-                className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition ${leadsSession === s.id ? 'bg-violet-600 text-white' : 'bg-muted text-muted-foreground hover:bg-muted/80'}`}>
-                {s.title} ({leads.filter(l => l.examenBlancId === s.id).length})
+                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition ${leadsSession === s.id ? 'bg-violet-600 text-white' : 'bg-muted text-muted-foreground hover:bg-muted/80'}`}>
+                <span>{s.target === 'SAGE_FEMME' ? '👶' : '🏥'}</span>
+                {s.title} ({leads.filter((l: any) => l.examenBlancId === s.id).length})
               </button>
             ))}
           </div>

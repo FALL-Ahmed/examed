@@ -10,8 +10,8 @@ export class ThemesController {
 
   // Public — accessible sans auth (pour la page pratique gratuite)
   @Get('public')
-  findAllPublic(@Query('lang') lang?: string) {
-    return this.themesService.findAll(lang ? lang.toUpperCase() : undefined, undefined);
+  findAllPublic(@Query('lang') lang?: string, @Query('target') target?: string) {
+    return this.themesService.findAll(lang ? lang.toUpperCase() : undefined, undefined, target?.toUpperCase() || 'INFIRMIER');
   }
 
   @ApiBearerAuth()

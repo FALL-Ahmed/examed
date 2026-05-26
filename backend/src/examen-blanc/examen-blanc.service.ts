@@ -40,9 +40,9 @@ function normalizePhone(phone: string): string {
 export class ExamenBlancService {
   constructor(private prisma: PrismaService) {}
 
-  async getCurrentSession() {
+  async getCurrentSession(target = 'INFIRMIER') {
     const session = await db(this.prisma).examenBlanc.findFirst({
-      where: { isActive: true },
+      where: { isActive: true, target },
       orderBy: { createdAt: 'desc' },
     });
 
@@ -524,35 +524,33 @@ export class ExamenBlancService {
     };
   }
 
-  async generateQuestions(totalQ = 80, lang: 'FR' | 'AR' = 'FR'): Promise<string[]> {
-    // Sessions précédentes du plus ancien au plus récent
+  async generateQuestions(totalQ = 80, lang: 'FR' | 'AR' = 'FR', target = 'INFIRMIER'): Promise<string[]> {
+    // Sessions précédentes du plus ancien au plus récent (même target)
     const previousSessions = await db(this.prisma).examenBlanc.findMany({
+      where: { target },
       orderBy: { createdAt: 'asc' },
       select: { questionIdsFr: true, questionIdsAr: true },
     });
 
-    // usedAge : index de la session où la question a été utilisée en dernier
-    // Plus l'index est bas (vieille session), plus la question est "recyclable" en priorité
     const usedAge = new Map<string, number>();
     previousSessions.forEach((s: any, idx: number) => {
       const ids: string[] = lang === 'FR' ? s.questionIdsFr : s.questionIdsAr;
       ids.forEach(id => usedAge.set(id, idx));
     });
 
-    // Jamais utilisée = Infinity (priorité max), sinon index de dernière utilisation
     const freshness = (id: string): number => usedAge.has(id) ? usedAge.get(id)! : Infinity;
-
     const byFreshness = (a: string, b: string) => {
       const fa = freshness(a), fb = freshness(b);
       if (fa === fb) return Math.random() - 0.5;
       if (fa === Infinity) return -1;
       if (fb === Infinity) return 1;
-      return fa - fb; // plus vieille utilisation = priorité
+      return fa - fb;
     };
 
-    const subThemes = await this.prisma.subTheme.findMany({
-      where: { theme: { language: lang } },
+    const allSubThemes = await this.prisma.subTheme.findMany({
+      where: { theme: { language: lang, target } },
       include: {
+        theme: { select: { name: true } },
         questions: {
           where: { isActive: true, explanation: { not: '' } },
           select: { id: true },
@@ -560,34 +558,63 @@ export class ExamenBlancService {
       },
     });
 
-    const available = subThemes.filter(st => st.questions.length > 0);
+    const available = allSubThemes.filter((st: any) => st.questions.length > 0);
+
+    // Pour SAGE_FEMME : limiter les thèmes partagés avec INFIRMIER (ANATOMIE + PRATIQUE) à 7 questions
+    if (target === 'SAGE_FEMME') {
+      const infirmierThemeNames = await this.prisma.theme
+        .findMany({ where: { language: lang, target: 'INFIRMIER' }, select: { name: true } })
+        .then((ts: any[]) => new Set(ts.map((t: any) => t.name)));
+
+      const sharedSubs = available.filter((st: any) => infirmierThemeNames.has(st.theme.name));
+      const nativeSubs  = available.filter((st: any) => !infirmierThemeNames.has(st.theme.name));
+
+      const SHARED_QUOTA = Math.max(1, Math.round(totalQ * 7 / 80));
+      const sharedPool = sharedSubs.flatMap((st: any) => st.questions.map((q: any) => q.id)).sort(() => Math.random() - 0.5);
+      const sharedSelected = sharedPool.slice(0, Math.min(SHARED_QUOTA, sharedPool.length));
+
+      const nativeSelected: string[] = [];
+      const nativePool: string[] = [];
+      for (const st of nativeSubs) {
+        const sorted = [...(st as any).questions.map((q: any) => q.id)].sort(byFreshness);
+        nativeSelected.push(sorted[0]);
+        if (sorted.length > 1) nativePool.push(...sorted.slice(1));
+      }
+      const needed = totalQ - sharedSelected.length - nativeSelected.length;
+      if (needed > 0 && nativePool.length > 0) {
+        nativePool.sort(byFreshness);
+        nativeSelected.push(...nativePool.slice(0, Math.min(needed, nativePool.length)));
+      }
+
+      return [...sharedSelected, ...nativeSelected].sort(() => Math.random() - 0.5).slice(0, totalQ);
+    }
+
+    // INFIRMIER : algorithme inchangé
     const selected: string[] = [];
     const pool: string[] = [];
-
     for (const st of available) {
-      const sorted = [...st.questions.map(q => q.id)].sort(byFreshness);
+      const sorted = [...(st as any).questions.map((q: any) => q.id)].sort(byFreshness);
       selected.push(sorted[0]);
       if (sorted.length > 1) pool.push(...sorted.slice(1));
     }
-
     const needed = totalQ - selected.length;
     if (needed > 0 && pool.length > 0) {
       pool.sort(byFreshness);
       selected.push(...pool.slice(0, Math.min(needed, pool.length)));
     }
-
     return selected.sort(() => Math.random() - 0.5).slice(0, totalQ);
   }
 
   async createSession(dto: {
     title?: string; descriptionFr?: string; descriptionAr?: string;
     startsAt: string; endsAt: string; resultsAt?: string;
-    totalQ?: number; durationMin?: number;
+    totalQ?: number; durationMin?: number; target?: string;
   }) {
     const totalQ = dto.totalQ ?? 80;
+    const target = dto.target?.toUpperCase() || 'INFIRMIER';
     const [questionIdsFr, questionIdsAr] = await Promise.all([
-      this.generateQuestions(totalQ, 'FR'),
-      this.generateQuestions(totalQ, 'AR'),
+      this.generateQuestions(totalQ, 'FR', target),
+      this.generateQuestions(totalQ, 'AR', target),
     ]);
     const endsAt = new Date(dto.endsAt);
     const resultsAt = dto.resultsAt ? new Date(dto.resultsAt) : new Date(endsAt.getTime() + 24 * 60 * 60 * 1000);
@@ -604,6 +631,7 @@ export class ExamenBlancService {
         questionIdsAr,
         totalQ,
         durationMin: dto.durationMin ?? 120,
+        target,
         isActive: true,
       },
     });

@@ -56,8 +56,9 @@ function formatTime(sec: number) {
 }
 
 const EB_STATE_KEY = 'examen_blanc_state';
+type Target = 'INFIRMIER' | 'SAGE_FEMME';
 
-export default function ExamenBlancPage() {
+export function ExamenBlancPageContent({ target }: { target: Target }) {
   const { lang, setLang } = useLang();
   const isAr = lang === 'ar';
   const [data, setData] = useState<any>(null);
@@ -97,19 +98,20 @@ export default function ExamenBlancPage() {
   }
 
   const load = useCallback(async () => {
+    setLoading(true);
     try {
-      const curr = await examenBlancApi.current();
+      const curr = await examenBlancApi.current(target);
       setData(curr.data);
     } catch {
       setData({ session: null, stats: { participants: 0, totalAllTime: 0 } });
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [target]);
 
   useEffect(() => { load(); }, [load]);
 
-  if (loading) return (
+  if (loading && !data) return (
     <div className="min-h-screen flex items-center justify-center" style={{ background: 'linear-gradient(145deg,#0f0a2e,#1a1040,#0d1b3e)' }}>
       <div className="w-10 h-10 border-4 border-violet-400 border-t-transparent rounded-full animate-spin" />
     </div>
@@ -173,6 +175,7 @@ export default function ExamenBlancPage() {
       {/* Hero */}
       <section className="relative z-10 max-w-6xl mx-auto px-6 pt-8 pb-16">
         <div className="text-center mb-10">
+
           <div className={`inline-flex items-center gap-2 px-4 py-1.5 rounded-full border text-sm font-bold mb-6 ${statusBadge.color}`}>
             {statusBadge.text}
           </div>
@@ -226,7 +229,7 @@ export default function ExamenBlancPage() {
 
           {/* CTA */}
           {isOpen ? (
-            <Link href={`/examen-blanc/register?id=${session.id}`}
+            <Link href={`/examen-blanc/register?id=${session.id}&target=${target}`}
               className="inline-flex items-center gap-2 px-8 py-4 rounded-2xl font-bold text-lg text-white hover:opacity-90 transition shadow-2xl shadow-violet-900/50"
               style={{ background: 'linear-gradient(135deg,#7c3aed,#6366f1)' }}>
               {isAr ? 'المشاركة الآن' : 'Participer maintenant'}
@@ -411,4 +414,8 @@ export default function ExamenBlancPage() {
       </section>
     </div>
   );
+}
+
+export default function ExamenBlancPage() {
+  return <ExamenBlancPageContent target="INFIRMIER" />;
 }

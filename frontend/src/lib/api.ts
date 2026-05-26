@@ -97,7 +97,7 @@ export const themesApi = {
 
 // Questions
 export const publicApi = {
-  themes: (lang?: string) => axios.get(`${API_URL}/themes/public`, lang ? { params: { lang } } : {}),
+  themes: (lang?: string, target?: string) => axios.get(`${API_URL}/themes/public`, { params: { ...(lang ? { lang } : {}), ...(target ? { target } : {}) } }),
   freePractice: (themeId: string, themeName: string, count: number, lang: string, subThemeId?: string) =>
     axios.get(`${API_URL}/questions/free-trial/practice`, { params: { themeId, themeName, count, lang, subThemeId } }),
   nationalStats: (score: number, themeId?: string, subThemeId?: string) =>
@@ -219,7 +219,7 @@ export const adminApi = {
 };
 
 export const examenBlancApi = {
-  current: () => axios.get(`${API_URL}/examen-blanc/current`),
+  current: (target?: string) => axios.get(`${API_URL}/examen-blanc/current`, target ? { params: { target } } : {}),
   register: (data: { nom: string; prenom: string; telephone: string; ville: string; examenBlancId: string; lang: string }) =>
     axios.post(`${API_URL}/examen-blanc/register`, data),
   getSession: (sessionId: string) => axios.get(`${API_URL}/examen-blanc/session/${sessionId}`),
