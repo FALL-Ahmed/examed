@@ -101,6 +101,63 @@ export class QuestionsService {
     return questions.sort(() => Math.random() - 0.5).slice(0, Math.min(count, 30));
   }
 
+  async getSageFemmeFreeSession(lang: string = 'fr') {
+    const langUp = lang.toUpperCase() as 'FR' | 'AR';
+
+    // Questions depuis GROSSESSE NORMALE (tous ses sous-thèmes)
+    const grossesseQuestions = await this.prisma.question.findMany({
+      where: {
+        isActive: true,
+        explanation: { not: '' },
+        subTheme: {
+          theme: {
+            language: langUp,
+            target: 'SAGE_FEMME',
+            name: { contains: 'grossesse', mode: 'insensitive' },
+          },
+        },
+      },
+      include: { subTheme: { include: { theme: true } } },
+      orderBy: { id: 'asc' },
+    });
+
+    // Questions depuis le sous-thème "infections sexuellement" de GYNECOLOGIE
+    const infectionQuestions = await this.prisma.question.findMany({
+      where: {
+        isActive: true,
+        explanation: { not: '' },
+        subTheme: {
+          name: { contains: 'infections sexuellement', mode: 'insensitive' },
+          theme: { language: langUp, target: 'SAGE_FEMME' },
+        },
+      },
+      include: { subTheme: { include: { theme: true } } },
+      orderBy: { id: 'asc' },
+    });
+
+    // Fusionner, trier par ID (fixe pour tout le monde), prendre 40
+    const all = [...grossesseQuestions, ...infectionQuestions];
+    all.sort((a, b) => a.id < b.id ? -1 : 1);
+    const selected = all.slice(0, 40);
+
+    return selected.map((q, idx) => ({
+      index: idx,
+      id: q.id,
+      text: q.text,
+      choiceA: q.choiceA,
+      choiceB: q.choiceB,
+      choiceC: q.choiceC,
+      choiceD: q.choiceD,
+      choiceE: q.choiceE,
+      correctAnswer: q.correctAnswer,
+      explanation: q.explanation,
+      imageUrl: (q as any).imageUrl || null,
+      isMultiple: q.correctAnswer.split(',').length > 1,
+      subTheme: q.subTheme?.name || null,
+      theme: (q.subTheme as any)?.theme?.name || null,
+    }));
+  }
+
   async getFreeTrial(themeName: string, lang: string = 'fr') {
     const normalized = themeName.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '');
 

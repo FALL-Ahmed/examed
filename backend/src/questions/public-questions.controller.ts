@@ -33,6 +33,12 @@ export class PublicQuestionsController {
     return this.questionsService.getFreePracticeQuestions(themeId, themeName, parseInt(count) || 10, lang, subThemeId);
   }
 
+  // Session gratuite fixe pour SAGE_FEMME (40 questions, mêmes pour tout le monde)
+  @Get('free-session')
+  getFreeSession(@Query('lang') lang: string) {
+    return this.questionsService.getSageFemmeFreeSession(lang || 'fr');
+  }
+
   @Post('event')
   trackEvent(@Body() dto: { sessionId: string; theme: string; lang: string; source: string; questionN: number; isCorrect: boolean }) {
     return this.questionsService.trackFreeTrialEvent(dto);

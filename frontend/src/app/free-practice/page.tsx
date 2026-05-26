@@ -54,9 +54,10 @@ const LETTERS = ['A', 'B', 'C', 'D', 'E'];
 const AR_LETTERS: Record<string, string> = { A: 'أ', B: 'ب', C: 'ج', D: 'د', E: 'هـ' };
 
 export default function FreePracticePage() {
+  const isDebug = typeof window !== 'undefined' && new URLSearchParams(window.location.search).get('debug') === '1';
   const [lang, setLang] = useState<'fr' | 'ar'>('fr');
   const isAr = lang === 'ar';
-  const [target, setTarget] = useState<Target>('INFIRMIER');
+  const [target, setTarget] = useState<Target>('SAGE_FEMME');
 
   const [themes, setThemes] = useState<any[]>([]);
   const [loadingThemes, setLoadingThemes] = useState(true);
@@ -69,16 +70,16 @@ export default function FreePracticePage() {
   const [count, setCount] = useState(10);
 
   // Noms capturés au démarrage de la session (persistent pendant les résultats)
-  const [sessionThemeName, setSessionThemeName] = useState('');
+  const [sessionThemeName, setSessionThemeName] = useState(isDebug ? 'Grossesse & Gynécologie' : '');
   const [sessionSubThemeName, setSessionSubThemeName] = useState('');
+  const [questions, setQuestions] = useState<any[]>(isDebug ? Array(40).fill({}) : []);
 
   // Session
-  const [phase, setPhase] = useState<Phase>('select');
-  const [questions, setQuestions] = useState<any[]>([]);
+  const [phase, setPhase] = useState<Phase>(isDebug ? 'results' : 'select');
   const [currentIdx, setCurrentIdx] = useState(0);
   const [selected, setSelected] = useState<string[]>([]);
   const [revealed, setRevealed] = useState(false);
-  const [results, setResults] = useState<{ correct: boolean }[]>([]);
+  const [results, setResults] = useState<{ correct: boolean }[]>(isDebug ? Array(28).fill({ correct: true }).concat(Array(12).fill({ correct: false })) : []);
   const [loadingQ, setLoadingQ] = useState(false);
   const configRef = useRef<HTMLDivElement>(null);
   const practiceSession = useRef<{ sessionId: string; themeId: string; themeName: string; subThemeId?: string; subThemeName?: string; lang: string } | null>(null);
@@ -106,13 +107,35 @@ export default function FreePracticePage() {
     setSessionSubThemeName(selectedSubTheme?.name ?? '');
     try {
       const { data } = await publicApi.freePractice(selectedTheme.id, selectedTheme.name, count, lang, selectedSubTheme?.id);
-      // Init session tracking
       practiceSession.current = {
         sessionId: `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
         themeId: selectedTheme.id ?? '',
         themeName: selectedTheme.name ?? '',
         subThemeId: selectedSubTheme?.id ?? undefined,
         subThemeName: selectedSubTheme?.name ?? undefined,
+        lang,
+      };
+      localStorage.setItem('albourour_source', 'free-practice');
+      trackPracticeEvent('start', { count: data.length });
+      setQuestions(data);
+      setResults([]);
+      setCurrentIdx(0);
+      setSelected([]);
+      setRevealed(false);
+      setPhase('session');
+    } catch { } finally { setLoadingQ(false); }
+  }
+
+  async function startFreeSession() {
+    setLoadingQ(true);
+    setSessionThemeName('Grossesse & Gynécologie');
+    setSessionSubThemeName('');
+    try {
+      const { data } = await publicApi.freeSession(lang);
+      practiceSession.current = {
+        sessionId: `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
+        themeId: 'sf-free',
+        themeName: 'Grossesse & Gynécologie',
         lang,
       };
       localStorage.setItem('albourour_source', 'free-practice');
@@ -234,22 +257,23 @@ export default function FreePracticePage() {
               <div className="lg:col-span-2 space-y-4">
 
                 {/* Sélecteur filière */}
-                <div className="flex gap-2">
+                <div className="flex gap-3">
                   {([
                     { value: 'INFIRMIER' as Target,  icon: '🏥', fr: 'Infirmier(e)', ar: 'ممرض / ممرضة' },
                     { value: 'SAGE_FEMME' as Target, icon: '👶', fr: 'Sage-femme',   ar: 'قابلة' },
                   ]).map((t) => (
                     <button key={t.value} onClick={() => { setTarget(t.value); setSelectedTheme(null); setSelectedSubTheme(null); setSearch(''); }}
-                      className={`flex items-center gap-2 px-4 py-2 rounded-xl border-2 text-sm font-semibold transition
+                      className={`flex-1 flex items-center justify-center gap-2 px-6 py-4 rounded-2xl border-2 text-base font-bold transition
                         ${target === t.value
-                          ? t.value === 'SAGE_FEMME' ? 'border-pink-500 bg-pink-50 text-pink-700' : 'border-indigo-500 bg-indigo-50 text-indigo-700'
+                          ? t.value === 'SAGE_FEMME' ? 'border-pink-500 bg-pink-50 text-pink-700 shadow-sm' : 'border-indigo-500 bg-indigo-50 text-indigo-700 shadow-sm'
                           : 'border-border bg-card text-muted-foreground hover:border-border/80'}`}>
-                      {t.icon} {isAr ? t.ar : t.fr}
+                      <span className="text-2xl">{t.icon}</span> {isAr ? t.ar : t.fr}
                     </button>
                   ))}
                 </div>
 
-                {/* Barre de recherche */}
+                {/* Barre de recherche — masquée pour SAGE_FEMME */}
+                {target === 'INFIRMIER' && (
                 <div className="relative">
                   <Search className={`absolute ${isAr ? 'right-3' : 'left-3'} top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground`} />
                   <input
@@ -260,10 +284,32 @@ export default function FreePracticePage() {
                     className={`w-full ${isAr ? 'pr-9 pl-4' : 'pl-9 pr-4'} py-2.5 border border-border rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 bg-card text-foreground`}
                   />
                 </div>
+                )}
 
-                {loadingThemes ? (
+                {/* Écran démarrage direct pour SAGE_FEMME */}
+                {target === 'SAGE_FEMME' && (
+                  <div className="flex flex-col items-center justify-center py-10 gap-6">
+                    <div className="text-center space-y-2">
+                      <h2 className="text-xl font-bold">{isAr ? 'جلسة تدريب مجانية' : 'Session d\'entraînement gratuite'}</h2>
+                      <p className="text-muted-foreground text-sm max-w-xs mx-auto">
+                        {isAr
+                          ? '40 سؤالاً من مواضيع الحمل الطبيعي والأمراض المنقولة جنسياً'
+                          : '40 questions sur la grossesse normale et les infections sexuellement transmissibles'}
+                      </p>
+                    </div>
+                    <button
+                      onClick={startFreeSession}
+                      disabled={loadingQ}
+                      className="flex items-center gap-2 px-8 py-4 bg-pink-600 hover:bg-pink-700 text-white font-bold text-lg rounded-2xl transition disabled:opacity-60">
+                      {loadingQ ? <Loader2 className="w-5 h-5 animate-spin" /> : <ChevronRight className="w-5 h-5" />}
+                      {isAr ? 'ابدأ الجلسة' : 'Démarrer la session'}
+                    </button>
+                  </div>
+                )}
+
+                {target === 'INFIRMIER' && loadingThemes ? (
                   <div className="flex justify-center py-12"><Loader2 className="w-6 h-6 animate-spin text-primary" /></div>
-                ) : (
+                ) : target === 'INFIRMIER' ? (
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 items-start">
                     {filtered.map((theme) => {
                       const free = isThemeFree(theme.name, target);
@@ -322,7 +368,7 @@ export default function FreePracticePage() {
                       );
                     })}
                   </div>
-                )}
+                ) : null}
               </div>
 
               {/* Panneau config — identique au side panel du dashboard practice */}
@@ -533,6 +579,7 @@ export default function FreePracticePage() {
             themeId={selectedTheme?.id}
             subThemeId={selectedSubTheme?.id}
             lang={lang}
+            target={target}
             onRestart={restart}
             onCtaClick={() => trackPracticeEvent('cta_click')}
             sessionId={practiceSession.current?.sessionId}

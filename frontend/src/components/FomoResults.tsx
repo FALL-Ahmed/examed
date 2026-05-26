@@ -2,7 +2,7 @@
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { publicApi, settingsApi } from '@/lib/api';
-import { ArrowRight, BarChart2, Copy, CheckCheck } from 'lucide-react';
+import { ArrowRight, BarChart2, Copy, CheckCheck, BarChart, BookOpen, Trophy, CheckCircle2 } from 'lucide-react';
 
 const OPERATORS = [
   { id: 'BANKILY', name: 'Bankily', image: '/images/bankily.png' },
@@ -19,6 +19,7 @@ interface Props {
   themeId?: string;
   subThemeId?: string;
   lang: 'fr' | 'ar';
+  target?: 'INFIRMIER' | 'SAGE_FEMME';
   onRestart: () => void;
   onCtaClick?: () => void;
   sessionId?: string;
@@ -48,12 +49,13 @@ function barColor(val: number): string {
   return '#16a34a';
 }
 
-export function FomoResults({ score, totalQ, correctQ, themeName, subThemeName, themeId, subThemeId, lang, onRestart, onCtaClick }: Props) {
+export function FomoResults({ score, totalQ, correctQ, themeName, subThemeName, themeId, subThemeId, lang, target = 'INFIRMIER', onRestart, onCtaClick }: Props) {
   const isAr = lang === 'ar';
   const [stats, setStats] = useState<{ avg: number; percentile: number; total: number; estimated?: boolean; distribution?: { min: number; h: number }[] } | null>(null);
   const [operators, setOperators] = useState<Record<string, string>>({});
   const [selectedOp, setSelectedOp] = useState('');
   const [copied, setCopied] = useState('');
+  const [promo, setPromo] = useState<{ discount: number; label?: string } | null>(null);
 
   useEffect(() => {
     publicApi.nationalStats(score, themeId, subThemeId)
@@ -63,6 +65,9 @@ export function FomoResults({ score, totalQ, correctQ, themeName, subThemeName, 
       const map: Record<string, string> = {};
       r.data.forEach((op: any) => { map[op.id] = op.phone; });
       setOperators(map);
+    }).catch(() => {});
+    settingsApi.promo().then((r) => {
+      if (r.data?.discount) setPromo(r.data);
     }).catch(() => {});
   }, [score, themeId, subThemeId]);
 
@@ -126,21 +131,45 @@ export function FomoResults({ score, totalQ, correctQ, themeName, subThemeName, 
         <div className="absolute -top-8 -right-8 w-40 h-40 rounded-full bg-white/5 pointer-events-none" />
         <div className="absolute -bottom-6 -left-6 w-28 h-28 rounded-full bg-white/5 pointer-events-none" />
 
-        <p className="text-white font-extrabold text-lg mb-2">
-          {isAr ? 'هل تريد النجاح في مسابقة التمريض؟ 🎯' : 'Tu veux réussir le concours infirmier ? 🎯'}
+        <p className="text-white font-extrabold text-lg mb-3">
+          {isAr
+            ? (target === 'SAGE_FEMME' ? 'هل تريد النجاح في مسابقة القابلات؟ 🎯' : 'هل تريد النجاح في مسابقة التمريض؟ 🎯')
+            : (target === 'SAGE_FEMME' ? 'Tu veux réussir le concours sage-femme ? 🎯' : 'Tu veux réussir le concours infirmier ? 🎯')}
         </p>
 
-        <p className="text-white/80 text-sm mb-6">
-          {isAr
-            ? '+150 مرشح موريتاني يتابعون ترتيبهم على Al Bourour.'
-            : '+150 candidats mauritaniens suivent leur classement sur Al Bourour.'}
-        </p>
+        {/* Promo badge */}
+        {promo && (
+          <div className="relative inline-flex items-center gap-2 bg-white/15 border border-white/40 backdrop-blur font-black text-white px-4 py-2 rounded-xl mb-4 text-base">
+            🔥
+            <span>
+              {isAr ? `خصم استثنائي` : `Offre limitée`}
+              {' '}
+              <span className="text-2xl font-black">-{promo.discount}%</span>
+            </span>
+            {promo.label && <span className="text-white/70 text-xs font-medium">· {promo.label}</span>}
+          </div>
+        )}
+
+        {/* Features premium */}
+        <div className="text-left space-y-2.5 mb-5">
+          {[
+            { icon: BookOpen,     fr: '+700 QCM par thème',                        ar: '+700 سؤال لكل موضوع' },
+            { icon: BarChart,     fr: 'Statistiques détaillées par thème',          ar: 'إحصائيات مفصّلة حسب الموضوع' },
+            { icon: Trophy,       fr: 'Classement national en temps réel',          ar: 'ترتيب وطني في الوقت الفعلي' },
+            { icon: CheckCircle2, fr: 'Correction complète comme l\'examen blanc',  ar: 'تصحيح كامل كالاختبار الأبيض' },
+          ].map(({ icon: Icon, fr, ar }) => (
+            <div key={fr} className={`flex items-center gap-2 text-white text-sm font-medium ${isAr ? 'flex-row-reverse' : ''}`}>
+              <Icon className="w-4 h-4 text-white/60 flex-shrink-0" />
+              <span>{isAr ? ar : fr}</span>
+            </div>
+          ))}
+        </div>
 
         <Link href="/register" onClick={() => onCtaClick?.()}
           style={{ textDecoration: 'none', boxShadow: '0 6px 28px rgba(255,255,255,0.2)' }}
           className="flex items-center justify-center gap-2 rounded-2xl px-6 py-4 bg-white text-violet-700 font-black text-base w-full text-center transition active:scale-95">
-          <span>🏆</span>
-          <span>{isAr ? 'مشاهدة ترتيبي في موريتانيا 🇲🇷' : 'Voir mon rang en Mauritanie 🇲🇷'}</span>
+          <span>🚀</span>
+          <span>{isAr ? 'واصل التدريب — اشترك الآن' : 'Continuer à s\'entraîner →'}</span>
           <ArrowRight className="w-4 h-4 flex-shrink-0" />
         </Link>
       </div>

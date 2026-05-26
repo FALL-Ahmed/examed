@@ -100,6 +100,8 @@ export const publicApi = {
   themes: (lang?: string, target?: string) => axios.get(`${API_URL}/themes/public`, { params: { ...(lang ? { lang } : {}), ...(target ? { target } : {}) } }),
   freePractice: (themeId: string, themeName: string, count: number, lang: string, subThemeId?: string) =>
     axios.get(`${API_URL}/questions/free-trial/practice`, { params: { themeId, themeName, count, lang, subThemeId } }),
+  freeSession: (lang: string) =>
+    axios.get(`${API_URL}/questions/free-trial/free-session`, { params: { lang } }),
   nationalStats: (score: number, themeId?: string, subThemeId?: string) =>
     axios.get(`${API_URL}/stats/national`, { params: { score, themeId, subThemeId } }),
   freeTrial: (theme: string, lang: string) => axios.get(`${API_URL}/questions/free-trial`, { params: { theme, lang } }),
