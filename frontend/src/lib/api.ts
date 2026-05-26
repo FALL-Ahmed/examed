@@ -213,6 +213,7 @@ export const adminApi = {
   setSetting: (key: string, value: string) => api.put(`/admin/settings/${key}`, { value }),
   grantPremium: (id: string, days: number) => api.put(`/admin/users/${id}/grant-premium`, { days }),
   bulkGrantPremium: (ids: string[], days: number) => api.post('/admin/users/bulk-grant-premium', { ids, days }),
+  backfillProfession: () => api.post('/admin/backfill-profession'),
   leaderboard: (sortBy?: string) => api.get('/admin/leaderboard', { params: { sortBy } }),
   sessions: () => api.get('/admin/sessions'),
   freeTrialStats: (params?: { startDate?: string; endDate?: string; compareStart?: string; compareEnd?: string }) =>

@@ -199,7 +199,8 @@ export default function AdminUsersPage() {
         </div>
       )}
 
-      <div>
+      <div className="flex items-start justify-between gap-4">
+        <div>
         <h1 className="text-2xl font-bold">Utilisateurs</h1>
         {tab === 'EXPIRING' && data && (
           <p className="text-amber-600 font-medium">
@@ -214,6 +215,16 @@ export default function AdminUsersPage() {
         {tab === 'GROUP' && (
           <p className="text-muted-foreground">{groups.length} groupe{groups.length > 1 ? 's' : ''}</p>
         )}
+        </div>
+        <button
+          onClick={async () => {
+            const r = await adminApi.backfillProfession().catch(() => null);
+            if (r) alert(`✅ ${r.data.updated} utilisateurs mis à jour`);
+          }}
+          className="text-xs px-3 py-1.5 rounded-lg border border-slate-200 text-slate-400 hover:text-slate-600 hover:border-slate-300 transition flex-shrink-0"
+          title="Mettre à jour les utilisateurs sans profession (une seule fois)">
+          🔧 Backfill profession
+        </button>
       </div>
 
       {/* Tabs */}

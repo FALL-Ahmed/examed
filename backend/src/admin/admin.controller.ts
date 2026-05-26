@@ -87,6 +87,11 @@ export class AdminController {
     return this.adminService.getUserById(id);
   }
 
+  @Post('backfill-profession')
+  backfillProfession() {
+    return this.adminService.backfillProfession();
+  }
+
   @Delete('users/:id')
   deleteUser(@Param('id') id: string) {
     return this.adminService.deleteUser(id);

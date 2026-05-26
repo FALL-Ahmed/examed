@@ -85,6 +85,7 @@ export class AdminService {
         select: {
           id: true, email: true, fullName: true, phone: true,
           role: true, subscriptionEnd: true, isActive: true, createdAt: true,
+          profession: true,
           _count: { select: { attempts: true } },
           payments: {
             where: { status: 'VALIDATED' },
@@ -1007,6 +1008,14 @@ export class AdminService {
       waLeads,
       utmStats,
     };
+  }
+
+  async backfillProfession() {
+    const result = await this.prisma.user.updateMany({
+      where: { profession: null },
+      data: { profession: 'etudiant_infirmier' },
+    });
+    return { updated: result.count };
   }
 
   async trackPdfDownload(userId: string, filename: string) {
