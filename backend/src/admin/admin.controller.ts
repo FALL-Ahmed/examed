@@ -133,8 +133,9 @@ export class AdminController {
     @Query('subThemeId') subThemeId?: string,
     @Query('search') search?: string,
     @Query('language') language?: string,
+    @Query('target') target?: string,
   ) {
-    return this.adminService.getQuestions(page ? parseInt(page) : 1, 20, themeId, search, subThemeId, language);
+    return this.adminService.getQuestions(page ? parseInt(page) : 1, 20, themeId, search, subThemeId, language, target);
   }
 
   @Put('questions/:id')
@@ -158,8 +159,8 @@ export class AdminController {
   }
 
   @Delete('questions')
-  deleteAllQuestions() {
-    return this.adminService.deleteAllQuestions();
+  deleteAllQuestions(@Query('target') target?: string) {
+    return this.adminService.deleteAllQuestions(target);
   }
 
   @Delete('themes')

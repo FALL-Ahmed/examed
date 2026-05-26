@@ -30,7 +30,21 @@ const THEMES_3EME_ANNEE_PARTIAL = ['التشريح وعلم وظائف الأع�
 export class ThemesService {
   constructor(private prisma: PrismaService) {}
 
-  async findAll(language?: string, userId?: string) {
+  async findAll(language?: string, userId?: string, target?: string) {
+    if (target) {
+      return this.prisma.theme.findMany({
+        where: { target, ...(language ? { language } : {}) },
+        include: {
+          subThemes: {
+            select: { id: true, name: true, order: true, _count: { select: { questions: true } } },
+            orderBy: { name: 'asc' },
+          },
+          _count: { select: { subThemes: true } },
+        },
+        orderBy: { name: 'asc' },
+      });
+    }
+
     let profession: string | null = null;
     if (userId) {
       const user = await this.prisma.user.findUnique({ where: { id: userId }, select: { profession: true } });

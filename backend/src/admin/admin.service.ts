@@ -256,14 +256,17 @@ export class AdminService {
     return { updated: count };
   }
 
-  async getQuestions(page = 1, limit = 20, themeId?: string, search?: string, subThemeId?: string, language?: string) {
+  async getQuestions(page = 1, limit = 20, themeId?: string, search?: string, subThemeId?: string, language?: string, target?: string) {
     const where: any = {};
     if (subThemeId) {
       where.subThemeId = subThemeId;
     } else {
       const subFilter: any = {};
       if (themeId) subFilter.themeId = themeId;
-      if (language) subFilter.theme = { language };
+      const themeFilter: any = {};
+      if (language) themeFilter.language = language;
+      if (target) themeFilter.target = target;
+      if (Object.keys(themeFilter).length) subFilter.theme = themeFilter;
       if (Object.keys(subFilter).length) where.subTheme = subFilter;
     }
     if (search) where.text = { contains: search, mode: 'insensitive' };
@@ -290,7 +293,16 @@ export class AdminService {
     return this.prisma.question.update({ where: { id }, data: { isActive: false } });
   }
 
-  async deleteAllQuestions() {
+  async deleteAllQuestions(target?: string) {
+    if (target) {
+      const themes = await this.prisma.theme.findMany({ where: { target }, select: { id: true } });
+      const subThemes = await this.prisma.subTheme.findMany({
+        where: { themeId: { in: themes.map(t => t.id) } },
+        select: { id: true },
+      });
+      const { count } = await this.prisma.question.deleteMany({ where: { subThemeId: { in: subThemes.map(s => s.id) } } });
+      return { deleted: count };
+    }
     const { count } = await this.prisma.question.deleteMany({});
     return { deleted: count };
   }

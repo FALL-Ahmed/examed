@@ -155,6 +155,7 @@ function EditForm({ editing, setEditing, onSave, saving, onImageUpload, uploadin
 
 export default function AdminQuestionsPage() {
   const [langTab, setLangTab] = useState<'FR' | 'AR'>('FR');
+  const [targetTab, setTargetTab] = useState<'INFIRMIER' | 'SAGE_FEMME'>('INFIRMIER');
   const [themes, setThemes] = useState<any[]>([]);
   const [expandedThemes, setExpandedThemes] = useState<Set<string>>(new Set());
   const [selectedThemeId, setSelectedThemeId] = useState('');
@@ -171,19 +172,19 @@ export default function AdminQuestionsPage() {
   const imageInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    themesApi.all(langTab.toLowerCase()).then((r) => {
+    themesApi.all(langTab.toLowerCase(), targetTab).then((r) => {
       setThemes(r.data);
       setSelectedThemeId('');
       setSelectedSubThemeId('');
       setExpandedThemes(r.data.length > 0 ? new Set([r.data[0].id]) : new Set());
     }).catch(() => {});
-  }, [langTab]);
+  }, [langTab, targetTab]);
 
-  useEffect(() => { setPage(1); }, [selectedThemeId, selectedSubThemeId, search, langTab]);
-  useEffect(() => { load(); }, [page, selectedThemeId, selectedSubThemeId, search, langTab]);
+  useEffect(() => { setPage(1); }, [selectedThemeId, selectedSubThemeId, search, langTab, targetTab]);
+  useEffect(() => { load(); }, [page, selectedThemeId, selectedSubThemeId, search, langTab, targetTab]);
 
   async function load() {
-    const params: any = { page, language: langTab };
+    const params: any = { page, language: langTab, target: targetTab };
     if (selectedSubThemeId) params.subThemeId = selectedSubThemeId;
     else if (selectedThemeId) params.themeId = selectedThemeId;
     if (search) params.search = search;
@@ -241,10 +242,10 @@ export default function AdminQuestionsPage() {
   }
 
   async function deleteAll() {
-    if (!confirm(`Supprimer TOUTES les questions (${data?.total ?? 0}) ? Irréversible.`)) return;
+    if (!confirm(`Supprimer TOUTES les questions ${targetTab === 'SAGE_FEMME' ? 'sage-femme' : 'infirmier'} (${data?.total ?? 0}) ? Irréversible.`)) return;
     if (!confirm('Confirmation finale ?')) return;
     setDeletingAll(true);
-    await adminApi.deleteAllQuestions().catch(() => {});
+    await adminApi.deleteAllQuestions(targetTab).catch(() => {});
     setDeletingAll(false);
     await load();
   }
@@ -258,22 +259,41 @@ export default function AdminQuestionsPage() {
   return (
     <div className="flex flex-col gap-4 h-full">
 
-      {/* Language tabs */}
-      <div className="flex gap-2">
-        <button
-          onClick={() => setLangTab('FR')}
-          className={`flex items-center gap-2 px-4 py-2 rounded-xl border text-sm font-semibold transition
-            ${langTab === 'FR' ? 'bg-blue-500 border-blue-500 text-white shadow-sm' : 'bg-blue-50 border-blue-200 text-blue-700 hover:bg-blue-100'}`}
-        >
-          🇫🇷 Français
-        </button>
-        <button
-          onClick={() => setLangTab('AR')}
-          className={`flex items-center gap-2 px-4 py-2 rounded-xl border text-sm font-semibold transition
-            ${langTab === 'AR' ? 'bg-emerald-500 border-emerald-500 text-white shadow-sm' : 'bg-emerald-50 border-emerald-200 text-emerald-700 hover:bg-emerald-100'}`}
-        >
-          🇲🇷 العربية
-        </button>
+      {/* Target + Language tabs */}
+      <div className="flex flex-wrap items-center gap-3">
+        <div className="flex gap-2">
+          <button
+            onClick={() => { setTargetTab('INFIRMIER'); setSelectedThemeId(''); setSelectedSubThemeId(''); }}
+            className={`flex items-center gap-2 px-4 py-2 rounded-xl border text-sm font-semibold transition
+              ${targetTab === 'INFIRMIER' ? 'bg-indigo-600 border-indigo-600 text-white shadow-sm' : 'bg-indigo-50 border-indigo-200 text-indigo-700 hover:bg-indigo-100'}`}
+          >
+            🏥 Infirmier
+          </button>
+          <button
+            onClick={() => { setTargetTab('SAGE_FEMME'); setSelectedThemeId(''); setSelectedSubThemeId(''); }}
+            className={`flex items-center gap-2 px-4 py-2 rounded-xl border text-sm font-semibold transition
+              ${targetTab === 'SAGE_FEMME' ? 'bg-pink-500 border-pink-500 text-white shadow-sm' : 'bg-pink-50 border-pink-200 text-pink-700 hover:bg-pink-100'}`}
+          >
+            👶 Sage-femme
+          </button>
+        </div>
+        <div className="w-px h-6 bg-slate-200" />
+        <div className="flex gap-2">
+          <button
+            onClick={() => setLangTab('FR')}
+            className={`flex items-center gap-2 px-4 py-2 rounded-xl border text-sm font-semibold transition
+              ${langTab === 'FR' ? 'bg-blue-500 border-blue-500 text-white shadow-sm' : 'bg-blue-50 border-blue-200 text-blue-700 hover:bg-blue-100'}`}
+          >
+            🇫🇷 Français
+          </button>
+          <button
+            onClick={() => setLangTab('AR')}
+            className={`flex items-center gap-2 px-4 py-2 rounded-xl border text-sm font-semibold transition
+              ${langTab === 'AR' ? 'bg-emerald-500 border-emerald-500 text-white shadow-sm' : 'bg-emerald-50 border-emerald-200 text-emerald-700 hover:bg-emerald-100'}`}
+          >
+            🇲🇷 العربية
+          </button>
+        </div>
       </div>
 
       <div className="flex gap-6 flex-1 min-h-0">

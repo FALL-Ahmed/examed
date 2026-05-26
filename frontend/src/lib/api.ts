@@ -92,7 +92,7 @@ export const userApi = {
 
 // Themes
 export const themesApi = {
-  all: (lang?: string) => api.get('/themes', lang ? { params: { lang } } : undefined),
+  all: (lang?: string, target?: string) => api.get('/themes', { params: { ...(lang ? { lang } : {}), ...(target ? { target } : {}) } }),
 };
 
 // Questions
@@ -182,7 +182,7 @@ export const adminApi = {
     fd.append('image', file);
     return api.post(`/admin/questions/${id}/image`, fd, { headers: { 'Content-Type': 'multipart/form-data' } });
   },
-  deleteAllQuestions: () => api.delete('/admin/questions'),
+  deleteAllQuestions: (target?: string) => api.delete('/admin/questions', target ? { params: { target } } : undefined),
   deleteAllThemes: () => api.delete('/admin/themes'),
   groups: () => api.get('/admin/groups'),
   pdfDownloads: () => api.get('/admin/pdf-downloads'),

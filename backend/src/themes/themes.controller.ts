@@ -17,8 +17,12 @@ export class ThemesController {
   @ApiBearerAuth()
   @UseGuards(JwtAuthGuard)
   @Get()
-  findAll(@Req() req: any, @Query('lang') lang?: string) {
-    return this.themesService.findAll(lang ? lang.toUpperCase() : undefined, req.user?.sub);
+  findAll(@Req() req: any, @Query('lang') lang?: string, @Query('target') target?: string) {
+    return this.themesService.findAll(
+      lang ? lang.toUpperCase() : undefined,
+      target ? undefined : req.user?.sub,
+      target?.toUpperCase(),
+    );
   }
 
   @Get(':id')
