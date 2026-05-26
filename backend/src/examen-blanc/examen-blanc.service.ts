@@ -560,14 +560,29 @@ export class ExamenBlancService {
 
     const available = allSubThemes.filter((st: any) => st.questions.length > 0);
 
-    // Pour SAGE_FEMME : limiter les thèmes partagés avec INFIRMIER (ANATOMIE + PRATIQUE) à 7 questions
+    // Pour SAGE_FEMME : emprunter ~7 questions depuis ANATOMIE+PRATIQUE (restés dans INFIRMIER)
     if (target === 'SAGE_FEMME') {
-      const infirmierThemeNames = await this.prisma.theme
-        .findMany({ where: { language: lang, target: 'INFIRMIER' }, select: { name: true } })
-        .then((ts: any[]) => new Set(ts.map((t: any) => t.name)));
+      const sharedSubThemes = await this.prisma.subTheme.findMany({
+        where: {
+          theme: {
+            language: lang,
+            target: 'INFIRMIER',
+            OR: [
+              { name: { contains: 'anatomie',  mode: 'insensitive' } },
+              { name: { contains: 'pratique',  mode: 'insensitive' } },
+              { name: { contains: 'الممارسة', mode: 'insensitive' } },
+              { name: { contains: 'التشريح',  mode: 'insensitive' } },
+            ],
+          },
+        },
+        include: {
+          theme: { select: { name: true } },
+          questions: { where: { isActive: true, explanation: { not: '' } }, select: { id: true } },
+        },
+      });
 
-      const sharedSubs = available.filter((st: any) => infirmierThemeNames.has(st.theme.name));
-      const nativeSubs  = available.filter((st: any) => !infirmierThemeNames.has(st.theme.name));
+      const sharedSubs = sharedSubThemes.filter((st: any) => st.questions.length > 0);
+      const nativeSubs  = available; // tous les sous-thèmes SAGE_FEMME natifs
 
       const SHARED_QUOTA = Math.max(1, Math.round(totalQ * 7 / 80));
       const sharedPool = sharedSubs.flatMap((st: any) => st.questions.map((q: any) => q.id)).sort(() => Math.random() - 0.5);
