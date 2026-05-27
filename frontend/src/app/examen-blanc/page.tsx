@@ -134,6 +134,7 @@ export function ExamenBlancPageContent({ target }: { target: Target }) {
     }
   }, [target]);
 
+  useEffect(() => { window.scrollTo(0, 0); }, []);
   useEffect(() => { load(); }, [load]);
 
   if (loading && !data) return (
