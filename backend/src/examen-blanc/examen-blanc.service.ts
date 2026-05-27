@@ -560,34 +560,51 @@ export class ExamenBlancService {
 
     const available = allSubThemes.filter((st: any) => st.questions.length > 0);
 
-    // Pour SAGE_FEMME : cap à SHARED_QUOTA pour ANATOMIE+PRATIQUE (copiés dans SAGE_FEMME)
+    // Pour SAGE_FEMME : proportions fixes quelle que soit totalQ
     if (target === 'SAGE_FEMME') {
-      const isSharedTheme = (name: string) => {
-        const n = name.toLowerCase();
-        return n.includes('anatomie') || n.includes('pratique') || n.includes('الممارسة') || n.includes('التشريح');
+      const isAnatomieTheme = (n: string) => n.toLowerCase().includes('anatomie') || n.includes('التشريح');
+      const isPratiqueTheme = (n: string) => n.toLowerCase().includes('pratique') || n.includes('الممارسة');
+      const isGenitalSub   = (n: string) => /génital|تناسل/i.test(n);
+      const isPratCibleeSub = (n: string) => {
+        const l = n.toLowerCase();
+        return l.includes('sonde') || l.includes('urinaire') || l.includes('lavage des mains') || l.includes('lavage simple')
+          || l.includes('perfusion') || l.includes('transfusion')
+          || l.includes('غسل اليدين') || l.includes('قسطرة') || l.includes('تحويل الدم') || l.includes('Transfusion'.toLowerCase());
       };
 
-      const sharedSubs = available.filter((st: any) => isSharedTheme(st.theme.name));
-      const nativeSubs  = available.filter((st: any) => !isSharedTheme(st.theme.name));
+      // Quotas proportionnels
+      const mainQ     = Math.round(totalQ * 50 / 60);
+      const genitaleQ = Math.round(totalQ * 4 / 60);
+      const pratiqueQ = totalQ - mainQ - genitaleQ;
 
-      const SHARED_QUOTA = Math.max(1, Math.round(totalQ * 7 / 80));
-      const sharedPool = sharedSubs.flatMap((st: any) => st.questions.map((q: any) => q.id)).sort(byFreshness);
-      const sharedSelected = sharedPool.slice(0, Math.min(SHARED_QUOTA, sharedPool.length));
-
-      const nativeSelected: string[] = [];
-      const nativePool: string[] = [];
-      for (const st of nativeSubs) {
-        const sorted = [...(st as any).questions.map((q: any) => q.id)].sort(byFreshness);
-        nativeSelected.push(sorted[0]);
-        if (sorted.length > 1) nativePool.push(...sorted.slice(1));
+      // Groupe 1 : thèmes principaux (ni anatomie ni pratique)
+      const mainSubs = available.filter((st: any) => !isAnatomieTheme(st.theme.name) && !isPratiqueTheme(st.theme.name));
+      const mainSelected: string[] = [];
+      const mainPool: string[] = [];
+      for (const st of mainSubs) {
+        const sorted = [...st.questions.map((q: any) => q.id)].sort(byFreshness);
+        mainSelected.push(sorted[0]);
+        if (sorted.length > 1) mainPool.push(...sorted.slice(1));
       }
-      const needed = totalQ - sharedSelected.length - nativeSelected.length;
-      if (needed > 0 && nativePool.length > 0) {
-        nativePool.sort(byFreshness);
-        nativeSelected.push(...nativePool.slice(0, Math.min(needed, nativePool.length)));
+      const mainNeeded = mainQ - mainSelected.length;
+      if (mainNeeded > 0 && mainPool.length > 0) {
+        mainPool.sort(byFreshness);
+        mainSelected.push(...mainPool.slice(0, Math.min(mainNeeded, mainPool.length)));
       }
 
-      return [...sharedSelected, ...nativeSelected].sort(() => Math.random() - 0.5).slice(0, totalQ);
+      // Groupe 2 : appareil génital féminin + masculin uniquement
+      const genitalSubs = available.filter((st: any) => isAnatomieTheme(st.theme.name) && isGenitalSub(st.name));
+      const genitalPool = genitalSubs.flatMap((st: any) => st.questions.map((q: any) => q.id)).sort(byFreshness);
+      const genitalSelected = genitalPool.slice(0, Math.min(genitaleQ, genitalPool.length));
+
+      // Groupe 3 : pratique ciblée (sondes, lavage mains, perfusion, transfusion)
+      const pratSubs = available.filter((st: any) => isPratiqueTheme(st.theme.name) && isPratCibleeSub(st.name));
+      const pratPool = pratSubs.flatMap((st: any) => st.questions.map((q: any) => q.id)).sort(byFreshness);
+      const pratSelected = pratPool.slice(0, Math.min(pratiqueQ, pratPool.length));
+
+      return [...mainSelected, ...genitalSelected, ...pratSelected]
+        .sort(() => Math.random() - 0.5)
+        .slice(0, totalQ);
     }
 
     // INFIRMIER : algorithme inchangé
