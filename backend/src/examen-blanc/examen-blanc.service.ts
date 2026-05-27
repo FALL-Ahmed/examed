@@ -454,7 +454,7 @@ export class ExamenBlancService {
     const total = await db(this.prisma).examenBlancParticipant.count({ where: { examenBlancId: sessionId, isCompleted: true, isTest: false } });
 
     const cityBreakdown = await db(this.prisma).examenBlancParticipant.groupBy({
-      by: ['ville'], where: { examenBlancId: sessionId, isCompleted: true },
+      by: ['ville'], where: { examenBlancId: sessionId, isCompleted: true, isTest: false },
       _count: { id: true }, orderBy: { _count: { id: 'desc' } },
     });
 
@@ -594,10 +594,20 @@ export class ExamenBlancService {
         mainSelected.push(...mainPool.slice(0, Math.min(mainNeeded, mainPool.length)));
       }
 
-      // Groupe 2 : appareil génital féminin + masculin uniquement
+      // Groupe 2 : appareil génital féminin + masculin — 1 min par sous-thème
       const genitalSubs = available.filter((st: any) => isAnatomieTheme(st.theme.name) && isGenitalSub(st.name));
-      const genitalPool = genitalSubs.flatMap((st: any) => st.questions.map((q: any) => q.id)).sort(byFreshness);
-      const genitalSelected = genitalPool.slice(0, Math.min(genitaleQ, genitalPool.length));
+      const genitalSelected: string[] = [];
+      const genitalPool: string[] = [];
+      for (const st of genitalSubs) {
+        const sorted = [...st.questions.map((q: any) => q.id)].sort(byFreshness);
+        genitalSelected.push(sorted[0]);
+        if (sorted.length > 1) genitalPool.push(...sorted.slice(1));
+      }
+      const genitalNeeded = genitaleQ - genitalSelected.length;
+      if (genitalNeeded > 0 && genitalPool.length > 0) {
+        genitalPool.sort(byFreshness);
+        genitalSelected.push(...genitalPool.slice(0, Math.min(genitalNeeded, genitalPool.length)));
+      }
 
       // Groupe 3 : pratique ciblée — 1 min par sous-thème, puis compléter
       const pratSubs = available.filter((st: any) => isPratiqueTheme(st.theme.name) && isPratCibleeSub(st.name));

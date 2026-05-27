@@ -61,6 +61,23 @@ type Target = 'INFIRMIER' | 'SAGE_FEMME';
 export function ExamenBlancPageContent({ target }: { target: Target }) {
   const { lang, setLang } = useLang();
   const isAr = lang === 'ar';
+  const isSF = target === 'SAGE_FEMME';
+  const theme = {
+    bg: isSF ? 'linear-gradient(145deg,#2d0a1e 0%,#1a0a16 50%,#1e0a1a 100%)' : 'linear-gradient(145deg,#0f0a2e 0%,#1a1040 50%,#0d1b3e 100%)',
+    glow1: isSF ? 'radial-gradient(circle,#db2777,transparent)' : 'radial-gradient(circle,#7c3aed,transparent)',
+    glow2: isSF ? 'radial-gradient(circle,#ec4899,transparent)' : 'radial-gradient(circle,#6366f1,transparent)',
+    accent: isSF ? 'linear-gradient(135deg,#db2777,#ec4899)' : 'linear-gradient(135deg,#7c3aed,#6366f1)',
+    textGrad: isSF ? 'linear-gradient(135deg,#f9a8d4,#fbcfe8)' : 'linear-gradient(135deg,#a78bfa,#818cf8)',
+    iconCls: isSF ? 'text-pink-400' : 'text-violet-400',
+    spinnerCls: isSF ? 'border-pink-400' : 'border-violet-400',
+    timeCls: isSF ? 'text-pink-300' : 'text-violet-300',
+    btnShadow: isSF ? 'shadow-pink-900/50' : 'shadow-violet-900/50',
+    bannerBg: isSF ? 'linear-gradient(to bottom,rgba(219,39,119,0.1),rgba(236,72,153,0.1))' : 'linear-gradient(to bottom,rgba(124,58,237,0.1),rgba(99,102,241,0.1))',
+    bannerBorder: isSF ? 'border-pink-500/30' : 'border-violet-500/30',
+    badgeCls: isSF ? 'bg-pink-500' : 'bg-violet-500',
+    recoverBorder: isSF ? 'border-pink-500/30' : 'border-violet-500/30',
+    ringCls: isSF ? 'focus:ring-pink-500' : 'focus:ring-violet-500',
+  };
   const [data, setData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [showRecover, setShowRecover] = useState(false);
@@ -112,8 +129,8 @@ export function ExamenBlancPageContent({ target }: { target: Target }) {
   useEffect(() => { load(); }, [load]);
 
   if (loading && !data) return (
-    <div className="min-h-screen flex items-center justify-center" style={{ background: 'linear-gradient(145deg,#0f0a2e,#1a1040,#0d1b3e)' }}>
-      <div className="w-10 h-10 border-4 border-violet-400 border-t-transparent rounded-full animate-spin" />
+    <div className="min-h-screen flex items-center justify-center" style={{ background: theme.bg }}>
+      <div className={`w-10 h-10 border-4 ${theme.spinnerCls} border-t-transparent rounded-full animate-spin`} />
     </div>
   );
 
@@ -135,20 +152,20 @@ export function ExamenBlancPageContent({ target }: { target: Target }) {
 
   return (
     <div className="min-h-screen" dir={isAr ? 'rtl' : 'ltr'}
-      style={{ background: 'linear-gradient(145deg,#0f0a2e 0%,#1a1040 50%,#0d1b3e 100%)' }}>
+      style={{ background: theme.bg }}>
 
       {/* Grid bg */}
       <div className="fixed inset-0 opacity-[0.03] pointer-events-none"
         style={{ backgroundImage: 'linear-gradient(rgba(255,255,255,.5) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.5) 1px,transparent 1px)', backgroundSize: '40px 40px' }} />
       <div className="fixed top-1/4 left-1/4 w-96 h-96 rounded-full blur-3xl opacity-10 pointer-events-none"
-        style={{ background: 'radial-gradient(circle,#7c3aed,transparent)' }} />
+        style={{ background: theme.glow1 }} />
       <div className="fixed top-2/3 right-1/4 w-64 h-64 rounded-full blur-3xl opacity-10 pointer-events-none"
-        style={{ background: 'radial-gradient(circle,#6366f1,transparent)' }} />
+        style={{ background: theme.glow2 }} />
 
       {/* Nav */}
       <nav className="relative z-10 flex items-center justify-between px-6 py-4 max-w-6xl mx-auto">
         <Link href="/" className="flex items-center gap-2.5">
-          <div className="w-8 h-8 rounded-xl flex items-center justify-center" style={{ background: 'linear-gradient(135deg,#7c3aed,#6366f1)' }}>
+          <div className="w-8 h-8 rounded-xl flex items-center justify-center" style={{ background: theme.accent }}>
             <BookOpen className="w-4 h-4 text-white" />
           </div>
           <span className="text-white font-bold text-lg">Al Bourour</span>
@@ -182,7 +199,7 @@ export function ExamenBlancPageContent({ target }: { target: Target }) {
 
           <h1 className="text-4xl sm:text-5xl lg:text-6xl font-black text-white leading-tight mb-4">
             {isAr ? 'الامتحان التجريبي' : 'Examen Blanc'}
-            <span className="block" style={{ background: 'linear-gradient(135deg,#a78bfa,#818cf8)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
+            <span className="block" style={{ background: theme.textGrad, WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
               {isAr ? 'الوطني' : 'À l\'échelle nationale'}
             </span>
           </h1>
@@ -202,7 +219,7 @@ export function ExamenBlancPageContent({ target }: { target: Target }) {
             ].map(({ icon: Icon, val, label }, i) => (
               <div key={i} className="text-center">
                 <div className="flex items-center justify-center gap-1.5 mb-1">
-                  <Icon className="w-4 h-4 text-violet-400" />
+                  <Icon className={`w-4 h-4 ${theme.iconCls}`} />
                   <span className="text-2xl font-black text-white">{val}</span>
                 </div>
                 <p className="text-white/40 text-xs">{label}</p>
@@ -216,7 +233,7 @@ export function ExamenBlancPageContent({ target }: { target: Target }) {
               <span className="text-white font-black text-2xl sm:text-3xl tracking-tight">
                 {new Date(session.startsAt).toLocaleDateString(isAr ? 'ar-MA' : 'fr-FR', { weekday: 'long', day: 'numeric', month: 'long' })}
               </span>
-              <span className="text-violet-300 font-bold text-xl">
+              <span className={`${theme.timeCls} font-bold text-xl`}>
                 {new Date(session.startsAt).toLocaleTimeString(isAr ? 'ar-MA' : 'fr-FR', { hour: '2-digit', minute: '2-digit' })}
               </span>
             </div>
@@ -230,15 +247,15 @@ export function ExamenBlancPageContent({ target }: { target: Target }) {
           {/* CTA */}
           {isOpen ? (
             <Link href={`/examen-blanc/register?id=${session.id}&target=${target}`}
-              className="inline-flex items-center gap-2 px-8 py-4 rounded-2xl font-bold text-lg text-white hover:opacity-90 transition shadow-2xl shadow-violet-900/50"
-              style={{ background: 'linear-gradient(135deg,#7c3aed,#6366f1)' }}>
+              className={`inline-flex items-center gap-2 px-8 py-4 rounded-2xl font-bold text-lg text-white hover:opacity-90 transition shadow-2xl ${theme.btnShadow}`}
+              style={{ background: theme.accent }}>
               {isAr ? 'المشاركة الآن' : 'Participer maintenant'}
               <ChevronRight className="w-5 h-5" />
             </Link>
           ) : isClosed && isResultsReady ? (
             <button onClick={() => setShowRecover(true)}
-              className="inline-flex items-center gap-2 px-8 py-4 rounded-2xl font-bold text-lg text-white hover:opacity-90 transition shadow-2xl shadow-violet-900/50"
-              style={{ background: 'linear-gradient(135deg,#7c3aed,#6366f1)' }}>
+              className={`inline-flex items-center gap-2 px-8 py-4 rounded-2xl font-bold text-lg text-white hover:opacity-90 transition shadow-2xl ${theme.btnShadow}`}
+              style={{ background: theme.accent }}>
               <Trophy className="w-5 h-5" />
               {isAr ? 'عرض نتائجي' : 'Voir mes résultats'}
             </button>
@@ -258,11 +275,11 @@ export function ExamenBlancPageContent({ target }: { target: Target }) {
             {!showRecover ? (
               <Link href="/free-practice"
                 className="w-full max-w-xs py-4 rounded-2xl font-bold text-sm text-white text-center transition active:scale-95"
-                style={{ background: 'linear-gradient(135deg,#7c3aed,#6366f1)', boxShadow: '0 4px 20px rgba(124,58,237,0.4)' }}>
+                style={{ background: theme.accent, boxShadow: isSF ? '0 4px 20px rgba(219,39,119,0.4)' : '0 4px 20px rgba(124,58,237,0.4)' }}>
                 {isAr ? '🎯 تدرّب مجاناً قبل الامتحان' : '🎯 Entraînez-vous gratuitement avant l\'examen'}
               </Link>
             ) : (
-              <div className="w-full max-w-xs bg-white/5 border border-violet-500/30 rounded-2xl p-5 space-y-3">
+              <div className={`w-full max-w-xs bg-white/5 border ${theme.recoverBorder} rounded-2xl p-5 space-y-3`}>
                 <p className="text-white/80 text-sm font-bold text-center">
                   {isAr ? '📱 أدخل رقم هاتفك' : '📱 Ton numéro de téléphone'}
                 </p>
@@ -271,7 +288,7 @@ export function ExamenBlancPageContent({ target }: { target: Target }) {
                   onChange={e => { setRecoverPhone(e.target.value); setRecoverError(''); }}
                   onKeyDown={e => e.key === 'Enter' && handleRecover()}
                   placeholder="+222 XX XX XX XX" dir="ltr"
-                  className="w-full px-4 py-3 bg-white/5 border border-white/15 rounded-xl text-white placeholder:text-white/30 focus:outline-none focus:ring-2 focus:ring-violet-500 text-sm"
+                  className={`w-full px-4 py-3 bg-white/5 border border-white/15 rounded-xl text-white placeholder:text-white/30 focus:outline-none focus:ring-2 ${theme.ringCls} text-sm`}
                 />
                 {recoverError && (
                   <div className="bg-red-500/10 border border-red-500/30 rounded-xl px-4 py-3 text-red-300 text-sm text-center font-semibold">
@@ -280,7 +297,7 @@ export function ExamenBlancPageContent({ target }: { target: Target }) {
                 )}
                 <button onClick={handleRecover} disabled={recoverLoading || !recoverPhone.trim()}
                   className="w-full py-3 rounded-xl font-bold text-sm text-white flex items-center justify-center gap-2 disabled:opacity-50 transition hover:opacity-90"
-                  style={{ background: 'linear-gradient(135deg,#7c3aed,#6366f1)' }}>
+                  style={{ background: theme.accent }}>
                   {recoverLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : (isAr ? '🔍 بحث' : '🔍 Retrouver')}
                 </button>
                 <button onClick={() => { setShowRecover(false); setRecoverError(''); setRecoverPhone(''); }}
@@ -293,10 +310,10 @@ export function ExamenBlancPageContent({ target }: { target: Target }) {
         </div>
 
         {/* Banner — Modalité de correction / Barème */}
-        <div className="mb-10 overflow-hidden rounded-2xl border border-violet-500/30" style={{ background: 'linear-gradient(to bottom, rgba(124,58,237,0.1), rgba(99,102,241,0.1))' }}>
+        <div className={`mb-10 overflow-hidden rounded-2xl border ${theme.bannerBorder}`} style={{ background: theme.bannerBg }}>
           <img src="/correction.png" alt="Modalité de correction" className="w-full h-auto object-contain" />
           <div className={`p-5 flex flex-col gap-3 ${isAr ? 'text-right' : ''}`}>
-            <span className={`inline-block w-fit bg-violet-500 text-white text-[10px] font-bold px-2.5 py-0.5 rounded-full uppercase tracking-wider ${isAr ? 'self-end' : ''}`}>
+            <span className={`inline-block w-fit ${theme.badgeCls} text-white text-[10px] font-bold px-2.5 py-0.5 rounded-full uppercase tracking-wider ${isAr ? 'self-end' : ''}`}>
               {isAr ? 'جديد' : 'Nouveau'}
             </span>
             <p className="font-black text-white text-base leading-snug">
@@ -332,7 +349,7 @@ export function ExamenBlancPageContent({ target }: { target: Target }) {
             { icon: Zap, title: isAr ? '24 ساعة' : '24h', sub: isAr ? 'للنتائج المفصّلة' : 'Pour les résultats' },
           ].map(({ icon: Icon, title, sub }, i) => (
             <div key={i} className="bg-white/5 backdrop-blur border border-white/10 rounded-2xl p-5 text-center hover:bg-white/8 transition">
-              <Icon className="w-6 h-6 text-violet-400 mx-auto mb-3" />
+              <Icon className={`w-6 h-6 ${theme.iconCls} mx-auto mb-3`} />
               <p className="text-2xl font-black text-white mb-1">{title}</p>
               <p className="text-white/50 text-xs">{sub}</p>
             </div>
