@@ -567,9 +567,11 @@ export class ExamenBlancService {
       const isGenitalSub   = (n: string) => /génital|تناسل/i.test(n);
       const isPratCibleeSub = (n: string) => {
         const l = n.toLowerCase();
-        return l.includes('sonde') || l.includes('urinaire') || l.includes('lavage des mains') || l.includes('lavage simple')
-          || l.includes('perfusion') || l.includes('transfusion')
-          || l.includes('غسل اليدين') || l.includes('قسطرة') || l.includes('تحويل الدم') || l.includes('Transfusion'.toLowerCase());
+        return (l.includes('sonde') && l.includes('urinaire'))
+          || l.includes('lavage des mains') || l.includes('lavage simple')
+          || (l.includes('perfusion') && !l.includes('nasogastr'))
+          || l.includes('transfusion')
+          || l.includes('غسل اليدين') || l.includes('قسطرة المسالك') || l.includes('تحويل الدم') || l.includes('نقل الدم');
       };
 
       // Quotas proportionnels
@@ -597,10 +599,20 @@ export class ExamenBlancService {
       const genitalPool = genitalSubs.flatMap((st: any) => st.questions.map((q: any) => q.id)).sort(byFreshness);
       const genitalSelected = genitalPool.slice(0, Math.min(genitaleQ, genitalPool.length));
 
-      // Groupe 3 : pratique ciblée (sondes, lavage mains, perfusion, transfusion)
+      // Groupe 3 : pratique ciblée — 1 min par sous-thème, puis compléter
       const pratSubs = available.filter((st: any) => isPratiqueTheme(st.theme.name) && isPratCibleeSub(st.name));
-      const pratPool = pratSubs.flatMap((st: any) => st.questions.map((q: any) => q.id)).sort(byFreshness);
-      const pratSelected = pratPool.slice(0, Math.min(pratiqueQ, pratPool.length));
+      const pratSelected: string[] = [];
+      const pratPool: string[] = [];
+      for (const st of pratSubs) {
+        const sorted = [...st.questions.map((q: any) => q.id)].sort(byFreshness);
+        pratSelected.push(sorted[0]);
+        if (sorted.length > 1) pratPool.push(...sorted.slice(1));
+      }
+      const pratNeeded = pratiqueQ - pratSelected.length;
+      if (pratNeeded > 0 && pratPool.length > 0) {
+        pratPool.sort(byFreshness);
+        pratSelected.push(...pratPool.slice(0, Math.min(pratNeeded, pratPool.length)));
+      }
 
       return [...mainSelected, ...genitalSelected, ...pratSelected]
         .sort(() => Math.random() - 0.5)
