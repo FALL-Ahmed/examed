@@ -135,10 +135,13 @@ export class QuestionsService {
       orderBy: { id: 'asc' },
     });
 
-    // Fusionner, trier par ID (fixe pour tout le monde), prendre 40
-    const all = [...grossesseQuestions, ...infectionQuestions];
-    all.sort((a, b) => a.id < b.id ? -1 : 1);
-    const selected = all.slice(0, 40);
+    // 20 grossesse + 10 IST = 30 questions
+    grossesseQuestions.sort((a, b) => a.id < b.id ? -1 : 1);
+    infectionQuestions.sort((a, b) => a.id < b.id ? -1 : 1);
+    const selected = [
+      ...grossesseQuestions.slice(0, 20),
+      ...infectionQuestions.slice(0, 10),
+    ];
 
     return selected.map((q, idx) => ({
       index: idx,

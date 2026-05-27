@@ -63,20 +63,28 @@ export function ExamenBlancPageContent({ target }: { target: Target }) {
   const isAr = lang === 'ar';
   const isSF = target === 'SAGE_FEMME';
   const theme = {
-    bg: isSF ? 'linear-gradient(145deg,#2d0a1e 0%,#1a0a16 50%,#1e0a1a 100%)' : 'linear-gradient(145deg,#0f0a2e 0%,#1a1040 50%,#0d1b3e 100%)',
-    glow1: isSF ? 'radial-gradient(circle,#db2777,transparent)' : 'radial-gradient(circle,#7c3aed,transparent)',
-    glow2: isSF ? 'radial-gradient(circle,#ec4899,transparent)' : 'radial-gradient(circle,#6366f1,transparent)',
-    accent: isSF ? 'linear-gradient(135deg,#db2777,#ec4899)' : 'linear-gradient(135deg,#7c3aed,#6366f1)',
-    textGrad: isSF ? 'linear-gradient(135deg,#f9a8d4,#fbcfe8)' : 'linear-gradient(135deg,#a78bfa,#818cf8)',
-    iconCls: isSF ? 'text-pink-400' : 'text-violet-400',
-    spinnerCls: isSF ? 'border-pink-400' : 'border-violet-400',
-    timeCls: isSF ? 'text-pink-300' : 'text-violet-300',
+    bg: isSF ? 'linear-gradient(145deg,#f48fb1 0%,#f06292 50%,#e91e8c 100%)' : 'linear-gradient(145deg,#0f0a2e 0%,#1a1040 50%,#0d1b3e 100%)',
+    glow1: isSF ? 'radial-gradient(circle,#9f1239,transparent)' : 'radial-gradient(circle,#7c3aed,transparent)',
+    glow2: isSF ? 'radial-gradient(circle,#be123c,transparent)' : 'radial-gradient(circle,#6366f1,transparent)',
+    accent: isSF ? 'linear-gradient(135deg,#9f1239,#be185d)' : 'linear-gradient(135deg,#7c3aed,#6366f1)',
+    textGrad: isSF ? 'linear-gradient(135deg,#ffffff,#fce7f3)' : 'linear-gradient(135deg,#a78bfa,#818cf8)',
+    iconCls: isSF ? 'text-white' : 'text-violet-400',
+    spinnerCls: isSF ? 'border-white' : 'border-violet-400',
+    timeCls: isSF ? 'text-white' : 'text-violet-300',
     btnShadow: isSF ? 'shadow-pink-900/50' : 'shadow-violet-900/50',
-    bannerBg: isSF ? 'linear-gradient(to bottom,rgba(219,39,119,0.1),rgba(236,72,153,0.1))' : 'linear-gradient(to bottom,rgba(124,58,237,0.1),rgba(99,102,241,0.1))',
-    bannerBorder: isSF ? 'border-pink-500/30' : 'border-violet-500/30',
-    badgeCls: isSF ? 'bg-pink-500' : 'bg-violet-500',
-    recoverBorder: isSF ? 'border-pink-500/30' : 'border-violet-500/30',
-    ringCls: isSF ? 'focus:ring-pink-500' : 'focus:ring-violet-500',
+    bannerBg: isSF ? 'rgba(255,255,255,0.18)' : 'linear-gradient(to bottom,rgba(124,58,237,0.1),rgba(99,102,241,0.1))',
+    bannerBorder: isSF ? 'border-white/30' : 'border-violet-500/30',
+    badgeCls: isSF ? 'bg-rose-800' : 'bg-violet-500',
+    recoverBorder: isSF ? 'border-white/30' : 'border-violet-500/30',
+    ringCls: isSF ? 'focus:ring-white' : 'focus:ring-violet-500',
+    cardBg: isSF ? 'bg-white/35' : 'bg-white/5',
+    cardBorder: isSF ? 'border-white/50' : 'border-white/10',
+    navBoxBg: isSF ? 'bg-white/15' : 'bg-white/5',
+    navBoxBorder: isSF ? 'border-white/30' : 'border-white/10',
+    textDim: isSF ? 'text-white/90' : 'text-white/60',
+    textMuted: isSF ? 'text-white/75' : 'text-white/40',
+    textFaint: isSF ? 'text-white/60' : 'text-white/30',
+    textFeature: isSF ? 'text-white' : 'text-white/70',
   };
   const [data, setData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
@@ -171,18 +179,18 @@ export function ExamenBlancPageContent({ target }: { target: Target }) {
           <span className="text-white font-bold text-lg">Al Bourour</span>
         </Link>
         <div className="flex items-center gap-3">
-          <div className="flex items-center gap-1 p-1 bg-white/5 border border-white/10 rounded-xl">
+          <div className={`flex items-center gap-1 p-1 ${theme.navBoxBg} border ${theme.navBoxBorder} rounded-xl`}>
             <button onClick={() => setLang('fr')}
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-semibold transition ${!isAr ? 'bg-white/15 text-white' : 'text-white/40 hover:text-white/70'}`}>
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-semibold transition ${!isAr ? 'bg-white/15 text-white' : `${theme.textMuted} hover:text-white/90`}`}>
               🇫🇷 Français
             </button>
             <button onClick={() => setLang('ar')}
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-semibold transition ${isAr ? 'bg-white/15 text-white' : 'text-white/40 hover:text-white/70'}`}>
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-semibold transition ${isAr ? 'bg-white/15 text-white' : `${theme.textMuted} hover:text-white/90`}`}>
               🇲🇷 العربية
             </button>
           </div>
           <Link href="/examen-blanc/leaderboard"
-            className="flex items-center gap-1.5 text-white/60 hover:text-white text-sm font-medium transition">
+            className={`flex items-center gap-1.5 ${theme.textDim} hover:text-white text-sm font-medium transition`}>
             <Trophy className="w-4 h-4" />
             {isAr ? 'الترتيب' : 'Classement'}
           </Link>
@@ -204,7 +212,7 @@ export function ExamenBlancPageContent({ target }: { target: Target }) {
             </span>
           </h1>
 
-          <p className="text-white/60 text-lg sm:text-xl max-w-2xl mx-auto mb-8 leading-relaxed">
+          <p className={`${theme.textDim} text-lg sm:text-xl max-w-2xl mx-auto mb-8 leading-relaxed`}>
             {isAr
               ? 'اختبر مستواك الحقيقي قبل المسابقة الرسمية. ترتيب وطني. نتائج مفصّلة.'
               : 'Teste ton vrai niveau avant le concours officiel. Classement à l\'échelle nationale. Analyse détaillée.'}
@@ -222,7 +230,7 @@ export function ExamenBlancPageContent({ target }: { target: Target }) {
                   <Icon className={`w-4 h-4 ${theme.iconCls}`} />
                   <span className="text-2xl font-black text-white">{val}</span>
                 </div>
-                <p className="text-white/40 text-xs">{label}</p>
+                <p className={`${theme.textMuted} text-xs`}>{label}</p>
               </div>
             ))}
           </div>
@@ -279,7 +287,7 @@ export function ExamenBlancPageContent({ target }: { target: Target }) {
                 {isAr ? '🎯 تدرّب مجاناً قبل الامتحان' : '🎯 Entraînez-vous gratuitement avant l\'examen'}
               </Link>
             ) : (
-              <div className={`w-full max-w-xs bg-white/5 border ${theme.recoverBorder} rounded-2xl p-5 space-y-3`}>
+              <div className={`w-full max-w-xs ${theme.cardBg} border ${theme.recoverBorder} rounded-2xl p-5 space-y-3`}>
                 <p className="text-white/80 text-sm font-bold text-center">
                   {isAr ? '📱 أدخل رقم هاتفك' : '📱 Ton numéro de téléphone'}
                 </p>
@@ -301,7 +309,7 @@ export function ExamenBlancPageContent({ target }: { target: Target }) {
                   {recoverLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : (isAr ? '🔍 بحث' : '🔍 Retrouver')}
                 </button>
                 <button onClick={() => { setShowRecover(false); setRecoverError(''); setRecoverPhone(''); }}
-                  className="w-full text-white/30 text-xs hover:text-white/50 transition text-center">
+                  className={`w-full ${theme.textFaint} text-xs hover:text-white/70 transition text-center`}>
                   {isAr ? 'إلغاء' : 'Annuler'}
                 </button>
               </div>
@@ -319,16 +327,16 @@ export function ExamenBlancPageContent({ target }: { target: Target }) {
             <p className="font-black text-white text-base leading-snug">
               {isAr ? 'طريقة تصحيح جديدة مطابقة لمسابقة التوظيف الوطنية' : 'Nouvelle méthode de correction adaptée au concours national'}
             </p>
-            <p className="text-sm text-white/60 leading-relaxed">
+            <p className={`text-sm ${theme.textDim} leading-relaxed`}>
               {isAr
                 ? 'يتم التقييم دون أي تدخل بشري. تُمنح نقطة كاملة لكل إجابة صحيحة تماماً. ويُعتمد نظام التنقيط الجزئي التناسبي مع تطبيق غرامة على كل إجابة خاطئة محددة.'
                 : "L'évaluation se fait sans intervention humaine. Un point complet est attribué pour chaque réponse entièrement correcte. Un système de notation partielle proportionnelle est utilisé, avec pénalité pour chaque mauvaise réponse."}
             </p>
             <div className={`grid grid-cols-3 gap-2 mt-1 ${isAr ? 'direction-rtl' : ''}`}>
               {[
-                { emoji: '✅', label: isAr ? 'إجابة صحيحة كاملة' : 'Réponse entièrement correcte', val: isAr ? '+ نقطة كاملة' : '+ 1 point complet', color: 'bg-emerald-500/10 border-emerald-500/20 text-emerald-300' },
-                { emoji: '🔶', label: isAr ? 'إجابة جزئية' : 'Réponse partielle', val: isAr ? '+ نقطة جزئية' : '+ points partiels', color: 'bg-amber-500/10 border-amber-500/20 text-amber-300' },
-                { emoji: '❌', label: isAr ? 'إجابة خاطئة' : 'Mauvaise réponse', val: isAr ? 'غرامة' : 'Pénalité', color: 'bg-red-500/10 border-red-500/20 text-red-300' },
+                { emoji: '✅', label: isAr ? 'إجابة صحيحة كاملة' : 'Réponse entièrement correcte', val: isAr ? '+ نقطة كاملة' : '+ 1 point complet', color: isSF ? 'bg-emerald-500/30 border-emerald-400/60 text-white' : 'bg-emerald-500/10 border-emerald-500/20 text-emerald-300' },
+                { emoji: '🔶', label: isAr ? 'إجابة جزئية' : 'Réponse partielle', val: isAr ? '+ نقطة جزئية' : '+ points partiels', color: isSF ? 'bg-amber-500/30 border-amber-400/60 text-white' : 'bg-amber-500/10 border-amber-500/20 text-amber-300' },
+                { emoji: '❌', label: isAr ? 'إجابة خاطئة' : 'Mauvaise réponse', val: isAr ? 'غرامة' : 'Pénalité', color: isSF ? 'bg-red-500/30 border-red-400/60 text-white' : 'bg-red-500/10 border-red-500/20 text-red-300' },
               ].map(({ emoji, label, val, color }, i) => (
                 <div key={i} className={`rounded-xl border p-3 text-center ${color}`}>
                   <p className="text-xl mb-1">{emoji}</p>
@@ -348,17 +356,17 @@ export function ExamenBlancPageContent({ target }: { target: Target }) {
             { icon: Trophy, title: isAr ? 'وطني' : 'Nationale', sub: isAr ? 'ترتيب وطني' : 'À l\'échelle nationale' },
             { icon: Zap, title: isAr ? '24 ساعة' : '24h', sub: isAr ? 'للنتائج المفصّلة' : 'Pour les résultats' },
           ].map(({ icon: Icon, title, sub }, i) => (
-            <div key={i} className="bg-white/5 backdrop-blur border border-white/10 rounded-2xl p-5 text-center hover:bg-white/8 transition">
+            <div key={i} className={`${theme.cardBg} backdrop-blur border ${theme.cardBorder} rounded-2xl p-5 text-center hover:bg-white/25 transition`}>
               <Icon className={`w-6 h-6 ${theme.iconCls} mx-auto mb-3`} />
               <p className="text-2xl font-black text-white mb-1">{title}</p>
-              <p className="text-white/50 text-xs">{sub}</p>
+              <p className={`${theme.textMuted} text-xs`}>{sub}</p>
             </div>
           ))}
         </div>
 
         {/* What you get */}
         <div className="grid lg:grid-cols-2 gap-8 mb-16">
-          <div className="bg-white/5 backdrop-blur border border-white/10 rounded-3xl p-8">
+          <div className={`${theme.cardBg} backdrop-blur border ${theme.cardBorder} rounded-3xl p-8`}>
             <h2 className="text-xl font-black text-white mb-6">
               {isAr ? '📋 مميزات الامتحان' : "📋 L'examen en détail"}
             </h2>
@@ -380,13 +388,13 @@ export function ExamenBlancPageContent({ target }: { target: Target }) {
               ]).map(([icon, text], i) => (
                 <div key={i} className="flex items-center gap-3">
                   <span className="text-xl">{icon}</span>
-                  <span className="text-white/70 text-sm">{text}</span>
+                  <span className={`${theme.textFeature} text-sm`}>{text}</span>
                 </div>
               ))}
             </div>
           </div>
 
-          <div className="bg-white/5 backdrop-blur border border-white/10 rounded-3xl p-8">
+          <div className={`${theme.cardBg} backdrop-blur border ${theme.cardBorder} rounded-3xl p-8`}>
             <h2 className="text-xl font-black text-white mb-6">
               {isAr ? '📊 تحصل على بعد 24 ساعة' : '📊 Résultats après 24h'}
             </h2>
@@ -406,7 +414,7 @@ export function ExamenBlancPageContent({ target }: { target: Target }) {
               ]).map(([icon, text], i) => (
                 <div key={i} className="flex items-center gap-3">
                   <span className="text-xl">{icon}</span>
-                  <span className="text-white/70 text-sm">{text}</span>
+                  <span className={`${theme.textFeature} text-sm`}>{text}</span>
                 </div>
               ))}
             </div>
@@ -415,7 +423,7 @@ export function ExamenBlancPageContent({ target }: { target: Target }) {
 
         {/* Trust section */}
         <div className="text-center">
-          <div className="flex flex-wrap items-center justify-center gap-6 text-white/30 text-sm">
+          <div className={`flex flex-wrap items-center justify-center gap-6 ${theme.textFaint} text-sm`}>
             {[
               [Shield, isAr ? 'أسئلة رسمية معتمدة' : 'Questions officielles validées'],
               [Star, isAr ? `${stats.totalAllTime}+ مشارك` : `${stats.totalAllTime}+ participants`],

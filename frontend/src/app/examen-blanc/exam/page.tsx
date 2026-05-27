@@ -301,7 +301,6 @@ function ExamContent() {
             <button onClick={() => setCurrentIdx(i => Math.max(0, i - 1))} disabled={currentIdx === 0}
               className="flex items-center gap-2 px-5 py-2.5 rounded-xl border border-white/10 text-white/60 font-semibold text-sm hover:bg-white/5 transition disabled:opacity-30">
               <ChevronLeft className="w-4 h-4" />
-              {isAr ? 'سابق' : 'Précédent'}
             </button>
 
             <button onClick={() => setMarked(s => { const n = new Set(s); n.has(currentIdx) ? n.delete(currentIdx) : n.add(currentIdx); return n; })}
