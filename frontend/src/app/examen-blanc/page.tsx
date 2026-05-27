@@ -150,13 +150,14 @@ export function ExamenBlancPageContent({ target }: { target: Target }) {
   const isResultsReady = session?.isResultsReady;
   const hasSession = !!session;
 
+  const sfBadge = isSF;
   const statusBadge = !hasSession
-    ? { text: isAr ? 'لا توجد جلسة نشطة' : 'Aucune session active', color: 'bg-gray-500/20 text-gray-300 border-gray-500/30' }
+    ? { text: isAr ? 'لا توجد جلسة نشطة' : 'Aucune session active', color: sfBadge ? 'bg-white/30 text-white border-white/50' : 'bg-gray-500/20 text-gray-300 border-gray-500/30' }
     : isOpen
-      ? { text: isAr ? '🟢 مفتوح الآن' : '🟢 Ouvert maintenant', color: 'bg-green-500/20 text-green-300 border-green-500/30' }
+      ? { text: isAr ? '🟢 مفتوح الآن' : '🟢 Ouvert maintenant', color: sfBadge ? 'bg-emerald-500/40 text-white border-emerald-400/60' : 'bg-green-500/20 text-green-300 border-green-500/30' }
       : isClosed
-        ? { text: isAr ? '🔒 التسجيل مغلق' : '🔒 Inscriptions fermées', color: 'bg-red-500/20 text-red-300 border-red-500/30' }
-        : { text: isAr ? '⏳ قريباً' : '⏳ Bientôt', color: 'bg-amber-500/20 text-amber-300 border-amber-500/30' };
+        ? { text: isAr ? '🔒 التسجيل مغلق' : '🔒 Inscriptions fermées', color: sfBadge ? 'bg-red-600/40 text-white border-red-400/60' : 'bg-red-500/20 text-red-300 border-red-500/30' }
+        : { text: isAr ? '⏳ قريباً' : '⏳ Bientôt', color: sfBadge ? 'bg-white/35 text-white border-white/55 font-black' : 'bg-amber-500/20 text-amber-300 border-amber-500/30' };
 
   return (
     <div className="min-h-screen" dir={isAr ? 'rtl' : 'ltr'}
