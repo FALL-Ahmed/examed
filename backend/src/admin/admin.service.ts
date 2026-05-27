@@ -433,19 +433,27 @@ export class AdminService {
     return ranked.map((u, i) => ({ ...u, rank: i + 1 }));
   }
 
-  async getUserAnalytics() {
+  async getUserAnalytics(target?: string) {
+    const isSF = target === 'SAGE_FEMME';
+    const isIF = target === 'INFIRMIER';
+    const userWhere: any = { role: { not: 'ADMIN' } };
+    if (isSF) userWhere.profession = 'sage_femme';
+    if (isIF) userWhere.profession = { not: 'sage_femme' };
+
+    const targetClause = isSF ? `AND th.target = 'SAGE_FEMME'` : isIF ? `AND th.target = 'INFIRMIER'` : '';
+
     const [users, operatorStats, langStats] = await Promise.all([
       this.prisma.user.findMany({
-        where: { role: { not: 'ADMIN' } },
+        where: userWhere,
         select: { role: true, gender: true, wilaya: true, profession: true } as any,
       }),
       this.prisma.payment.groupBy({
         by: ['operator'],
-        where: { status: 'VALIDATED' },
+        where: { status: 'VALIDATED', ...(isSF || isIF ? { user: userWhere } : {}) },
         _count: { _all: true },
         _sum: { amount: true },
       }),
-      this.prisma.$queryRaw<{ language: string; users: bigint; answers: bigint }[]>`
+      this.prisma.$queryRawUnsafe<{ language: string; users: bigint; answers: bigint }[]>(`
         SELECT th.language,
                COUNT(DISTINCT a."userId") AS users,
                SUM(a."totalQ")            AS answers
@@ -453,8 +461,9 @@ export class AdminService {
         JOIN "Theme" th ON a."themeId" = th.id
         WHERE a."isCompleted" = true
           AND a."themeId" IS NOT NULL
+          ${targetClause}
         GROUP BY th.language
-      `,
+      `),
     ]);
 
     const group = (field: string) => {
@@ -479,10 +488,10 @@ export class AdminService {
       answers: Number(r.answers),
     }));
 
-    const themeStats = await this.prisma.$queryRaw<{
+    const themeStats = await this.prisma.$queryRawUnsafe<{
       subtheme: string; theme: string; language: string; total_answers: bigint;
       distinct_users: bigint; avg_score: number; sessions: bigint;
-    }[]>`
+    }[]>(`
       SELECT COALESCE(st.name, th.name) AS subtheme,
              th.name                    AS theme,
              th.language,
@@ -495,10 +504,11 @@ export class AdminService {
       JOIN "Theme"    th ON COALESCE(st."themeId", a."themeId") = th.id
       WHERE a."isCompleted" = true
         AND (a."subThemeId" IS NOT NULL OR a."themeId" IS NOT NULL)
+        ${targetClause}
       GROUP BY st.id, st.name, th.name, th.language
       ORDER BY total_answers DESC
       LIMIT 20
-    `;
+    `);
 
     const byTheme = themeStats.map((r) => ({
       subtheme:      r.subtheme,

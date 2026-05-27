@@ -92,12 +92,15 @@ function DonutChart({ male, female, unknown }: { male: number; female: number; u
 }
 
 export default function AnalyticsPage() {
+  const [tab, setTab] = useState<'INFIRMIER' | 'SAGE_FEMME'>('INFIRMIER');
   const [data, setData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    adminApi.analytics().then((r) => { setData(r.data); setLoading(false); }).catch(() => setLoading(false));
-  }, []);
+    setLoading(true);
+    setData(null);
+    adminApi.analytics(tab).then((r) => { setData(r.data); setLoading(false); }).catch(() => setLoading(false));
+  }, [tab]);
 
   if (loading) return (
     <div className="flex items-center justify-center py-32">
@@ -147,9 +150,23 @@ export default function AnalyticsPage() {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold text-slate-900">Analyse des utilisateurs</h1>
-        <p className="text-slate-500 text-sm mt-0.5">Répartition par sexe, wilaya et profession</p>
+      <div className="flex items-center justify-between gap-4 flex-wrap">
+        <div>
+          <h1 className="text-2xl font-bold text-slate-900">Analyse des utilisateurs</h1>
+          <p className="text-slate-500 text-sm mt-0.5">Répartition par sexe, wilaya et profession</p>
+        </div>
+        <div className="flex gap-2">
+          <button
+            onClick={() => setTab('INFIRMIER')}
+            className={`px-4 py-2 rounded-xl text-sm font-semibold transition ${tab === 'INFIRMIER' ? 'bg-blue-600 text-white shadow' : 'bg-white border border-slate-200 text-slate-500 hover:border-blue-300'}`}>
+            🏥 Infirmier
+          </button>
+          <button
+            onClick={() => setTab('SAGE_FEMME')}
+            className={`px-4 py-2 rounded-xl text-sm font-semibold transition ${tab === 'SAGE_FEMME' ? 'bg-pink-500 text-white shadow' : 'bg-white border border-slate-200 text-slate-500 hover:border-pink-300'}`}>
+            👶 Sage-femme
+          </button>
+        </div>
       </div>
 
       {/* KPIs */}

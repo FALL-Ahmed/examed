@@ -208,7 +208,7 @@ export const adminApi = {
   importArText: (text: string, target = 'INFIRMIER') => api.post('/pdf/ar-text-import', { text, target }),
   previewJson: (json: any) => api.post('/pdf/json-preview', json),
   importJson: (json: any, target = 'INFIRMIER') => api.post('/pdf/json-import', { ...json, target }),
-  analytics: () => api.get('/admin/analytics'),
+  analytics: (target?: string) => api.get('/admin/analytics', target ? { params: { target } } : {}),
   getSettings: () => api.get('/admin/settings'),
   setSetting: (key: string, value: string) => api.put(`/admin/settings/${key}`, { value }),
   grantPremium: (id: string, days: number) => api.put(`/admin/users/${id}/grant-premium`, { days }),

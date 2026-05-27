@@ -31,8 +31,8 @@ export class AdminController {
   }
 
   @Get('analytics')
-  getAnalytics() {
-    return this.adminService.getUserAnalytics();
+  getAnalytics(@Query('target') target?: string) {
+    return this.adminService.getUserAnalytics(target);
   }
 
   @Get('free-trial-stats')
