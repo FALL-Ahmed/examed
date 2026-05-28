@@ -109,7 +109,7 @@ export default function DashboardPage() {
   useEffect(() => {
     const id = setInterval(() => {
       setFadeIn(false);
-      setTimeout(() => { setSlideIdx(i => (i + 1) % 3); setFadeIn(true); }, 300);
+      setTimeout(() => { setSlideIdx(i => (i + 1) % 2); setFadeIn(true); }, 300);
     }, 10000);
     return () => clearInterval(id);
   }, []);
@@ -125,17 +125,6 @@ export default function DashboardPage() {
         ? 'كل ما يجب حفظه قبل يوم المسابقة — الصيغ، المعايير البيولوجية، المقاييس. حمّل وراجع !'
         : 'Tout ce que tu dois mémoriser avant le jour J — formules, constantes, scores. Télécharge et révise !',
       download: '/fiche-memo.pdf' as string | null,
-    },
-    {
-      badge: isAr ? 'جديد' : 'Nouveau',
-      image: (isAr ? '/2.png' : '/1.png') as string | null,
-      title: isAr
-        ? 'أكثر من 600 سؤال جديد للمراجعة'
-        : 'Plus de 600 nouvelles questions à réviser',
-      desc: isAr
-        ? 'استعد بشكل أفضل لمسابقة ممرض الدولة. البرور يرافقك حتى قاعة الامتحان.'
-        : "Préparez-vous encore mieux au concours national d'infirmier d'État. Al Bourour vous accompagne jusqu'à la salle d'examen.",
-      download: null as string | null,
     },
     {
       badge: isAr ? 'جديد' : 'Nouveau',
