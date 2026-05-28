@@ -37,11 +37,11 @@ export class ThemesService {
         include: {
           subThemes: {
             select: { id: true, name: true, order: true, _count: { select: { questions: true } } },
-            orderBy: { name: 'asc' },
+            orderBy: [{ order: 'asc' }, { name: 'asc' }],
           },
           _count: { select: { subThemes: true } },
         },
-        orderBy: { name: 'asc' },
+        orderBy: [{ order: 'asc' }, { name: 'asc' }],
       });
     }
 
@@ -57,11 +57,11 @@ export class ThemesService {
         include: {
           subThemes: {
             select: { id: true, name: true, order: true, _count: { select: { questions: true } } },
-            orderBy: { name: 'asc' },
+            orderBy: [{ order: 'asc' }, { name: 'asc' }],
           },
           _count: { select: { subThemes: true } },
         },
-        orderBy: { name: 'asc' },
+        orderBy: [{ order: 'asc' }, { name: 'asc' }],
       });
     }
 
@@ -71,11 +71,11 @@ export class ThemesService {
         include: {
           subThemes: {
             select: { id: true, name: true, order: true, _count: { select: { questions: true } } },
-            orderBy: { name: 'asc' },
+            orderBy: [{ order: 'asc' }, { name: 'asc' }],
           },
           _count: { select: { subThemes: true } },
         },
-        orderBy: { name: 'asc' },
+        orderBy: [{ order: 'asc' }, { name: 'asc' }],
       });
       return themes.filter(t =>
         THEMES_3EME_ANNEE.includes(t.name) ||
@@ -88,11 +88,11 @@ export class ThemesService {
       include: {
         subThemes: {
           select: { id: true, name: true, order: true, _count: { select: { questions: true } } },
-          orderBy: { name: 'asc' },
+          orderBy: [{ order: 'asc' }, { name: 'asc' }],
         },
         _count: { select: { subThemes: true } },
       },
-      orderBy: { name: 'asc' },
+      orderBy: [{ order: 'asc' }, { name: 'asc' }],
     });
   }
 
@@ -102,7 +102,7 @@ export class ThemesService {
       include: {
         subThemes: {
           include: { _count: { select: { questions: true } } },
-          orderBy: { name: 'asc' },
+          orderBy: [{ order: 'asc' }, { name: 'asc' }],
         },
       },
     });
