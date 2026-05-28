@@ -195,6 +195,9 @@ export function QuestionCard({ question, questionNumber, totalQuestions, onAnswe
           </button>
         </div>
         <p className="text-gray-800 dark:text-gray-100 font-medium leading-relaxed text-base">{question.text}</p>
+        {question.imageUrl && (
+          <img src={resolveImageUrl(question.imageUrl)} alt="Schéma" className="mt-3 rounded-xl max-h-72 w-full object-contain border border-gray-100 dark:border-gray-700" />
+        )}
       </div>
 
       {/* Choices */}
