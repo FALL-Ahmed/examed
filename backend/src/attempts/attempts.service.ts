@@ -72,6 +72,16 @@ export class AttemptsService {
           throw new ForbiddenException({ message: 'Quota journalier atteint', code: 'QUOTA_EXCEEDED' });
         }
       }
+      // Valider que le thème appartient au bon target selon la profession
+      if (dto.themeId) {
+        const theme = await this.prisma.theme.findUnique({ where: { id: dto.themeId }, select: { target: true } });
+        if (theme) {
+          const user = await this.prisma.user.findUnique({ where: { id: userId }, select: { profession: true } });
+          const isSF = user?.profession === 'sage_femme';
+          if (theme.target === 'SAGE_FEMME' && !isSF) throw new ForbiddenException('Thème non autorisé pour votre profil');
+          if (theme.target === 'INFIRMIER' && isSF) throw new ForbiddenException('Thème non autorisé pour votre profil');
+        }
+      }
       questions = await this.questionsService.getForPractice(userId, 'ADMIN', {
         themeId: dto.themeId,
         subThemeId: dto.subThemeId,
