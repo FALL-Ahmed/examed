@@ -64,7 +64,7 @@ function RegisterContent() {
   const [formError, setFormError] = useState('');
 
   const [operators, setOperators] = useState<Record<string, string>>({});
-  const [pricing, setPricing] = useState<any>({ solo1m: { price: 500 }, groupPerP: { price: 400 }, groupMin: 3 });
+  const [pricing, setPricing] = useState<any>({ solo1m: { price: 1000 }, groupPerP: { price: 700 }, groupMin: 3 });
   const [promoSettings, setPromoSettings] = useState<{ active: boolean; discount: number; endDate?: string | null; includesGroup?: boolean } | null>(null);
   const planParam = searchParams.get('plan');
   const [selectedPlan, setSelectedPlan] = useState<'SOLO_1M' | 'GROUP'>(

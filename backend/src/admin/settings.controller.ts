@@ -31,8 +31,8 @@ export class SettingsController {
       this.adminService.getSetting('GROUP_MIN_MEMBERS'),
     ]);
     return {
-      solo1m:    { price: price1m    ? parseInt(price1m)    : 500, duration: 30 },
-      groupPerP: { price: priceGroup ? parseInt(priceGroup) : 400 },
+      solo1m:    { price: price1m    ? parseInt(price1m)    : 1000, duration: 30 },
+      groupPerP: { price: priceGroup ? parseInt(priceGroup) : 700 },
       groupMin:  groupMin ? parseInt(groupMin) : 3,
     };
   }
