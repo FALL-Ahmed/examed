@@ -269,11 +269,15 @@ export class AttemptsService {
   }
 
   async getWeakTheme(userId: string) {
+    const user = await this.prisma.user.findUnique({ where: { id: userId }, select: { profession: true } });
+    const userTarget = user?.profession === 'sage_femme' ? 'SAGE_FEMME' : 'INFIRMIER';
+
     // Utilise les réponses → question → sous-thème → thème pour avoir les vrais IDs actuels
     const answers = await this.prisma.userAnswer.findMany({
       where: {
         userId,
         attempt: { isCompleted: true, mode: { in: ['PRACTICE', 'EXAM'] } },
+        question: { subTheme: { theme: { target: userTarget } } },
       },
       select: {
         isCorrect: true,
