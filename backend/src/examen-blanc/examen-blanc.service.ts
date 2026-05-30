@@ -481,6 +481,15 @@ export class ExamenBlancService {
     });
     if (!participant) throw new NotFoundException('Aucun participant trouvé avec ce numéro');
 
+    // Réinitialiser le timer si l'examen n'est pas encore commencé/terminé
+    if (!participant.isCompleted) {
+      await db(this.prisma).examenBlancParticipant.update({
+        where: { id: participant.id },
+        data: { createdAt: new Date() },
+      });
+      participant.createdAt = new Date();
+    }
+
     const session = participant.examenBlanc;
     const questionIds: string[] = participant.lang === 'ar' ? session.questionIdsAr : session.questionIdsFr;
 
