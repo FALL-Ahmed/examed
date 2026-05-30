@@ -69,7 +69,16 @@ function ResultsContent() {
     setTimeout(() => window.print(), 300);
   }
 
+  const isMock = searchParams.get('mock') === '1';
+
   const load = useCallback(async () => {
+    if (isMock) {
+      setLocalState({ totalQ: 60, resultsAt: new Date(Date.now() + 20 * 3600 * 1000).toISOString(), participant: { prenom: 'Fatimetou', nom: '' } });
+      setResults({ locked: true, score: 72.5, correctQ: 43, totalQ: 60, answeredQ: 58, resultsAt: new Date(Date.now() + 20 * 3600 * 1000).toISOString(), participant: { prenom: 'Fatimetou' } });
+      setResultsAt(new Date(Date.now() + 20 * 3600 * 1000));
+      setLoading(false);
+      return;
+    }
     const raw = localStorage.getItem(stateKey);
     if (!raw) { router.replace('/examen-blanc'); return; }
     let state: any;
@@ -98,7 +107,7 @@ function ResultsContent() {
     } finally {
       setLoading(false);
     }
-  }, [router]);
+  }, [router, isMock]);
 
   useEffect(() => { load(); }, [load]);
 
@@ -183,18 +192,51 @@ function ResultsContent() {
           )}
 
           {/* Classement verrouillé */}
+          <div className="rounded-3xl p-8 text-center relative overflow-hidden"
+            style={{ background: 'linear-gradient(135deg,#7c3aed 0%,#6366f1 50%,#4f46e5 100%)' }}>
+            <div className="absolute -top-10 -right-10 w-48 h-48 rounded-full bg-white/5 pointer-events-none" />
+            <div className="absolute -bottom-8 -left-8 w-36 h-36 rounded-full bg-white/5 pointer-events-none" />
+            <div className="relative z-10">
+              <div className="text-5xl mb-3">🏆</div>
+              <p className="text-white font-bold text-sm uppercase tracking-widest mb-1">
+                {isAr ? 'ترتيبك الوطني' : 'Classement national'}
+              </p>
+              <p className="text-white font-black text-7xl tracking-tight leading-none mb-2">
+                {revealTime}
+              </p>
+              <p className="text-white font-medium text-sm">
+                {isAr ? 'موعد الكشف عن النتائج' : 'Heure de révélation du classement'}
+              </p>
+              <div className="mt-4 pt-4 border-t border-white/20">
+                <p className="text-white/90 text-sm font-semibold">
+                  {isAr ? '🔍 استخدم رقم هاتفك للعودة إلى نتائجك' : '🔍 Utilise ton numéro de téléphone pour retrouver tes résultats'}
+                </p>
+              </div>
+            </div>
+          </div>
+
+          {/* Témoignages */}
           <div className="bg-white/5 border border-white/10 rounded-3xl p-6">
-            <p className="text-white/80 font-bold mb-1">
-              {isAr ? '🏆 الترتيب والتصحيح يُكشف يوم' : '🏆 Classement & correction révélés le'}
+            <p className="text-white/60 text-xs font-bold uppercase tracking-widest text-center mb-4">
+              {isAr ? 'انضموا إلى +600 سؤال على Al Bourour' : 'Ils ont rejoint les +600 QCM d\'Al Bourour'}
             </p>
-            <p className="text-white font-black text-lg">{revealDate}</p>
-            <p className="text-violet-300 font-semibold mb-5">{isAr ? `الساعة ${revealTime}` : `à ${revealTime}`}</p>
-            {resultsAt && <Countdown target={resultsAt} isAr={isAr} />}
-            <p className="text-white/30 text-xs mt-4">
-              {isAr
-                ? '🔐 النتائج مجهولة الهوية — لن يعرف أحد معلومات الآخرين'
-                : '🔐 Résultats anonymes — personne ne verra les infos des autres'}
-            </p>
+            <div className="grid grid-cols-2 gap-4">
+              {(isAr ? [
+                { name: 'مريم', role: 'ممرضة', img: '/images/ar-com-1.jpeg' },
+                { name: 'سيدي', role: 'ممرض', img: '/images/ar-com-2.jpeg' },
+              ] : [
+                { name: 'Fatimetou', role: 'Infirmière', img: '/images/fr-com-1.jpeg' },
+                { name: 'Mohamed',   role: 'Infirmier',  img: '/images/fr-com-2.png'  },
+              ]).map(t => (
+                <div key={t.name} className="flex flex-col items-center text-center">
+                  <div className="mb-2 overflow-hidden rounded-xl w-full">
+                    <img src={t.img} alt={t.name} className="w-full h-auto object-contain" />
+                  </div>
+                  <p className="font-bold text-white text-sm">{t.name}</p>
+                  <p className="text-white/40 text-xs mt-0.5">{t.role}</p>
+                </div>
+              ))}
+            </div>
           </div>
 
           {/* CTA inscription */}
@@ -215,9 +257,8 @@ function ResultsContent() {
           </div>
 
           {/* Instructions */}
-          <div className="text-white/30 text-sm space-y-1">
+          <div className="text-white/30 text-sm text-center">
             <p>{isAr ? '📱 يمكنك إغلاق هذه الصفحة والعودة لاحقاً' : '📱 Tu peux fermer cette page et revenir plus tard'}</p>
-            <p>{isAr ? '🔍 استخدم رقم هاتفك للعودة إلى نتائجك' : '🔍 Utilise ton numéro de téléphone pour retrouver tes résultats'}</p>
           </div>
 
           <div className="flex flex-col sm:flex-row items-center justify-center gap-3">

@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { examenBlancApi } from '@/lib/api';
 import { useLang } from '@/components/LanguageProvider';
-import { BookOpen, Clock, FileText, Trophy, Users, ChevronRight, Star, Zap, Shield, MapPin, Loader2 } from 'lucide-react';
+import { BookOpen, Clock, FileText, Trophy, Users, ChevronRight, Star, Zap, Shield, MapPin, Loader2, BarChart, CheckCircle2 } from 'lucide-react';
 
 const pad = (n: number) => String(n).padStart(2, '0');
 
@@ -134,8 +134,21 @@ export function ExamenBlancPageContent({ target }: { target: Target }) {
     }
   }, [target]);
 
+  const [testIdx, setTestIdx] = useState(0);
+  const [testFade, setTestFade] = useState(true);
+
   useEffect(() => { window.scrollTo(0, 0); }, []);
   useEffect(() => { load(); }, [load]);
+  useEffect(() => {
+    const testimonials = isAr
+      ? [{ name: 'مريم', role: isSF ? 'قابلة' : 'ممرضة', img: '/images/ar-com-1.jpeg' }, { name: 'سيدي', role: isSF ? 'قابل' : 'ممرض', img: '/images/ar-com-2.jpeg' }]
+      : [{ name: 'Fatimetou', role: isSF ? 'Sage-femme' : 'Infirmière', img: '/images/fr-com-1.jpeg' }, { name: 'Mohamed', role: isSF ? 'Sage-femme' : 'Infirmier', img: '/images/fr-com-2.png' }];
+    const id = setInterval(() => {
+      setTestFade(false);
+      setTimeout(() => { setTestIdx(i => (i + 1) % testimonials.length); setTestFade(true); }, 700);
+    }, 7000);
+    return () => clearInterval(id);
+  }, [isAr, isSF]);
 
   if (loading && !data) return (
     <div className="min-h-screen flex items-center justify-center" style={{ background: theme.bg }}>
@@ -248,12 +261,6 @@ export function ExamenBlancPageContent({ target }: { target: Target }) {
               </span>
             </div>
           )}
-          {session && isClosed && isResultsReady && (
-            <p className="text-green-400 font-bold text-lg mb-10">
-              {isAr ? '✅ النتائج متاحة الآن' : '✅ Résultats disponibles'}
-            </p>
-          )}
-
           {/* CTA */}
           {isOpen ? (
             <Link href={`/examen-blanc/register?id=${session.id}&target=${target}`}
@@ -263,12 +270,21 @@ export function ExamenBlancPageContent({ target }: { target: Target }) {
               <ChevronRight className="w-5 h-5" />
             </Link>
           ) : isClosed && isResultsReady ? (
-            <button onClick={() => setShowRecover(true)}
-              className={`inline-flex items-center gap-2 px-8 py-4 rounded-2xl font-bold text-lg text-white hover:opacity-90 transition shadow-2xl ${theme.btnShadow}`}
-              style={{ background: theme.accent }}>
-              <Trophy className="w-5 h-5" />
-              {isAr ? 'عرض نتائجي' : 'Voir mes résultats'}
-            </button>
+            <div className="flex flex-col items-center gap-4">
+              <div className="text-6xl animate-bounce">🏆</div>
+              <p className="text-white font-black text-3xl sm:text-4xl">
+                {isAr ? 'النتائج متاحة الآن !' : 'Résultats disponibles !'}
+              </p>
+              <p className={`${theme.textDim} text-base`}>
+                {isAr ? 'اكتشف ترتيبك الوطني' : 'Découvrez votre classement national'}
+              </p>
+              <button onClick={() => setShowRecover(true)}
+                className="inline-flex items-center gap-3 px-10 py-5 rounded-2xl font-black text-xl text-white hover:opacity-90 transition shadow-2xl animate-pulse"
+                style={{ background: theme.accent, boxShadow: isSF ? '0 8px 32px rgba(159,18,57,0.5)' : '0 8px 32px rgba(124,58,237,0.5)' }}>
+                <Trophy className="w-6 h-6" />
+                {isAr ? 'عرض نتائجي' : 'Voir mes résultats'}
+              </button>
+            </div>
           ) : (
             <button disabled
               className="inline-flex items-center gap-2 px-8 py-4 rounded-2xl font-bold text-lg text-white/40 bg-white/5 border border-white/10 cursor-not-allowed">
@@ -283,11 +299,33 @@ export function ExamenBlancPageContent({ target }: { target: Target }) {
           {/* Already registered / Recover */}
           <div className="mt-5 flex flex-col items-center gap-3">
             {!showRecover ? (
-              <Link href="/free-practice"
-                className="w-full max-w-xs py-4 rounded-2xl font-bold text-sm text-white text-center transition active:scale-95"
-                style={{ background: theme.accent, boxShadow: isSF ? '0 4px 20px rgba(219,39,119,0.4)' : '0 4px 20px rgba(124,58,237,0.4)' }}>
-                {isAr ? '🎯 تدرّب مجاناً قبل الامتحان' : '🎯 Entraînez-vous gratuitement avant l\'examen'}
-              </Link>
+              <div className="w-full max-w-xs rounded-2xl p-5 text-white relative overflow-hidden" style={{ background: theme.accent }}>
+                <div className="absolute -top-6 -right-6 w-32 h-32 rounded-full bg-white/5 pointer-events-none" />
+                <div className="absolute -bottom-4 -left-4 w-20 h-20 rounded-full bg-white/5 pointer-events-none" />
+                <p className="font-extrabold text-sm mb-3 text-center">
+                  {isAr
+                    ? (isSF ? 'هل تريد النجاح في مسابقة القابلات؟ 🎯' : 'هل تريد النجاح في مسابقة التمريض؟ 🎯')
+                    : (isSF ? 'Tu veux réussir le concours sage-femme ? 🎯' : 'Tu veux réussir le concours infirmier ? 🎯')}
+                </p>
+                <div className="space-y-2 mb-4 text-left">
+                  {[
+                    { icon: BookOpen,     fr: '+600 QCM par thème',                       ar: '+600 سؤال لكل موضوع' },
+                    { icon: BarChart,     fr: 'Statistiques détaillées par thème',         ar: 'إحصائيات مفصّلة حسب الموضوع' },
+                    { icon: Trophy,       fr: 'Classement national en temps réel',         ar: 'ترتيب وطني في الوقت الفعلي' },
+                    { icon: CheckCircle2, fr: 'Correction complète comme l\'examen blanc', ar: 'تصحيح كامل كالاختبار البيضاء' },
+                  ].map(({ icon: Icon, fr, ar }) => (
+                    <div key={fr} className={`flex items-center gap-2 text-white text-xs font-medium ${isAr ? 'flex-row-reverse' : ''}`}>
+                      <Icon className="w-3.5 h-3.5 text-white/60 flex-shrink-0" />
+                      <span>{isAr ? ar : fr}</span>
+                    </div>
+                  ))}
+                </div>
+                <Link href="/register"
+                  className="flex items-center justify-center gap-1.5 w-full py-3 rounded-xl bg-white font-black text-xs transition active:scale-95"
+                  style={{ color: isSF ? '#9f1239' : '#7c3aed' }}>
+                  🚀 {isAr ? 'فعّل حسابك الآن' : 'Activez votre compte maintenant'}
+                </Link>
+              </div>
             ) : (
               <div className={`w-full max-w-xs ${theme.cardBg} border ${theme.recoverBorder} rounded-2xl p-5 space-y-3`}>
                 <p className="text-white/80 text-sm font-bold text-center">
@@ -366,62 +404,34 @@ export function ExamenBlancPageContent({ target }: { target: Target }) {
           ))}
         </div>
 
-        {/* What you get */}
-        <div className="grid lg:grid-cols-2 gap-8 mb-16">
-          <div className={`${theme.cardBg} backdrop-blur border ${theme.cardBorder} rounded-3xl p-8`}>
-            <h2 className="text-xl font-black text-white mb-6">
-              {isAr ? '📋 مميزات الامتحان' : "📋 L'examen en détail"}
-            </h2>
-            <div className="space-y-4">
-              {(isAr ? [
-                ['🧠', 'أسئلة من جميع المواد الطبية'],
-                ['⚖️', 'نفس نظام التقييم الرسمي'],
-                ['📱', 'متاح على الهاتف والحاسوب'],
-                ['🛡️', 'نظام كشف الغش'],
-                ['💾', 'حفظ تلقائي كل سؤال'],
-                ['🔒', 'لا يحتاج حساباً'],
-              ] : [
-                ['🧠', 'Questions de toutes les matières'],
-                ['⚖️', 'Barème officiel identique au vrai concours'],
-                ['📱', 'Accessible mobile et ordinateur'],
-                ['🛡️', 'Système anti-triche intégré'],
-                ['💾', 'Sauvegarde automatique à chaque réponse'],
-                ['🔒', 'Aucun compte requis'],
-              ]).map(([icon, text], i) => (
-                <div key={i} className="flex items-center gap-3">
-                  <span className="text-xl">{icon}</span>
-                  <span className={`${theme.textFeature} text-sm`}>{text}</span>
+        {/* Témoignages carousel */}
+        {(() => {
+          const testimonials = isAr
+            ? [{ name: 'مريم', role: isSF ? 'قابلة' : 'ممرضة', img: '/images/ar-com-1.jpeg' }, { name: 'سيدي', role: isSF ? 'قابل' : 'ممرض', img: '/images/ar-com-2.jpeg' }]
+            : [{ name: 'Fatimetou', role: isSF ? 'Sage-femme' : 'Infirmière', img: '/images/fr-com-1.jpeg' }, { name: 'Mohamed', role: isSF ? 'Sage-femme' : 'Infirmier', img: '/images/fr-com-2.png' }];
+          const t = testimonials[testIdx % testimonials.length];
+          return (
+            <div className={`${theme.cardBg} backdrop-blur border ${theme.cardBorder} rounded-3xl p-8 mb-16`}>
+              <h2 className="text-xl font-black text-white mb-6 text-center">
+                {isAr ? '💬 انضموا إلى +600 سؤال على Al Bourour' : '💬 Ils ont rejoint les +600 QCM d\'Al Bourour'}
+              </h2>
+              <div className="flex flex-col items-center text-center" style={{ transition: 'opacity 0.7s ease-in-out', opacity: testFade ? 1 : 0 }}>
+                <div className="mb-4 overflow-hidden rounded-2xl w-48 shadow-lg">
+                  <img src={t.img} alt={t.name} className="w-full h-auto object-contain" />
                 </div>
-              ))}
+                <p className="font-black text-white text-base">{t.name}</p>
+                <p className={`${theme.textMuted} text-sm mt-1`}>{t.role}</p>
+              </div>
+              <div className="flex justify-center gap-2 mt-5">
+                {testimonials.map((_, i) => (
+                  <button key={i} onClick={() => { setTestFade(false); setTimeout(() => { setTestIdx(i); setTestFade(true); }, 400); }}
+                    className={`rounded-full transition-all ${i === testIdx ? 'w-4 h-1.5' : 'w-1.5 h-1.5'}`}
+                    style={{ background: i === testIdx ? (isSF ? '#9f1239' : '#7c3aed') : 'rgba(255,255,255,0.3)' }} />
+                ))}
+              </div>
             </div>
-          </div>
-
-          <div className={`${theme.cardBg} backdrop-blur border ${theme.cardBorder} rounded-3xl p-8`}>
-            <h2 className="text-xl font-black text-white mb-6">
-              {isAr ? '📊 تحصل على بعد 24 ساعة' : '📊 Résultats après 24h'}
-            </h2>
-            <div className="space-y-4">
-              {(isAr ? [
-                ['🎯', 'تحليل أداءك بكل مادة'],
-                ['✅', 'مراجعة كل سؤال مع التصحيح'],
-                ['📉', 'مواد القوة ومواد الضعف'],
-                ['📈', 'مقارنة بالمتوسط العام'],
-                ['🔐', 'بياناتك سرية — لا أحد يرى معلومات الآخرين'],
-              ] : [
-                ['🎯', 'Analyse par matière et sous-thème'],
-                ['✅', 'Révision de chaque question avec correction'],
-                ['📉', 'Points forts et points faibles identifiés'],
-                ['📈', 'Comparaison avec la moyenne générale'],
-                ['🔐', 'Données confidentielles — personne ne verra les infos des autres'],
-              ]).map(([icon, text], i) => (
-                <div key={i} className="flex items-center gap-3">
-                  <span className="text-xl">{icon}</span>
-                  <span className={`${theme.textFeature} text-sm`}>{text}</span>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
+          );
+        })()}
 
         {/* Trust section */}
         <div className="text-center">
