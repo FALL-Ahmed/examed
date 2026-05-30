@@ -176,7 +176,7 @@ export function QuestionCard({ question, questionNumber, totalQuestions, onAnswe
       </div>
 
       {/* Question */}
-      <div className="bg-white dark:bg-gray-800 rounded-2xl border border-gray-200 dark:border-gray-700 shadow-sm p-5" dir={isAr ? 'rtl' : 'ltr'}>
+      <div className="bg-white dark:bg-gray-800 rounded-2xl border border-gray-200 dark:border-gray-700 shadow-sm p-5" key={question.id} dir={isAr ? 'rtl' : 'ltr'}>
         <div className="flex items-start justify-between gap-3 mb-1">
           <div className="flex-1">
             {(question.isMultiple || (result && correctLetters.length > 1)) && (

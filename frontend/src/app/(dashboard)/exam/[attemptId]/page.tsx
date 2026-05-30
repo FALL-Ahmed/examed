@@ -216,7 +216,7 @@ export default function ExamPage() {
         )}
 
         {/* Question */}
-        <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-6">
+        <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-6" key={q.id}>
           <div className="flex items-start justify-between gap-4 mb-4">
             <p className="text-xs text-gray-400 font-medium">Question {currentIndex + 1} / {total}</p>
             <button onClick={toggleMark} className={`flex-shrink-0 transition ${marked[q.id] ? 'text-amber-500' : 'text-gray-300 hover:text-amber-400'}`}>
