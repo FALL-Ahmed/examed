@@ -48,8 +48,8 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="fr" dir="ltr" suppressHydrationWarning
-      className={`${jakarta.variable} ${tajawal.variable}`}>
+    <html lang="fr" dir="ltr" suppressHydrationWarning translate="no"
+      className={`${jakarta.variable} ${tajawal.variable} notranslate`}>
       <head>
         <meta name="theme-color" content="#3b82f6" />
         <meta name="mobile-web-app-capable" content="yes" />
@@ -57,6 +57,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <link rel="shortcut icon" href="/favicon.png" type="image/png" />
         <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
       </head>
+      <Script id="scroll-reset" strategy="beforeInteractive">{`if(typeof history!=='undefined')history.scrollRestoration='manual';`}</Script>
       <Script src="https://www.googletagmanager.com/gtag/js?id=G-YJG9K3ZDT7" strategy="afterInteractive" />
       <Script id="ga" strategy="afterInteractive">{`
         window.dataLayer = window.dataLayer || [];
