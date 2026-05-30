@@ -252,7 +252,7 @@ function ExamContent() {
       <div className="flex-1 flex flex-col lg:flex-row max-w-6xl mx-auto w-full px-4 py-6 gap-6">
 
         {/* Question */}
-        <div className="flex-1">
+        <div className="flex-1" key={q.id}>
           {/* Meta */}
           {q.theme && (
             <div className="flex items-center gap-2 mb-4 flex-wrap">
