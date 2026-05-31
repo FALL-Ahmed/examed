@@ -136,10 +136,14 @@ export function QuestionCard({ question, questionNumber, totalQuestions, onAnswe
         ? `border-2 ${ROW_SELECTED[letter]} cursor-pointer`
         : 'border-2 border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 hover:border-gray-300 dark:hover:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700/50 cursor-pointer';
     }
-    const isCorrect = correctLetters.includes(letter);
-    const isWrong = [...selected].includes(letter) && !isCorrect;
-    if (isCorrect) return 'border-2 border-emerald-400 bg-emerald-50 dark:bg-emerald-900/30 dark:border-emerald-500';
-    if (isWrong)   return 'border-2 border-red-400 bg-red-50 dark:bg-red-900/30 dark:border-red-500';
+    const isInCorrect = correctLetters.includes(letter);
+    const isSelected = selected.has(letter);
+    const isGoodPick = isInCorrect && isSelected;
+    const isMissed = isInCorrect && !isSelected;
+    const isWrong = !isInCorrect && isSelected;
+    if (isGoodPick) return 'border-2 border-emerald-400 bg-emerald-50 dark:bg-emerald-900/30 dark:border-emerald-500';
+    if (isMissed)   return 'border-2 border-amber-400 bg-amber-50 dark:bg-amber-900/30 dark:border-amber-500';
+    if (isWrong)    return 'border-2 border-red-400 bg-red-50 dark:bg-red-900/30 dark:border-red-500';
     return 'border-2 border-gray-100 dark:border-gray-700 bg-white dark:bg-gray-800/50 opacity-50';
   }
 
@@ -147,10 +151,14 @@ export function QuestionCard({ question, questionNumber, totalQuestions, onAnswe
     if (!result) {
       return selected.has(letter) ? BADGE_SELECTED[letter] : BADGE[letter];
     }
-    const isCorrect = correctLetters.includes(letter);
-    const isWrong = [...selected].includes(letter) && !isCorrect;
-    if (isCorrect) return 'bg-emerald-500 text-white border-emerald-500';
-    if (isWrong)   return 'bg-red-500 text-white border-red-500';
+    const isInCorrect = correctLetters.includes(letter);
+    const isSelected = selected.has(letter);
+    const isGoodPick = isInCorrect && isSelected;
+    const isMissed = isInCorrect && !isSelected;
+    const isWrong = !isInCorrect && isSelected;
+    if (isGoodPick) return 'bg-emerald-500 text-white border-emerald-500';
+    if (isMissed)   return 'bg-amber-400 text-white border-amber-400';
+    if (isWrong)    return 'bg-red-500 text-white border-red-500';
     return 'bg-gray-100 dark:bg-gray-700 text-gray-400 dark:text-gray-500 border-gray-200 dark:border-gray-600';
   }
 
@@ -204,8 +212,11 @@ export function QuestionCard({ question, questionNumber, totalQuestions, onAnswe
       <div className="space-y-2" dir={isAr ? 'rtl' : 'ltr'}>
         {choices.map((letter) => {
           const text = question[`choice${letter}` as keyof Question] as string;
-          const isCorrect = result && correctLetters.includes(letter);
-          const isWrong = result && [...selected].includes(letter) && !isCorrect;
+          const isInCorrect = result && correctLetters.includes(letter);
+          const isSelected = selected.has(letter);
+          const isGoodPick = result && isInCorrect && isSelected;
+          const isMissed = result && isInCorrect && !isSelected;
+          const isWrong = result && isSelected && !isInCorrect;
 
           return (
             <button
@@ -216,9 +227,14 @@ export function QuestionCard({ question, questionNumber, totalQuestions, onAnswe
             >
               <div className="flex items-center gap-3 px-4 py-3.5">
                 <span className={`w-7 h-7 rounded-lg border-2 flex items-center justify-center text-xs font-bold flex-shrink-0 transition-all ${badgeClass(letter)}`}>
-                  {isCorrect ? <CheckCircle2 className="w-4 h-4" /> : isWrong ? <XCircle className="w-4 h-4" /> : displayLetter(letter)}
+                  {isGoodPick ? <CheckCircle2 className="w-4 h-4" /> : isWrong ? <XCircle className="w-4 h-4" /> : displayLetter(letter)}
                 </span>
                 <span className="flex-1 text-sm text-gray-700 dark:text-gray-200 leading-snug">{text}</span>
+                {isMissed && (
+                  <span className="text-[10px] font-semibold text-amber-600 dark:text-amber-400 flex-shrink-0">
+                    {isAr ? 'فاتتك' : 'manquée'}
+                  </span>
+                )}
               </div>
             </button>
           );

@@ -411,6 +411,14 @@ export default function ResultsPage() {
         ))}
       </div>
 
+      {/* ── Légende couleurs ── */}
+      <div className="flex flex-wrap gap-3 text-xs text-muted-foreground bg-secondary/40 rounded-xl px-4 py-3">
+        <span className="flex items-center gap-1.5"><span className="w-3 h-3 rounded-sm bg-emerald-500 inline-block" />{isAr ? 'إجابة صحيحة اخترتها' : 'Bonne réponse cochée'}</span>
+        <span className="flex items-center gap-1.5"><span className="w-3 h-3 rounded-sm bg-amber-400 inline-block" />{isAr ? 'صحيحة لكن فاتتك' : 'Bonne réponse manquée'}</span>
+        <span className="flex items-center gap-1.5"><span className="w-3 h-3 rounded-sm bg-red-400 inline-block" />{isAr ? 'اخترتها لكنها خاطئة' : 'Mauvais choix coché'}</span>
+        <span className="flex items-center gap-1.5"><span className="w-3 h-3 rounded-sm bg-border inline-block" />{isAr ? 'غير مختارة' : 'Non cochée'}</span>
+      </div>
+
       {/* ── Questions list ── */}
       <div className="space-y-2">
         {filtered.map((q: any) => (
@@ -442,21 +450,27 @@ export default function ResultsPage() {
                   if (!text) return null;
                   const correctLetters = q.correctAnswer.split(',').map((s: string) => s.trim());
                   const userLetters = q.userAnswer.split(',').map((s: string) => s.trim());
-                  const isCorrect = correctLetters.includes(letter);
-                  const isWrongPick = userLetters.includes(letter) && !isCorrect;
+                  const isInCorrect = correctLetters.includes(letter);
+                  const isSelected = userLetters.includes(letter);
+                  const isGoodPick = isInCorrect && isSelected;
+                  const isMissed = isInCorrect && !isSelected;
+                  const isWrongPick = !isInCorrect && isSelected;
 
                   return (
                     <div key={letter} className={`flex items-start gap-2.5 p-2.5 rounded-lg text-sm
-                      ${isCorrect ? 'bg-emerald-500/10 text-emerald-800 dark:text-emerald-300' :
+                      ${isGoodPick ? 'bg-emerald-500/10 text-emerald-800 dark:text-emerald-300' :
+                        isMissed ? 'bg-amber-500/10 text-amber-800 dark:text-amber-300' :
                         isWrongPick ? 'bg-red-500/10 text-red-800 dark:text-red-300' :
                         'text-muted-foreground'}`}>
                       <span className={`w-5 h-5 rounded-md flex items-center justify-center text-xs font-bold flex-shrink-0
-                        ${isCorrect ? 'bg-emerald-500 text-white' :
+                        ${isGoodPick ? 'bg-emerald-500 text-white' :
+                          isMissed ? 'bg-amber-400 text-white' :
                           isWrongPick ? 'bg-red-400 text-white' :
                           'bg-border text-muted-foreground'}`}>
                         {letter}
                       </span>
                       {text}
+                      {isMissed && <span className="ml-auto text-[10px] font-semibold text-amber-600 dark:text-amber-400 flex-shrink-0">manquée</span>}
                     </div>
                   );
                 })}

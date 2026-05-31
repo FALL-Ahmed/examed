@@ -220,6 +220,8 @@ export class AttemptsService {
 
     const rawScore = attempt.answers.reduce((sum, a) => sum + a.partialScore, 0);
 
+    const normAnswer = (s: string) => s.toUpperCase().split(',').map(x => x.trim()).filter(Boolean).sort().join(',');
+
     return {
       id: attempt.id,
       mode: attempt.mode,
@@ -239,7 +241,7 @@ export class AttemptsService {
         choiceE: a.question.choiceE,
         userAnswer: a.userAnswer,
         correctAnswer: a.question.correctAnswer,
-        isCorrect: a.isCorrect,
+        isCorrect: normAnswer(a.userAnswer) === normAnswer(a.question.correctAnswer),
         partialScore: a.partialScore,
         explanation: a.question.explanation,
         imageUrl: a.question.imageUrl,
