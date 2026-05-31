@@ -414,7 +414,7 @@ export default function ResultsPage() {
       {/* ── Légende couleurs ── */}
       <div className="flex flex-wrap gap-3 text-xs text-muted-foreground bg-secondary/40 rounded-xl px-4 py-3">
         <span className="flex items-center gap-1.5"><span className="w-3 h-3 rounded-sm bg-emerald-500 inline-block" />{isAr ? 'إجابة صحيحة اخترتها' : 'Bonne réponse cochée'}</span>
-        <span className="flex items-center gap-1.5"><span className="w-3 h-3 rounded-sm bg-amber-400 inline-block" />{isAr ? 'صحيحة لكن فاتتك' : 'Bonne réponse manquée'}</span>
+        <span className="flex items-center gap-1.5"><span className="w-3 h-3 rounded-sm bg-amber-400 inline-block" />{isAr ? 'صحيحة لكن فاتتك' : 'À cocher aussi'}</span>
         <span className="flex items-center gap-1.5"><span className="w-3 h-3 rounded-sm bg-red-400 inline-block" />{isAr ? 'اخترتها لكنها خاطئة' : 'Mauvais choix coché'}</span>
         <span className="flex items-center gap-1.5"><span className="w-3 h-3 rounded-sm bg-border inline-block" />{isAr ? 'غير مختارة' : 'Non cochée'}</span>
       </div>

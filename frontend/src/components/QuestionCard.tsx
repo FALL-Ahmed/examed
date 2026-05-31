@@ -212,7 +212,7 @@ export function QuestionCard({ question, questionNumber, totalQuestions, onAnswe
       {result && (
         <div className="flex flex-wrap gap-2 text-[11px] text-muted-foreground px-1" dir={isAr ? 'rtl' : 'ltr'}>
           <span className="flex items-center gap-1"><span className="w-2.5 h-2.5 rounded-sm bg-emerald-500 inline-block" />{isAr ? 'صحيح' : 'Correct'}</span>
-          <span className="flex items-center gap-1"><span className="w-2.5 h-2.5 rounded-sm bg-amber-400 inline-block" />{isAr ? 'فاتتك' : 'Manquée'}</span>
+          <span className="flex items-center gap-1"><span className="w-2.5 h-2.5 rounded-sm bg-amber-400 inline-block" />{isAr ? 'فاتتك' : 'À cocher'}</span>
           <span className="flex items-center gap-1"><span className="w-2.5 h-2.5 rounded-sm bg-red-500 inline-block" />{isAr ? 'خاطئ' : 'Faux'}</span>
         </div>
       )}
@@ -241,7 +241,7 @@ export function QuestionCard({ question, questionNumber, totalQuestions, onAnswe
                 <span className="flex-1 text-sm text-gray-700 dark:text-gray-200 leading-snug">{text}</span>
                 {isMissed && (
                   <span className="text-[10px] font-semibold text-amber-600 dark:text-amber-400 flex-shrink-0">
-                    {isAr ? 'فاتتك' : 'manquée'}
+                    {isAr ? 'فاتتك' : 'À cocher !'}
                   </span>
                 )}
               </div>
