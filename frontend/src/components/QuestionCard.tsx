@@ -208,6 +208,15 @@ export function QuestionCard({ question, questionNumber, totalQuestions, onAnswe
         )}
       </div>
 
+      {/* Légende couleurs après soumission */}
+      {result && (
+        <div className="flex flex-wrap gap-2 text-[11px] text-muted-foreground px-1" dir={isAr ? 'rtl' : 'ltr'}>
+          <span className="flex items-center gap-1"><span className="w-2.5 h-2.5 rounded-sm bg-emerald-500 inline-block" />{isAr ? 'صحيح' : 'Correct'}</span>
+          <span className="flex items-center gap-1"><span className="w-2.5 h-2.5 rounded-sm bg-amber-400 inline-block" />{isAr ? 'فاتتك' : 'Manquée'}</span>
+          <span className="flex items-center gap-1"><span className="w-2.5 h-2.5 rounded-sm bg-red-500 inline-block" />{isAr ? 'خاطئ' : 'Faux'}</span>
+        </div>
+      )}
+
       {/* Choices */}
       <div className="space-y-2" dir={isAr ? 'rtl' : 'ltr'}>
         {choices.map((letter) => {
