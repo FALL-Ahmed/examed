@@ -407,8 +407,8 @@ export function ExamenBlancPageContent({ target }: { target: Target }) {
         {/* Témoignages carousel */}
         {(() => {
           const testimonials = isAr
-            ? [{ name: 'مريم', role: isSF ? 'قابلة' : 'ممرضة', img: '/images/ar-com-1.jpeg' }, { name: 'سيدي', role: isSF ? 'قابل' : 'ممرض', img: '/images/ar-com-2.jpeg' }]
-            : [{ name: 'Fatimetou', role: isSF ? 'Sage-femme' : 'Infirmière', img: '/images/fr-com-1.jpeg' }, { name: 'Mohamed', role: isSF ? 'Sage-femme' : 'Infirmier', img: '/images/fr-com-2.png' }];
+            ? [{ name: 'مريم', role: isSF ? 'قابلة' : 'ممرضة', img: '/images/ar-com-1.jpeg' }, { name: isSF ? 'آمنة' : 'سيدي', role: isSF ? 'قابلة' : 'ممرض', img: '/images/ar-com-2.jpeg' }]
+            : [{ name: 'Fatimetou', role: isSF ? 'Sage-femme' : 'Infirmière', img: '/images/fr-com-1.jpeg' }, { name: isSF ? 'Marième' : 'Mohamed', role: isSF ? 'Sage-femme' : 'Infirmier', img: '/images/fr-com-2.png' }];
           const t = testimonials[testIdx % testimonials.length];
           return (
             <div className={`${theme.cardBg} backdrop-blur border ${theme.cardBorder} rounded-3xl p-8 mb-16`}>

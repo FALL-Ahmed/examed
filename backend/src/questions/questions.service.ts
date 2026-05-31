@@ -29,14 +29,20 @@ export class QuestionsService {
       }
     }
 
+    // Déterminer le target selon la profession
+    const user = await this.prisma.user.findUnique({ where: { id: userId }, select: { profession: true } });
+    const userTarget = user?.profession === 'sage_femme' ? 'SAGE_FEMME' : 'INFIRMIER';
+
     const where: any = { isActive: true };
     if (opts.subThemeId) {
       where.subThemeId = opts.subThemeId;
     } else {
       const subFilter: any = {};
       if (opts.themeId) subFilter.themeId = opts.themeId;
-      if (opts.language) subFilter.theme = { language: opts.language };
-      if (Object.keys(subFilter).length) where.subTheme = subFilter;
+      const themeFilter: any = { target: userTarget };
+      if (opts.language) themeFilter.language = opts.language;
+      subFilter.theme = themeFilter;
+      where.subTheme = subFilter;
     }
 
     const total = await this.prisma.question.count({ where });
@@ -62,11 +68,16 @@ export class QuestionsService {
       });
     }
 
+    const userExam = await this.prisma.user.findUnique({ where: { id: userId }, select: { profession: true } });
+    const examTarget = userExam?.profession === 'sage_femme' ? 'SAGE_FEMME' : 'INFIRMIER';
+
     const where: any = { isActive: true };
     const subFilter: any = {};
     if (opts.themeId) subFilter.themeId = opts.themeId;
-    if (opts.language) subFilter.theme = { language: opts.language };
-    if (Object.keys(subFilter).length) where.subTheme = subFilter;
+    const themeFilterExam: any = { target: examTarget };
+    if (opts.language) themeFilterExam.language = opts.language;
+    subFilter.theme = themeFilterExam;
+    where.subTheme = subFilter;
 
     // Mélanger aléatoirement
     const questions = await this.prisma.question.findMany({
