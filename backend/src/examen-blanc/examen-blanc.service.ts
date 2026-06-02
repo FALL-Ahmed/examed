@@ -569,26 +569,39 @@ export class ExamenBlancService {
 
     const available = allSubThemes.filter((st: any) => st.questions.length > 0);
 
-    // Pour SAGE_FEMME : proportions fixes quelle que soit totalQ
+    // Pour SAGE_FEMME : proportions fixes
     if (target === 'SAGE_FEMME') {
-      const isAnatomieTheme = (n: string) => n.toLowerCase().includes('anatomie') || n.includes('التشريح');
-      const isPratiqueTheme = (n: string) => n.toLowerCase().includes('pratique') || n.includes('الممارسة');
-      const isGenitalSub   = (n: string) => /génital|تناسل/i.test(n);
-      const isPratCibleeSub = (n: string) => {
-        const l = n.toLowerCase();
-        return (l.includes('sonde') && l.includes('urinaire'))
-          || l.includes('lavage des mains') || l.includes('lavage simple')
-          || (l.includes('perfusion') && !l.includes('nasogastr'))
-          || l.includes('transfusion')
-          || l.includes('غسل اليدين') || l.includes('قسطرة المسالك') || l.includes('تحويل الدم') || l.includes('نقل الدم');
-      };
+      const isAnatomieTheme  = (n: string) => n.toLowerCase().includes('anatomie') || n.includes('التشريح');
+      const isPratiqueTheme  = (n: string) => n.toLowerCase().includes('pratique') || n.includes('الممارسة');
+      const isGenitalFemSub  = (n: string) => /génital fém|GÉNITAL FÉM|féminin|الجهاز التناسلي الأنثوي/i.test(n);
+      const isTransfusionSub = (n: string) => /transfusion|نقل الدم|تحويل الدم/i.test(n);
 
-      // Quotas proportionnels
-      const mainQ     = Math.round(totalQ * 50 / 60);
-      const genitaleQ = Math.round(totalQ * 4 / 60);
-      const pratiqueQ = totalQ - mainQ - genitaleQ;
+      // 4 appareil génital féminin + max 3 transfusion (toutes les fraîches dispo)
+      const genitaleQ  = 4;
+      const pratiqueMaxQ = 3;
 
-      // Groupe 1 : thèmes principaux (ni anatomie ni pratique)
+      // Groupe 2 : Anatomie — Appareil génital féminin uniquement (4 questions)
+      const genitalSubs = available.filter((st: any) => isAnatomieTheme(st.theme.name) && isGenitalFemSub(st.name));
+      const genitalPool: string[] = [];
+      for (const st of genitalSubs) {
+        genitalPool.push(...st.questions.map((q: any) => q.id));
+      }
+      genitalPool.sort(byFreshness);
+      const genitalSelected = genitalPool.slice(0, genitaleQ);
+
+      // Groupe 3 : Pratique — Transfusion uniquement (toutes fraîches, max 3)
+      const pratSubs = available.filter((st: any) => isPratiqueTheme(st.theme.name) && isTransfusionSub(st.name));
+      const pratPool: string[] = [];
+      for (const st of pratSubs) {
+        pratPool.push(...st.questions.map((q: any) => q.id));
+      }
+      pratPool.sort(byFreshness);
+      // Prendre uniquement les questions fraîches (jamais utilisées), max 3
+      const pratFresh = pratPool.filter(id => freshness(id) === Infinity);
+      const pratSelected = pratFresh.slice(0, pratiqueMaxQ);
+
+      // Groupe 1 : tous thèmes sauf Anatomie et Pratique (complète jusqu'à totalQ)
+      const mainQ = totalQ - genitalSelected.length - pratSelected.length;
       const mainSubs = available.filter((st: any) => !isAnatomieTheme(st.theme.name) && !isPratiqueTheme(st.theme.name));
       const mainSelected: string[] = [];
       const mainPool: string[] = [];
@@ -601,36 +614,6 @@ export class ExamenBlancService {
       if (mainNeeded > 0 && mainPool.length > 0) {
         mainPool.sort(byFreshness);
         mainSelected.push(...mainPool.slice(0, Math.min(mainNeeded, mainPool.length)));
-      }
-
-      // Groupe 2 : appareil génital féminin + masculin — 1 min par sous-thème
-      const genitalSubs = available.filter((st: any) => isAnatomieTheme(st.theme.name) && isGenitalSub(st.name));
-      const genitalSelected: string[] = [];
-      const genitalPool: string[] = [];
-      for (const st of genitalSubs) {
-        const sorted = [...st.questions.map((q: any) => q.id)].sort(byFreshness);
-        genitalSelected.push(sorted[0]);
-        if (sorted.length > 1) genitalPool.push(...sorted.slice(1));
-      }
-      const genitalNeeded = genitaleQ - genitalSelected.length;
-      if (genitalNeeded > 0 && genitalPool.length > 0) {
-        genitalPool.sort(byFreshness);
-        genitalSelected.push(...genitalPool.slice(0, Math.min(genitalNeeded, genitalPool.length)));
-      }
-
-      // Groupe 3 : pratique ciblée — 1 min par sous-thème, puis compléter
-      const pratSubs = available.filter((st: any) => isPratiqueTheme(st.theme.name) && isPratCibleeSub(st.name));
-      const pratSelected: string[] = [];
-      const pratPool: string[] = [];
-      for (const st of pratSubs) {
-        const sorted = [...st.questions.map((q: any) => q.id)].sort(byFreshness);
-        pratSelected.push(sorted[0]);
-        if (sorted.length > 1) pratPool.push(...sorted.slice(1));
-      }
-      const pratNeeded = pratiqueQ - pratSelected.length;
-      if (pratNeeded > 0 && pratPool.length > 0) {
-        pratPool.sort(byFreshness);
-        pratSelected.push(...pratPool.slice(0, Math.min(pratNeeded, pratPool.length)));
       }
 
       return [...mainSelected, ...genitalSelected, ...pratSelected]
