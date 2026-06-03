@@ -603,11 +603,10 @@ function ResultsContent() {
                     {!isCurrent && (
                       <button
                         onClick={() => {
-                          const key = 'eb_exam_state';
-                          const saved = localStorage.getItem(key);
+                          const saved = localStorage.getItem(stateKey);
                           if (saved) {
                             const st = JSON.parse(saved);
-                            localStorage.setItem(key, JSON.stringify({ ...st, sessionId: s.sessionId, isCompleted: true }));
+                            localStorage.setItem(stateKey, JSON.stringify({ ...st, sessionId: s.sessionId, isCompleted: true }));
                             window.location.reload();
                           }
                         }}
