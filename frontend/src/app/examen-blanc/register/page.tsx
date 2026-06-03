@@ -101,6 +101,7 @@ function RegisterContent() {
         resultsAt: data.resultsAt,
         participant: data.participant,
         questions: data.questions,
+        target: targetParam,
         answers: {},
       }));
 

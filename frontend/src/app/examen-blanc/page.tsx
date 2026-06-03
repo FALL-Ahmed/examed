@@ -309,7 +309,7 @@ export function ExamenBlancPageContent({ target }: { target: Target }) {
                 </p>
                 <div className="space-y-2 mb-4 text-left">
                   {[
-                    { icon: BookOpen,     fr: '+600 QCM par thème',                       ar: '+600 سؤال لكل موضوع' },
+                    { icon: BookOpen,     fr: isSF ? '+700 QCM par thème' : '+600 QCM par thème', ar: isSF ? '+700 سؤال لكل موضوع' : '+600 سؤال لكل موضوع' },
                     { icon: BarChart,     fr: 'Statistiques détaillées par thème',         ar: 'إحصائيات مفصّلة حسب الموضوع' },
                     { icon: Trophy,       fr: 'Classement national en temps réel',         ar: 'ترتيب وطني في الوقت الفعلي' },
                     { icon: CheckCircle2, fr: 'Correction complète comme l\'examen blanc', ar: 'تصحيح كامل كالاختبار البيضاء' },
@@ -413,7 +413,7 @@ export function ExamenBlancPageContent({ target }: { target: Target }) {
           return (
             <div className={`${theme.cardBg} backdrop-blur border ${theme.cardBorder} rounded-3xl p-8 mb-16`}>
               <h2 className="text-xl font-black text-white mb-6 text-center">
-                {isAr ? '💬 انضموا إلى +600 سؤال على Al Bourour' : '💬 Ils ont rejoint les +600 QCM d\'Al Bourour'}
+                {isAr ? `💬 انضموا إلى +${isSF ? '700' : '600'} سؤال على Al Bourour` : `💬 Ils ont rejoint les +${isSF ? '700' : '600'} QCM d'Al Bourour`}
               </h2>
               <div className="flex flex-col items-center text-center" style={{ transition: 'opacity 0.7s ease-in-out', opacity: testFade ? 1 : 0 }}>
                 <div className="mb-4 overflow-hidden rounded-2xl w-48 shadow-lg">
