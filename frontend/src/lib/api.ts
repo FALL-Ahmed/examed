@@ -239,6 +239,7 @@ export const examenBlancApi = {
   adminParticipants: () => api.get('/examen-blanc/admin/participants'),
   adminAppUsers: () => api.get('/examen-blanc/admin/app-users'),
   recover: (telephone: string) => axios.post(`${API_URL}/examen-blanc/recover`, { telephone }),
+  mySessions: (participantId: string) => axios.get(`${API_URL}/examen-blanc/my-sessions`, { params: { participantId } }),
   adminTestSession: (examenBlancId: string, lang: 'fr' | 'ar') =>
     api.post('/examen-blanc/admin/test-session', { examenBlancId, lang }),
 };

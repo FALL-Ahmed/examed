@@ -473,6 +473,48 @@ export class ExamenBlancService {
     };
   }
 
+  async getMySessions(participantId: string) {
+    const me = await db(this.prisma).examenBlancParticipant.findUnique({
+      where: { id: participantId },
+      select: { telephone: true },
+    });
+    if (!me) return [];
+
+    const all = await db(this.prisma).examenBlancParticipant.findMany({
+      where: { telephone: me.telephone, isCompleted: true, isTest: false },
+      include: { examenBlanc: { select: { id: true, title: true, target: true, endsAt: true } } },
+      orderBy: { createdAt: 'desc' },
+    });
+
+    const results = [];
+    for (const p of all) {
+      const above = await db(this.prisma).examenBlancParticipant.count({
+        where: {
+          examenBlancId: p.examenBlancId,
+          isCompleted: true,
+          isTest: false,
+          OR: [
+            { score: { gt: p.score } },
+            { score: p.score, timeTaken: { lt: p.timeTaken } },
+          ],
+        },
+      });
+      const total = await db(this.prisma).examenBlancParticipant.count({
+        where: { examenBlancId: p.examenBlancId, isCompleted: true, isTest: false },
+      });
+      results.push({
+        sessionId: p.sessionId,
+        title: p.examenBlanc?.title,
+        target: p.examenBlanc?.target,
+        score: p.score,
+        rank: above + 1,
+        total,
+        date: p.examenBlanc?.endsAt,
+      });
+    }
+    return results;
+  }
+
   async recoverSession(telephone: string) {
     const participant = await db(this.prisma).examenBlancParticipant.findFirst({
       where: { telephone: telephone.trim() },

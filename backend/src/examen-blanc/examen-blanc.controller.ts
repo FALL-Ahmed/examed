@@ -53,6 +53,11 @@ export class ExamenBlancController {
     return this.service.recoverSession(body.telephone);
   }
 
+  @Get('my-sessions')
+  getMySessions(@Query('participantId') participantId: string) {
+    return this.service.getMySessions(participantId);
+  }
+
   // Admin routes
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles('ADMIN')
