@@ -579,7 +579,7 @@ function ResultsContent() {
       {/* ── Historique sessions ── */}
       {mySessions.length > 1 && (
         <div className="bg-white/5 border border-white/10 rounded-3xl p-6">
-          <h3 className="text-white font-black text-base mb-4">
+          <h3 className="text-gray-900 font-black text-base mb-4">
             {isAr ? '📋 جلساتي السابقة' : '📋 Mes sessions précédentes'}
           </h3>
           <div className="space-y-2">
@@ -589,15 +589,15 @@ function ResultsContent() {
                 <div key={s.sessionId}
                   className={`flex items-center justify-between gap-3 px-4 py-3 rounded-2xl ${isCurrent ? 'bg-white/15 border border-white/30' : 'bg-white/5 border border-white/10'}`}>
                   <div>
-                    <p className="text-white font-bold text-sm">{s.title}</p>
-                    <p className="text-white/50 text-xs mt-0.5">
+                    <p className="text-gray-900 font-bold text-sm">{s.title}</p>
+                    <p className="text-gray-600 text-xs mt-0.5">
                       {isAr ? `الترتيب: ${s.rank}/${s.total}` : `Rang: ${s.rank}/${s.total}`}
                       {' · '}
                       {new Date(s.date).toLocaleDateString(isAr ? 'ar-MA' : 'fr-FR', { day: '2-digit', month: '2-digit', year: '2-digit' })}
                     </p>
                   </div>
                   <div className="flex items-center gap-3">
-                    <span className={`font-black text-lg ${s.score >= 70 ? 'text-emerald-400' : s.score >= 50 ? 'text-amber-400' : 'text-red-400'}`}>
+                    <span className={`font-black text-lg ${s.score >= 70 ? 'text-emerald-600' : s.score >= 50 ? 'text-amber-600' : 'text-red-600'}`}>
                       {s.score?.toFixed(1)}%
                     </span>
                     {!isCurrent && (
@@ -611,11 +611,11 @@ function ResultsContent() {
                             window.location.reload();
                           }
                         }}
-                        className="text-xs text-white/60 hover:text-white border border-white/20 hover:border-white/40 px-3 py-1.5 rounded-xl transition">
+                        className="text-xs text-gray-900 hover:text-black border border-gray-400 hover:border-gray-600 px-3 py-1.5 rounded-xl transition bg-white/80 hover:bg-white">
                         {isAr ? 'عرض' : 'Voir →'}
                       </button>
                     )}
-                    {isCurrent && <span className="text-xs text-white/40">{isAr ? 'الحالية' : 'Actuelle'}</span>}
+                    {isCurrent && <span className="text-xs text-gray-700 font-semibold">{isAr ? 'الحالية' : 'Actuelle'}</span>}
                   </div>
                 </div>
               );
