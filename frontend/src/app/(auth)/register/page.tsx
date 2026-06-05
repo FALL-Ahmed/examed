@@ -58,7 +58,7 @@ function RegisterContent() {
   const isAr = lang === 'ar';
 
   const [form, setForm] = useState({
-    firstName: '', lastName: '', email: '', password: '', profession: '',
+    firstName: '', lastName: '', email: '', password: '', profession: '', phone: '',
   });
   const [showPwd, setShowPwd] = useState(false);
   const [formError, setFormError] = useState('');
@@ -132,6 +132,8 @@ function RegisterContent() {
       return fail(isAr ? 'الاسم الأول والأخير مطلوبان' : 'Prénom et nom requis', 'field-name', 'missing_name');
     if (!form.email.trim())
       return fail(isAr ? 'البريد الإلكتروني مطلوب' : 'Email requis', 'field-email', 'missing_email');
+    if (!form.phone.trim())
+      return fail(isAr ? 'رقم الهاتف مطلوب' : 'Numéro de téléphone requis', 'field-phone', 'missing_phone');
     if (!form.profession)
       return fail(isAr ? 'يرجى تحديد مهنتك' : 'Veuillez sélectionner votre profession', 'field-profession', 'missing_profession');
     if (!form.password || form.password.length < 8)
@@ -163,6 +165,7 @@ function RegisterContent() {
       fd.append('email', form.email.trim());
       fd.append('password', form.password);
       if (form.profession) fd.append('profession', form.profession);
+      if (form.phone.trim()) fd.append('phone', form.phone.trim());
       fd.append('operator', selectedOp);
       fd.append('amount', String(computedAmount));
       fd.append('paymentMethod', 'MOBILE_MONEY');
@@ -317,6 +320,14 @@ function RegisterContent() {
                 <label className={labelClass}>{isAr ? 'البريد الإلكتروني' : 'Email'} <span className="text-red-400">*</span></label>
                 <input type="text" inputMode="email" value={form.email} onChange={(e) => set('email', e.target.value.replace(/[^\x20-\x7E]/g, '').trim())}
                   className={inputClass} placeholder="votre@email.com" dir="ltr" />
+              </div>
+
+              <div id="field-phone">
+                <label className={labelClass}>
+                  {isAr ? 'الهاتف' : 'Téléphone'} <span className="text-red-400">*</span>
+                </label>
+                <input type="tel" inputMode="tel" value={form.phone} onChange={(e) => set('phone', e.target.value)}
+                  className={inputClass} placeholder="+222 XX XX XX XX" dir="ltr" />
               </div>
 
               <div id="field-password">

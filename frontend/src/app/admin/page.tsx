@@ -8,6 +8,9 @@ import {
 } from 'lucide-react';
 import Link from 'next/link';
 import { useLang } from '@/components/LanguageProvider';
+import {
+  ComposedChart, Bar, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer,
+} from 'recharts';
 
 function KpiCard({ icon: Icon, label, value, sub, color, href }: any) {
   const content = (
@@ -27,6 +30,8 @@ function KpiCard({ icon: Icon, label, value, sub, color, href }: any) {
 
 export default function AdminDashboard() {
   const [stats, setStats] = useState<any>(null);
+  const [regData, setRegData] = useState<any[]>([]);
+  const [regDays, setRegDays] = useState(30);
   const [prices, setPrices] = useState({ p1m: '', p3m: '', pGroup: '', groupMin: '' });
   const [savingPlan, setSavingPlan] = useState<string | null>(null);
   const [savedPlan, setSavedPlan] = useState<string | null>(null);
@@ -64,6 +69,7 @@ export default function AdminDashboard() {
       ).catch(() => {});
     }
     adminApi.stats().then((r) => setStats(r.data)).catch(() => {});
+    adminApi.registrationsPerDay(regDays).then((r) => setRegData(r.data)).catch(() => {});
     adminApi.getSettings().then((r) => {
       setPriceInput(r.data.PREMIUM_PRICE ?? '500');
       setWhatsapp(r.data.WHATSAPP_PHONE ?? '');
@@ -175,6 +181,10 @@ export default function AdminDashboard() {
     setSavingPromo(false);
   }
 
+  useEffect(() => {
+    adminApi.registrationsPerDay(regDays).then((r) => setRegData(r.data)).catch(() => {});
+  }, [regDays]);
+
   const { t } = useLang();
   const s = stats;
 
@@ -214,6 +224,38 @@ export default function AdminDashboard() {
             sub={s ? `dont ${s.todayRegistrations} aujourd'hui` : undefined} />
           <KpiCard icon={Activity}   label="Actifs 7 derniers j."   value={s?.activeUsersWeek}  color="bg-sky-500"
             sub={s && s.totalUsers ? `${Math.round((s.activeUsersWeek / s.totalUsers) * 100)}% de la base` : undefined} />
+        </div>
+      </section>
+
+      {/* Graphe inscriptions */}
+      <section>
+        <div className="flex items-center justify-between mb-3">
+          <p className="text-xs font-bold uppercase tracking-widest text-muted-foreground">Inscriptions par jour</p>
+          <div className="flex gap-1">
+            {[7, 14, 30, 90].map((d) => (
+              <button key={d} onClick={() => setRegDays(d)}
+                className={`px-3 py-1 rounded-lg text-xs font-semibold transition ${regDays === d ? 'bg-violet-600 text-white' : 'bg-secondary text-muted-foreground hover:bg-secondary/80'}`}>
+                {d}j
+              </button>
+            ))}
+          </div>
+        </div>
+        <div className="bg-card border border-border rounded-2xl p-5">
+          <ResponsiveContainer width="100%" height={280}>
+            <ComposedChart data={regData} margin={{ top: 4, right: 16, left: 0, bottom: 0 }}>
+              <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
+              <XAxis dataKey="day" tickFormatter={(v) => v.slice(5)} tick={{ fontSize: 11 }} />
+              <YAxis yAxisId="left" allowDecimals={false} tick={{ fontSize: 11 }} />
+              <YAxis yAxisId="right" orientation="right" tick={{ fontSize: 11 }} />
+              <Tooltip
+                formatter={(value: any, name: string) => [value, name === 'count' ? 'Inscrits/jour' : 'Cumulatif']}
+                labelFormatter={(l) => `📅 ${l}`}
+              />
+              <Legend formatter={(v) => v === 'count' ? 'Inscrits/jour' : 'Cumulatif'} />
+              <Bar yAxisId="left" dataKey="count" fill="#8b5cf6" radius={[4, 4, 0, 0]} opacity={0.85} />
+              <Line yAxisId="right" type="monotone" dataKey="cumul" stroke="#06b6d4" strokeWidth={2} dot={false} />
+            </ComposedChart>
+          </ResponsiveContainer>
         </div>
       </section>
 

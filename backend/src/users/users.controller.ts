@@ -21,7 +21,7 @@ export class UsersController {
   }
 
   @Patch('me')
-  updateMe(@Req() req: any, @Body() body: { gender?: string; phone?: string; wilaya?: string; profession?: string }) {
+  updateMe(@Req() req: any, @Body() body: { fullName?: string; gender?: string; phone?: string; wilaya?: string; profession?: string }) {
     return this.usersService.updateMe(req.user.sub, body);
   }
 

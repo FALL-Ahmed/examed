@@ -9,17 +9,6 @@ import { BookOpen, Eye, EyeOff, Loader2, Stethoscope, Activity, Shield, Users, S
 import { authApi } from '@/lib/api';
 import { LanguageSwitcherLight } from '@/components/LanguageSwitcher';
 
-const PROFESSIONS = [
-  { value: 'etudiant_infirmier',  label: 'Étudiant en sciences infirmières' },
-  { value: 'etudiant_medecine',   label: 'Étudiant en médecine' },
-  { value: 'etudiant_pharmacie',  label: 'Étudiant en pharmacie' },
-  { value: 'infirmier_diplome',   label: 'Infirmier diplômé' },
-  { value: 'aide_soignant',       label: 'Aide-soignant' },
-  { value: 'medecin',             label: 'Médecin' },
-  { value: 'sage_femme',          label: 'Sage-femme' },
-  { value: 'technicien_labo',     label: 'Technicien de laboratoire' },
-  { value: 'autre',               label: 'Autre professionnel de santé' },
-];
 
 const WILAYAS = [
   'Hodh Ech Chargui','Hodh El Gharbi','Assaba','Gorgol','Brakna',
@@ -292,10 +281,8 @@ export default function LoginPage() {
                   <UserCheck className="w-6 h-6 text-violet-500" />
                 </div>
                 <div>
-                  <h2 className="text-2xl font-extrabold tracking-tight">Accès membre groupe</h2>
-                  <p className="text-muted-foreground text-sm mt-1">
-                    Entrez l'email que l'organisateur a renseigné pour vous.
-                  </p>
+                  <h2 className="text-2xl font-extrabold tracking-tight">{t('auth.group.title')}</h2>
+                  <p className="text-muted-foreground text-sm mt-1">{t('auth.group.subtitle')}</p>
                 </div>
               </div>
               {groupError && (
@@ -306,7 +293,7 @@ export default function LoginPage() {
               )}
               <form onSubmit={handleGroupAccess} className="space-y-5">
                 <div>
-                  <label className="block text-sm font-semibold mb-2">Votre email</label>
+                  <label className="block text-sm font-semibold mb-2">{t('auth.group.emailLabel')}</label>
                   <input
                     type="text" inputMode="email" value={groupEmail}
                     onChange={(e) => setGroupEmail(e.target.value.replace(/[^\x20-\x7E]/g, '').trim().toLowerCase())}
@@ -317,11 +304,11 @@ export default function LoginPage() {
                 <button type="submit" disabled={groupLoading}
                   className="w-full gradient-primary text-white py-3.5 rounded-xl font-semibold hover:opacity-90 transition disabled:opacity-60 flex items-center justify-center gap-2 shadow-lg shadow-violet-500/25">
                   {groupLoading && <Loader2 className="w-4 h-4 animate-spin" />}
-                  {groupLoading ? 'Vérification...' : 'Vérifier mon invitation'}
+                  {groupLoading ? '...' : t('auth.group.submit')}
                 </button>
                 <button type="button" onClick={() => { setGroupView('none'); setGroupError(''); setGroupEmail(''); }}
                   className="w-full text-sm text-muted-foreground hover:text-foreground transition text-center">
-                  ← Retour à la connexion
+                  {t('auth.group.back')}
                 </button>
               </form>
             </>
@@ -333,10 +320,8 @@ export default function LoginPage() {
                   <UserCheck className="w-6 h-6 text-green-500" />
                 </div>
                 <div>
-                  <h2 className="text-2xl font-extrabold tracking-tight">Bienvenue !</h2>
-                  <p className="text-muted-foreground text-sm mt-1">
-                    Invitation confirmée. Définissez votre profil pour accéder à la plateforme.
-                  </p>
+                  <h2 className="text-2xl font-extrabold tracking-tight">{t('auth.group.setup.title')}</h2>
+                  <p className="text-muted-foreground text-sm mt-1">{t('auth.group.setup.subtitle')}</p>
                 </div>
               </div>
               {groupError && (
@@ -347,7 +332,7 @@ export default function LoginPage() {
               )}
               <form onSubmit={handleGroupSetup} className="space-y-4">
                 <div>
-                  <label className="block text-sm font-semibold mb-2">Langue préférée</label>
+                  <label className="block text-sm font-semibold mb-2">{t('auth.group.setup.lang')}</label>
                   <div className="flex gap-3">
                     {[{ v: 'fr', l: 'Français 🇫🇷' }, { v: 'ar', l: 'العربية 🇲🇷' }].map(({ v, l }) => (
                       <button key={v} type="button"
@@ -359,7 +344,7 @@ export default function LoginPage() {
                   </div>
                 </div>
                 <div>
-                  <label className="block text-sm font-semibold mb-2">Nom complet</label>
+                  <label className="block text-sm font-semibold mb-2">{t('auth.group.setup.name')}</label>
                   <input
                     type="text" value={setupFullName}
                     onChange={(e) => setSetupFullName(e.target.value)}
@@ -368,34 +353,47 @@ export default function LoginPage() {
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-semibold mb-2">Sexe</label>
+                  <label className="block text-sm font-semibold mb-2">{t('auth.group.setup.gender')}</label>
                   <div className="flex gap-3">
-                    {[{ v: 'male', l: 'Homme' }, { v: 'female', l: 'Femme' }].map(({ v, l }) => (
+                    {[{ v: 'male', fr: t('auth.group.setup.male') }, { v: 'female', fr: t('auth.group.setup.female') }].map(({ v, fr }) => (
                       <button key={v} type="button"
                         onClick={() => setSetupGender(v)}
                         className={`flex-1 py-2.5 rounded-xl border text-sm font-medium transition ${setupGender === v ? 'border-primary bg-primary/10 text-primary' : 'border-border bg-secondary text-muted-foreground hover:border-primary/50'}`}>
-                        {l}
+                        {fr}
                       </button>
                     ))}
                   </div>
                 </div>
                 <div>
-                  <label className="block text-sm font-semibold mb-2">Profession</label>
-                  <select value={setupProfession} onChange={(e) => setSetupProfession(e.target.value)}
-                    className="w-full px-4 py-3 bg-secondary border border-border rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition text-sm" required>
-                    <option value="">Sélectionner...</option>
-                    {PROFESSIONS.map((p) => <option key={p.value} value={p.value}>{p.label}</option>)}
-                  </select>
+                  <label className="block text-sm font-semibold mb-2">{t('auth.group.setup.profession')}</label>
+                  <div className="flex gap-3">
+                    {[
+                      { value: 'etudiant_infirmier', label: 'Infirmier(e)', icon: '🏥' },
+                      { value: 'sage_femme',          label: 'Sage-femme',  icon: '👶' },
+                    ].map((p) => (
+                      <button key={p.value} type="button" onClick={() => setSetupProfession(p.value)}
+                        className={`flex-1 flex flex-col items-center gap-1.5 py-3 rounded-xl border text-sm font-semibold transition ${
+                          setupProfession === p.value
+                            ? p.value === 'sage_femme'
+                              ? 'border-pink-500 bg-pink-50 text-pink-700'
+                              : 'border-indigo-500 bg-indigo-50 text-indigo-700'
+                            : 'border-border bg-secondary text-muted-foreground hover:border-primary/50'
+                        }`}>
+                        <span className="text-xl">{p.icon}</span>
+                        <span>{p.label}</span>
+                      </button>
+                    ))}
+                  </div>
                 </div>
                 <div className="grid grid-cols-2 gap-3">
                   <div>
-                    <label className="block text-sm font-semibold mb-2">Téléphone <span className="text-muted-foreground font-normal">(optionnel)</span></label>
+                    <label className="block text-sm font-semibold mb-2">{t('auth.group.setup.phone')} <span className="text-muted-foreground font-normal">(optionnel)</span></label>
                     <input type="tel" value={setupPhone} onChange={(e) => setSetupPhone(e.target.value)}
                       className="w-full px-4 py-3 bg-secondary border border-border rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition text-sm placeholder:text-muted-foreground"
                       placeholder="ex: 22000000" />
                   </div>
                   <div>
-                    <label className="block text-sm font-semibold mb-2">Wilaya <span className="text-muted-foreground font-normal">(optionnel)</span></label>
+                    <label className="block text-sm font-semibold mb-2">{t('auth.group.setup.wilaya')} <span className="text-muted-foreground font-normal">(optionnel)</span></label>
                     <select value={setupWilaya} onChange={(e) => setSetupWilaya(e.target.value)}
                       className="w-full px-4 py-3 bg-secondary border border-border rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition text-sm">
                       <option value="">Sélectionner...</option>
@@ -404,7 +402,7 @@ export default function LoginPage() {
                   </div>
                 </div>
                 <div>
-                  <label className="block text-sm font-semibold mb-2">Mot de passe</label>
+                  <label className="block text-sm font-semibold mb-2">{t('auth.group.setup.password')}</label>
                   <div className="relative">
                     <input
                       type={showSetupPwd ? 'text' : 'password'} value={setupPassword}
@@ -417,12 +415,12 @@ export default function LoginPage() {
                       {showSetupPwd ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                     </button>
                   </div>
-                  <p className="text-xs text-muted-foreground mt-1.5">Vous utiliserez ce mot de passe pour vos prochaines connexions.</p>
+                  <p className="text-xs text-muted-foreground mt-1.5">{t('auth.group.setup.passwordHint')}</p>
                 </div>
                 <button type="submit" disabled={groupLoading}
                   className="w-full gradient-primary text-white py-3.5 rounded-xl font-semibold hover:opacity-90 transition disabled:opacity-60 flex items-center justify-center gap-2 shadow-lg shadow-violet-500/25">
                   {groupLoading && <Loader2 className="w-4 h-4 animate-spin" />}
-                  {groupLoading ? 'Création du compte...' : 'Créer mon compte et accéder'}
+                  {groupLoading ? t('auth.group.setup.loading') : t('auth.group.setup.submit')}
                 </button>
               </form>
             </>
@@ -485,7 +483,7 @@ export default function LoginPage() {
                   className="w-full flex items-center justify-center gap-2 py-3 px-4 rounded-xl border border-border bg-secondary hover:bg-secondary/80 text-sm font-medium transition"
                 >
                   <UserCheck className="w-4 h-4 text-violet-500" />
-                  Membre d'un groupe ? Accéder ici
+                  {t('auth.group.button')}
                 </button>
               </div>
             </>

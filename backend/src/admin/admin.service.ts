@@ -7,6 +7,34 @@ import { PrismaService } from '../prisma/prisma.service';
 export class AdminService {
   constructor(private prisma: PrismaService) {}
 
+  async getRegistrationsPerDay(days = 30) {
+    const from = new Date();
+    from.setDate(from.getDate() - days + 1);
+    from.setHours(0, 0, 0, 0);
+
+    const rows: { day: string; count: bigint }[] = await this.prisma.$queryRaw`
+      SELECT DATE("createdAt") AS day, COUNT(*)::int AS count
+      FROM "User"
+      WHERE "createdAt" >= ${from} AND role != 'ADMIN'
+      GROUP BY DATE("createdAt")
+      ORDER BY day ASC
+    `;
+
+    // Fill missing days with 0
+    const map = new Map(rows.map((r) => [r.day.toString().slice(0, 10), Number(r.count)]));
+    const result: { day: string; count: number; cumul: number }[] = [];
+    let cumul = 0;
+    for (let i = 0; i < days; i++) {
+      const d = new Date(from);
+      d.setDate(from.getDate() + i);
+      const key = d.toISOString().slice(0, 10);
+      const count = map.get(key) ?? 0;
+      cumul += count;
+      result.push({ day: key, count, cumul });
+    }
+    return result;
+  }
+
   async getDashboardStats() {
     const now = new Date();
     const startOfDay   = new Date(now); startOfDay.setHours(0, 0, 0, 0);
@@ -76,7 +104,7 @@ export class AdminService {
       ];
     }
 
-    const [users, total] = await Promise.all([
+    const [users, total, sageFemmeCount, infirmierCount] = await Promise.all([
       this.prisma.user.findMany({
         where,
         skip: (page - 1) * limit,
@@ -96,9 +124,11 @@ export class AdminService {
         },
       }),
       this.prisma.user.count({ where }),
+      this.prisma.user.count({ where: { role: { not: 'ADMIN' }, profession: 'sage_femme' } }),
+      this.prisma.user.count({ where: { role: { not: 'ADMIN' }, OR: [{ profession: { not: 'sage_femme' } }, { profession: null }] } }),
     ]);
 
-    return { users, total, page, totalPages: Math.ceil(total / limit) };
+    return { users, total, page, totalPages: Math.ceil(total / limit), sageFemmeCount, infirmierCount };
   }
 
   async getUserById(userId: string) {
@@ -366,8 +396,12 @@ export class AdminService {
     }));
   }
 
-  async getLeaderboard(sortBy: 'accuracy' | 'total' | 'score' = 'accuracy', limit = 100) {
+  async getLeaderboard(sortBy: 'accuracy' | 'total' | 'score' = 'accuracy', limit = 100, profession?: string) {
     // totalQ/correctQ stockés dans Attempt à la complétion — résistent à la suppression des questions
+    const userWhere: any = { role: { not: 'ADMIN' } };
+    if (profession === 'sage_femme') userWhere.profession = 'sage_femme';
+    if (profession === 'infirmier')  userWhere.profession = { not: 'sage_femme' };
+
     const [attemptsByUser, users] = await Promise.all([
       this.prisma.attempt.groupBy({
         by: ['userId'],
@@ -377,8 +411,8 @@ export class AdminService {
         _sum: { totalQ: true, correctQ: true },
       }),
       this.prisma.user.findMany({
-        where: { role: { not: 'ADMIN' } },
-        select: { id: true, fullName: true, email: true, role: true, createdAt: true },
+        where: userWhere,
+        select: { id: true, fullName: true, email: true, role: true, createdAt: true, profession: true },
       }),
     ]);
 

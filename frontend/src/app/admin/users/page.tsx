@@ -200,8 +200,29 @@ export default function AdminUsersPage() {
       )}
 
       <div className="flex items-start justify-between gap-4">
-        <div>
-        <h1 className="text-2xl font-bold">Utilisateurs</h1>
+        <div className="flex-1">
+        <h1 className="text-2xl font-bold mb-4">Utilisateurs</h1>
+
+        {/* Cards profession */}
+        {data && (
+          <div className="flex gap-3 mb-4">
+            <div className="flex items-center gap-3 bg-blue-50 border border-blue-200 rounded-2xl px-5 py-3">
+              <span className="text-2xl">🏥</span>
+              <div>
+                <p className="text-xs text-blue-500 font-medium">Infirmiers</p>
+                <p className="text-2xl font-black text-blue-700">{data.infirmierCount ?? '—'}</p>
+              </div>
+            </div>
+            <div className="flex items-center gap-3 bg-pink-50 border border-pink-200 rounded-2xl px-5 py-3">
+              <span className="text-2xl">👶</span>
+              <div>
+                <p className="text-xs text-pink-500 font-medium">Sage-femmes</p>
+                <p className="text-2xl font-black text-pink-700">{data.sageFemmeCount ?? '—'}</p>
+              </div>
+            </div>
+          </div>
+        )}
+
         {tab === 'EXPIRING' && data && (
           <p className="text-amber-600 font-medium">
             {data.total === 0

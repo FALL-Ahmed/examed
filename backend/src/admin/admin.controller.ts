@@ -30,6 +30,11 @@ export class AdminController {
     return this.adminService.getDashboardStats();
   }
 
+  @Get('registrations-per-day')
+  getRegistrationsPerDay(@Query('days') days?: string) {
+    return this.adminService.getRegistrationsPerDay(days ? parseInt(days) : 30);
+  }
+
   @Get('analytics')
   getAnalytics(@Query('target') target?: string) {
     return this.adminService.getUserAnalytics(target);
@@ -55,9 +60,9 @@ export class AdminController {
   }
 
   @Get('leaderboard')
-  getLeaderboard(@Query('sortBy') sortBy?: string, @Query('limit') limit?: string) {
+  getLeaderboard(@Query('sortBy') sortBy?: string, @Query('limit') limit?: string, @Query('profession') profession?: string) {
     const sort = ['accuracy', 'total', 'score'].includes(sortBy!) ? sortBy as any : 'accuracy';
-    return this.adminService.getLeaderboard(sort, limit ? parseInt(limit) : 100);
+    return this.adminService.getLeaderboard(sort, limit ? parseInt(limit) : 100, profession);
   }
 
   @Get('users')

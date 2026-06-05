@@ -65,7 +65,7 @@ export default function DashboardPage() {
     userApi.me().then((r) => {
       setProfile(r.data);
       const alreadyDismissed = localStorage.getItem('profile_modal_dismissed');
-      const isComplete = r.data.gender && r.data.phone && r.data.wilaya;
+      const isComplete = !!(r.data.gender && r.data.phone && r.data.profession && r.data.fullName);
       if (!isComplete && !alreadyDismissed) setShowProfileModal(true);
     }).catch(() => {});
     statsApi.myRank().then((r) => setMyRank(r.data)).catch(() => {});
@@ -142,9 +142,10 @@ export default function DashboardPage() {
   return (
     <div className="max-w-5xl mx-auto space-y-6">
 
-      {showProfileModal && (
+      {showProfileModal && profile && (
         <ProfileCompletionModal
           isAr={isAr}
+          user={profile}
           onClose={() => { localStorage.setItem('profile_modal_dismissed', '1'); setShowProfileModal(false); }}
           onSaved={() => { localStorage.setItem('profile_modal_dismissed', '1'); setShowProfileModal(false); userApi.me().then((r) => setProfile(r.data)).catch(() => {}); }}
         />

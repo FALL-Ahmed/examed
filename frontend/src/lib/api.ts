@@ -87,7 +87,7 @@ export const userApi = {
   stats: () => api.get('/users/me/stats'),
   myPayments: () => api.get('/payments/me'),
   trackPdf: (filename: string, source = 'app') => api.post('/users/track-pdf', { filename, source }),
-  updateMe: (data: { gender?: string; phone?: string; wilaya?: string; profession?: string }) => api.patch('/users/me', data),
+  updateMe: (data: { fullName?: string; gender?: string; phone?: string; wilaya?: string; profession?: string }) => api.patch('/users/me', data),
 };
 
 // Themes
@@ -168,6 +168,7 @@ export const settingsApi = {
 // Admin
 export const adminApi = {
   stats: () => api.get('/admin/stats'),
+  registrationsPerDay: (days?: number) => api.get('/admin/registrations-per-day', { params: { days } }),
   users: (params?: any) => api.get('/admin/users', { params }),
   toggleUser: (id: string) => api.put(`/admin/users/${id}/toggle`),
   resetSubscription: (id: string) => api.put(`/admin/users/${id}/reset-subscription`),
@@ -214,7 +215,7 @@ export const adminApi = {
   grantPremium: (id: string, days: number) => api.put(`/admin/users/${id}/grant-premium`, { days }),
   bulkGrantPremium: (ids: string[], days: number) => api.post('/admin/users/bulk-grant-premium', { ids, days }),
   backfillProfession: () => api.post('/admin/backfill-profession'),
-  leaderboard: (sortBy?: string) => api.get('/admin/leaderboard', { params: { sortBy } }),
+  leaderboard: (sortBy?: string, profession?: string) => api.get('/admin/leaderboard', { params: { sortBy, profession } }),
   sessions: () => api.get('/admin/sessions'),
   freeTrialStats: (params?: { startDate?: string; endDate?: string; compareStart?: string; compareEnd?: string }) =>
     api.get('/admin/free-trial-stats', { params }),
