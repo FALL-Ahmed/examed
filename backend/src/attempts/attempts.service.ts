@@ -145,7 +145,7 @@ export class AttemptsService {
     const question = await this.prisma.question.findUnique({ where: { id: dto.questionId } });
     if (!question) throw new NotFoundException('Question introuvable');
 
-    const normalize = (s: string) => s.toUpperCase().split(',').map(x => x.trim()).sort().join(',');
+    const normalize = (s: string) => s.toUpperCase().split(',').map(x => x.trim()).filter(Boolean).sort().join(',');
     const isCorrect = normalize(dto.answer) === normalize(question.correctAnswer);
     const partialScore = computePartialScore(dto.answer, question);
 
