@@ -21,7 +21,11 @@ export class AdminService {
     `;
 
     // Fill missing days with 0
-    const map = new Map(rows.map((r) => [r.day.toString().slice(0, 10), Number(r.count)]));
+    const map = new Map(rows.map((r) => {
+      const d: any = r.day;
+      const key = (d instanceof Date ? d.toISOString() : String(d)).slice(0, 10);
+      return [key, Number(r.count)];
+    }));
     const result: { day: string; count: number; cumul: number }[] = [];
     let cumul = 0;
     for (let i = 0; i < days; i++) {

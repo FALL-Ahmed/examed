@@ -8,9 +8,8 @@ import {
 } from 'lucide-react';
 import Link from 'next/link';
 import { useLang } from '@/components/LanguageProvider';
-import {
-  ComposedChart, Bar, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer,
-} from 'recharts';
+import { RegistrationChart } from '@/components/RegistrationChart';
+
 
 function KpiCard({ icon: Icon, label, value, sub, color, href }: any) {
   const content = (
@@ -241,21 +240,7 @@ export default function AdminDashboard() {
           </div>
         </div>
         <div className="bg-card border border-border rounded-2xl p-5">
-          <ResponsiveContainer width="100%" height={280}>
-            <ComposedChart data={regData} margin={{ top: 4, right: 16, left: 0, bottom: 0 }}>
-              <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
-              <XAxis dataKey="day" tickFormatter={(v) => v.slice(5)} tick={{ fontSize: 11 }} />
-              <YAxis yAxisId="left" allowDecimals={false} tick={{ fontSize: 11 }} />
-              <YAxis yAxisId="right" orientation="right" tick={{ fontSize: 11 }} />
-              <Tooltip
-                formatter={(value: any, name: string) => [value, name === 'count' ? 'Inscrits/jour' : 'Cumulatif']}
-                labelFormatter={(l) => `📅 ${l}`}
-              />
-              <Legend formatter={(v) => v === 'count' ? 'Inscrits/jour' : 'Cumulatif'} />
-              <Bar yAxisId="left" dataKey="count" fill="#8b5cf6" radius={[4, 4, 0, 0]} opacity={0.85} />
-              <Line yAxisId="right" type="monotone" dataKey="cumul" stroke="#06b6d4" strokeWidth={2} dot={false} />
-            </ComposedChart>
-          </ResponsiveContainer>
+          <RegistrationChart data={regData} />
         </div>
       </section>
 
