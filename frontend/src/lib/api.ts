@@ -243,6 +243,8 @@ export const examenBlancApi = {
   mySessions: (participantId: string) => axios.get(`${API_URL}/examen-blanc/my-sessions`, { params: { participantId } }),
   adminTestSession: (examenBlancId: string, lang: 'fr' | 'ar') =>
     api.post('/examen-blanc/admin/test-session', { examenBlancId, lang }),
+  adminSmartPreview: (params: { target: string; totalQ: number; criteria: string; fromLastN: number }) =>
+    api.get('/examen-blanc/admin/smart-preview', { params }),
 };
 
 export const pushApi = {

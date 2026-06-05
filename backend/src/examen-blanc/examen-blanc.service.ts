@@ -679,17 +679,202 @@ export class ExamenBlancService {
     return selected.sort(() => Math.random() - 0.5).slice(0, totalQ);
   }
 
+  async generateSmartQuestions(
+    totalQ: number,
+    lang: 'FR' | 'AR',
+    target: string,
+    criteria: 'best' | 'worst',
+    fromLastN: number,
+  ): Promise<string[]> {
+    // Build score map from last N sessions
+    const scoreMap = new Map<string, number>();
+    const lastSessions = await db(this.prisma).examenBlanc.findMany({
+      where: { target },
+      orderBy: { createdAt: 'desc' },
+      take: fromLastN,
+      select: { id: true },
+    });
+
+    if (lastSessions.length > 0) {
+      const sessionIds = lastSessions.map((s: any) => s.id);
+      const participants = await db(this.prisma).examenBlancParticipant.findMany({
+        where: { examenBlancId: { in: sessionIds }, isCompleted: true, isTest: false, lang: lang.toLowerCase() },
+        select: { id: true },
+      });
+      if (participants.length > 0) {
+        const participantIds = participants.map((p: any) => p.id);
+        const responses = await db(this.prisma).examenBlancReponse.findMany({
+          where: { participantId: { in: participantIds } },
+          select: { questionId: true, partialScore: true },
+        });
+        const acc = new Map<string, { sum: number; count: number }>();
+        for (const r of responses) {
+          if (!acc.has(r.questionId)) acc.set(r.questionId, { sum: 0, count: 0 });
+          const e = acc.get(r.questionId)!;
+          e.sum += r.partialScore;
+          e.count++;
+        }
+        for (const [id, s] of acc) scoreMap.set(id, s.sum / s.count);
+      }
+    }
+
+    // Sort by score: known questions ranked by criteria, unknowns ranked last
+    const byScore = (a: string, b: string): number => {
+      const hasA = scoreMap.has(a), hasB = scoreMap.has(b);
+      if (!hasA && !hasB) return Math.random() - 0.5;
+      if (!hasA) return 1;
+      if (!hasB) return -1;
+      return criteria === 'best'
+        ? scoreMap.get(b)! - scoreMap.get(a)!
+        : scoreMap.get(a)! - scoreMap.get(b)!;
+    };
+
+    const allSubThemes = await this.prisma.subTheme.findMany({
+      where: { theme: { language: lang, target } },
+      include: {
+        theme: { select: { name: true } },
+        questions: {
+          where: { isActive: true, explanation: { not: '' } },
+          select: { id: true },
+        },
+      },
+    });
+    const available = allSubThemes.filter((st: any) => st.questions.length > 0);
+
+    // SAGE_FEMME: same quotas as auto, but ordered by score
+    if (target === 'SAGE_FEMME') {
+      const isAnatomieTheme  = (n: string) => n.toLowerCase().includes('anatomie') || n.includes('التشريح');
+      const isPratiqueTheme  = (n: string) => n.toLowerCase().includes('pratique') || n.includes('الممارسة');
+      const isGenitalFemSub  = (n: string) => /génital fém|GÉNITAL FÉM|féminin|الجهاز التناسلي الأنثوي/i.test(n);
+      const isTransfusionSub = (n: string) => /transfusion|نقل الدم|تحويل الدم/i.test(n);
+
+      const genitalSubs = available.filter((st: any) => isAnatomieTheme(st.theme.name) && isGenitalFemSub(st.name));
+      const genitalPool: string[] = [];
+      for (const st of genitalSubs) genitalPool.push(...st.questions.map((q: any) => q.id));
+      genitalPool.sort(byScore);
+      const genitalSelected = genitalPool.slice(0, 4);
+
+      const pratSubs = available.filter((st: any) => isPratiqueTheme(st.theme.name) && isTransfusionSub(st.name));
+      const pratPool: string[] = [];
+      for (const st of pratSubs) pratPool.push(...st.questions.map((q: any) => q.id));
+      pratPool.sort(byScore);
+      const pratSelected = pratPool.slice(0, 3);
+
+      const mainQ = totalQ - genitalSelected.length - pratSelected.length;
+      const mainSubs = available.filter((st: any) => !isAnatomieTheme(st.theme.name) && !isPratiqueTheme(st.theme.name));
+      const mainSelected: string[] = [];
+      const mainPool: string[] = [];
+      for (const st of mainSubs) {
+        const sorted = [...st.questions.map((q: any) => q.id)].sort(byScore);
+        mainSelected.push(sorted[0]);
+        if (sorted.length > 1) mainPool.push(...sorted.slice(1));
+      }
+      if (mainSelected.length < mainQ) {
+        mainPool.sort(byScore);
+        mainSelected.push(...mainPool.slice(0, mainQ - mainSelected.length));
+      }
+
+      return [...mainSelected, ...genitalSelected, ...pratSelected]
+        .sort(() => Math.random() - 0.5)
+        .slice(0, totalQ);
+    }
+
+    // INFIRMIER: 1 question per sub-theme (best/worst score), then fill pool
+    const selected: string[] = [];
+    const pool: string[] = [];
+    for (const st of available) {
+      const sorted = [...st.questions.map((q: any) => q.id)].sort(byScore);
+      selected.push(sorted[0]);
+      if (sorted.length > 1) pool.push(...sorted.slice(1));
+    }
+    const needed = totalQ - selected.length;
+    if (needed > 0 && pool.length > 0) {
+      pool.sort(byScore);
+      selected.push(...pool.slice(0, Math.min(needed, pool.length)));
+    }
+    return selected.sort(() => Math.random() - 0.5).slice(0, totalQ);
+  }
+
+  async getSmartPreview(target: string, totalQ: number, criteria: 'best' | 'worst', fromLastN: number) {
+    const lastSessions = await db(this.prisma).examenBlanc.findMany({
+      where: { target },
+      orderBy: { createdAt: 'desc' },
+      take: fromLastN,
+      select: { id: true, title: true, createdAt: true },
+    });
+
+    if (lastSessions.length === 0) return { sessionCount: 0, responseCount: 0, uniqueQuestions: 0, avgScore: 0, sessions: [] };
+
+    const sessionIds = lastSessions.map((s: any) => s.id);
+
+    const participants = await db(this.prisma).examenBlancParticipant.findMany({
+      where: { examenBlancId: { in: sessionIds }, isCompleted: true, isTest: false },
+      select: { id: true },
+    });
+
+    const participantIds = participants.map((p: any) => p.id);
+
+    const responses = participantIds.length > 0
+      ? await db(this.prisma).examenBlancReponse.findMany({
+          where: { participantId: { in: participantIds } },
+          select: { questionId: true, partialScore: true },
+        })
+      : [];
+
+    const qMap = new Map<string, { sum: number; count: number }>();
+    for (const r of responses) {
+      if (!qMap.has(r.questionId)) qMap.set(r.questionId, { sum: 0, count: 0 });
+      const e = qMap.get(r.questionId)!;
+      e.sum += r.partialScore;
+      e.count++;
+    }
+
+    const sorted = Array.from(qMap.entries())
+      .map(([id, s]) => ({ id, avg: s.sum / s.count, count: s.count }))
+      .sort((a, b) => criteria === 'best' ? b.avg - a.avg : a.avg - b.avg);
+
+    const selected = sorted.slice(0, totalQ);
+    const avgScore = selected.length > 0 ? selected.reduce((s, q) => s + q.avg, 0) / selected.length : 0;
+
+    return {
+      sessionCount: lastSessions.length,
+      participantCount: participants.length,
+      responseCount: responses.length,
+      uniqueQuestions: qMap.size,
+      selectedCount: selected.length,
+      avgScore,
+      sessions: lastSessions.map((s: any) => ({ id: s.id, title: s.title, createdAt: s.createdAt })),
+    };
+  }
+
   async createSession(dto: {
     title?: string; descriptionFr?: string; descriptionAr?: string;
     startsAt: string; endsAt: string; resultsAt?: string;
     totalQ?: number; durationMin?: number; target?: string;
+    selectionMode?: 'auto' | 'smart';
+    smartCriteria?: 'best' | 'worst';
+    smartFromLastN?: number;
   }) {
     const totalQ = dto.totalQ ?? 80;
     const target = dto.target?.toUpperCase() || 'INFIRMIER';
-    const [questionIdsFr, questionIdsAr] = await Promise.all([
-      this.generateQuestions(totalQ, 'FR', target),
-      this.generateQuestions(totalQ, 'AR', target),
-    ]);
+    const selectionMode = dto.selectionMode ?? 'auto';
+    const smartCriteria = dto.smartCriteria ?? 'best';
+    const smartFromLastN = dto.smartFromLastN ?? 3;
+
+    let questionIdsFr: string[];
+    let questionIdsAr: string[];
+
+    if (selectionMode === 'smart') {
+      [questionIdsFr, questionIdsAr] = await Promise.all([
+        this.generateSmartQuestions(totalQ, 'FR', target, smartCriteria, smartFromLastN),
+        this.generateSmartQuestions(totalQ, 'AR', target, smartCriteria, smartFromLastN),
+      ]);
+    } else {
+      [questionIdsFr, questionIdsAr] = await Promise.all([
+        this.generateQuestions(totalQ, 'FR', target),
+        this.generateQuestions(totalQ, 'AR', target),
+      ]);
+    }
     const endsAt = new Date(dto.endsAt);
     const resultsAt = dto.resultsAt ? new Date(dto.resultsAt) : new Date(endsAt.getTime() + 24 * 60 * 60 * 1000);
 

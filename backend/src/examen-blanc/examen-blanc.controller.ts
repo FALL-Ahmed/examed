@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Put, Param, Body, Query, UseGuards } from '@nestjs/common';
+import { Controller, Get, Post, Put, Param, Body, Query, UseGuards, ParseIntPipe, DefaultValuePipe } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
@@ -99,6 +99,23 @@ export class ExamenBlancController {
   @Get('admin/app-users')
   adminGetAppUsers() {
     return this.service.getAppUsersWithExamStatus();
+  }
+
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('ADMIN')
+  @Get('admin/smart-preview')
+  adminSmartPreview(
+    @Query('target') target = 'INFIRMIER',
+    @Query('totalQ') totalQ = '80',
+    @Query('criteria') criteria = 'best',
+    @Query('fromLastN') fromLastN = '3',
+  ) {
+    return this.service.getSmartPreview(
+      target.toUpperCase(),
+      parseInt(totalQ),
+      (criteria === 'worst' ? 'worst' : 'best') as 'best' | 'worst',
+      parseInt(fromLastN),
+    );
   }
 
   @UseGuards(JwtAuthGuard, RolesGuard)

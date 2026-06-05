@@ -69,7 +69,14 @@ function buildReminderUrl(l: any, sessionTitle: string): string {
   return `https://wa.me/${phone}?text=${encodeURIComponent(msg)}`;
 }
 
-const defaultForm = { title: 'Examen Blanc National', descriptionFr: '', descriptionAr: '', startsAt: '', endsAt: '', resultsAt: '', totalQ: 80, durationMin: 120, target: 'INFIRMIER' };
+const defaultForm = {
+  title: 'Examen Blanc National', descriptionFr: '', descriptionAr: '',
+  startsAt: '', endsAt: '', resultsAt: '',
+  totalQ: 80, durationMin: 120, target: 'INFIRMIER',
+  selectionMode: 'auto' as 'auto' | 'smart',
+  smartCriteria: 'best' as 'best' | 'worst',
+  smartFromLastN: 3,
+};
 
 export default function AdminExamenBlancPage() {
   const [tab, setTab] = useState<'sessions' | 'create' | 'stats' | 'leads'>('sessions');
@@ -78,6 +85,8 @@ export default function AdminExamenBlancPage() {
   const [stats, setStats] = useState<any>(null);
   const [questionModal, setQuestionModal] = useState<any>(null);
   const [reminderQueue, setReminderQueue] = useState<any[] | null>(null);
+  const [smartPreview, setSmartPreview] = useState<any>(null);
+  const [previewLoading, setPreviewLoading] = useState(false);
   const [reminderIdx, setReminderIdx] = useState(0);
   const [leads, setLeads] = useState<any[]>([]);
   const [leadsView, setLeadsView] = useState<'participants' | 'app_users'>('participants');
@@ -138,10 +147,27 @@ export default function AdminExamenBlancPage() {
     setCreating(true);
     try {
       await examenBlancApi.adminCreateSession(form);
-      setCreateSuccess(`✅ Session créée avec ${form.totalQ} questions sélectionnées automatiquement`);
-      setForm(defaultForm); loadSessions(); setTab('sessions');
+      const mode = form.selectionMode === 'smart'
+        ? `sélection intelligente (${form.smartCriteria === 'best' ? 'meilleur score' : 'plus difficiles'})`
+        : 'sélection automatique';
+      setCreateSuccess(`✅ Session créée avec ${form.totalQ} questions — ${mode}`);
+      setForm(defaultForm); setSmartPreview(null); loadSessions(); setTab('sessions');
     } catch (err: any) { setCreateError(err.response?.data?.message || 'Erreur lors de la création'); }
     setCreating(false);
+  }
+
+  async function handlePreviewSmart() {
+    setPreviewLoading(true); setSmartPreview(null);
+    try {
+      const { data } = await examenBlancApi.adminSmartPreview({
+        target: form.target,
+        totalQ: form.totalQ,
+        criteria: form.smartCriteria,
+        fromLastN: form.smartFromLastN,
+      });
+      setSmartPreview(data);
+    } catch {}
+    setPreviewLoading(false);
   }
 
   async function toggleActive(id: string, current: boolean) {
@@ -514,9 +540,100 @@ export default function AdminExamenBlancPage() {
             </div>
           </div>
 
-          <div className="bg-violet-50 dark:bg-violet-900/20 border border-violet-200 dark:border-violet-800 rounded-xl p-4 text-sm text-violet-700 dark:text-violet-300">
-            <p className="font-semibold mb-1">🧠 Sélection automatique</p>
-            <p className="text-xs opacity-80">Les {form.totalQ} questions sont choisies automatiquement : 1 question minimum par sous-thème, uniquement les questions avec commentaire, puis complétées aléatoirement.</p>
+          {/* Méthode de sélection */}
+          <div className="space-y-3">
+            <label className={labelCls}>Méthode de sélection des questions</label>
+            <div className="flex gap-2">
+              {([
+                { val: 'auto',  label: '🎲 Automatique',   desc: 'Par sous-thème, fraîcheur, aléatoire' },
+                { val: 'smart', label: '🧠 Intelligente',   desc: 'Basée sur les scores passés' },
+              ] as const).map(({ val, label, desc }) => (
+                <button key={val} type="button"
+                  onClick={() => { setForm(p => ({ ...p, selectionMode: val })); setSmartPreview(null); }}
+                  className={`flex-1 flex flex-col items-center gap-0.5 py-2.5 rounded-xl text-sm font-semibold border transition ${
+                    form.selectionMode === val
+                      ? val === 'smart' ? 'bg-amber-500 border-amber-500 text-white' : 'bg-violet-600 border-violet-600 text-white'
+                      : 'border-border text-muted-foreground hover:bg-muted'
+                  }`}>
+                  <span>{label}</span>
+                  <span className={`text-xs font-normal ${form.selectionMode === val ? 'opacity-80' : 'opacity-60'}`}>{desc}</span>
+                </button>
+              ))}
+            </div>
+
+            {form.selectionMode === 'auto' && (
+              <div className="bg-violet-50 dark:bg-violet-900/20 border border-violet-200 dark:border-violet-800 rounded-xl px-4 py-3 text-xs text-violet-700 dark:text-violet-300">
+                1 question minimum par sous-thème, uniquement les questions avec commentaire, priorité aux questions jamais utilisées.
+              </div>
+            )}
+
+            {form.selectionMode === 'smart' && (
+              <div className="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-xl p-4 space-y-3">
+                <div>
+                  <label className={labelCls}>Critère de sélection</label>
+                  <div className="flex gap-2">
+                    {([
+                      { val: 'best',  label: '✅ Meilleur score', desc: 'Questions bien maîtrisées' },
+                      { val: 'worst', label: '❌ Plus difficiles', desc: 'Score le plus bas' },
+                    ] as const).map(({ val, label, desc }) => (
+                      <button key={val} type="button"
+                        onClick={() => { setForm(p => ({ ...p, smartCriteria: val })); setSmartPreview(null); }}
+                        className={`flex-1 flex flex-col items-center gap-0.5 py-2 rounded-lg text-xs font-semibold border transition ${
+                          form.smartCriteria === val
+                            ? val === 'best' ? 'bg-emerald-100 border-emerald-400 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300' : 'bg-red-100 border-red-400 text-red-700 dark:bg-red-900/30 dark:text-red-300'
+                            : 'border-border text-muted-foreground hover:bg-muted'
+                        }`}>
+                        <span>{label}</span>
+                        <span className="opacity-70 font-normal">{desc}</span>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                <div>
+                  <label className={labelCls}>Analyser les dernières N sessions</label>
+                  <input type="number" min={1} max={10} className={inputCls} value={form.smartFromLastN}
+                    onChange={e => { setForm(p => ({ ...p, smartFromLastN: Number(e.target.value) })); setSmartPreview(null); }} />
+                </div>
+
+                <button type="button" onClick={handlePreviewSmart} disabled={previewLoading}
+                  className="w-full py-2 rounded-lg text-sm font-semibold border border-amber-400 text-amber-700 dark:text-amber-300 bg-amber-100 dark:bg-amber-900/30 hover:bg-amber-200 dark:hover:bg-amber-900/50 transition disabled:opacity-60 flex items-center justify-center gap-2">
+                  {previewLoading
+                    ? <><div className="w-3.5 h-3.5 border-2 border-amber-500 border-t-transparent rounded-full animate-spin" /> Analyse…</>
+                    : '🔍 Prévisualiser la sélection'}
+                </button>
+
+                {smartPreview && (
+                  <div className="bg-card border border-border rounded-xl p-3 space-y-1.5 text-xs">
+                    <p className="font-semibold text-foreground mb-1">Résultat de l'analyse</p>
+                    <div className="grid grid-cols-2 gap-x-4 gap-y-1 text-muted-foreground">
+                      <span>Sessions analysées</span><span className="font-bold text-foreground">{smartPreview.sessionCount}</span>
+                      <span>Participants complétés</span><span className="font-bold text-foreground">{smartPreview.participantCount}</span>
+                      <span>Réponses analysées</span><span className="font-bold text-foreground">{smartPreview.responseCount.toLocaleString()}</span>
+                      <span>Questions uniques</span><span className="font-bold text-foreground">{smartPreview.uniqueQuestions}</span>
+                      <span>Questions sélectionnées</span><span className="font-bold text-foreground">{smartPreview.selectedCount} / {form.totalQ}</span>
+                      <span>Score moyen sélection</span>
+                      <span className={`font-bold ${smartPreview.avgScore >= 0.6 ? 'text-emerald-600' : smartPreview.avgScore >= 0.3 ? 'text-amber-600' : 'text-red-600'}`}>
+                        {(smartPreview.avgScore * 100).toFixed(1)}%
+                      </span>
+                    </div>
+                    {smartPreview.sessions?.length > 0 && (
+                      <div className="pt-1 border-t border-border">
+                        <p className="text-muted-foreground mb-1">Sessions incluses :</p>
+                        {smartPreview.sessions.map((s: any) => (
+                          <p key={s.id} className="text-foreground">• {s.title} ({new Date(s.createdAt).toLocaleDateString('fr-FR')})</p>
+                        ))}
+                      </div>
+                    )}
+                    {smartPreview.selectedCount < form.totalQ && (
+                      <p className="text-amber-600 dark:text-amber-400 mt-1">
+                        ⚠️ {form.totalQ - smartPreview.selectedCount} question(s) complétée(s) par l'algorithme automatique
+                      </p>
+                    )}
+                  </div>
+                )}
+              </div>
+            )}
           </div>
 
           <button onClick={handleCreate} disabled={creating}
