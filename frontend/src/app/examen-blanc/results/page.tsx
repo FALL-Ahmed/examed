@@ -206,18 +206,28 @@ function ResultsContent() {
               <p className="text-white font-bold text-sm uppercase tracking-widest mb-1">
                 {isAr ? 'ترتيبك الوطني' : 'Classement national'}
               </p>
-              <p className="text-white font-black text-7xl tracking-tight leading-none mb-2">
+              <p className="text-white font-black text-4xl tracking-tight leading-none mb-2">
                 {revealTime}
               </p>
-              <p className="text-white font-medium text-sm">
-                {isAr ? 'موعد الكشف عن النتائج' : 'Heure de révélation du classement'}
-              </p>
-              <div className="mt-4 pt-4 border-t border-white/20">
-                <p className="text-white/90 text-sm font-semibold">
-                  {isAr ? '🔍 استخدم رقم هاتفك للعودة إلى نتائجك' : '🔍 Utilise ton numéro de téléphone pour retrouver tes résultats'}
-                </p>
-              </div>
+
             </div>
+          </div>
+
+          {/* CTA inscription */}
+          <div className="rounded-3xl p-6 text-center" style={{ background: 'linear-gradient(135deg,#7c3aed,#6366f1)' }}>
+            <h3 className="text-white font-black text-lg mb-2">
+              {isAr ? '🚀 هل تريد التحضير أكثر؟' : '🚀 Vous voulez vous préparer davantage ?'}
+            </h3>
+            <p className="text-white/70 text-sm mb-4">
+              {isAr
+                ? 'وصول كامل لجميع الأسئلة والتحليلات المفصّلة.'
+                : 'Accès complet à toutes les questions et analyses.'}
+            </p>
+            <Link href="/register"
+              className="inline-flex items-center gap-2 px-6 py-2.5 rounded-2xl font-bold text-violet-900 bg-white hover:bg-gray-50 transition shadow-lg text-sm">
+              <BookOpen className="w-4 h-4" />
+              {isAr ? 'التسجيل' : "Je m'inscris"}
+            </Link>
           </div>
 
           {/* Témoignages */}
@@ -242,23 +252,6 @@ function ResultsContent() {
                 </div>
               ))}
             </div>
-          </div>
-
-          {/* CTA inscription */}
-          <div className="rounded-3xl p-6 text-center" style={{ background: 'linear-gradient(135deg,#7c3aed,#6366f1)' }}>
-            <h3 className="text-white font-black text-lg mb-2">
-              {isAr ? '🚀 هل تريد التحضير أكثر؟' : '🚀 Vous voulez vous préparer davantage ?'}
-            </h3>
-            <p className="text-white/70 text-sm mb-4">
-              {isAr
-                ? 'وصول كامل لجميع الأسئلة والتحليلات المفصّلة.'
-                : 'Accès complet à toutes les questions et analyses.'}
-            </p>
-            <Link href="/register"
-              className="inline-flex items-center gap-2 px-6 py-2.5 rounded-2xl font-bold text-violet-900 bg-white hover:bg-gray-50 transition shadow-lg text-sm">
-              <BookOpen className="w-4 h-4" />
-              {isAr ? 'التسجيل' : "S'inscrire"}
-            </Link>
           </div>
 
           {/* Instructions */}
@@ -572,7 +565,7 @@ function ResultsContent() {
           <Link href="/register"
             className="inline-flex items-center gap-2 px-8 py-3 rounded-2xl font-bold text-violet-900 bg-white hover:bg-gray-50 transition shadow-lg">
             <BookOpen className="w-4 h-4" />
-            {isAr ? 'اشترك الآن' : "S'inscrire maintenant"}
+            {isAr ? 'اشترك الآن' : "Je m'inscris maintenant"}
           </Link>
         </div>
 
