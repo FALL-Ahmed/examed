@@ -168,7 +168,7 @@ export const settingsApi = {
 // Admin
 export const adminApi = {
   stats: () => api.get('/admin/stats'),
-  registrationsPerDay: (days?: number) => api.get('/admin/registrations-per-day', { params: { days } }),
+  registrationsPerDay: (days?: number, profession?: string) => api.get('/admin/registrations-per-day', { params: { days, ...(profession && profession !== 'all' ? { profession } : {}) } }),
   users: (params?: any) => api.get('/admin/users', { params }),
   toggleUser: (id: string) => api.put(`/admin/users/${id}/toggle`),
   resetSubscription: (id: string) => api.put(`/admin/users/${id}/reset-subscription`),

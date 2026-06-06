@@ -7,18 +7,34 @@ import { PrismaService } from '../prisma/prisma.service';
 export class AdminService {
   constructor(private prisma: PrismaService) {}
 
-  async getRegistrationsPerDay(days = 30) {
+  async getRegistrationsPerDay(days = 30, profession?: string) {
     const from = new Date();
     from.setDate(from.getDate() - days + 1);
     from.setHours(0, 0, 0, 0);
 
-    const rows: { day: string; count: bigint }[] = await this.prisma.$queryRaw`
-      SELECT DATE("createdAt") AS day, COUNT(*)::int AS count
-      FROM "User"
-      WHERE "createdAt" >= ${from} AND role != 'ADMIN'
-      GROUP BY DATE("createdAt")
-      ORDER BY day ASC
-    `;
+    let rows: { day: string; count: bigint }[];
+    if (profession === 'sage_femme') {
+      rows = await this.prisma.$queryRaw`
+        SELECT DATE("createdAt") AS day, COUNT(*)::int AS count
+        FROM "User"
+        WHERE "createdAt" >= ${from} AND role != 'ADMIN' AND profession = 'sage_femme'
+        GROUP BY DATE("createdAt") ORDER BY day ASC
+      `;
+    } else if (profession === 'infirmier') {
+      rows = await this.prisma.$queryRaw`
+        SELECT DATE("createdAt") AS day, COUNT(*)::int AS count
+        FROM "User"
+        WHERE "createdAt" >= ${from} AND role != 'ADMIN' AND profession = 'etudiant_infirmier'
+        GROUP BY DATE("createdAt") ORDER BY day ASC
+      `;
+    } else {
+      rows = await this.prisma.$queryRaw`
+        SELECT DATE("createdAt") AS day, COUNT(*)::int AS count
+        FROM "User"
+        WHERE "createdAt" >= ${from} AND role != 'ADMIN'
+        GROUP BY DATE("createdAt") ORDER BY day ASC
+      `;
+    }
 
     // Fill missing days with 0
     const map = new Map(rows.map((r) => {

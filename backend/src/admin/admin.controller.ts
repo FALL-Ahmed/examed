@@ -31,8 +31,8 @@ export class AdminController {
   }
 
   @Get('registrations-per-day')
-  getRegistrationsPerDay(@Query('days') days?: string) {
-    return this.adminService.getRegistrationsPerDay(days ? parseInt(days) : 30);
+  getRegistrationsPerDay(@Query('days') days?: string, @Query('profession') profession?: string) {
+    return this.adminService.getRegistrationsPerDay(days ? parseInt(days) : 30, profession);
   }
 
   @Get('analytics')

@@ -31,6 +31,7 @@ export default function AdminDashboard() {
   const [stats, setStats] = useState<any>(null);
   const [regData, setRegData] = useState<any[]>([]);
   const [regDays, setRegDays] = useState(30);
+  const [regProfession, setRegProfession] = useState<'all' | 'infirmier' | 'sage_femme'>('all');
   const [prices, setPrices] = useState({ p1m: '', p3m: '', pGroup: '', groupMin: '' });
   const [savingPlan, setSavingPlan] = useState<string | null>(null);
   const [savedPlan, setSavedPlan] = useState<string | null>(null);
@@ -181,8 +182,8 @@ export default function AdminDashboard() {
   }
 
   useEffect(() => {
-    adminApi.registrationsPerDay(regDays).then((r) => setRegData(r.data)).catch(() => {});
-  }, [regDays]);
+    adminApi.registrationsPerDay(regDays, regProfession).then((r) => setRegData(r.data)).catch(() => {});
+  }, [regDays, regProfession]);
 
   const { t } = useLang();
   const s = stats;
@@ -228,15 +229,31 @@ export default function AdminDashboard() {
 
       {/* Graphe inscriptions */}
       <section>
-        <div className="flex items-center justify-between mb-3">
+        <div className="flex items-center justify-between mb-3 flex-wrap gap-2">
           <p className="text-xs font-bold uppercase tracking-widest text-muted-foreground">Inscriptions par jour</p>
-          <div className="flex gap-1">
-            {[7, 14, 30, 90].map((d) => (
-              <button key={d} onClick={() => setRegDays(d)}
-                className={`px-3 py-1 rounded-lg text-xs font-semibold transition ${regDays === d ? 'bg-violet-600 text-white' : 'bg-secondary text-muted-foreground hover:bg-secondary/80'}`}>
-                {d}j
-              </button>
-            ))}
+          <div className="flex items-center gap-2 flex-wrap">
+            <div className="flex gap-1">
+              {([
+                { val: 'all',       label: 'Tous' },
+                { val: 'infirmier', label: '🏥 Infirmier' },
+                { val: 'sage_femme',label: '👶 Sage-femme' },
+              ] as const).map(({ val, label }) => (
+                <button key={val} onClick={() => setRegProfession(val)}
+                  className={`px-3 py-1 rounded-lg text-xs font-semibold transition ${regProfession === val
+                    ? val === 'sage_femme' ? 'bg-pink-500 text-white' : val === 'infirmier' ? 'bg-indigo-500 text-white' : 'bg-violet-600 text-white'
+                    : 'bg-secondary text-muted-foreground hover:bg-secondary/80'}`}>
+                  {label}
+                </button>
+              ))}
+            </div>
+            <div className="flex gap-1">
+              {[7, 14, 30, 90].map((d) => (
+                <button key={d} onClick={() => setRegDays(d)}
+                  className={`px-3 py-1 rounded-lg text-xs font-semibold transition ${regDays === d ? 'bg-violet-600 text-white' : 'bg-secondary text-muted-foreground hover:bg-secondary/80'}`}>
+                  {d}j
+                </button>
+              ))}
+            </div>
           </div>
         </div>
         <div className="bg-card border border-border rounded-2xl p-5">
