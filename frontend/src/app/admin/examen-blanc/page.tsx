@@ -17,8 +17,8 @@ function buildWhatsAppUrl(l: any): string {
   const nom = l.nom ?? '';
 
   const msg = isAr
-    ? `سلام ${prenom} ${nom}\nهل أجبت بشكل صحيح على هذا السؤال في الامتحان التجريبي؟ 82% من المشاركين أخطأوا في هذا السؤال\n\nشاهد نتائج الامتحان التجريبي هنا :\nhttps://albourour.com/examen-blanc`
-    : `Salam ${prenom} ${nom}\nAvez-vous répondu correctement à cette question à l'examen Blanc. 82% des participants avaient donné une réponse fausse à cette question\n\nConsultez les résultats de l'examen Blanc ici :\nhttps://albourour.com/examen-blanc`;
+    ? `السلام عليكم،\n\n🏆 اطّلع على ترتيبك في الامتحان التجريبي على منصة البُرور.\n\n📝 اضغط على *« اجتز الامتحان »*\n📱 ثم أدخل رقم هاتفك.\n\n🔗 https://albourour.com/examen-blanc\n\n📊 سيظهر ترتيبك على المستوى الوطني تلقائيًا.\nبالتوفيق في مراجعتك ونجاحك 🌟`
+    : `Salamoualeykoum,\n\n🏆 Consultez votre classement lors de l'examen blanc sur Albourour.\n\n📝 Cliquez sur *« Passer l'examen »*\n📱 Puis saisissez votre numéro de téléphone.\n\n🔗 https://albourour.com/examen-blanc\n\n📊 Votre rang national apparaîtra automatiquement.\nBonne consultation et bon courage dans vos révisions 🌟`;
 
   let phone = (l.telephone ?? '').replace(/\D/g, '');
   if (phone.startsWith('00222')) phone = phone.slice(2);
