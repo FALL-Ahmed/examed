@@ -1,6 +1,7 @@
 'use client';
 import { useEffect, useState } from 'react';
 import { X, Download, Share } from 'lucide-react';
+import { useLang } from '@/components/LanguageProvider';
 
 const DISMISS_KEY = 'pwa_banner_dismissed_at';
 const DISMISS_DAYS = 7;
@@ -24,6 +25,8 @@ function wasDismissedRecently() {
 }
 
 export default function PWAInstallBanner() {
+  const { lang } = useLang();
+  const isAr = lang === 'ar';
   const [show, setShow] = useState(false);
   const [ios, setIos] = useState(false);
   const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
@@ -75,17 +78,21 @@ export default function PWAInstallBanner() {
         transition: 'transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1)',
       }}
     >
-      <div className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-700 rounded-2xl shadow-2xl p-4 flex items-start gap-3">
+      <div className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-700 rounded-2xl shadow-2xl p-4 flex items-start gap-3" dir={isAr ? 'rtl' : 'ltr'}>
         <img src="/icon-192.png" alt="Al Bourour" className="w-12 h-12 rounded-xl flex-shrink-0" />
         <div className="flex-1 min-w-0">
-          <p className="font-black text-sm text-zinc-900 dark:text-white">Installer Al Bourour</p>
+          <p className="font-black text-sm text-zinc-900 dark:text-white">
+            {isAr ? 'تثبيت Al Bourour' : 'Installer Al Bourour'}
+          </p>
           {ios ? (
             <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-0.5 leading-snug">
-              Appuie sur <Share className="inline w-3 h-3 mx-0.5" /> puis <strong>"Sur l'écran d'accueil"</strong>
+              {isAr
+                ? <>اضغط على <Share className="inline w-3 h-3 mx-0.5" /> ثم <strong>"إضافة إلى الشاشة الرئيسية"</strong></>
+                : <>Appuie sur <Share className="inline w-3 h-3 mx-0.5" /> puis <strong>"Sur l'écran d'accueil"</strong></>}
             </p>
           ) : (
             <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-0.5 leading-snug">
-              Accès rapide sans passer par le navigateur
+              {isAr ? 'وصول سريع بدون متصفح' : 'Accès rapide sans passer par le navigateur'}
             </p>
           )}
           {!ios && (
@@ -94,7 +101,7 @@ export default function PWAInstallBanner() {
               className="mt-2 flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-violet-600 text-white text-xs font-bold hover:bg-violet-700 transition"
             >
               <Download className="w-3.5 h-3.5" />
-              Installer
+              {isAr ? 'تثبيت' : 'Installer'}
             </button>
           )}
         </div>

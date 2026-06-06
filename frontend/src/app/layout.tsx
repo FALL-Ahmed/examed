@@ -6,7 +6,6 @@ import 'flag-icons/css/flag-icons.min.css'
 import { ThemeProvider } from '@/components/ThemeProvider'
 import { LanguageProvider } from '@/components/LanguageProvider'
 import { UTMTracker } from '@/components/UTMTracker'
-import PWAInstallBanner from '@/components/PWAInstallBanner'
 
 const jakarta = Plus_Jakarta_Sans({
   subsets: ['latin'],
@@ -70,7 +69,6 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <ThemeProvider>
           <LanguageProvider>
             <UTMTracker />
-            <PWAInstallBanner />
             {children}
           </LanguageProvider>
         </ThemeProvider>

@@ -1,3 +1,10 @@
+import PWAInstallBanner from '@/components/PWAInstallBanner';
+
 export default function AuthLayout({ children }: { children: React.ReactNode }) {
-  return <>{children}</>;
+  return (
+    <>
+      <PWAInstallBanner />
+      {children}
+    </>
+  );
 }
