@@ -47,8 +47,8 @@ function buildLeaderboardUrl(l: any, sessionId: string): string {
   const nom = l.nom ?? '';
   const link = `https://albourour.com/examen-blanc/leaderboard?id=${sessionId}`;
   const msg = isAr
-    ? `سلام ${prenom} ${nom}\n\n🏆 لعرض ترتيبك على المستوى الوطني :\n\n🔗 ${link}`
-    : `Salam ${prenom} ${nom}\n\n🏆 Pour voir votre classement à l'échelle nationale :\n\n🔗 ${link}`;
+    ? `السلام عليكم،\n\n🏆 اطّلع على ترتيبك في الامتحان التجريبي على منصة البُرور.\n\n📝 اضغط على *« اجتز الامتحان »*\n📱 ثم أدخل رقم هاتفك.\n\n🔗 ${link}\n\n📊 سيظهر ترتيبك على المستوى الوطني تلقائيًا.\nبالتوفيق في مراجعتك ونجاحك 🌟`
+    : `Salamoualeykoum,\n\n🏆 Consultez votre classement lors de l'examen blanc sur Albourour.\n\n📝 Cliquez sur *« Passer l'examen »*\n📱 Puis saisissez votre numéro de téléphone.\n\n🔗 ${link}\n\n📊 Votre rang national apparaîtra automatiquement.\nBonne consultation et bon courage dans vos révisions 🌟`;
   let phone = (l.telephone ?? '').replace(/\D/g, '');
   if (phone.startsWith('00222')) phone = phone.slice(2);
   else if (phone.startsWith('0') && phone.length <= 9) phone = '222' + phone.slice(1);
