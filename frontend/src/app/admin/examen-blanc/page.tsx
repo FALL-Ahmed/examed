@@ -45,7 +45,7 @@ function buildLeaderboardUrl(l: any, sessionId: string): string {
   const isAr = l.lang === 'ar';
   const prenom = l.prenom ?? '';
   const nom = l.nom ?? '';
-  const link = `https://albourour.com/examen-blanc/leaderboard?id=${sessionId}`;
+  const link = `https://albourour.com/examen-blanc`;
   const msg = isAr
     ? `السلام عليكم،\n\n🏆 اطّلع على ترتيبك في الامتحان التجريبي على منصة البُرور.\n\n📝 اضغط على *« اجتز الامتحان »*\n📱 ثم أدخل رقم هاتفك.\n\n🔗 ${link}\n\n📊 سيظهر ترتيبك على المستوى الوطني تلقائيًا.\nبالتوفيق في مراجعتك ونجاحك 🌟`
     : `Salamoualeykoum,\n\n🏆 Consultez votre classement lors de l'examen blanc sur Albourour.\n\n📝 Cliquez sur *« Passer l'examen »*\n📱 Puis saisissez votre numéro de téléphone.\n\n🔗 ${link}\n\n📊 Votre rang national apparaîtra automatiquement.\nBonne consultation et bon courage dans vos révisions 🌟`;
