@@ -221,12 +221,12 @@ export function ExamenBlancPageContent({ target }: { target: Target }) {
           </div>
 
           <h1 className="text-4xl sm:text-5xl lg:text-6xl font-black text-white leading-tight mb-4">
-            {isAr ? 'الامتحان التجريبي' : 'Examen Blanc'}
+            {isAr ? 'امتحان تجريبي' : 'Examen Blanc'}
             <span className="block text-5xl sm:text-7xl lg:text-8xl" style={{ background: theme.textGrad, WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', paddingBottom: '0.15em' }}>
-              {isAr ? (isSF ? 'القابلات' : 'التمريض') : (isSF ? 'Sage-femme' : 'Infirmier')}
+              {isAr ? (isSF ? 'للقابلات' : 'للممرضين') : (isSF ? 'Sage-femme' : 'Infirmier')}
             </span>
             <span className={`block text-2xl sm:text-3xl lg:text-4xl font-bold mt-2 ${theme.textDim}`}>
-              {isAr ? 'الوطني' : 'À l\'échelle nationale'}
+              {isAr ? 'على المستوى الوطني' : 'À l\'échelle nationale'}
             </span>
           </h1>
 
