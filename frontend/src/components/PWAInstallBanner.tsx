@@ -85,20 +85,16 @@ export default function PWAInstallBanner() {
             {isAr ? 'تثبيت Al Bourour' : 'Installer Al Bourour'}
           </p>
           {ios ? (
-            <div className="text-xs text-zinc-500 dark:text-zinc-400 mt-1 leading-snug space-y-1">
+            <div className="text-xs text-zinc-500 dark:text-zinc-400 mt-1 leading-snug space-y-0.5">
               {isAr ? (
                 <>
-                  <p>١. افتح هذا الرابط في <strong>Safari</strong></p>
-                  <p>٢. اضغط على <Share className="inline w-3 h-3 mx-0.5" /> أسفل الشاشة</p>
-                  <p>٣. مرر للأسفل ← <strong>"إضافة إلى الشاشة الرئيسية"</strong></p>
-                  <p>٤. اضغط <strong>"إضافة"</strong></p>
+                  <p>١. اضغط على <Share className="inline w-3 h-3 mx-0.5" /> أسفل الشاشة</p>
+                  <p>٢. مرر للأسفل ← <strong>"إضافة إلى الشاشة الرئيسية"</strong></p>
                 </>
               ) : (
                 <>
-                  <p>1. Ouvre ce lien dans <strong>Safari</strong></p>
-                  <p>2. Appuie sur <Share className="inline w-3 h-3 mx-0.5" /> en bas</p>
-                  <p>3. Fais défiler → <strong>"Sur l'écran d'accueil"</strong></p>
-                  <p>4. Appuie sur <strong>"Ajouter"</strong></p>
+                  <p>1. Appuie sur <Share className="inline w-3 h-3 mx-0.5" /> en bas de Safari</p>
+                  <p>2. Fais défiler → <strong>"Sur l'écran d'accueil"</strong></p>
                 </>
               )}
             </div>
