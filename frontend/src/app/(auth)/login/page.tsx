@@ -295,10 +295,11 @@ export default function LoginPage() {
                 <div>
                   <label className="block text-sm font-semibold mb-2">{t('auth.group.emailLabel')}</label>
                   <input
-                    type="text" inputMode="email" value={groupEmail}
+                    type="email" inputMode="email" value={groupEmail}
                     onChange={(e) => setGroupEmail(e.target.value.replace(/[^\x20-\x7E]/g, '').trim().toLowerCase())}
                     className="w-full px-4 py-3 bg-secondary border border-border rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition text-sm placeholder:text-muted-foreground"
                     placeholder="votre@email.com" required autoFocus dir="ltr"
+                    autoCapitalize="none" autoCorrect="off" autoComplete="email" spellCheck={false}
                   />
                 </div>
                 <button type="submit" disabled={groupLoading}
@@ -441,10 +442,11 @@ export default function LoginPage() {
                 <div>
                   <label className="block text-sm font-semibold mb-2">{t('auth.login.email')}</label>
                   <input
-                    type="text" inputMode="email" value={email}
+                    type="email" inputMode="email" value={email}
                     onChange={(e) => setEmail(e.target.value.replace(/[^\x20-\x7E@.]/g, '').trim().toLowerCase())}
                     className="w-full px-4 py-3 bg-secondary border border-border rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition text-sm placeholder:text-muted-foreground"
                     placeholder="votre@email.com" required dir="ltr"
+                    autoCapitalize="none" autoCorrect="off" autoComplete="email" spellCheck={false}
                   />
                 </div>
                 <div>
@@ -455,6 +457,7 @@ export default function LoginPage() {
                       onChange={(e) => setPassword(e.target.value)}
                       className="w-full px-4 py-3 pr-12 bg-secondary border border-border rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition text-sm placeholder:text-muted-foreground"
                       placeholder="••••••••" required
+                      autoCapitalize="none" autoCorrect="off" autoComplete="current-password" spellCheck={false}
                     />
                     <button type="button" onClick={() => setShowPwd(!showPwd)}
                       className="absolute right-4 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition">
