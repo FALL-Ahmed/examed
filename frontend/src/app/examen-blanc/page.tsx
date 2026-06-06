@@ -222,7 +222,10 @@ export function ExamenBlancPageContent({ target }: { target: Target }) {
 
           <h1 className="text-4xl sm:text-5xl lg:text-6xl font-black text-white leading-tight mb-4">
             {isAr ? 'الامتحان التجريبي' : 'Examen Blanc'}
-            <span className="block" style={{ background: theme.textGrad, WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
+            <span className="block text-5xl sm:text-7xl lg:text-8xl" style={{ background: theme.textGrad, WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', paddingBottom: '0.15em' }}>
+              {isAr ? (isSF ? 'القابلات' : 'التمريض') : (isSF ? 'Sage-femme' : 'Infirmier')}
+            </span>
+            <span className={`block text-2xl sm:text-3xl lg:text-4xl font-bold mt-2 ${theme.textDim}`}>
               {isAr ? 'الوطني' : 'À l\'échelle nationale'}
             </span>
           </h1>
@@ -230,7 +233,7 @@ export function ExamenBlancPageContent({ target }: { target: Target }) {
           <p className={`${theme.textDim} text-lg sm:text-xl max-w-2xl mx-auto mb-8 leading-relaxed`}>
             {isAr
               ? 'اختبر مستواك الحقيقي قبل المسابقة الرسمية. ترتيب وطني. نتائج مفصّلة.'
-              : 'Teste ton vrai niveau avant le concours officiel. Classement à l\'échelle nationale. Analyse détaillée.'}
+              : 'Teste ton vrai niveau avant le concours officiel. Analyse détaillée.'}
           </p>
 
           {/* Stats live */}
