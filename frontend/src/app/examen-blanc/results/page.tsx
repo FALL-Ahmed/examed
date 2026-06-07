@@ -510,20 +510,34 @@ function ResultsContent() {
                     {['A', 'B', 'C', 'D', 'E'].filter(c => q[`choice${c}`]).map(c => {
                       const isCorr = correctAnswers.includes(c);
                       const wasSel = userAnswers.includes(c);
+                      const isGoodPick = isCorr && wasSel;
+                      const isMissed = isCorr && !wasSel;
+                      const isWrongPick = !isCorr && wasSel;
                       return (
                         <div key={c} className={`flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm border
-                          ${isCorr ? 'bg-emerald-50 border-emerald-200 text-emerald-800'
-                            : wasSel ? 'bg-red-50 border-red-200 text-red-700'
+                          ${isGoodPick ? 'bg-emerald-50 border-emerald-200 text-emerald-800'
+                            : isMissed ? 'bg-amber-50 border-amber-200 text-amber-800'
+                            : isWrongPick ? 'bg-red-50 border-red-200 text-red-700'
                             : 'bg-gray-50 border-transparent text-gray-500'}`}>
                           <span className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-black flex-shrink-0
-                            ${isCorr ? 'bg-emerald-500 text-white' : wasSel ? 'bg-red-400 text-white' : 'bg-gray-200 text-gray-500'}`}>
-                            {isCorr ? '✓' : wasSel ? '✗' : c}
+                            ${isGoodPick ? 'bg-emerald-500 text-white'
+                              : isMissed ? 'bg-amber-400 text-white'
+                              : isWrongPick ? 'bg-red-400 text-white'
+                              : 'bg-gray-200 text-gray-500'}`}>
+                            {isGoodPick ? '✓' : isMissed ? c : isWrongPick ? '✗' : c}
                           </span>
                           <span>{q[`choice${c}`]}</span>
-                          {isCorr && <span className="ml-auto text-emerald-600 text-xs font-bold">{isAr ? 'صحيح' : 'Bonne réponse'}</span>}
+                          {isMissed && <span className="ml-auto text-amber-600 text-xs font-bold">{isAr ? 'فاتتك' : 'manquée'}</span>}
+                          {isGoodPick && <span className="ml-auto text-emerald-600 text-xs font-bold">{isAr ? 'صحيح ✓' : 'Bonne réponse ✓'}</span>}
                         </div>
                       );
                     })}
+                  </div>
+                  {/* Légende */}
+                  <div className="flex flex-wrap gap-3 pt-1 text-xs text-gray-400">
+                    <span className="flex items-center gap-1"><span className="w-3 h-3 rounded-full bg-emerald-500 inline-block" /> {isAr ? 'أجبت صح' : 'Bonne réponse cochée'}</span>
+                    <span className="flex items-center gap-1"><span className="w-3 h-3 rounded-full bg-amber-400 inline-block" /> {isAr ? 'فاتتك' : 'Manquée'}</span>
+                    <span className="flex items-center gap-1"><span className="w-3 h-3 rounded-full bg-red-400 inline-block" /> {isAr ? 'أجبت خطأ' : 'Mauvais choix coché'}</span>
                   </div>
 
                   {q.explanation && (

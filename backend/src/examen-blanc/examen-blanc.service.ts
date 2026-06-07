@@ -147,6 +147,7 @@ export class ExamenBlancService {
     if (now > new Date(session.endsAt)) throw new BadRequestException('Les inscriptions sont fermées');
 
     const lang = dto.lang === 'ar' ? 'ar' : 'fr';
+
     const allIds: string[] = lang === 'ar' ? session.questionIdsAr : session.questionIdsFr;
     const questionIds = allIds.slice(0, session.totalQ);
 
