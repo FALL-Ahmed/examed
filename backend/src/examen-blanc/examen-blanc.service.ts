@@ -611,56 +611,38 @@ export class ExamenBlancService {
 
     const available = allSubThemes.filter((st: any) => st.questions.length > 0);
 
-    // Pour SAGE_FEMME : proportions fixes
+    // Pour SAGE_FEMME : thèmes ciblés uniquement
     if (target === 'SAGE_FEMME') {
-      const isAnatomieTheme  = (n: string) => n.toLowerCase().includes('anatomie') || n.includes('التشريح');
-      const isPratiqueTheme  = (n: string) => n.toLowerCase().includes('pratique') || n.includes('الممارسة');
-      const isGenitalFemSub  = (n: string) => /génital fém|GÉNITAL FÉM|féminin|الجهاز التناسلي الأنثوي/i.test(n);
-      const isTransfusionSub = (n: string) => /transfusion|نقل الدم|تحويل الدم/i.test(n);
+      const isTargeted = (st: any): boolean => {
+        const s = st.name.toLowerCase();
+        const t = (st.theme?.name ?? '').toLowerCase();
+        return (
+          t.includes('grossesse normale') || t.includes('الحمل الطبيعي') ||
+          t.includes('complications de la grossesse') || t.includes('المضاعفات الرئيسية') ||
+          s.includes('leucorrh') || s.includes('الإفرازات المهبلية') ||
+          s.includes('infections sexuellement') || s.includes('ist') || s.includes('الأمراض المنقولة') ||
+          s.includes('cycle menstruel') || s.includes('anomalies du cycle') || s.includes('اضطرابات الدورة') ||
+          s.includes('alimentation') && s.includes('enceinte') || s.includes('النظام الغذائي') ||
+          s.includes('dystocie') || s.includes('عسر الولادة')
+        );
+      };
 
-      // 4 appareil génital féminin + max 3 transfusion (toutes les fraîches dispo)
-      const genitaleQ  = 4;
-      const pratiqueMaxQ = 3;
-
-      // Groupe 2 : Anatomie — Appareil génital féminin uniquement (4 questions)
-      const genitalSubs = available.filter((st: any) => isAnatomieTheme(st.theme.name) && isGenitalFemSub(st.name));
-      const genitalPool: string[] = [];
-      for (const st of genitalSubs) {
-        genitalPool.push(...st.questions.map((q: any) => q.id));
-      }
-      genitalPool.sort(byFreshness);
-      const genitalSelected = genitalPool.slice(0, genitaleQ);
-
-      // Groupe 3 : Pratique — Transfusion uniquement (toutes fraîches, max 3)
-      const pratSubs = available.filter((st: any) => isPratiqueTheme(st.theme.name) && isTransfusionSub(st.name));
-      const pratPool: string[] = [];
-      for (const st of pratSubs) {
-        pratPool.push(...st.questions.map((q: any) => q.id));
-      }
-      pratPool.sort(byFreshness);
-      // Prendre uniquement les questions fraîches (jamais utilisées), max 3
-      const pratFresh = pratPool.filter(id => freshness(id) === Infinity);
-      const pratSelected = pratFresh.slice(0, pratiqueMaxQ);
-
-      // Groupe 1 : tous thèmes sauf Anatomie et Pratique (complète jusqu'à totalQ)
-      const mainQ = totalQ - genitalSelected.length - pratSelected.length;
-      const mainSubs = available.filter((st: any) => !isAnatomieTheme(st.theme.name) && !isPratiqueTheme(st.theme.name));
-      const mainSelected: string[] = [];
-      const mainPool: string[] = [];
-      for (const st of mainSubs) {
+      const targetedSubs = available.filter(isTargeted);
+      const sfSelected: string[] = [];
+      const sfPool: string[] = [];
+      for (const st of targetedSubs) {
         const sorted = [...st.questions.map((q: any) => q.id)].sort(byFreshness);
-        mainSelected.push(sorted[0]);
-        if (sorted.length > 1) mainPool.push(...sorted.slice(1));
+        if (sorted.length > 0) {
+          sfSelected.push(sorted[0]);
+          if (sorted.length > 1) sfPool.push(...sorted.slice(1));
+        }
       }
-      const mainNeeded = mainQ - mainSelected.length;
-      if (mainNeeded > 0 && mainPool.length > 0) {
-        mainPool.sort(byFreshness);
-        mainSelected.push(...mainPool.slice(0, Math.min(mainNeeded, mainPool.length)));
+      const sfNeeded = totalQ - sfSelected.length;
+      if (sfNeeded > 0 && sfPool.length > 0) {
+        sfPool.sort(byFreshness);
+        sfSelected.push(...sfPool.slice(0, Math.min(sfNeeded, sfPool.length)));
       }
-
-      return [...mainSelected, ...genitalSelected, ...pratSelected]
-        .sort(() => Math.random() - 0.5)
-        .slice(0, totalQ);
+      return sfSelected.sort(() => Math.random() - 0.5).slice(0, totalQ);
     }
 
     // INFIRMIER : algorithme inchangé
@@ -741,43 +723,7 @@ export class ExamenBlancService {
     });
     const available = allSubThemes.filter((st: any) => st.questions.length > 0);
 
-    // SAGE_FEMME: same quotas as auto, but ordered by score
-    if (target === 'SAGE_FEMME') {
-      const isAnatomieTheme  = (n: string) => n.toLowerCase().includes('anatomie') || n.includes('التشريح');
-      const isPratiqueTheme  = (n: string) => n.toLowerCase().includes('pratique') || n.includes('الممارسة');
-      const isGenitalFemSub  = (n: string) => /génital fém|GÉNITAL FÉM|féminin|الجهاز التناسلي الأنثوي/i.test(n);
-      const isTransfusionSub = (n: string) => /transfusion|نقل الدم|تحويل الدم/i.test(n);
-
-      const genitalSubs = available.filter((st: any) => isAnatomieTheme(st.theme.name) && isGenitalFemSub(st.name));
-      const genitalPool: string[] = [];
-      for (const st of genitalSubs) genitalPool.push(...st.questions.map((q: any) => q.id));
-      genitalPool.sort(byScore);
-      const genitalSelected = genitalPool.slice(0, 4);
-
-      const pratSubs = available.filter((st: any) => isPratiqueTheme(st.theme.name) && isTransfusionSub(st.name));
-      const pratPool: string[] = [];
-      for (const st of pratSubs) pratPool.push(...st.questions.map((q: any) => q.id));
-      pratPool.sort(byScore);
-      const pratSelected = pratPool.slice(0, 3);
-
-      const mainQ = totalQ - genitalSelected.length - pratSelected.length;
-      const mainSubs = available.filter((st: any) => !isAnatomieTheme(st.theme.name) && !isPratiqueTheme(st.theme.name));
-      const mainSelected: string[] = [];
-      const mainPool: string[] = [];
-      for (const st of mainSubs) {
-        const sorted = [...st.questions.map((q: any) => q.id)].sort(byScore);
-        mainSelected.push(sorted[0]);
-        if (sorted.length > 1) mainPool.push(...sorted.slice(1));
-      }
-      if (mainSelected.length < mainQ) {
-        mainPool.sort(byScore);
-        mainSelected.push(...mainPool.slice(0, mainQ - mainSelected.length));
-      }
-
-      return [...mainSelected, ...genitalSelected, ...pratSelected]
-        .sort(() => Math.random() - 0.5)
-        .slice(0, totalQ);
-    }
+    // SAGE_FEMME smart: tous les sous-thèmes SF, ordonnés par score (identique à INFIRMIER)
 
     // INFIRMIER: 1 question per sub-theme (best/worst score), then fill pool
     const selected: string[] = [];
