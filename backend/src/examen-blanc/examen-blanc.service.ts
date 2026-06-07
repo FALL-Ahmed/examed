@@ -611,38 +611,41 @@ export class ExamenBlancService {
 
     const available = allSubThemes.filter((st: any) => st.questions.length > 0);
 
-    // Pour SAGE_FEMME : thèmes ciblés uniquement
+    // Pour SAGE_FEMME : quotas fixes par sous-thème
     if (target === 'SAGE_FEMME') {
-      const isTargeted = (st: any): boolean => {
-        const s = st.name.toLowerCase();
-        const t = (st.theme?.name ?? '').toLowerCase();
-        return (
-          t.includes('grossesse normale') || t.includes('الحمل الطبيعي') ||
-          t.includes('complications de la grossesse') || t.includes('المضاعفات الرئيسية') ||
-          s.includes('leucorrh') || s.includes('الإفرازات المهبلية') ||
-          s.includes('infections sexuellement') || s.includes('ist') || s.includes('الأمراض المنقولة') ||
-          s.includes('cycle menstruel') || s.includes('anomalies du cycle') || s.includes('اضطرابات الدورة') ||
-          s.includes('alimentation') && s.includes('enceinte') || s.includes('النظام الغذائي') ||
-          s.includes('dystocie') || s.includes('عسر الولادة')
-        );
+      const pick = (matcher: (subName: string, themeName: string) => boolean, n: number): string[] => {
+        const pool: string[] = [];
+        for (const st of available) {
+          const s = st.name.toLowerCase();
+          const t = (st.theme?.name ?? '').toLowerCase();
+          if (matcher(s, t)) pool.push(...st.questions.map((q: any) => q.id));
+        }
+        pool.sort(byFreshness);
+        return pool.slice(0, n);
       };
 
-      const targetedSubs = available.filter(isTargeted);
-      const sfSelected: string[] = [];
-      const sfPool: string[] = [];
-      for (const st of targetedSubs) {
-        const sorted = [...st.questions.map((q: any) => q.id)].sort(byFreshness);
-        if (sorted.length > 0) {
-          sfSelected.push(sorted[0]);
-          if (sorted.length > 1) sfPool.push(...sorted.slice(1));
-        }
-      }
-      const sfNeeded = totalQ - sfSelected.length;
-      if (sfNeeded > 0 && sfPool.length > 0) {
-        sfPool.sort(byFreshness);
-        sfSelected.push(...sfPool.slice(0, Math.min(sfNeeded, sfPool.length)));
-      }
-      return sfSelected.sort(() => Math.random() - 0.5).slice(0, totalQ);
+      const sfSelected = [
+        ...pick((s, t) => t.includes('grossesse normale') || t.includes('الحمل الطبيعي'), 10),
+        ...pick((s, t) => t.includes('complications') && t.includes('grossesse') || t.includes('المضاعفات الرئيسية'), 2),
+        ...pick((s) => /l.?accouchement|فصل الولادة/i.test(s), 8),
+        ...pick((s) => /alimentation.*enceinte|النظام الغذائي/i.test(s), 4),
+        ...pick((s) => /fi[èe]vre.*grossesse|الحمى أثناء/i.test(s), 4),
+        ...pick((s) => /h[ée]morragie.*grossesse|النزيف والحمل/i.test(s), 6),
+        ...pick((s) => /hypertension.*grossesse|ارتفاع ضغط الدم والحمل/i.test(s), 4),
+        ...pick((s) => /dystocie|عسر الولادة/i.test(s), 4),
+        ...pick((s) => /rythme cardiaque|RCF|معدل ضربات/i.test(s), 2),
+        ...pick((s) => /m[ée]dicament.*grossesse|الأدوية والحمل/i.test(s), 2),
+        ...pick((s) => /leucorrh|الإفرازات المهبلية/i.test(s), 5),
+        ...pick((s) => /contraception|منع الحمل/i.test(s), 5),
+        ...pick((s) => /anomalies du cycle|cycle menstruel|اضطرابات الدورة/i.test(s), 2),
+        ...pick((s) => /douleurs? pelviennes?|ألم الحوض/i.test(s), 2),
+      ];
+
+      // Dédoublonner au cas où une question apparaît dans plusieurs groupes
+      const seen = new Set<string>();
+      const deduped = sfSelected.filter(id => { if (seen.has(id)) return false; seen.add(id); return true; });
+
+      return deduped.sort(() => Math.random() - 0.5).slice(0, totalQ);
     }
 
     // INFIRMIER : algorithme inchangé

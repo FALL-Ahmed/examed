@@ -441,6 +441,31 @@ export default function FreeTrialStatsPage() {
             const sfTheme = sfData.byTheme?.[0];
             return (
               <>
+                {/* Entonnoir de conversion */}
+                <div className="bg-card border border-border rounded-2xl p-5 space-y-3">
+                  <p className="text-xs font-bold text-muted-foreground uppercase tracking-wide">Entonnoir de conversion — période sélectionnée</p>
+                  <div className="flex flex-wrap items-center gap-2">
+                    {[
+                      { label: 'Sessions', value: sfData.totalSessions, color: 'bg-pink-100 text-pink-700', pct: null },
+                      { label: 'Complétées', value: Math.round((sfData.totalSessions * sfData.completionRate) / 100), color: 'bg-blue-100 text-blue-700', pct: sfData.completionRate },
+                      { label: 'Clic "Activez"', value: sfData.totalCtaClicks, color: 'bg-orange-100 text-orange-700', pct: sfData.ctaRate },
+                      { label: 'Inscriptions', value: sfData.registrations, color: 'bg-emerald-100 text-emerald-700', pct: sfData.registrationRate },
+                      { label: 'Paiements validés', value: sfData.validatedPayments, color: 'bg-rose-100 text-rose-700', pct: sfData.paymentRate },
+                    ].map((step, i, arr) => (
+                      <div key={step.label} className="flex items-center gap-2">
+                        <div className={`px-3 py-2 rounded-xl ${step.color} text-center min-w-[90px]`}>
+                          <p className="text-xl font-black">{step.value}</p>
+                          <p className="text-[10px] font-semibold mt-0.5">{step.label}</p>
+                          {step.pct !== null && (
+                            <p className="text-[10px] opacity-70">{step.pct}% du précédent</p>
+                          )}
+                        </div>
+                        {i < arr.length - 1 && <ArrowRight className="w-4 h-4 text-muted-foreground flex-shrink-0" />}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
                 {/* KPIs */}
                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
                   {[
