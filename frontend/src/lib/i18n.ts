@@ -4,7 +4,7 @@ export const translations = {
   fr: {
     // ─── App ───────────────────────────────────────────────────────────────
     'app.name': 'Al Bourour',
-    'app.subtitle': 'Infirmier · Mauritanie',
+    'app.subtitle': 'Mauritanie',
     'app.tagline': 'Préparation Concours de Santé',
 
     // ─── Nav (dashboard) ───────────────────────────────────────────────────
@@ -326,7 +326,7 @@ export const translations = {
   ar: {
     // ─── App ───────────────────────────────────────────────────────────────
     'app.name': 'البورور',
-    'app.subtitle': 'تمريض · موريتانيا',
+    'app.subtitle': 'موريتانيا',
     'app.tagline': 'التحضير لمسابقة الصحة',
 
     // ─── Nav (dashboard) ───────────────────────────────────────────────────
