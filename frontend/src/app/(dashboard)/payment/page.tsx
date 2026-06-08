@@ -98,7 +98,7 @@ function PaymentModal({
   const fileInputRef                      = useRef<HTMLInputElement>(null);
 
   function copyPhone() {
-    navigator.clipboard?.writeText(operator.phone);
+    navigator.clipboard?.writeText(operator.phone.replace(/^\+?222\s*/, ''));
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
   }
@@ -171,7 +171,7 @@ function PaymentModal({
           <div className="bg-primary/5 border border-primary/20 rounded-2xl p-5">
             <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2">Numéro à créditer</p>
             <div className="flex items-center justify-between gap-3">
-              <span className="text-2xl font-black tracking-widest text-primary">{operator.phone}</span>
+              <span className="text-2xl font-black tracking-widest text-primary">{operator.phone.replace(/^\+?222\s*/, '')}</span>
               <button
                 type="button"
                 onClick={copyPhone}

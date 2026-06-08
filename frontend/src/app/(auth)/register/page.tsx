@@ -200,12 +200,12 @@ function RegisterContent() {
 
   function copyPhone() {
     const phone = operators[selectedOp];
-    if (phone) { navigator.clipboard.writeText(phone); setCopied(true); setTimeout(() => setCopied(false), 2000); }
+    if (phone) { navigator.clipboard.writeText(phone.replace(/^\+?222\s*/, '')); setCopied(true); setTimeout(() => setCopied(false), 2000); }
   }
 
   const inputClass = 'w-full px-4 py-3 bg-white border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-violet-300 focus:border-violet-400 transition text-sm placeholder:text-gray-400 text-gray-800';
   const labelClass = 'block text-sm font-semibold text-gray-700 mb-1.5';
-  const selectedPhone = selectedOp ? operators[selectedOp] : null;
+  const selectedPhone = selectedOp ? operators[selectedOp]?.replace(/^\+?222\s*/, '') : null;
 
   const checkIcon = (
     <svg className="w-2.5 h-2.5 text-white" fill="currentColor" viewBox="0 0 20 20">

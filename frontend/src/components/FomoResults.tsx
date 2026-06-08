@@ -72,7 +72,7 @@ export function FomoResults({ score, totalQ, correctQ, themeName, subThemeName, 
   }, [score, themeId, subThemeId]);
 
   function copyPhone(phone: string) {
-    navigator.clipboard.writeText(phone).catch(() => {});
+    navigator.clipboard.writeText(phone.replace(/^\+?222\s*/, '')).catch(() => {});
     setCopied(phone);
     setTimeout(() => setCopied(''), 2000);
   }
@@ -245,7 +245,7 @@ export function FomoResults({ score, totalQ, correctQ, themeName, subThemeName, 
                 {isAr ? 'رقم الدفع' : 'Numéro de paiement'}
               </p>
               <div className="flex items-center justify-between gap-2">
-                <p className="text-lg font-extrabold text-gray-900 tracking-wider" dir="ltr">{operators[selectedOp]}</p>
+                <p className="text-lg font-extrabold text-gray-900 tracking-wider" dir="ltr">{operators[selectedOp]?.replace(/^\+?222\s*/, '')}</p>
                 <button type="button" onClick={() => copyPhone(operators[selectedOp])}
                   className="flex items-center gap-1 text-xs font-semibold px-2.5 py-1.5 rounded-lg bg-white border border-violet-200 text-violet-600 hover:bg-violet-100 transition">
                   {copied === operators[selectedOp]
