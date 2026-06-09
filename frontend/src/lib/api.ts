@@ -188,6 +188,7 @@ export const adminApi = {
   deleteAllQuestions: (target?: string) => api.delete('/admin/questions', target ? { params: { target } } : undefined),
   deleteAllThemes: () => api.delete('/admin/themes'),
   groups: () => api.get('/admin/groups'),
+  userActivity: (profession?: string) => api.get('/admin/user-activity', { params: profession ? { profession } : {} }),
   pdfDownloads: () => api.get('/admin/pdf-downloads'),
   pendingPayments: () => api.get('/admin/payments/pending'),
   validatePayment: (id: string, gifted = false) => api.post(`/admin/payments/${id}/validate`, { gifted }),

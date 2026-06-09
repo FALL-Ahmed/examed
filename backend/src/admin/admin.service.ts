@@ -109,10 +109,15 @@ export class AdminService {
     };
   }
 
-  async getUsers(page = 1, limit = 20, search?: string, planType?: string, expiringSoon?: boolean) {
+  async getUsers(page = 1, limit = 20, search?: string, planType?: string, expiringSoon?: boolean, profession?: string) {
     const where: any = { role: { not: 'ADMIN' } };
     if (planType) {
       where.payments = { some: { status: 'VALIDATED', planType } };
+    }
+    if (profession === 'sage_femme') {
+      where.profession = 'sage_femme';
+    } else if (profession === 'infirmier') {
+      where.profession = { not: 'sage_femme' };
     }
     if (expiringSoon) {
       const now = new Date();
@@ -123,6 +128,7 @@ export class AdminService {
       where.OR = [
         { email: { contains: search, mode: 'insensitive' } },
         { fullName: { contains: search, mode: 'insensitive' } },
+        { phone: { contains: search, mode: 'insensitive' } },
       ];
     }
 
@@ -154,7 +160,11 @@ export class AdminService {
   }
 
   async getUserById(userId: string) {
-    const [user, totalAnswers, correctAnswers, favorites, lastAttempt, attemptsByTheme] = await Promise.all([
+    const now = new Date();
+    const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    const startOfYesterday = new Date(startOfToday.getTime() - 86400000);
+
+    const [user, totalAnswers, correctAnswers, favorites, lastAttempt, attemptsByTheme, questionsToday, questionsYesterday] = await Promise.all([
       this.prisma.user.findUnique({
         where: { id: userId },
         select: {
@@ -198,6 +208,8 @@ export class AdminService {
         orderBy: { _count: { subThemeId: 'desc' } },
         take: 5,
       }),
+      this.prisma.userAnswer.count({ where: { userId, answeredAt: { gte: startOfToday } } }),
+      this.prisma.userAnswer.count({ where: { userId, answeredAt: { gte: startOfYesterday, lt: startOfToday } } }),
     ]);
 
     // Enrichir les sous-thèmes et thèmes (pour les attempts et le top)
@@ -243,6 +255,8 @@ export class AdminService {
         favorites,
         lastSeen: lastAttempt?.startedAt ?? null,
         avgScore: Math.round(avgScore * 10) / 10,
+        questionsToday,
+        questionsYesterday,
         topSubThemes: attemptsByTheme.map((a) => ({
           subTheme: subThemeMap[a.subThemeId!] ?? null,
           attempts: a._count._all,
@@ -250,6 +264,48 @@ export class AdminService {
         })),
       },
     };
+  }
+
+  async getUserActivityList(profession?: string) {
+    const now = new Date();
+    const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    const startOfYesterday = new Date(startOfToday.getTime() - 86400000);
+
+    const [todayGroups, yesterdayGroups] = await Promise.all([
+      this.prisma.userAnswer.groupBy({
+        by: ['userId'],
+        where: { answeredAt: { gte: startOfToday } },
+        _count: { _all: true },
+      }),
+      this.prisma.userAnswer.groupBy({
+        by: ['userId'],
+        where: { answeredAt: { gte: startOfYesterday, lt: startOfToday } },
+        _count: { _all: true },
+      }),
+    ]);
+
+    const todayMap = new Map(todayGroups.map((g) => [g.userId, g._count._all]));
+    const yesterdayMap = new Map(yesterdayGroups.map((g) => [g.userId, g._count._all]));
+    const allUserIds = [...new Set([...todayMap.keys(), ...yesterdayMap.keys()])];
+
+    if (!allUserIds.length) return [];
+
+    const userWhere: any = { id: { in: allUserIds }, role: { not: 'ADMIN' } };
+    if (profession === 'sage_femme') userWhere.profession = 'sage_femme';
+    else if (profession === 'infirmier') userWhere.profession = { not: 'sage_femme' };
+
+    const users = await this.prisma.user.findMany({
+      where: userWhere,
+      select: { id: true, fullName: true, email: true, profession: true, role: true, subscriptionEnd: true },
+    });
+
+    return users
+      .map((u) => ({
+        ...u,
+        questionsToday: todayMap.get(u.id) ?? 0,
+        questionsYesterday: yesterdayMap.get(u.id) ?? 0,
+      }))
+      .sort((a, b) => b.questionsToday - a.questionsToday);
   }
 
   async revokeUserDevice(deviceId: string) {

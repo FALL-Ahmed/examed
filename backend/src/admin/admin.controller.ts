@@ -72,6 +72,7 @@ export class AdminController {
     @Query('search') search?: string,
     @Query('planType') planType?: string,
     @Query('expiringSoon') expiringSoon?: string,
+    @Query('profession') profession?: string,
   ) {
     return this.adminService.getUsers(
       page ? parseInt(page) : 1,
@@ -79,7 +80,13 @@ export class AdminController {
       search,
       planType,
       expiringSoon === 'true',
+      profession,
     );
+  }
+
+  @Get('user-activity')
+  getUserActivity(@Query('profession') profession?: string) {
+    return this.adminService.getUserActivityList(profession);
   }
 
   @Get('groups')

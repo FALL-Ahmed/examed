@@ -313,6 +313,40 @@ export default function UserDetailPage() {
       {/* Tab: Activité */}
       {tab === 'activite' && (
         <div className="space-y-4">
+          {/* Aujourd'hui vs Hier */}
+          {act && (
+            <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-5">
+              <h3 className="text-sm font-bold text-slate-700 mb-4">Activité récente</h3>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="bg-blue-50 rounded-xl p-4 text-center">
+                  <p className="text-3xl font-black text-blue-700">{act.questionsToday ?? 0}</p>
+                  <p className="text-xs text-blue-500 mt-1 font-medium">Questions aujourd'hui</p>
+                </div>
+                <div className="bg-slate-50 rounded-xl p-4 text-center">
+                  <p className="text-3xl font-black text-slate-600">{act.questionsYesterday ?? 0}</p>
+                  <p className="text-xs text-slate-400 mt-1 font-medium">Questions hier</p>
+                </div>
+              </div>
+              {(act.questionsToday != null && act.questionsYesterday != null) && (
+                <div className="mt-3 text-center">
+                  {act.questionsYesterday === 0 && act.questionsToday === 0 ? (
+                    <span className="text-xs text-slate-400">Aucune activité sur 2 jours</span>
+                  ) : act.questionsYesterday === 0 ? (
+                    <span className="text-xs text-blue-600 font-semibold">✦ Actif aujourd'hui</span>
+                  ) : (() => {
+                    const diff = act.questionsToday - act.questionsYesterday;
+                    const pct = Math.round(Math.abs(diff) / act.questionsYesterday * 100);
+                    return diff > 0
+                      ? <span className="text-xs text-emerald-600 font-semibold">↑ +{pct}% par rapport à hier</span>
+                      : diff < 0
+                      ? <span className="text-xs text-red-500 font-semibold">↓ -{pct}% par rapport à hier</span>
+                      : <span className="text-xs text-slate-400">= Même rythme qu'hier</span>;
+                  })()}
+                </div>
+              )}
+            </div>
+          )}
+
           {/* Stats globales */}
           <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
             {[

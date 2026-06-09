@@ -7,13 +7,14 @@ import {
   RotateCcw, Trash2, Users, Crown, UserCheck, X,
 } from 'lucide-react';
 
-type Tab = 'ALL' | 'SOLO_1M' | 'GROUP' | 'EXPIRING';
+type Tab = 'ALL' | 'SOLO_1M' | 'GROUP' | 'EXPIRING' | 'ACTIVITE';
 
 const TABS: { id: Tab; label: string; icon: React.ReactNode; color: string }[] = [
   { id: 'ALL',      label: 'Tous',           icon: <User className="w-4 h-4" />,    color: 'slate' },
   { id: 'SOLO_1M',  label: 'Solo — concours', icon: <UserCheck className="w-4 h-4" />, color: 'indigo' },
   { id: 'GROUP',    label: 'Groupes',         icon: <Users className="w-4 h-4" />,   color: 'emerald' },
   { id: 'EXPIRING', label: '⚠️ Expire ≤7j',  icon: null,                             color: 'amber' },
+  { id: 'ACTIVITE', label: '📊 Activité',    icon: null,                             color: 'violet' },
 ];
 
 const COLOR_MAP: Record<string, string> = {
@@ -36,17 +37,21 @@ export default function AdminUsersPage() {
   const [tab, setTab] = useState<Tab>('ALL');
   const [data, setData] = useState<any>(null);
   const [groups, setGroups] = useState<any[]>([]);
+  const [activityData, setActivityData] = useState<any[]>([]);
+  const [activityLoading, setActivityLoading] = useState(false);
   const [search, setSearch] = useState('');
   const [page, setPage] = useState(1);
   const [processing, setProcessing] = useState<string | null>(null);
   const [selected, setSelected] = useState<Set<string>>(new Set());
   const [bulkModal, setBulkModal] = useState(false);
   const [customDays, setCustomDays] = useState('');
+  const [profFilter, setProfFilter] = useState<'infirmier' | 'sage_femme' | null>(null);
 
   useEffect(() => {
     if (tab === 'GROUP') { loadGroups(); }
+    else if (tab === 'ACTIVITE') { loadActivity(); }
     else { load(); }
-  }, [tab, page, search]);
+  }, [tab, page, search, profFilter]);
 
   async function load() {
     const params: any = { page, search };
@@ -55,6 +60,7 @@ export default function AdminUsersPage() {
     } else if (tab !== 'ALL') {
       params.planType = tab;
     }
+    if (profFilter) params.profession = profFilter;
     const { data: d } = await adminApi.users(params);
     setData(d);
   }
@@ -62,6 +68,13 @@ export default function AdminUsersPage() {
   async function loadGroups() {
     const { data: d } = await adminApi.groups();
     setGroups(d);
+  }
+
+  async function loadActivity() {
+    setActivityLoading(true);
+    const { data: d } = await adminApi.userActivity(profFilter ?? undefined);
+    setActivityData(d);
+    setActivityLoading(false);
   }
 
   async function toggle(e: React.MouseEvent, id: string) {
@@ -203,23 +216,29 @@ export default function AdminUsersPage() {
         <div className="flex-1">
         <h1 className="text-2xl font-bold mb-4">Utilisateurs</h1>
 
-        {/* Cards profession */}
+        {/* Cards profession — cliquables pour filtrer */}
         {data && (
           <div className="flex gap-3 mb-4">
-            <div className="flex items-center gap-3 bg-blue-50 border border-blue-200 rounded-2xl px-5 py-3">
+            <button
+              onClick={() => { setProfFilter(profFilter === 'infirmier' ? null : 'infirmier'); setPage(1); }}
+              className={`flex items-center gap-3 rounded-2xl px-5 py-3 border transition cursor-pointer ${profFilter === 'infirmier' ? 'bg-blue-500 border-blue-500 text-white' : 'bg-blue-50 border-blue-200 hover:bg-blue-100'}`}
+            >
               <span className="text-2xl">🏥</span>
-              <div>
-                <p className="text-xs text-blue-500 font-medium">Infirmiers</p>
-                <p className="text-2xl font-black text-blue-700">{data.infirmierCount ?? '—'}</p>
+              <div className="text-left">
+                <p className={`text-xs font-medium ${profFilter === 'infirmier' ? 'text-blue-100' : 'text-blue-500'}`}>Infirmiers</p>
+                <p className={`text-2xl font-black ${profFilter === 'infirmier' ? 'text-white' : 'text-blue-700'}`}>{data.infirmierCount ?? '—'}</p>
               </div>
-            </div>
-            <div className="flex items-center gap-3 bg-pink-50 border border-pink-200 rounded-2xl px-5 py-3">
+            </button>
+            <button
+              onClick={() => { setProfFilter(profFilter === 'sage_femme' ? null : 'sage_femme'); setPage(1); }}
+              className={`flex items-center gap-3 rounded-2xl px-5 py-3 border transition cursor-pointer ${profFilter === 'sage_femme' ? 'bg-pink-500 border-pink-500 text-white' : 'bg-pink-50 border-pink-200 hover:bg-pink-100'}`}
+            >
               <span className="text-2xl">👶</span>
-              <div>
-                <p className="text-xs text-pink-500 font-medium">Sage-femmes</p>
-                <p className="text-2xl font-black text-pink-700">{data.sageFemmeCount ?? '—'}</p>
+              <div className="text-left">
+                <p className={`text-xs font-medium ${profFilter === 'sage_femme' ? 'text-pink-100' : 'text-pink-500'}`}>Sage-femmes</p>
+                <p className={`text-2xl font-black ${profFilter === 'sage_femme' ? 'text-white' : 'text-pink-700'}`}>{data.sageFemmeCount ?? '—'}</p>
               </div>
-            </div>
+            </button>
           </div>
         )}
 
@@ -230,7 +249,7 @@ export default function AdminUsersPage() {
               : `⚠️ ${data.total} compte${data.total > 1 ? 's' : ''} expirent dans les 7 prochains jours`}
           </p>
         )}
-        {tab !== 'GROUP' && tab !== 'EXPIRING' && data && (
+        {tab !== 'GROUP' && tab !== 'EXPIRING' && tab !== 'ACTIVITE' && data && (
           <p className="text-muted-foreground">{data.total} au total</p>
         )}
         {tab === 'GROUP' && (
@@ -266,8 +285,72 @@ export default function AdminUsersPage() {
         })}
       </div>
 
+      {/* Onglet Activité */}
+      {tab === 'ACTIVITE' && (
+        <div className="bg-white rounded-2xl shadow-sm border overflow-hidden">
+          <div className="px-5 py-4 border-b flex items-center justify-between">
+            <div>
+              <h3 className="font-bold text-slate-800">Activité aujourd'hui vs hier</h3>
+              <p className="text-xs text-slate-400 mt-0.5">Utilisateurs actifs sur les 2 derniers jours · trié par activité du jour</p>
+            </div>
+            <div className="flex gap-2">
+              <button onClick={() => { setProfFilter(null); }} className={`px-3 py-1.5 rounded-lg text-xs font-medium border transition ${!profFilter ? 'bg-slate-800 text-white border-slate-800' : 'border-slate-200 text-slate-500 hover:bg-slate-50'}`}>Tous</button>
+              <button onClick={() => { setProfFilter('infirmier'); }} className={`px-3 py-1.5 rounded-lg text-xs font-medium border transition ${profFilter === 'infirmier' ? 'bg-blue-500 text-white border-blue-500' : 'border-slate-200 text-slate-500 hover:bg-slate-50'}`}>🏥 Infirmiers</button>
+              <button onClick={() => { setProfFilter('sage_femme'); }} className={`px-3 py-1.5 rounded-lg text-xs font-medium border transition ${profFilter === 'sage_femme' ? 'bg-pink-500 text-white border-pink-500' : 'border-slate-200 text-slate-500 hover:bg-slate-50'}`}>👶 Sage-femmes</button>
+            </div>
+          </div>
+          {activityLoading ? (
+            <div className="flex items-center justify-center py-16">
+              <div className="w-6 h-6 border-4 border-violet-500 border-t-transparent rounded-full animate-spin" />
+            </div>
+          ) : !activityData.length ? (
+            <p className="text-center text-slate-400 text-sm py-16">Aucune activité sur les 2 derniers jours</p>
+          ) : (
+            <table className="w-full text-sm">
+              <thead className="bg-slate-50 border-b">
+                <tr>
+                  <th className="text-left px-5 py-3 font-medium text-slate-500">Utilisateur</th>
+                  <th className="text-center px-4 py-3 font-medium text-blue-500">Aujourd'hui</th>
+                  <th className="text-center px-4 py-3 font-medium text-slate-400">Hier</th>
+                  <th className="text-center px-4 py-3 font-medium text-slate-400">Évolution</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-slate-100">
+                {activityData.map((u: any) => {
+                  const diff = u.questionsToday - u.questionsYesterday;
+                  const pct = u.questionsYesterday > 0 ? Math.round(Math.abs(diff) / u.questionsYesterday * 100) : null;
+                  const trend = diff > 0
+                    ? <span className="text-emerald-600 font-semibold">↑ {pct !== null ? `+${pct}%` : 'nouveau'}</span>
+                    : diff < 0
+                    ? <span className="text-red-500 font-semibold">↓ -{pct}%</span>
+                    : u.questionsToday > 0
+                    ? <span className="text-slate-400">= même</span>
+                    : <span className="text-slate-300">—</span>;
+                  return (
+                    <tr key={u.id} onClick={() => router.push(`/admin/users/${u.id}`)}
+                      className="hover:bg-slate-50 cursor-pointer transition">
+                      <td className="px-5 py-3">
+                        <p className="font-semibold text-slate-800">{u.fullName}</p>
+                        <p className="text-xs text-slate-400">{u.email}</p>
+                      </td>
+                      <td className="px-4 py-3 text-center">
+                        <span className={`text-lg font-black ${u.questionsToday > 0 ? 'text-blue-700' : 'text-slate-300'}`}>{u.questionsToday}</span>
+                      </td>
+                      <td className="px-4 py-3 text-center">
+                        <span className={`text-lg font-bold ${u.questionsYesterday > 0 ? 'text-slate-600' : 'text-slate-300'}`}>{u.questionsYesterday}</span>
+                      </td>
+                      <td className="px-4 py-3 text-center text-sm">{trend}</td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          )}
+        </div>
+      )}
+
       {/* User table for ALL / SOLO tabs */}
-      {tab !== 'GROUP' && (
+      {tab !== 'GROUP' && tab !== 'ACTIVITE' && (
         <>
           <div className="relative">
             <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
