@@ -78,7 +78,7 @@ export class AdminService {
     const [
       totalAttempts, completedAttempts,
       totalAnswers, correctAnswers,
-      revenueTotal, revenueMonth,
+      revenueTotal, revenueMonth, revenueToday,
       activeUsersWeek, avgScore,
     ] = await Promise.all([
       this.prisma.attempt.count(),
@@ -87,6 +87,7 @@ export class AdminService {
       this.prisma.attempt.aggregate({ where: { isCompleted: true }, _sum: { correctQ: true } }).then((r) => r._sum.correctQ ?? 0),
       this.prisma.payment.aggregate({ where: { status: 'VALIDATED', amount: { gt: 0 } }, _sum: { amount: true } }),
       this.prisma.payment.aggregate({ where: { status: 'VALIDATED', amount: { gt: 0 }, validatedAt: { gte: startOfMonth } }, _sum: { amount: true } }),
+      this.prisma.payment.aggregate({ where: { status: 'VALIDATED', amount: { gt: 0 }, validatedAt: { gte: startOfDay } }, _sum: { amount: true } }),
       this.prisma.attempt.findMany({ where: { startedAt: { gte: startOfWeek } }, distinct: ['userId'], select: { userId: true } }).then((r) => r.length),
       this.prisma.attempt.aggregate({ where: { isCompleted: true, totalQ: { gt: 0 } }, _avg: { score: true } }),
     ]);
@@ -101,6 +102,7 @@ export class AdminService {
       accuracyRate: totalAnswers > 0 ? Math.round((correctAnswers / totalAnswers) * 100) : 0,
       revenueTotal: revenueTotal._sum.amount ?? 0,
       revenueMonth: revenueMonth._sum.amount ?? 0,
+      revenueToday: revenueToday._sum.amount ?? 0,
       avgScore: Math.round(((avgScore._avg.score ?? 0)) * 10) / 10,
       conversionRate: totalUsers > 0 ? Math.round((premiumUsers / totalUsers) * 100) : 0,
       activeUsersWeek,
