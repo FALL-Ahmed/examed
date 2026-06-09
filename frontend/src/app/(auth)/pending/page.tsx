@@ -47,9 +47,9 @@ export default function PendingPage() {
               <p className="text-white/55 text-sm leading-relaxed mb-8">{t('auth.pending.desc')}</p>
               <div className="space-y-3 text-left mb-8">
                 {[
-                  { icon: CheckCircle2, text: 'Abonnement précédent expiré', done: true },
-                  { icon: Clock, text: 'En attente de votre renouvellement', done: false },
-                  { icon: Clock, text: 'Validation par notre équipe', done: false },
+                  { icon: CheckCircle2, text: t('auth.pending.step.expired'), done: true },
+                  { icon: Clock, text: t('auth.pending.step.renewal'), done: false },
+                  { icon: Clock, text: t('auth.pending.step.team'), done: false },
                 ].map((s, i) => (
                   <div key={i} className="flex items-center gap-3">
                     <s.icon className={`w-4 h-4 flex-shrink-0 ${s.done ? 'text-amber-400' : 'text-white/30'}`} />
@@ -64,9 +64,9 @@ export default function PendingPage() {
               <p className="text-white/55 text-sm leading-relaxed mb-8">{t('auth.pending.desc')}</p>
               <div className="space-y-3 text-left mb-8">
                 {[
-                  { icon: CheckCircle2, text: 'Compte créé avec succès', done: true },
-                  { icon: CheckCircle2, text: 'Reçu de paiement soumis', done: true },
-                  { icon: Clock, text: 'Validation par notre équipe (quelques minutes à 1h)', done: false },
+                  { icon: CheckCircle2, text: t('auth.pending.step.created'), done: true },
+                  { icon: CheckCircle2, text: t('auth.pending.step.receipt'), done: true },
+                  { icon: Clock, text: t('auth.pending.step.validation'), done: false },
                 ].map((s, i) => (
                   <div key={i} className="flex items-center gap-3">
                     <s.icon className={`w-4 h-4 flex-shrink-0 ${s.done ? 'text-emerald-400' : 'text-white/30'}`} />
@@ -79,22 +79,20 @@ export default function PendingPage() {
 
           {/* WhatsApp CTA */}
           <div className="bg-white/5 border border-white/10 rounded-2xl p-4 mb-4 text-left">
-            <p className="text-white/80 text-xs font-semibold mb-1">Accélérer la validation ?</p>
-            <p className="text-white/50 text-xs mb-3 leading-relaxed">
-              Envoyez votre reçu de paiement directement sur WhatsApp pour une activation immédiate.
-            </p>
+            <p className="text-white/80 text-xs font-semibold mb-1">{t('auth.pending.wa.title')}</p>
+            <p className="text-white/50 text-xs mb-3 leading-relaxed">{t('auth.pending.wa.desc')}</p>
             {waLink ? (
               <a href={waLink} target="_blank" rel="noopener noreferrer"
                 className="flex items-center justify-center gap-2.5 w-full py-3 rounded-xl font-bold text-sm text-white hover:opacity-90 transition shadow-lg"
                 style={{ background: 'linear-gradient(135deg,#25d366,#128c7e)' }}>
                 <MessageCircle className="w-4 h-4" />
-                Contacter le support
+                {t('auth.pending.wa.btn')}
                 {waPhone && <span className="font-normal opacity-80 text-xs ml-1">· {waPhone}</span>}
               </a>
             ) : (
               <div className="flex items-center justify-center gap-2 py-3 rounded-xl text-sm text-white/30 border border-white/10">
                 <MessageCircle className="w-4 h-4" />
-                Chargement du contact…
+                {t('auth.pending.wa.loading')}
               </div>
             )}
           </div>

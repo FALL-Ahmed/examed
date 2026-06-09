@@ -4,8 +4,10 @@ import { useSearchParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { Eye, EyeOff, Loader2, ArrowLeft } from 'lucide-react';
 import { authApi } from '@/lib/api';
+import { useLang } from '@/components/LanguageProvider';
 
 function ResetPasswordForm() {
+  const { t } = useLang();
   const params = useSearchParams();
   const router = useRouter();
   const token = params?.get('token') || '';
@@ -23,22 +25,22 @@ function ResetPasswordForm() {
     setMessage('');
 
     if (!token) {
-      setError('Le jeton de réinitialisation est manquant.');
+      setError(t('auth.reset.error.token'));
       return;
     }
 
     if (password !== confirmPassword) {
-      setError('Les mots de passe ne correspondent pas.');
+      setError(t('auth.reset.error.mismatch'));
       return;
     }
 
     setLoading(true);
     try {
       const { data } = await authApi.resetPassword({ token, password });
-      setMessage(data.message || 'Votre mot de passe a bien été réinitialisé.');
+      setMessage(data.message || t('auth.reset.success'));
       setTimeout(() => router.push('/login'), 2000);
     } catch (err: any) {
-      setError(err.response?.data?.message || 'Impossible de réinitialiser le mot de passe');
+      setError(err.response?.data?.message || t('auth.reset.error.generic'));
     } finally {
       setLoading(false);
     }
@@ -47,11 +49,9 @@ function ResetPasswordForm() {
   return (
     <div className="w-full max-w-md space-y-6 bg-card border border-border rounded-3xl p-8 shadow-xl shadow-black/5">
       <div className="space-y-2">
-        <p className="text-sm font-semibold uppercase tracking-[0.2em] text-primary">Nouveau mot de passe</p>
-        <h1 className="text-3xl font-bold">Choisissez un nouveau mot de passe</h1>
-        <p className="text-sm text-muted-foreground">
-          Entrez un mot de passe d'au moins 8 caractères pour réinitialiser votre compte.
-        </p>
+        <p className="text-sm font-semibold uppercase tracking-[0.2em] text-primary">{t('auth.reset.title')}</p>
+        <h1 className="text-3xl font-bold">{t('auth.reset.subtitle')}</h1>
+        <p className="text-sm text-muted-foreground">{t('auth.reset.desc')}</p>
       </div>
 
       {error && (
@@ -68,7 +68,7 @@ function ResetPasswordForm() {
 
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>
-          <label className="block text-sm font-medium mb-2">Nouveau mot de passe</label>
+          <label className="block text-sm font-medium mb-2">{t('auth.reset.password')}</label>
           <div className="relative">
             <input
               type={showPassword ? 'text' : 'password'}
@@ -90,7 +90,7 @@ function ResetPasswordForm() {
         </div>
 
         <div>
-          <label className="block text-sm font-medium mb-2">Confirmer le mot de passe</label>
+          <label className="block text-sm font-medium mb-2">{t('auth.reset.confirm')}</label>
           <div className="relative">
             <input
               type={showConfirm ? 'text' : 'password'}
@@ -117,13 +117,13 @@ function ResetPasswordForm() {
           className="w-full inline-flex items-center justify-center gap-2 rounded-2xl bg-primary px-4 py-3 text-sm font-semibold text-white transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-60"
         >
           {loading && <Loader2 className="h-4 w-4 animate-spin" />}
-          {loading ? 'Réinitialisation...' : 'Réinitialiser mon mot de passe'}
+          {loading ? t('auth.reset.loading') : t('auth.reset.submit')}
         </button>
       </form>
 
       <div className="flex flex-col gap-3 pt-4 text-sm text-muted-foreground">
         <Link href="/login" className="inline-flex items-center gap-2 text-primary hover:underline">
-          <ArrowLeft className="h-4 w-4" /> Retour à la connexion
+          <ArrowLeft className="h-4 w-4" /> {t('auth.forgot.back')}
         </Link>
       </div>
     </div>

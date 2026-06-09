@@ -54,7 +54,7 @@ export default function SupportPage() {
               <div className="flex-1 min-w-0">
                 <p className="font-bold text-base">WhatsApp</p>
                 <p className="text-muted-foreground text-sm mt-0.5">{contact.whatsapp}</p>
-                <p className="text-xs text-muted-foreground mt-1">Réponse rapide · Cliquez pour ouvrir</p>
+                <p className="text-xs text-muted-foreground mt-1">{t('support.wa.hint')}</p>
               </div>
               <div className="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 group-hover:translate-x-0.5 transition-transform"
                 style={{ background: '#25d36615' }}>
@@ -70,7 +70,7 @@ export default function SupportPage() {
               </div>
               <div>
                 <p className="font-bold text-base">WhatsApp</p>
-                <p className="text-muted-foreground text-sm mt-0.5">Non configuré pour l'instant</p>
+                <p className="text-muted-foreground text-sm mt-0.5">{t('support.not.configured')}</p>
               </div>
             </div>
           )}
@@ -86,7 +86,7 @@ export default function SupportPage() {
               <div className="flex-1 min-w-0">
                 <p className="font-bold text-base">Email</p>
                 <p className="text-muted-foreground text-sm mt-0.5">{contact.email}</p>
-                <p className="text-xs text-muted-foreground mt-1">Réponse sous 24h · Cliquez pour écrire</p>
+                <p className="text-xs text-muted-foreground mt-1">{t('support.email.hint')}</p>
               </div>
               <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0 group-hover:translate-x-0.5 transition-transform">
                 <svg className="w-4 h-4 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -101,7 +101,7 @@ export default function SupportPage() {
               </div>
               <div>
                 <p className="font-bold text-base">Email</p>
-                <p className="text-muted-foreground text-sm mt-0.5">Non configuré pour l'instant</p>
+                <p className="text-muted-foreground text-sm mt-0.5">{t('support.not.configured')}</p>
               </div>
             </div>
           )}
@@ -109,7 +109,7 @@ export default function SupportPage() {
           {/* Info card */}
           <div className="bg-secondary/50 rounded-2xl p-5 border border-border">
             <p className="text-sm text-muted-foreground leading-relaxed">
-              Pour toute question concernant votre abonnement, un problème technique ou une demande de renouvellement — contactez-nous directement via l'un des canaux ci-dessus.
+              {t('support.info')}
             </p>
           </div>
         </div>
