@@ -366,8 +366,8 @@ export default function AdminExamenBlancPage() {
                     <div className="flex items-center gap-2.5 min-w-0">
                       <div className={`w-2 h-2 rounded-full flex-shrink-0 ${statusColor}`} />
                       <h3 className="font-bold text-foreground truncate">{s.title}</h3>
-                      <span className={`px-2 py-0.5 rounded-full text-xs font-semibold flex-shrink-0 ${s.target === 'SAGE_FEMME' ? 'bg-pink-100 text-pink-700 dark:bg-pink-900/30 dark:text-pink-400' : 'bg-indigo-100 text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-400'}`}>
-                        {s.target === 'SAGE_FEMME' ? '👶 Sage-femme' : '🏥 Infirmier'}
+                      <span className={`px-2 py-0.5 rounded-full text-xs font-semibold flex-shrink-0 ${s.target === 'SAGE_FEMME' ? 'bg-pink-100 text-pink-700 dark:bg-pink-900/30 dark:text-pink-400' : s.target === 'BIOLOGISTE' ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400' : 'bg-indigo-100 text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-400'}`}>
+                        {s.target === 'SAGE_FEMME' ? '👶 Sage-femme' : s.target === 'BIOLOGISTE' ? '🔬 Biologiste' : '🏥 Infirmier'}
                       </span>
                       <span className={`px-2 py-0.5 rounded-full text-xs font-semibold flex-shrink-0 ${
                         !s.isActive ? 'bg-muted text-muted-foreground' :
@@ -491,10 +491,10 @@ export default function AdminExamenBlancPage() {
           <div>
             <label className={labelCls}>Filière <span className="text-red-400">*</span></label>
             <div className="flex gap-2">
-              {([{ val: 'INFIRMIER', label: '🏥 Infirmier(e)', color: 'indigo' }, { val: 'SAGE_FEMME', label: '👶 Sage-femme', color: 'pink' }] as const).map(({ val, label, color }) => (
+              {([{ val: 'INFIRMIER', label: '🏥 Infirmier(e)', color: 'indigo' }, { val: 'SAGE_FEMME', label: '👶 Sage-femme', color: 'pink' }, { val: 'BIOLOGISTE', label: '🔬 Biologiste', color: 'emerald' }] as const).map(({ val, label, color }) => (
                 <button key={val} type="button" onClick={() => setForm(p => ({ ...p, target: val }))}
                   className={`flex-1 py-2 rounded-xl text-sm font-semibold border transition ${form.target === val
-                    ? color === 'indigo' ? 'bg-indigo-600 border-indigo-600 text-white' : 'bg-pink-600 border-pink-600 text-white'
+                    ? color === 'indigo' ? 'bg-indigo-600 border-indigo-600 text-white' : color === 'pink' ? 'bg-pink-600 border-pink-600 text-white' : 'bg-emerald-600 border-emerald-600 text-white'
                     : 'border-border text-muted-foreground hover:bg-muted'}`}>
                   {label}
                 </button>
@@ -1026,7 +1026,7 @@ export default function AdminExamenBlancPage() {
             {sessions.map(s => (
               <button key={s.id} onClick={() => { setLeadsSession(s.id); setLeadsFilter('all'); setScoreFilter('all'); }}
                 className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition ${leadsSession === s.id ? 'bg-violet-600 text-white' : 'bg-muted text-muted-foreground hover:bg-muted/80'}`}>
-                <span>{s.target === 'SAGE_FEMME' ? '👶' : '🏥'}</span>
+                <span>{s.target === 'SAGE_FEMME' ? '👶' : s.target === 'BIOLOGISTE' ? '🔬' : '🏥'}</span>
                 {s.title} ({leads.filter((l: any) => l.examenBlancId === s.id).length})
               </button>
             ))}

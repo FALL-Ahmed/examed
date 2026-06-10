@@ -93,7 +93,7 @@ function DonutChart({ male, female, unknown }: { male: number; female: number; u
 }
 
 export default function AnalyticsPage() {
-  const [tab, setTab] = useState<'INFIRMIER' | 'SAGE_FEMME'>('INFIRMIER');
+  const [tab, setTab] = useState<'INFIRMIER' | 'SAGE_FEMME' | 'BIOLOGISTE'>('INFIRMIER');
   const [data, setData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
 
@@ -161,6 +161,11 @@ export default function AnalyticsPage() {
             onClick={() => setTab('SAGE_FEMME')}
             className={`px-4 py-2 rounded-xl text-sm font-semibold transition ${tab === 'SAGE_FEMME' ? 'bg-pink-500 text-white shadow' : 'bg-white border border-slate-200 text-slate-500 hover:border-pink-300'}`}>
             👶 Sage-femme
+          </button>
+          <button
+            onClick={() => setTab('BIOLOGISTE')}
+            className={`px-4 py-2 rounded-xl text-sm font-semibold transition ${tab === 'BIOLOGISTE' ? 'bg-emerald-500 text-white shadow' : 'bg-white border border-slate-200 text-slate-500 hover:border-emerald-300'}`}>
+            🔬 Biologiste
           </button>
         </div>
       </div>

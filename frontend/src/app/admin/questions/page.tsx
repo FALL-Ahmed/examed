@@ -155,7 +155,7 @@ function EditForm({ editing, setEditing, onSave, saving, onImageUpload, uploadin
 
 export default function AdminQuestionsPage() {
   const [langTab, setLangTab] = useState<'FR' | 'AR'>('FR');
-  const [targetTab, setTargetTab] = useState<'INFIRMIER' | 'SAGE_FEMME'>('INFIRMIER');
+  const [targetTab, setTargetTab] = useState<'INFIRMIER' | 'SAGE_FEMME' | 'BIOLOGISTE'>('INFIRMIER');
   const [themes, setThemes] = useState<any[]>([]);
   const [expandedThemes, setExpandedThemes] = useState<Set<string>>(new Set());
   const [selectedThemeId, setSelectedThemeId] = useState('');
@@ -242,7 +242,7 @@ export default function AdminQuestionsPage() {
   }
 
   async function deleteAll() {
-    if (!confirm(`Supprimer TOUTES les questions ${targetTab === 'SAGE_FEMME' ? 'sage-femme' : 'infirmier'} (${data?.total ?? 0}) ? Irréversible.`)) return;
+    if (!confirm(`Supprimer TOUTES les questions ${targetTab === 'SAGE_FEMME' ? 'sage-femme' : targetTab === 'BIOLOGISTE' ? 'biologiste' : 'infirmier'} (${data?.total ?? 0}) ? Irréversible.`)) return;
     if (!confirm('Confirmation finale ?')) return;
     setDeletingAll(true);
     await adminApi.deleteAllQuestions(targetTab).catch(() => {});
@@ -275,6 +275,13 @@ export default function AdminQuestionsPage() {
               ${targetTab === 'SAGE_FEMME' ? 'bg-pink-500 border-pink-500 text-white shadow-sm' : 'bg-pink-50 border-pink-200 text-pink-700 hover:bg-pink-100'}`}
           >
             👶 Sage-femme
+          </button>
+          <button
+            onClick={() => { setTargetTab('BIOLOGISTE'); setSelectedThemeId(''); setSelectedSubThemeId(''); }}
+            className={`flex items-center gap-2 px-4 py-2 rounded-xl border text-sm font-semibold transition
+              ${targetTab === 'BIOLOGISTE' ? 'bg-emerald-500 border-emerald-500 text-white shadow-sm' : 'bg-emerald-50 border-emerald-200 text-emerald-700 hover:bg-emerald-100'}`}
+          >
+            🔬 Biologiste
           </button>
         </div>
         <div className="w-px h-6 bg-slate-200" />
