@@ -61,6 +61,11 @@ export default function AdminDashboard() {
   const [promoIncludesGroup, setPromoIncludesGroup] = useState(false);
   const [savingPromo, setSavingPromo] = useState(false);
   const [savedPromo, setSavedPromo] = useState(false);
+  const [promoBioEnabled, setPromoBioEnabled] = useState(false);
+  const [promoBioDiscount, setPromoBioDiscount] = useState('30');
+  const [promoBioEndDate, setPromoBioEndDate] = useState('');
+  const [savingPromoBio, setSavingPromoBio] = useState(false);
+  const [savedPromoBio, setSavedPromoBio] = useState(false);
 
   useEffect(() => {
     if ('serviceWorker' in navigator && 'PushManager' in window) {
@@ -80,6 +85,9 @@ export default function AdminDashboard() {
       setPromoDiscount(r.data.PROMO_DISCOUNT ?? '30');
       setPromoEndDate(r.data.PROMO_END_DATE ?? '');
       setPromoIncludesGroup(r.data.PROMO_INCLUDES_GROUP === 'true');
+      setPromoBioEnabled(r.data.PROMO_BIO_ACTIVE === 'true');
+      setPromoBioDiscount(r.data.PROMO_BIO_DISCOUNT ?? '30');
+      setPromoBioEndDate(r.data.PROMO_BIO_END_DATE ?? '');
     }).catch(() => {});
     settingsApi.operators().then((r) => {
       const map: Record<string, string> = {};
@@ -179,6 +187,20 @@ export default function AdminDashboard() {
     ]).catch(() => {});
     setSavedPromo(true); setTimeout(() => setSavedPromo(false), 3000);
     setSavingPromo(false);
+  }
+  async function togglePromoBio() {
+    const next = !promoBioEnabled;
+    setPromoBioEnabled(next);
+    await adminApi.setSetting('PROMO_BIO_ACTIVE', String(next)).catch(() => setPromoBioEnabled(!next));
+  }
+  async function savePromoBioDiscount() {
+    setSavingPromoBio(true);
+    await Promise.all([
+      adminApi.setSetting('PROMO_BIO_DISCOUNT', promoBioDiscount),
+      adminApi.setSetting('PROMO_BIO_END_DATE', promoBioEndDate),
+    ]).catch(() => {});
+    setSavedPromoBio(true); setTimeout(() => setSavedPromoBio(false), 3000);
+    setSavingPromoBio(false);
   }
 
   useEffect(() => {
@@ -382,6 +404,32 @@ export default function AdminDashboard() {
           </div>
           <input type="date" value={promoEndDate} onChange={(e) => setPromoEndDate(e.target.value)}
             className="w-full px-3 py-2 bg-background border border-border rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 text-muted-foreground" />
+        </div>
+        <div className="border-t border-border pt-4 mt-2">
+          <div className="flex items-center justify-between mb-3">
+            <div>
+              <p className="text-sm font-semibold flex items-center gap-1.5">🔬 Promotion Lancement Biologiste</p>
+              <p className="text-xs text-muted-foreground mt-0.5">{promoBioEnabled ? `Promo bio active — ${promoBioDiscount}% de réduction` : 'Aucune promo biologiste.'}</p>
+            </div>
+            <button type="button" onClick={togglePromoBio} className={`relative w-11 h-6 rounded-full transition-colors flex-shrink-0 ${promoBioEnabled ? 'bg-emerald-500' : 'bg-border'}`}>
+              <span className={`absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full shadow transition-transform ${promoBioEnabled ? 'translate-x-5' : 'translate-x-0'}`} />
+            </button>
+          </div>
+          <div className="flex gap-2 mb-2">
+            <div className="flex items-center border border-border rounded-xl overflow-hidden flex-1 bg-background">
+              <input type="number" min={1} max={90} value={promoBioDiscount}
+                onChange={(e) => setPromoBioDiscount(e.target.value)}
+                className="flex-1 px-3 py-2 bg-transparent text-sm focus:outline-none" placeholder="30" />
+              <span className="px-3 py-2 text-sm text-muted-foreground bg-secondary">%</span>
+            </div>
+            <button onClick={savePromoBioDiscount} disabled={savingPromoBio}
+              className="px-4 py-2 bg-emerald-500 hover:bg-emerald-600 text-white rounded-xl text-sm font-semibold transition disabled:opacity-60 flex items-center gap-1.5">
+              {savingPromoBio ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : savedPromoBio ? <CheckCircle className="w-3.5 h-3.5" /> : null}
+              {savedPromoBio ? 'OK' : 'Sauv.'}
+            </button>
+          </div>
+          <input type="date" value={promoBioEndDate} onChange={(e) => setPromoBioEndDate(e.target.value)}
+            className="w-full px-3 py-2 bg-background border border-border rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/30 text-muted-foreground" />
         </div>
       </div>
 

@@ -8,6 +8,7 @@ interface User {
   fullName: string;
   role: 'FREE' | 'PREMIUM' | 'ADMIN';
   subscriptionEnd?: string;
+  profession?: string;
 }
 
 interface AuthStore {

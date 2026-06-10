@@ -284,10 +284,12 @@ export default function PaymentPage() {
   const [operators, setOperators]           = useState<Operator[]>(OPERATOR_BASE.map((o) => ({ ...o, phone: '' })));
   const [selectedOperator, setSelectedOperator] = useState<Operator | null>(null);
   const [history, setHistory]               = useState<any[]>([]);
-  const [promoSettings, setPromoSettings]   = useState<{ active: boolean; discount: number; endDate?: string | null } | null>(null);
+  const [promoSettings, setPromoSettings]   = useState<{ active: boolean; discount: number; endDate?: string | null; bio?: { active: boolean; discount: number; endDate?: string | null } } | null>(null);
 
-  const promoActive   = promoSettings?.active ?? false;
-  const promoDiscount = promoSettings?.discount ?? 30;
+  const isBiologiste = user?.profession === 'biologiste';
+  const bioPromo = promoSettings?.bio;
+  const promoActive   = isBiologiste && bioPromo?.active ? bioPromo.active : (promoSettings?.active ?? false);
+  const promoDiscount = isBiologiste && bioPromo?.active ? bioPromo.discount : (promoSettings?.discount ?? 30);
   const finalPrice    = promoActive ? Math.round(price * (1 - promoDiscount / 100)) : price;
 
   useEffect(() => {
@@ -360,12 +362,14 @@ export default function PaymentPage() {
       {/* Promo banner */}
       {promoActive && (
         <div className="relative overflow-hidden rounded-2xl px-6 py-4 text-white text-center"
-          style={{ background: 'linear-gradient(135deg,#dc2626,#f97316)' }}>
+          style={{ background: isBiologiste && bioPromo?.active ? 'linear-gradient(135deg,#059669,#0d9488)' : 'linear-gradient(135deg,#dc2626,#f97316)' }}>
           <div className="absolute inset-0 opacity-10"
             style={{ backgroundImage: 'radial-gradient(circle at 1px 1px,white 1px,transparent 0)', backgroundSize: '20px 20px' }} />
           <div className="relative">
-            <p className="text-lg font-extrabold tracking-tight">🎉 -{promoDiscount}% de réduction — Offre de lancement !</p>
-            <p className="text-sm text-white/80 mt-0.5">Valable jusqu'au <strong className="text-white">lundi 27 avril 2026</strong> · Ne manquez pas cette opportunité</p>
+            <p className="text-lg font-extrabold tracking-tight">
+              {isBiologiste && bioPromo?.active ? `🔬 Offre lancement Biologiste — -${promoDiscount}% !` : `🎉 -${promoDiscount}% de réduction — Offre de lancement !`}
+            </p>
+            <p className="text-sm text-white/80 mt-0.5">Réduction spéciale appliquée · Ne manquez pas cette opportunité</p>
           </div>
         </div>
       )}

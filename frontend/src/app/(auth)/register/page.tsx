@@ -65,7 +65,7 @@ function RegisterContent() {
 
   const [operators, setOperators] = useState<Record<string, string>>({});
   const [pricing, setPricing] = useState<any>({ solo1m: { price: 1000 }, groupPerP: { price: 700 }, groupMin: 3 });
-  const [promoSettings, setPromoSettings] = useState<{ active: boolean; discount: number; endDate?: string | null; includesGroup?: boolean } | null>(null);
+  const [promoSettings, setPromoSettings] = useState<{ active: boolean; discount: number; endDate?: string | null; includesGroup?: boolean; bio?: { active: boolean; discount: number; endDate?: string | null } } | null>(null);
   const planParam = searchParams.get('plan');
   const [selectedPlan, setSelectedPlan] = useState<'SOLO_1M' | 'GROUP'>(
     planParam === 'GROUP' ? 'GROUP' : 'SOLO_1M'
@@ -93,9 +93,14 @@ function RegisterContent() {
     settingsApi.promo().then((r) => setPromoSettings(r.data)).catch(() => {});
   }, []);
 
-  const promoActive = promoSettings?.active ?? false;
-  const promoDiscount = promoSettings?.discount ?? 30;
-  const promoEndDate = promoSettings?.endDate ?? null;
+  const isBiologiste = form.profession === 'biologiste';
+  const bioPromo = promoSettings?.bio;
+  const effectivePromoActive   = isBiologiste && bioPromo?.active ? bioPromo.active : (promoSettings?.active ?? false);
+  const effectivePromoDiscount = isBiologiste && bioPromo?.active ? bioPromo.discount : (promoSettings?.discount ?? 30);
+  const effectivePromoEndDate  = isBiologiste && bioPromo?.active ? bioPromo.endDate : (promoSettings?.endDate ?? null);
+  const promoActive = effectivePromoActive;
+  const promoDiscount = effectivePromoDiscount;
+  const promoEndDate = effectivePromoEndDate;
   const promoIncludesGroup = promoSettings?.includesGroup ?? false;
   const promo = (p: number) => Math.round(p * (1 - promoDiscount / 100) / 100) * 100;
 
@@ -372,16 +377,18 @@ function RegisterContent() {
             </p>
 
             {promoActive && (
-              <div className="flex items-center gap-3 p-3.5 rounded-2xl bg-gradient-to-r from-red-50 to-orange-50 border border-red-200 mb-5">
-                <span className="text-xl flex-shrink-0">🎉</span>
+              <div className={`flex items-center gap-3 p-3.5 rounded-2xl border mb-5 bg-gradient-to-r ${isBiologiste && bioPromo?.active ? 'from-emerald-50 to-teal-50 border-emerald-200' : 'from-red-50 to-orange-50 border-red-200'}`}>
+                <span className="text-xl flex-shrink-0">{isBiologiste && bioPromo?.active ? '🔬' : '🎉'}</span>
                 <div>
-                  <p className="text-sm font-bold text-red-700">
-                    {isAr ? `خصم ${promoDiscount}% على جميع الخطط !` : `-${promoDiscount}% sur tous les plans !`}
+                  <p className={`text-sm font-bold ${isBiologiste && bioPromo?.active ? 'text-emerald-700' : 'text-red-700'}`}>
+                    {isBiologiste && bioPromo?.active
+                      ? (isAr ? `عرض إطلاق البيولوجيا — خصم ${promoDiscount}%` : `Offre lancement Biologiste — -${promoDiscount}% !`)
+                      : (isAr ? `خصم ${promoDiscount}% على جميع الخطط !` : `-${promoDiscount}% sur tous les plans !`)}
                   </p>
-                  <p className="text-xs text-red-500 mt-0.5">
+                  <p className={`text-xs mt-0.5 ${isBiologiste && bioPromo?.active ? 'text-emerald-500' : 'text-red-500'}`}>
                     {isAr ? 'ينتهي خلال' : 'Expire dans'}
                   </p>
-                  <CountdownTimer isAr={isAr} endDate={promoEndDate} />
+                  <CountdownTimer isAr={isAr} endDate={promoEndDate ?? null} />
                 </div>
               </div>
             )}
