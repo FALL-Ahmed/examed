@@ -127,12 +127,7 @@ export default function AnalyticsPage() {
   const roleMap: Record<string, number> = {};
   (data.byRole || []).forEach((r: any) => { roleMap[r.role] = r._count._all; });
 
-  const BANKILY_PROMO = 7;
-  const operators: { operator: string; count: number; total: number }[] = (data.byOperator || []).map((o: any) =>
-    o.operator?.toLowerCase() === 'bankily'
-      ? { ...o, count: Math.max(0, o.count - BANKILY_PROMO), total: Math.max(0, o.total - BANKILY_PROMO * 500) }
-      : o
-  );
+  const operators: { operator: string; count: number; total: number }[] = (data.byOperator || []);
   const opTotal = operators.reduce((s, o) => s + o.count, 0) || 1;
 
   const OPERATOR_COLORS: Record<string, string> = {
@@ -173,8 +168,8 @@ export default function AnalyticsPage() {
       <div className="grid grid-cols-3 gap-4">
         {[
           { label: 'En attente', value: roleMap['FREE'] ?? 0, color: 'bg-amber-100 text-amber-700' },
-          { label: 'Validés', value: Math.max(0, (roleMap['PREMIUM'] ?? 0) - BANKILY_PROMO), color: 'bg-emerald-100 text-emerald-700' },
-          { label: 'Total', value: Math.max(0, (roleMap['FREE'] ?? 0) + (roleMap['PREMIUM'] ?? 0) - BANKILY_PROMO), color: 'bg-blue-100 text-blue-700' },
+          { label: 'Validés', value: roleMap['PREMIUM'] ?? 0, color: 'bg-emerald-100 text-emerald-700' },
+          { label: 'Total', value: (roleMap['FREE'] ?? 0) + (roleMap['PREMIUM'] ?? 0), color: 'bg-blue-100 text-blue-700' },
         ].map((k) => (
           <div key={k.label} className="bg-white border border-slate-200 rounded-2xl p-5">
             <p className={`text-3xl font-black ${k.color.split(' ')[1]}`}>{k.value}</p>

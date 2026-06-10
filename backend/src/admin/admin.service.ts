@@ -561,7 +561,7 @@ export class AdminService {
       }),
       this.prisma.payment.groupBy({
         by: ['operator'],
-        where: { status: 'VALIDATED', ...(isSF || isIF ? { user: userWhere } : {}) },
+        where: { status: 'VALIDATED', amount: { gt: 0 }, ...(isSF || isIF ? { user: userWhere } : {}) },
         _count: { _all: true },
         _sum: { amount: true },
       }),
