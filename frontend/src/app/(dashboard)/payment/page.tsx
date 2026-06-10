@@ -284,7 +284,7 @@ export default function PaymentPage() {
   const [operators, setOperators]           = useState<Operator[]>(OPERATOR_BASE.map((o) => ({ ...o, phone: '' })));
   const [selectedOperator, setSelectedOperator] = useState<Operator | null>(null);
   const [history, setHistory]               = useState<any[]>([]);
-  const [promoSettings, setPromoSettings]   = useState<{ active: boolean; discount: number; endDate?: string | null; bio?: { active: boolean; discount: number; endDate?: string | null } } | null>(null);
+  const [promoSettings, setPromoSettings]   = useState<{ active: boolean; discount: number; endDate?: string | null; bio?: { active: boolean; discount: number; endDate?: string | null; includesGroup?: boolean } } | null>(null);
 
   const isBiologiste = user?.profession === 'biologiste';
   const bioPromo = promoSettings?.bio;

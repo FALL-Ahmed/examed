@@ -59,7 +59,7 @@ export class SettingsController {
 
   @Get('promo')
   async getPromo() {
-    const [active, discount, endDate, includesGroup, bioActive, bioDiscount, bioEndDate] = await Promise.all([
+    const [active, discount, endDate, includesGroup, bioActive, bioDiscount, bioEndDate, bioIncludesGroup] = await Promise.all([
       this.adminService.getSetting('PROMO_ACTIVE'),
       this.adminService.getSetting('PROMO_DISCOUNT'),
       this.adminService.getSetting('PROMO_END_DATE'),
@@ -67,6 +67,7 @@ export class SettingsController {
       this.adminService.getSetting('PROMO_BIO_ACTIVE'),
       this.adminService.getSetting('PROMO_BIO_DISCOUNT'),
       this.adminService.getSetting('PROMO_BIO_END_DATE'),
+      this.adminService.getSetting('PROMO_BIO_INCLUDES_GROUP'),
     ]);
     return {
       active: active === 'true',
@@ -77,6 +78,7 @@ export class SettingsController {
         active: bioActive === 'true',
         discount: bioDiscount ? parseInt(bioDiscount) : 30,
         endDate: bioEndDate ?? null,
+        includesGroup: bioIncludesGroup === 'true',
       },
     };
   }

@@ -64,6 +64,7 @@ export default function AdminDashboard() {
   const [promoBioEnabled, setPromoBioEnabled] = useState(false);
   const [promoBioDiscount, setPromoBioDiscount] = useState('30');
   const [promoBioEndDate, setPromoBioEndDate] = useState('');
+  const [promoBioIncludesGroup, setPromoBioIncludesGroup] = useState(false);
   const [savingPromoBio, setSavingPromoBio] = useState(false);
   const [savedPromoBio, setSavedPromoBio] = useState(false);
 
@@ -88,6 +89,7 @@ export default function AdminDashboard() {
       setPromoBioEnabled(r.data.PROMO_BIO_ACTIVE === 'true');
       setPromoBioDiscount(r.data.PROMO_BIO_DISCOUNT ?? '30');
       setPromoBioEndDate(r.data.PROMO_BIO_END_DATE ?? '');
+      setPromoBioIncludesGroup(r.data.PROMO_BIO_INCLUDES_GROUP === 'true');
     }).catch(() => {});
     settingsApi.operators().then((r) => {
       const map: Record<string, string> = {};
@@ -192,6 +194,11 @@ export default function AdminDashboard() {
     const next = !promoBioEnabled;
     setPromoBioEnabled(next);
     await adminApi.setSetting('PROMO_BIO_ACTIVE', String(next)).catch(() => setPromoBioEnabled(!next));
+  }
+  async function togglePromoBioGroup() {
+    const next = !promoBioIncludesGroup;
+    setPromoBioIncludesGroup(next);
+    await adminApi.setSetting('PROMO_BIO_INCLUDES_GROUP', String(next)).catch(() => setPromoBioIncludesGroup(!next));
   }
   async function savePromoBioDiscount() {
     setSavingPromoBio(true);
@@ -413,6 +420,15 @@ export default function AdminDashboard() {
             </div>
             <button type="button" onClick={togglePromoBio} className={`relative w-11 h-6 rounded-full transition-colors flex-shrink-0 ${promoBioEnabled ? 'bg-emerald-500' : 'bg-border'}`}>
               <span className={`absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full shadow transition-transform ${promoBioEnabled ? 'translate-x-5' : 'translate-x-0'}`} />
+            </button>
+          </div>
+          <div className="flex items-center justify-between mb-3">
+            <div>
+              <p className="text-sm font-semibold flex items-center gap-1.5">👥 Pack amis inclus</p>
+              <p className="text-xs text-muted-foreground mt-0.5">{promoBioIncludesGroup ? 'Promo bio appliquée au pack amis' : 'Pack amis au prix normal'}</p>
+            </div>
+            <button type="button" onClick={togglePromoBioGroup} className={`relative w-11 h-6 rounded-full transition-colors flex-shrink-0 ${promoBioIncludesGroup ? 'bg-emerald-500' : 'bg-border'}`}>
+              <span className={`absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full shadow transition-transform ${promoBioIncludesGroup ? 'translate-x-5' : 'translate-x-0'}`} />
             </button>
           </div>
           <div className="flex gap-2 mb-2">

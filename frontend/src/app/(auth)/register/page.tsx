@@ -65,7 +65,7 @@ function RegisterContent() {
 
   const [operators, setOperators] = useState<Record<string, string>>({});
   const [pricing, setPricing] = useState<any>({ solo1m: { price: 1000 }, groupPerP: { price: 700 }, groupMin: 3 });
-  const [promoSettings, setPromoSettings] = useState<{ active: boolean; discount: number; endDate?: string | null; includesGroup?: boolean; bio?: { active: boolean; discount: number; endDate?: string | null } } | null>(null);
+  const [promoSettings, setPromoSettings] = useState<{ active: boolean; discount: number; endDate?: string | null; includesGroup?: boolean; bio?: { active: boolean; discount: number; endDate?: string | null; includesGroup?: boolean } } | null>(null);
   const planParam = searchParams.get('plan');
   const [selectedPlan, setSelectedPlan] = useState<'SOLO_1M' | 'GROUP'>(
     planParam === 'GROUP' ? 'GROUP' : 'SOLO_1M'
@@ -101,7 +101,7 @@ function RegisterContent() {
   const promoActive = effectivePromoActive;
   const promoDiscount = effectivePromoDiscount;
   const promoEndDate = effectivePromoEndDate;
-  const promoIncludesGroup = promoSettings?.includesGroup ?? false;
+  const promoIncludesGroup = isBiologiste && bioPromo?.active ? (bioPromo?.includesGroup ?? false) : (promoSettings?.includesGroup ?? false);
   const promo = (p: number) => Math.round(p * (1 - promoDiscount / 100) / 100) * 100;
 
   const solo1mBase = pricing.solo1m?.price ?? 500;
