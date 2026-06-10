@@ -416,7 +416,7 @@ export default function PaymentPage() {
             <p className="text-xl font-black text-white">{finalPrice}</p>
             <p className="text-xs text-white/40">MRU / mois</p>
             {promoActive && (
-              <span className="inline-block mt-1 bg-red-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full">-{promoDiscount}%</span>
+              <span className={`inline-block mt-1 text-white text-[10px] font-bold px-2 py-0.5 rounded-full ${isBiologiste && bioPromo?.active ? 'bg-emerald-500' : 'bg-red-500'}`}>-{promoDiscount}%</span>
             )}
           </div>
         </div>

@@ -425,9 +425,11 @@ function RegisterContent() {
                     </p>
                   </div>
                   <div className="text-right flex-shrink-0 ml-4">
-                    {promoActive && <p className="text-xs text-gray-400 line-through">{groupBase} MRU</p>}
+                    {promoActive && promoIncludesGroup && <p className="text-xs text-gray-400 line-through">{groupBase} MRU</p>}
                     <p className="font-extrabold text-violet-700 text-lg">{groupPrice} <span className="text-sm font-semibold">MRU</span></p>
-                    {promoActive && <span className="text-xs font-bold bg-red-100 text-red-600 px-1.5 py-0.5 rounded-full">-{promoDiscount}%</span>}
+                    {promoActive && promoIncludesGroup && (
+                      <span className={`text-xs font-bold px-1.5 py-0.5 rounded-full ${isBiologiste && bioPromo?.active ? 'bg-emerald-100 text-emerald-700' : 'bg-red-100 text-red-600'}`}>-{promoDiscount}%</span>
+                    )}
                   </div>
                   {selectedPlan === 'GROUP' && (
                     <div className="absolute top-3 right-3 w-4 h-4 rounded-full bg-violet-500 flex items-center justify-center">{checkIcon}</div>
