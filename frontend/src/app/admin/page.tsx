@@ -31,7 +31,7 @@ export default function AdminDashboard() {
   const [stats, setStats] = useState<any>(null);
   const [regData, setRegData] = useState<any[]>([]);
   const [regDays, setRegDays] = useState(30);
-  const [regProfession, setRegProfession] = useState<'all' | 'infirmier' | 'sage_femme'>('all');
+  const [regProfession, setRegProfession] = useState<'all' | 'infirmier' | 'sage_femme' | 'biologiste'>('all');
   const [prices, setPrices] = useState({ p1m: '', p3m: '', pGroup: '', groupMin: '' });
   const [savingPlan, setSavingPlan] = useState<string | null>(null);
   const [savedPlan, setSavedPlan] = useState<string | null>(null);
@@ -234,13 +234,14 @@ export default function AdminDashboard() {
           <div className="flex items-center gap-2 flex-wrap">
             <div className="flex gap-1">
               {([
-                { val: 'all',       label: 'Tous' },
-                { val: 'infirmier', label: '🏥 Infirmier' },
-                { val: 'sage_femme',label: '👶 Sage-femme' },
+                { val: 'all',        label: 'Tous' },
+                { val: 'infirmier',  label: '🏥 Infirmier' },
+                { val: 'sage_femme', label: '👶 Sage-femme' },
+                { val: 'biologiste', label: '🔬 Biologiste' },
               ] as const).map(({ val, label }) => (
                 <button key={val} onClick={() => setRegProfession(val)}
                   className={`px-3 py-1 rounded-lg text-xs font-semibold transition ${regProfession === val
-                    ? val === 'sage_femme' ? 'bg-pink-500 text-white' : val === 'infirmier' ? 'bg-indigo-500 text-white' : 'bg-violet-600 text-white'
+                    ? val === 'sage_femme' ? 'bg-pink-500 text-white' : val === 'infirmier' ? 'bg-indigo-500 text-white' : val === 'biologiste' ? 'bg-emerald-500 text-white' : 'bg-violet-600 text-white'
                     : 'bg-secondary text-muted-foreground hover:bg-secondary/80'}`}>
                   {label}
                 </button>

@@ -56,27 +56,28 @@ function formatTime(sec: number) {
 }
 
 const EB_STATE_KEY = 'examen_blanc_state';
-type Target = 'INFIRMIER' | 'SAGE_FEMME';
+type Target = 'INFIRMIER' | 'SAGE_FEMME' | 'BIOLOGISTE';
 
 export function ExamenBlancPageContent({ target }: { target: Target }) {
   const { lang, setLang } = useLang();
   const isAr = lang === 'ar';
   const isSF = target === 'SAGE_FEMME';
+  const isBIO = target === 'BIOLOGISTE';
   const theme = {
-    bg: isSF ? 'linear-gradient(145deg,#f48fb1 0%,#f06292 50%,#e91e8c 100%)' : 'linear-gradient(145deg,#0f0a2e 0%,#1a1040 50%,#0d1b3e 100%)',
-    glow1: isSF ? 'radial-gradient(circle,#9f1239,transparent)' : 'radial-gradient(circle,#7c3aed,transparent)',
-    glow2: isSF ? 'radial-gradient(circle,#be123c,transparent)' : 'radial-gradient(circle,#6366f1,transparent)',
-    accent: isSF ? 'linear-gradient(135deg,#9f1239,#be185d)' : 'linear-gradient(135deg,#7c3aed,#6366f1)',
-    textGrad: isSF ? 'linear-gradient(135deg,#ffffff,#fce7f3)' : 'linear-gradient(135deg,#a78bfa,#818cf8)',
-    iconCls: isSF ? 'text-white' : 'text-violet-400',
-    spinnerCls: isSF ? 'border-white' : 'border-violet-400',
-    timeCls: isSF ? 'text-white' : 'text-violet-300',
-    btnShadow: isSF ? 'shadow-pink-900/50' : 'shadow-violet-900/50',
-    bannerBg: isSF ? 'rgba(255,255,255,0.18)' : 'linear-gradient(to bottom,rgba(124,58,237,0.1),rgba(99,102,241,0.1))',
-    bannerBorder: isSF ? 'border-white/30' : 'border-violet-500/30',
-    badgeCls: isSF ? 'bg-rose-800' : 'bg-violet-500',
-    recoverBorder: isSF ? 'border-white/30' : 'border-violet-500/30',
-    ringCls: isSF ? 'focus:ring-white' : 'focus:ring-violet-500',
+    bg: isSF ? 'linear-gradient(145deg,#f48fb1 0%,#f06292 50%,#e91e8c 100%)' : isBIO ? 'linear-gradient(145deg,#052e16 0%,#14532d 50%,#052e16 100%)' : 'linear-gradient(145deg,#0f0a2e 0%,#1a1040 50%,#0d1b3e 100%)',
+    glow1: isSF ? 'radial-gradient(circle,#9f1239,transparent)' : isBIO ? 'radial-gradient(circle,#16a34a,transparent)' : 'radial-gradient(circle,#7c3aed,transparent)',
+    glow2: isSF ? 'radial-gradient(circle,#be123c,transparent)' : isBIO ? 'radial-gradient(circle,#15803d,transparent)' : 'radial-gradient(circle,#6366f1,transparent)',
+    accent: isSF ? 'linear-gradient(135deg,#9f1239,#be185d)' : isBIO ? 'linear-gradient(135deg,#16a34a,#15803d)' : 'linear-gradient(135deg,#7c3aed,#6366f1)',
+    textGrad: isSF ? 'linear-gradient(135deg,#ffffff,#fce7f3)' : isBIO ? 'linear-gradient(135deg,#86efac,#4ade80)' : 'linear-gradient(135deg,#a78bfa,#818cf8)',
+    iconCls: isSF ? 'text-white' : isBIO ? 'text-emerald-400' : 'text-violet-400',
+    spinnerCls: isSF ? 'border-white' : isBIO ? 'border-emerald-400' : 'border-violet-400',
+    timeCls: isSF ? 'text-white' : isBIO ? 'text-emerald-300' : 'text-violet-300',
+    btnShadow: isSF ? 'shadow-pink-900/50' : isBIO ? 'shadow-emerald-900/50' : 'shadow-violet-900/50',
+    bannerBg: isSF ? 'rgba(255,255,255,0.18)' : isBIO ? 'linear-gradient(to bottom,rgba(22,163,74,0.1),rgba(21,128,61,0.1))' : 'linear-gradient(to bottom,rgba(124,58,237,0.1),rgba(99,102,241,0.1))',
+    bannerBorder: isSF ? 'border-white/30' : isBIO ? 'border-emerald-500/30' : 'border-violet-500/30',
+    badgeCls: isSF ? 'bg-rose-800' : isBIO ? 'bg-emerald-700' : 'bg-violet-500',
+    recoverBorder: isSF ? 'border-white/30' : isBIO ? 'border-emerald-500/30' : 'border-violet-500/30',
+    ringCls: isSF ? 'focus:ring-white' : isBIO ? 'focus:ring-emerald-500' : 'focus:ring-violet-500',
     cardBg: isSF ? 'bg-white/35' : 'bg-white/5',
     cardBorder: isSF ? 'border-white/50' : 'border-white/10',
     navBoxBg: isSF ? 'bg-white/15' : 'bg-white/5',
@@ -312,7 +313,7 @@ export function ExamenBlancPageContent({ target }: { target: Target }) {
                 </p>
                 <div className="space-y-2 mb-4 text-left">
                   {[
-                    { icon: BookOpen,     fr: isSF ? '+700 QCM par thème' : '+600 QCM par thème', ar: isSF ? '+700 سؤال لكل موضوع' : '+600 سؤال لكل موضوع' },
+                    { icon: BookOpen,     fr: isSF ? '+700 QCM par thème' : isBIO ? '+400 QCM par thème' : '+600 QCM par thème', ar: isSF ? '+700 سؤال لكل موضوع' : isBIO ? '+400 سؤال لكل موضوع' : '+600 سؤال لكل موضوع' },
                     { icon: BarChart,     fr: 'Statistiques détaillées par thème',         ar: 'إحصائيات مفصّلة حسب الموضوع' },
                     { icon: Trophy,       fr: 'Classement national en temps réel',         ar: 'ترتيب وطني في الوقت الفعلي' },
                     { icon: CheckCircle2, fr: 'Correction complète comme l\'examen blanc', ar: 'تصحيح كامل كالاختبار البيضاء' },
@@ -416,7 +417,7 @@ export function ExamenBlancPageContent({ target }: { target: Target }) {
           return (
             <div className={`${theme.cardBg} backdrop-blur border ${theme.cardBorder} rounded-3xl p-8 mb-16`}>
               <h2 className="text-xl font-black text-white mb-6 text-center">
-                {isAr ? `💬 انضموا إلى +${isSF ? '700' : '600'} سؤال على Al Bourour` : `💬 Ils ont rejoint les +${isSF ? '700' : '600'} QCM d'Al Bourour`}
+                {isAr ? `💬 انضموا إلى +${isSF ? '700' : isBIO ? '400' : '600'} سؤال على Al Bourour` : `💬 Ils ont rejoint les +${isSF ? '700' : isBIO ? '400' : '600'} QCM d'Al Bourour`}
               </h2>
               <div className="flex flex-col items-center text-center" style={{ transition: 'opacity 0.7s ease-in-out', opacity: testFade ? 1 : 0 }}>
                 <div className="mb-4 overflow-hidden rounded-2xl w-48 shadow-lg">

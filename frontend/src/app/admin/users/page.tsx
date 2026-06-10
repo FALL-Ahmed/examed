@@ -45,7 +45,7 @@ export default function AdminUsersPage() {
   const [selected, setSelected] = useState<Set<string>>(new Set());
   const [bulkModal, setBulkModal] = useState(false);
   const [customDays, setCustomDays] = useState('');
-  const [profFilter, setProfFilter] = useState<'infirmier' | 'sage_femme' | null>(null);
+  const [profFilter, setProfFilter] = useState<'infirmier' | 'sage_femme' | 'biologiste' | null>(null);
 
   useEffect(() => {
     if (tab === 'GROUP') { loadGroups(); }
@@ -158,6 +158,7 @@ export default function AdminUsersPage() {
       etudiant_medecine:  { label: '⚕️ Médecine',       cls: 'bg-violet-100 text-violet-700' },
       medecin:            { label: '⚕️ Médecin',        cls: 'bg-violet-100 text-violet-700' },
       etudiant_pharmacie: { label: '💊 Pharmacie',      cls: 'bg-teal-100 text-teal-700' },
+      biologiste:         { label: '🔬 Biologiste',      cls: 'bg-emerald-100 text-emerald-700' },
       technicien_labo:    { label: '🔬 Labo',           cls: 'bg-orange-100 text-orange-700' },
       autre:              { label: 'Autre',              cls: 'bg-slate-100 text-slate-500' },
     };
@@ -237,6 +238,16 @@ export default function AdminUsersPage() {
               <div className="text-left">
                 <p className={`text-xs font-medium ${profFilter === 'sage_femme' ? 'text-pink-100' : 'text-pink-500'}`}>Sage-femmes</p>
                 <p className={`text-2xl font-black ${profFilter === 'sage_femme' ? 'text-white' : 'text-pink-700'}`}>{data.sageFemmeCount ?? '—'}</p>
+              </div>
+            </button>
+            <button
+              onClick={() => { setProfFilter(profFilter === 'biologiste' ? null : 'biologiste'); setPage(1); }}
+              className={`flex items-center gap-3 rounded-2xl px-5 py-3 border transition cursor-pointer ${profFilter === 'biologiste' ? 'bg-emerald-500 border-emerald-500 text-white' : 'bg-emerald-50 border-emerald-200 hover:bg-emerald-100'}`}
+            >
+              <span className="text-2xl">🔬</span>
+              <div className="text-left">
+                <p className={`text-xs font-medium ${profFilter === 'biologiste' ? 'text-emerald-100' : 'text-emerald-500'}`}>Biologistes</p>
+                <p className={`text-2xl font-black ${profFilter === 'biologiste' ? 'text-white' : 'text-emerald-700'}`}>{data.biologisteCount ?? '—'}</p>
               </div>
             </button>
           </div>

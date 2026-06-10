@@ -371,16 +371,13 @@ export default function LoginPage() {
                   <label className="block text-sm font-semibold mb-2">{t('auth.group.setup.profession')}</label>
                   <div className="flex gap-3">
                     {[
-                      { value: 'etudiant_infirmier', label: 'Infirmier(e)', icon: '🏥' },
-                      { value: 'sage_femme',          label: 'Sage-femme',  icon: '👶' },
+                      { value: 'etudiant_infirmier', label: 'Infirmier(e)', icon: '🏥', active: 'border-indigo-500 bg-indigo-50 text-indigo-700' },
+                      { value: 'sage_femme',          label: 'Sage-femme',  icon: '👶', active: 'border-pink-500 bg-pink-50 text-pink-700' },
+                      { value: 'biologiste',          label: 'Biologiste',  icon: '🔬', active: 'border-emerald-500 bg-emerald-50 text-emerald-700' },
                     ].map((p) => (
                       <button key={p.value} type="button" onClick={() => setSetupProfession(p.value)}
                         className={`flex-1 flex flex-col items-center gap-1.5 py-3 rounded-xl border text-sm font-semibold transition ${
-                          setupProfession === p.value
-                            ? p.value === 'sage_femme'
-                              ? 'border-pink-500 bg-pink-50 text-pink-700'
-                              : 'border-indigo-500 bg-indigo-50 text-indigo-700'
-                            : 'border-border bg-secondary text-muted-foreground hover:border-primary/50'
+                          setupProfession === p.value ? p.active : 'border-border bg-secondary text-muted-foreground hover:border-primary/50'
                         }`}>
                         <span className="text-xl">{p.icon}</span>
                         <span>{p.label}</span>

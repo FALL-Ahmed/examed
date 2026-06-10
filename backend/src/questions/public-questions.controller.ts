@@ -2,7 +2,7 @@ import { Controller, Get, Post, Body, Query } from '@nestjs/common';
 import { QuestionsService } from './questions.service';
 
 // Noms de thèmes accessibles gratuitement (matching partiel, insensible à la casse)
-const FREE_THEME_KEYWORDS = ['maladies infectieuses', 'infectieuses', 'anatomie', 'الأمراض المعدية', 'التشريح'];
+const FREE_THEME_KEYWORDS = ['maladies infectieuses', 'infectieuses', 'anatomie', 'الأمراض المعدية', 'التشريح', 'obstetrique', 'التوليد', 'procedures generales', 'hematologie'];
 
 @Controller('questions/free-trial')
 export class PublicQuestionsController {

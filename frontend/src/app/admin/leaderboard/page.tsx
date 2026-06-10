@@ -37,7 +37,7 @@ const AVATAR_COLORS = [
   'bg-amber-500', 'bg-cyan-500', 'bg-fuchsia-500', 'bg-teal-500',
 ];
 
-type ProfFilter = 'all' | 'infirmier' | 'sage_femme';
+type ProfFilter = 'all' | 'infirmier' | 'sage_femme' | 'biologiste';
 
 export default function LeaderboardPage() {
   const [rows, setRows] = useState<UserRow[]>([]);
@@ -77,7 +77,7 @@ export default function LeaderboardPage() {
         <div className="ml-auto flex items-center gap-3 flex-wrap">
           {/* Filtre profession */}
           <div className="flex items-center gap-1 bg-muted rounded-xl p-1">
-            {([['all', 'Tous', ''], ['infirmier', '🏥 Infirmier', ''], ['sage_femme', '👶 Sage-femme', '']] as [ProfFilter, string, string][]).map(([val, label]) => (
+            {([['all', 'Tous', ''], ['infirmier', '🏥 Infirmier', ''], ['sage_femme', '👶 Sage-femme', ''], ['biologiste', '🔬 Biologiste', '']] as [ProfFilter, string, string][]).map(([val, label]) => (
               <button key={val} onClick={() => setProfFilter(val)}
                 className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition ${profFilter === val ? 'bg-white dark:bg-card shadow text-foreground' : 'text-muted-foreground hover:text-foreground'}`}>
                 {label}

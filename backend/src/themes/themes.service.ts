@@ -51,6 +51,20 @@ export class ThemesService {
       profession = user?.profession ?? null;
     }
 
+    if (profession === 'biologiste') {
+      return this.prisma.theme.findMany({
+        where: { target: 'BIOLOGISTE', ...(language ? { language } : {}) },
+        include: {
+          subThemes: {
+            select: { id: true, name: true, order: true, _count: { select: { questions: true } } },
+            orderBy: [{ order: 'asc' }, { name: 'asc' }],
+          },
+          _count: { select: { subThemes: true } },
+        },
+        orderBy: [{ order: 'asc' }, { name: 'asc' }],
+      });
+    }
+
     if (profession === 'sage_femme') {
       return this.prisma.theme.findMany({
         where: { target: 'SAGE_FEMME', ...(language ? { language } : {}) },

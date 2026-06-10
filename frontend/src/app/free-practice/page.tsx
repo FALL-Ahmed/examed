@@ -6,22 +6,25 @@ import { FomoResults } from '@/components/FomoResults';
 import { BookOpen, Lock, CheckCircle2, XCircle, ChevronRight, Loader2, Search } from 'lucide-react';
 import { sentenceCase, resolveImageUrl } from '@/lib/utils';
 
-type Target = 'INFIRMIER' | 'SAGE_FEMME';
+type Target = 'INFIRMIER' | 'SAGE_FEMME' | 'BIOLOGISTE';
 
 // Thèmes entièrement gratuits
 const FREE_KEYWORDS: Record<Target, string[]> = {
-  INFIRMIER:  ['maladies infectieuses', 'infectieuses', 'الأمراض المعدية', 'anatomie', 'التشريح'],
-  SAGE_FEMME: ['grossesse normale', 'الحمل الطبيعي'],
+  INFIRMIER:   ['maladies infectieuses', 'infectieuses', 'الأمراض المعدية', 'anatomie', 'التشريح'],
+  SAGE_FEMME:  [],
+  BIOLOGISTE:  ['procedures generales', 'procédures générales'],
 };
 
-// Thèmes partiellement gratuits : un seul sous-thème accessible
-const PARTIAL_KEYWORDS: Record<Target, { theme: string; subTheme: string } | null> = {
+// Thèmes partiellement gratuits : sous-thèmes accessibles gratuitement
+const PARTIAL_KEYWORDS: Record<Target, { theme: string; subThemes: string[] } | null> = {
   INFIRMIER:  null,
-  SAGE_FEMME: { theme: 'gynecologie', subTheme: 'infections sexuellement' },
+  SAGE_FEMME: { theme: 'obstetrique', subThemes: ['accouchement', 'dystocie'] },
+  BIOLOGISTE: { theme: 'hematologie', subThemes: ['generalites et prelevement', 'cellules sanguines'] },
 };
-const PARTIAL_KEYWORDS_AR: Record<Target, { theme: string; subTheme: string } | null> = {
+const PARTIAL_KEYWORDS_AR: Record<Target, { theme: string; subThemes: string[] } | null> = {
   INFIRMIER:  null,
-  SAGE_FEMME: { theme: 'أمراض النساء', subTheme: 'الأمراض المنقولة جنسياً' },
+  SAGE_FEMME: { theme: 'التوليد', subThemes: ['الولادة', 'عسر الولادة'] },
+  BIOLOGISTE: null,
 };
 
 function norm(s: string) { return s.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, ''); }
@@ -39,14 +42,15 @@ function isThemePartial(name: string, target: Target) {
   return (p && n.includes(norm(p.theme))) || (pAr && name.includes(pAr.theme));
 }
 
-function findFreeSubTheme(subThemes: any[], target: Target): any | null {
+function findFreeSubThemes(subThemes: any[], target: Target): any[] {
   const p = PARTIAL_KEYWORDS[target];
   const pAr = PARTIAL_KEYWORDS_AR[target];
-  if (!p && !pAr) return null;
-  return subThemes.find((s: any) => {
+  if (!p && !pAr) return [];
+  return subThemes.filter((s: any) => {
     const n = norm(s.name);
-    return (p && n.includes(norm(p.subTheme))) || (pAr && s.name.includes(pAr.subTheme));
-  }) ?? null;
+    return (p && p.subThemes.some((k) => n.includes(norm(k)))) ||
+           (pAr && pAr.subThemes.some((k) => s.name.includes(k)));
+  });
 }
 
 type Phase = 'select' | 'session' | 'results';
@@ -61,7 +65,7 @@ export default function FreePracticePage() {
 
   const [themes, setThemes] = useState<any[]>([]);
   const [loadingThemes, setLoadingThemes] = useState(true);
-  const [premiumModal, setPremiumModal] = useState<string | null>(null); // theme name
+  const [premiumModal, setPremiumModal] = useState<any | null>(null);
   const [search, setSearch] = useState('');
 
   // Config session
@@ -126,29 +130,6 @@ export default function FreePracticePage() {
     } catch { } finally { setLoadingQ(false); }
   }
 
-  async function startFreeSession() {
-    setLoadingQ(true);
-    setSessionThemeName('Grossesse & Gynécologie');
-    setSessionSubThemeName('');
-    try {
-      const { data } = await publicApi.freeSession(lang);
-      practiceSession.current = {
-        sessionId: `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
-        themeId: 'sf-free',
-        themeName: 'Grossesse & Gynécologie',
-        lang,
-      };
-      localStorage.setItem('albourour_source', 'free-practice');
-      trackPracticeEvent('start', { count: data.length });
-      setQuestions(data);
-      setResults([]);
-      setCurrentIdx(0);
-      setSelected([]);
-      setRevealed(false);
-      setPhase('session');
-    } catch { } finally { setLoadingQ(false); }
-  }
-
   function submitAnswer() {
     if (!selected.length) return;
     const q = questions[currentIdx];
@@ -178,6 +159,7 @@ export default function FreePracticePage() {
     setSelectedSubTheme(null);
     setSearch('');
     setResults([]);
+    setPremiumModal(null);
   }
 
   // ── Filtrage thèmes ──
@@ -243,9 +225,11 @@ export default function FreePracticePage() {
                   </h1>
                   <p className="text-white/70 text-sm mt-0.5">
                     {target === 'SAGE_FEMME'
-                      ? (isAr ? 'الحمل الطبيعي + فصل الأمراض المنقولة جنسياً · الباقي يتطلب اشتراكاً' : 'Grossesse normale + IST (Gynécologie) · Les autres nécessitent un abonnement')
-                      : (isAr ? 'موضوعان مجانيان · المواضيع الأخرى تتطلب اشتراكاً' : '2 thèmes offerts · Les autres nécessitent un abonnement Premium')
-                    }
+                    ? (isAr ? 'الولادة + عسر الولادة مجانان · الباقي يتطلب اشتراكاً' : 'Accouchement & Dystocies gratuits · Les autres nécessitent un abonnement')
+                    : target === 'BIOLOGISTE'
+                    ? (isAr ? 'إجراءات المختبر + مقدمة في أمراض الدم مجانية' : 'Procédures labo (complet) + 2 chapitres Hématologie gratuits')
+                    : (isAr ? 'موضوعان مجانيان · المواضيع الأخرى تتطلب اشتراكاً' : '2 thèmes offerts · Les autres nécessitent un abonnement Premium')
+                  }
                   </p>
                 </div>
               </div>
@@ -257,23 +241,21 @@ export default function FreePracticePage() {
               <div className="lg:col-span-2 space-y-4">
 
                 {/* Sélecteur filière */}
-                <div className="flex gap-3">
+                <div className="flex gap-2 flex-wrap">
                   {([
-                    { value: 'INFIRMIER' as Target,  icon: '🏥', fr: 'Infirmier(e)', ar: 'ممرض / ممرضة' },
-                    { value: 'SAGE_FEMME' as Target, icon: '👶', fr: 'Sage-femme',   ar: 'قابلة' },
+                    { value: 'INFIRMIER'  as Target, icon: '🏥', fr: 'Infirmier(e)', ar: 'ممرض / ممرضة',   active: 'border-indigo-500 bg-indigo-50 text-indigo-700' },
+                    { value: 'SAGE_FEMME' as Target, icon: '👶', fr: 'Sage-femme',   ar: 'قابلة',           active: 'border-pink-500 bg-pink-50 text-pink-700' },
+                    { value: 'BIOLOGISTE' as Target, icon: '🔬', fr: 'Biologiste',   ar: 'تقني مختبر',      active: 'border-emerald-500 bg-emerald-50 text-emerald-700' },
                   ]).map((t) => (
-                    <button key={t.value} onClick={() => { setTarget(t.value); setSelectedTheme(null); setSelectedSubTheme(null); setSearch(''); }}
-                      className={`flex-1 flex items-center justify-center gap-2 px-6 py-4 rounded-2xl border-2 text-base font-bold transition
-                        ${target === t.value
-                          ? t.value === 'SAGE_FEMME' ? 'border-pink-500 bg-pink-50 text-pink-700 shadow-sm' : 'border-indigo-500 bg-indigo-50 text-indigo-700 shadow-sm'
-                          : 'border-border bg-card text-muted-foreground hover:border-border/80'}`}>
-                      <span className="text-2xl">{t.icon}</span> {isAr ? t.ar : t.fr}
+                    <button key={t.value} onClick={() => { setTarget(t.value); setSelectedTheme(null); setSelectedSubTheme(null); setSearch(''); setPremiumModal(null); }}
+                      className={`flex-1 min-w-[110px] flex items-center justify-center gap-2 px-4 py-3 rounded-2xl border-2 text-sm font-bold transition
+                        ${target === t.value ? t.active + ' shadow-sm' : 'border-border bg-card text-muted-foreground hover:border-border/80'}`}>
+                      <span className="text-xl">{t.icon}</span> {isAr ? t.ar : t.fr}
                     </button>
                   ))}
                 </div>
 
-                {/* Barre de recherche — masquée pour SAGE_FEMME */}
-                {target === 'INFIRMIER' && (
+                {/* Barre de recherche */}
                 <div className="relative">
                   <Search className={`absolute ${isAr ? 'right-3' : 'left-3'} top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground`} />
                   <input
@@ -284,36 +266,15 @@ export default function FreePracticePage() {
                     className={`w-full ${isAr ? 'pr-9 pl-4' : 'pl-9 pr-4'} py-2.5 border border-border rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 bg-card text-foreground`}
                   />
                 </div>
-                )}
 
-                {/* Écran démarrage direct pour SAGE_FEMME */}
-                {target === 'SAGE_FEMME' && (
-                  <div className="flex flex-col items-center justify-center py-10 gap-6">
-                    <div className="text-center space-y-2">
-                      <h2 className="text-xl font-bold">{isAr ? 'جلسة تدريب مجانية' : 'Session d\'entraînement gratuite'}</h2>
-                      <p className="text-muted-foreground text-sm max-w-xs mx-auto">
-                        {isAr
-                          ? '40 سؤالاً من مواضيع الحمل الطبيعي والأمراض المنقولة جنسياً'
-                          : '40 questions sur la grossesse normale et les infections sexuellement transmissibles'}
-                      </p>
-                    </div>
-                    <button
-                      onClick={startFreeSession}
-                      disabled={loadingQ}
-                      className="flex items-center gap-2 px-8 py-4 bg-pink-600 hover:bg-pink-700 text-white font-bold text-lg rounded-2xl transition disabled:opacity-60">
-                      {loadingQ ? <Loader2 className="w-5 h-5 animate-spin" /> : <ChevronRight className="w-5 h-5" />}
-                      {isAr ? 'ابدأ الجلسة' : 'Démarrer la session'}
-                    </button>
-                  </div>
-                )}
-
-                {target === 'INFIRMIER' && loadingThemes ? (
+                {loadingThemes ? (
                   <div className="flex justify-center py-12"><Loader2 className="w-6 h-6 animate-spin text-primary" /></div>
-                ) : target === 'INFIRMIER' ? (
+                ) : (
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 items-start">
                     {filtered.map((theme) => {
                       const free = isThemeFree(theme.name, target);
                       const partial = !free && isThemePartial(theme.name, target);
+                      const freeSubCount = partial ? findFreeSubThemes(theme.subThemes ?? [], target).length : 0;
                       const qCount = theme.subThemes?.reduce((s: number, st: any) => s + (st._count?.questions ?? 0), 0) ?? 0;
                       const isSelected = selectedTheme?.id === theme.id;
                       return (
@@ -324,11 +285,11 @@ export default function FreePracticePage() {
                               setSelectedTheme(theme); setSelectedSubTheme(null); setPremiumModal(null);
                               setTimeout(() => configRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 50);
                             } else if (partial) {
-                              const freeSub = findFreeSubTheme(theme.subThemes ?? [], target);
-                              setSelectedTheme(theme); setSelectedSubTheme(freeSub ?? null); setPremiumModal(null);
+                              const freeSubs = findFreeSubThemes(theme.subThemes ?? [], target);
+                              setSelectedTheme(theme); setSelectedSubTheme(freeSubs[0] ?? null); setPremiumModal(null);
                               setTimeout(() => configRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 50);
                             } else {
-                              setPremiumModal(theme.name);
+                              setPremiumModal(theme);
                             }
                           }}
                           className={`relative p-4 rounded-xl border-2 transition-all duration-200 ${isAr ? 'text-right' : 'text-left'} ${
@@ -336,7 +297,7 @@ export default function FreePracticePage() {
                               ? isSelected
                                 ? 'border-primary bg-primary/5 shadow-md'
                                 : 'border-border bg-card hover:border-primary/40 hover:shadow-sm'
-                              : 'border-border bg-secondary/40 opacity-70 cursor-pointer'
+                              : 'border-border bg-secondary/40 opacity-70 cursor-pointer hover:opacity-90'
                           }`}
                         >
                           <div className={`absolute top-3 ${isAr ? 'left-3' : 'right-3'}`}>
@@ -346,7 +307,7 @@ export default function FreePracticePage() {
                               </span>
                             ) : partial ? (
                               <span className="bg-amber-400 text-white text-[10px] font-bold px-2 py-0.5 rounded-full">
-                                {isAr ? 'فصل مجاني' : '1 chapitre gratuit'}
+                                {isAr ? `${freeSubCount} فصول مجانية` : `${freeSubCount} chapitres gratuits`}
                               </span>
                             ) : (
                               <span className="bg-secondary text-muted-foreground text-[10px] font-bold px-2 py-0.5 rounded-full flex items-center gap-1">
@@ -368,7 +329,7 @@ export default function FreePracticePage() {
                       );
                     })}
                   </div>
-                ) : null}
+                )}
               </div>
 
               {/* Panneau config — identique au side panel du dashboard practice */}
@@ -392,12 +353,21 @@ export default function FreePracticePage() {
                             {!isThemePartial(selectedTheme.name, target) && <span className="font-normal"> ({isAr ? 'اختياري' : 'optionnel'})</span>}
                           </label>
                           {isThemePartial(selectedTheme.name, target) ? (
-                            <div className="w-full px-3 py-2 border border-amber-300 bg-amber-50 rounded-xl text-sm text-amber-800 font-medium">
-                              {sentenceCase(selectedSubTheme?.name ?? '')}
-                              <span className="ml-2 text-[10px] font-bold bg-amber-400 text-white px-1.5 py-0.5 rounded-full">
-                                {isAr ? 'مجاني' : 'GRATUIT'}
-                              </span>
-                            </div>
+                            <select
+                              value={selectedSubTheme?.id ?? ''}
+                              onChange={(e) => {
+                                const st = selectedTheme.subThemes.find((s: any) => s.id === e.target.value) ?? null;
+                                setSelectedSubTheme(st);
+                                if (st) setCount(Math.min(count, st._count?.questions ?? count));
+                              }}
+                              className="w-full px-3 py-2 border border-amber-300 bg-amber-50 rounded-xl text-sm text-amber-800 font-medium focus:outline-none focus:ring-2 focus:ring-amber-400/30"
+                            >
+                              {findFreeSubThemes(selectedTheme.subThemes, target).map((st: any) => (
+                                <option key={st.id} value={st.id}>
+                                  {sentenceCase(st.name)} ({st._count?.questions ?? 0} {isAr ? 'سؤال' : 'q'}) ✓ {isAr ? 'مجاني' : 'Gratuit'}
+                                </option>
+                              ))}
+                            </select>
                           ) : (
                             <select
                               value={selectedSubTheme?.id ?? ''}
@@ -591,22 +561,38 @@ export default function FreePracticePage() {
       {premiumModal && (
         <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4" onClick={() => setPremiumModal(null)}>
           <div className="bg-card border border-border rounded-2xl p-6 max-w-sm w-full shadow-2xl animate-slide-in" onClick={(e) => e.stopPropagation()}>
-            <div className="text-center space-y-4">
-              <div className="w-12 h-12 rounded-2xl bg-primary/10 flex items-center justify-center mx-auto">
-                <Lock className="w-6 h-6 text-primary" />
+            <div className="space-y-4">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center flex-shrink-0">
+                  <Lock className="w-5 h-5 text-primary" />
+                </div>
+                <div>
+                  <p className="font-bold text-foreground">{sentenceCase(premiumModal.name)}</p>
+                  <p className="text-xs text-muted-foreground mt-0.5">
+                    {isAr ? 'هذا الموضوع متاح للمشتركين فقط' : 'Réservé aux abonnés Premium'}
+                  </p>
+                </div>
               </div>
-              <div>
-                <p className="font-bold text-foreground">{sentenceCase(premiumModal)}</p>
-                <p className="text-sm text-muted-foreground mt-1">
-                  {isAr ? 'هذا الموضوع متاح للمشتركين فقط' : 'Ce thème est réservé aux abonnés Premium'}
-                </p>
-              </div>
+
+              {/* Liste des sous-thèmes */}
+              {premiumModal.subThemes?.length > 0 && (
+                <div className="bg-secondary/50 rounded-xl p-3 space-y-1.5 max-h-48 overflow-y-auto">
+                  {premiumModal.subThemes.map((st: any) => (
+                    <div key={st.id} className={`flex items-center gap-2 text-xs ${isAr ? 'flex-row-reverse' : ''}`}>
+                      <Lock className="w-3 h-3 flex-shrink-0 text-muted-foreground/50" />
+                      <span className="flex-1 text-muted-foreground">{sentenceCase(st.name)}</span>
+                      <span className="text-muted-foreground/60 font-medium">{st._count?.questions ?? 0} q</span>
+                    </div>
+                  ))}
+                </div>
+              )}
+
               <Link href="/register"
                 className="flex items-center justify-center gap-2 w-full py-3 rounded-xl font-bold text-white text-sm transition hover:opacity-90 gradient-primary shadow-lg shadow-violet-500/20">
                 {isAr ? 'أنشئ حسابك الآن' : 'Activer mon compte Premium'}
               </Link>
               <button onClick={() => setPremiumModal(null)}
-                className="text-xs text-muted-foreground hover:text-foreground transition">
+                className="block w-full text-center text-xs text-muted-foreground hover:text-foreground transition">
                 {isAr ? 'ربما لاحقاً' : 'Plus tard'}
               </button>
             </div>

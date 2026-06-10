@@ -14,7 +14,7 @@ const PROFESSION_LABELS: Record<string, string> = {
   etudiant_infirmier: 'Étudiant infirmier', etudiant_medecine: 'Étudiant médecine',
   etudiant_pharmacie: 'Étudiant pharmacie', infirmier_diplome: 'Infirmier diplômé',
   aide_soignant: 'Aide-soignant', medecin: 'Médecin', sage_femme: 'Sage-femme',
-  technicien_labo: 'Technicien labo', autre: 'Autre',
+  biologiste: 'Biologiste', technicien_labo: 'Technicien labo', autre: 'Autre',
 };
 
 const MODE_LABELS: Record<string, { label: string; color: string }> = {

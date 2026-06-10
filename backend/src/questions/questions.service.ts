@@ -31,7 +31,7 @@ export class QuestionsService {
 
     // Déterminer le target selon la profession
     const user = await this.prisma.user.findUnique({ where: { id: userId }, select: { profession: true } });
-    const userTarget = user?.profession === 'sage_femme' ? 'SAGE_FEMME' : 'INFIRMIER';
+    const userTarget = user?.profession === 'sage_femme' ? 'SAGE_FEMME' : user?.profession === 'biologiste' ? 'BIOLOGISTE' : 'INFIRMIER';
 
     const where: any = { isActive: true };
     if (opts.subThemeId) {
@@ -69,7 +69,7 @@ export class QuestionsService {
     }
 
     const userExam = await this.prisma.user.findUnique({ where: { id: userId }, select: { profession: true } });
-    const examTarget = userExam?.profession === 'sage_femme' ? 'SAGE_FEMME' : 'INFIRMIER';
+    const examTarget = userExam?.profession === 'sage_femme' ? 'SAGE_FEMME' : userExam?.profession === 'biologiste' ? 'BIOLOGISTE' : 'INFIRMIER';
 
     const where: any = { isActive: true };
     const subFilter: any = {};

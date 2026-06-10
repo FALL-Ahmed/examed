@@ -12,6 +12,7 @@ const PROFESSIONS = [
   { value: 'aide_soignant',           fr: 'Aide-soignant',                    ar: 'مساعد تمريض' },
   { value: 'medecin',                 fr: 'Médecin',                          ar: 'طبيب' },
   { value: 'sage_femme',              fr: 'Sage-femme',                       ar: 'قابلة' },
+  { value: 'biologiste',              fr: 'Biologiste',                       ar: 'بيولوجي' },
   { value: 'technicien_labo',         fr: 'Technicien de laboratoire',        ar: 'تقني مخبر' },
   { value: 'autre',                   fr: 'Autre professionnel de santé',     ar: 'مهني صحة آخر' },
 ];

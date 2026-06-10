@@ -11,6 +11,7 @@ const PROFESSION_LABELS: Record<string, string> = {
   aide_soignant:      'Aide-soignant',
   medecin:            'Médecin',
   sage_femme:         'Sage-femme',
+  biologiste:         'Biologiste',
   technicien_labo:    'Technicien labo',
   autre:              'Autre',
 };

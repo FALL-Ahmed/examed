@@ -19,7 +19,7 @@ interface Props {
   themeId?: string;
   subThemeId?: string;
   lang: 'fr' | 'ar';
-  target?: 'INFIRMIER' | 'SAGE_FEMME';
+  target?: 'INFIRMIER' | 'SAGE_FEMME' | 'BIOLOGISTE';
   onRestart: () => void;
   onCtaClick?: () => void;
   sessionId?: string;

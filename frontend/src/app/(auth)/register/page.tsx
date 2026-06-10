@@ -348,17 +348,13 @@ function RegisterContent() {
                 <label className={labelClass}>{isAr ? 'المهنة' : 'Profession'} <span className="text-red-400">*</span></label>
                 <div className="grid grid-cols-2 gap-3 mt-1">
                   {[
-                    { value: 'etudiant_infirmier', fr: 'Infirmier(e)', ar: 'ممرض / ممرضة', icon: '🏥' },
-                    { value: 'sage_femme',          fr: 'Sage-femme',  ar: 'قابلة',         icon: '👶' },
+                    { value: 'etudiant_infirmier', fr: 'Infirmier(e)', ar: 'ممرض / ممرضة', icon: '🏥', active: 'border-indigo-500 bg-indigo-50 text-indigo-700' },
+                    { value: 'sage_femme',          fr: 'Sage-femme',  ar: 'قابلة',         icon: '👶', active: 'border-pink-500 bg-pink-50 text-pink-700' },
+                    { value: 'biologiste',          fr: 'Biologiste',  ar: 'بيولوجي',       icon: '🔬', active: 'border-emerald-500 bg-emerald-50 text-emerald-700' },
                   ].map((p) => (
                     <button key={p.value} type="button" onClick={() => set('profession', p.value)}
                       className={`flex flex-col items-center gap-2 py-4 px-3 rounded-2xl border-2 font-semibold text-sm transition
-                        ${form.profession === p.value
-                          ? p.value === 'sage_femme'
-                            ? 'border-pink-500 bg-pink-50 text-pink-700'
-                            : 'border-indigo-500 bg-indigo-50 text-indigo-700'
-                          : 'border-gray-200 bg-white text-gray-500 hover:border-gray-300 hover:bg-gray-50'
-                        }`}>
+                        ${form.profession === p.value ? p.active : 'border-gray-200 bg-white text-gray-500 hover:border-gray-300 hover:bg-gray-50'}`}>
                       <span className="text-2xl">{p.icon}</span>
                       <span>{isAr ? p.ar : p.fr}</span>
                     </button>
