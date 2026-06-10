@@ -357,7 +357,7 @@ export default function AdminUsersPage() {
             <input
               value={search}
               onChange={(e) => { setSearch(e.target.value); setPage(1); }}
-              placeholder="Rechercher par nom ou email..."
+              placeholder="Rechercher par nom, email ou téléphone..."
               className="w-full pl-11 pr-4 py-3 border rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary bg-white"
             />
           </div>

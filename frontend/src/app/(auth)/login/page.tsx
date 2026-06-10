@@ -8,6 +8,7 @@ import { useLang } from '@/components/LanguageProvider';
 import { BookOpen, Eye, EyeOff, Loader2, Stethoscope, Activity, Shield, Users, Smartphone, UserCheck } from 'lucide-react';
 import { authApi } from '@/lib/api';
 import { LanguageSwitcherLight } from '@/components/LanguageSwitcher';
+import PWAInstallBanner from '@/components/PWAInstallBanner';
 
 
 const WILAYAS = [
@@ -137,6 +138,7 @@ export default function LoginPage() {
 
   return (
     <div className="min-h-screen flex" dir={lang === 'ar' ? 'rtl' : 'ltr'}>
+      <PWAInstallBanner />
 
       {/* ── LEFT animated brand panel ── */}
       <div className="hidden lg:flex lg:w-[55%] flex-col relative overflow-hidden"

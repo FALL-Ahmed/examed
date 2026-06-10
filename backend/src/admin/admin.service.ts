@@ -24,7 +24,7 @@ export class AdminService {
       rows = await this.prisma.$queryRaw`
         SELECT DATE("createdAt") AS day, COUNT(*)::int AS count
         FROM "User"
-        WHERE "createdAt" >= ${from} AND role != 'ADMIN' AND profession = 'etudiant_infirmier'
+        WHERE "createdAt" >= ${from} AND role != 'ADMIN' AND profession IN ('etudiant_infirmier', 'infirmier_diplome')
         GROUP BY DATE("createdAt") ORDER BY day ASC
       `;
     } else {
@@ -117,7 +117,7 @@ export class AdminService {
     if (profession === 'sage_femme') {
       where.profession = 'sage_femme';
     } else if (profession === 'infirmier') {
-      where.profession = { not: 'sage_femme' };
+      where.profession = { in: ['etudiant_infirmier', 'infirmier_diplome'] };
     }
     if (expiringSoon) {
       const now = new Date();
@@ -153,7 +153,7 @@ export class AdminService {
       }),
       this.prisma.user.count({ where }),
       this.prisma.user.count({ where: { role: { not: 'ADMIN' }, profession: 'sage_femme' } }),
-      this.prisma.user.count({ where: { role: { not: 'ADMIN' }, OR: [{ profession: { not: 'sage_femme' } }, { profession: null }] } }),
+      this.prisma.user.count({ where: { role: { not: 'ADMIN' }, profession: { in: ['etudiant_infirmier', 'infirmier_diplome'] } } }),
     ]);
 
     return { users, total, page, totalPages: Math.ceil(total / limit), sageFemmeCount, infirmierCount };
@@ -292,7 +292,7 @@ export class AdminService {
 
     const userWhere: any = { id: { in: allUserIds }, role: { not: 'ADMIN' } };
     if (profession === 'sage_femme') userWhere.profession = 'sage_femme';
-    else if (profession === 'infirmier') userWhere.profession = { not: 'sage_femme' };
+    else if (profession === 'infirmier') userWhere.profession = { in: ['etudiant_infirmier', 'infirmier_diplome'] };
 
     const users = await this.prisma.user.findMany({
       where: userWhere,
@@ -478,7 +478,7 @@ export class AdminService {
     // totalQ/correctQ stockés dans Attempt à la complétion — résistent à la suppression des questions
     const userWhere: any = { role: { not: 'ADMIN' } };
     if (profession === 'sage_femme') userWhere.profession = 'sage_femme';
-    if (profession === 'infirmier')  userWhere.profession = { not: 'sage_femme' };
+    if (profession === 'infirmier')  userWhere.profession = { in: ['etudiant_infirmier', 'infirmier_diplome'] };
 
     const [attemptsByUser, users] = await Promise.all([
       this.prisma.attempt.groupBy({
@@ -550,7 +550,7 @@ export class AdminService {
     const isIF = target === 'INFIRMIER';
     const userWhere: any = { role: { not: 'ADMIN' } };
     if (isSF) userWhere.profession = 'sage_femme';
-    if (isIF) userWhere.profession = { not: 'sage_femme' };
+    if (isIF) userWhere.profession = { in: ['etudiant_infirmier', 'infirmier_diplome'] };
 
     const targetClause = isSF ? `AND th.target = 'SAGE_FEMME'` : isIF ? `AND th.target = 'INFIRMIER'` : '';
 
