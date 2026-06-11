@@ -1,7 +1,7 @@
 'use client';
 import Link from 'next/link';
 import { useLang } from '@/components/LanguageProvider';
-import { BookOpen, ChevronRight, CheckCircle2, TrendingUp, Target as TargetIcon } from 'lucide-react';
+import { BookOpen, ChevronRight } from 'lucide-react';
 
 type AnnonceProfession = 'INFIRMIER' | 'SAGE_FEMME' | 'BIOLOGISTE';
 
@@ -18,7 +18,7 @@ const CONTENT: Record<AnnonceProfession, { fr: any; ar: any }> = {
       country: 'en Mauritanie',
       subtitle: 'Prépare le concours officiel en toute confiance',
       features: [
-        'Plus de 700 QCM infirmiers, corrigés et commentés',
+        'Plus de 800 QCM infirmiers, corrigés et commentés',
         'Suivi de ton évolution et comparaison nationale avec tes collègues',
         'Révision ciblée de tes points faibles, chapitre par chapitre',
       ],
@@ -30,7 +30,7 @@ const CONTENT: Record<AnnonceProfession, { fr: any; ar: any }> = {
       country: 'في موريتانيا',
       subtitle: 'استعدّ للامتحان الرسمي باطمئنان',
       features: [
-        'أكثر من 700 سؤال QCM خاصّة بالممرّضين مع تصحيح وشرح',
+        'أكثر من 800 سؤال QCM خاصّة بالممرّضين مع تصحيح وشرح',
         'متابعة تطوّر مستواك ومقارنة نتائجك بزملائك على المستوى الوطني',
         'تحديد نِقَاط الضعف ومراجعتها محورًا بمحور',
       ],
@@ -44,7 +44,7 @@ const CONTENT: Record<AnnonceProfession, { fr: any; ar: any }> = {
       country: 'en Mauritanie',
       subtitle: 'Prépare le concours officiel en toute confiance',
       features: [
-        'Plus de 700 QCM sages‑femmes, corrigés et commentés par des gynécologues',
+        'Plus de 800 QCM sages‑femmes, corrigés et commentés par des gynécologues',
         'Suivi de ton évolution et comparaison nationale avec tes collègues',
         'Révision ciblée de tes points faibles, chapitre par chapitre',
       ],
@@ -56,7 +56,7 @@ const CONTENT: Record<AnnonceProfession, { fr: any; ar: any }> = {
       country: 'في موريتانيا',
       subtitle: 'استعدّي للامتحان الرسمي بثقة',
       features: [
-        'أكثر من 700 سؤال QCM خاصّ بالقابلات، مع تصحيح وشرح من أطبّاء نساء وتوليد',
+        'أكثر من 800 سؤال QCM خاصّ بالقابلات، مع تصحيح وشرح من أطبّاء نساء وتوليد',
         'متابعة تطوّر مستواك ومقارنة نتائجك بزميلاتك على المستوى الوطني',
         'مراجعة مركَّزة لنِقَاط الضعف، محورًا بمحور',
       ],
@@ -128,7 +128,7 @@ const THEME: Record<AnnonceProfession, any> = {
   },
 };
 
-const ICONS = [CheckCircle2, TrendingUp, TargetIcon];
+const ICONS = ['✅', '📊', '🎯'];
 
 export function AnnoncePageContent({ target }: { target: AnnonceProfession }) {
   const { lang, setLang } = useLang();
@@ -169,8 +169,8 @@ export function AnnoncePageContent({ target }: { target: AnnonceProfession }) {
       </nav>
 
       {/* Hero */}
-      <section className="relative z-10 text-center px-5 pt-4 pb-8">
-        <p className={`text-sm font-semibold uppercase tracking-widest mb-3 ${theme.dimText}`}>
+      <section className="relative z-10 text-center px-5 pt-4 pb-4">
+        <p className={`text-xs font-semibold uppercase tracking-widest mb-2 ${theme.dimText}`}>
           {c.label}
         </p>
         <h1
@@ -186,33 +186,24 @@ export function AnnoncePageContent({ target }: { target: AnnonceProfession }) {
         >
           {profName}
         </h1>
-        <p className={`text-lg font-bold mt-1 mb-5 ${theme.dimText}`}>
+        <p className={`text-base font-bold mt-0 mb-3 ${theme.dimText}`}>
           {c.country}
         </p>
-        <div className="flex items-center justify-center gap-3 mb-5">
-          <div className="h-px flex-1 max-w-[80px] bg-white/10" />
-          <p className="text-white/80 text-base font-semibold">{c.subtitle}</p>
-          <div className="h-px flex-1 max-w-[80px] bg-white/10" />
-        </div>
+        <p className="text-white/80 text-sm font-semibold mb-4">{c.subtitle}</p>
       </section>
 
       {/* Features */}
       <section className="relative z-10 px-5 pb-6 max-w-md mx-auto space-y-3">
-        {c.features.map((f: string, i: number) => {
-          const Icon = ICONS[i];
-          return (
-            <div
-              key={i}
-              className={`rounded-2xl px-5 py-4 flex items-center gap-4 ${isAr ? 'flex-row-reverse text-right' : ''}`}
-              style={{ background: theme.featuresBg, border: `1px solid ${theme.featuresBorder}` }}
-            >
-              <div className="flex-shrink-0 w-11 h-11 rounded-xl flex items-center justify-center" style={{ background: theme.accent }}>
-                <Icon className="w-5 h-5 text-white" />
-              </div>
-              <p className="text-white font-bold text-base leading-snug">{f}</p>
-            </div>
-          );
-        })}
+        {c.features.map((f: string, i: number) => (
+          <div
+            key={i}
+            className={`rounded-2xl px-5 py-4 flex items-center gap-4 ${isAr ? 'flex-row-reverse text-right' : ''}`}
+            style={{ background: theme.featuresBg, border: `1px solid ${theme.featuresBorder}` }}
+          >
+            <span className="text-3xl flex-shrink-0">{ICONS[i]}</span>
+            <p className="text-white font-bold text-base leading-snug">{f}</p>
+          </div>
+        ))}
       </section>
 
       {/* CTA */}
@@ -222,8 +213,8 @@ export function AnnoncePageContent({ target }: { target: AnnonceProfession }) {
           className={`flex items-center justify-center gap-2 w-full py-4 rounded-2xl font-black text-white text-base shadow-2xl transition active:scale-95 mb-3 ${isAr ? 'flex-row-reverse' : ''}`}
           style={{ background: theme.accent }}
         >
-          {c.btn}
-          <ChevronRight className={`w-5 h-5 flex-shrink-0 ${isAr ? 'rotate-180' : ''}`} />
+          <span className="text-sm sm:text-base">{c.btn}</span>
+          <ChevronRight className={`w-4 h-4 flex-shrink-0 ${isAr ? 'rotate-180' : ''}`} />
         </Link>
         <p className="text-white/40 text-xs text-center leading-relaxed px-2">
           {c.sub}
