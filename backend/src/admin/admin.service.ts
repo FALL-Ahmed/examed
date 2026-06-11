@@ -73,13 +73,13 @@ export class AdminService {
       pendingPayments, pendingGroupPayments,
       todayRegistrations, weekRegistrations,
     ] = await Promise.all([
-      this.prisma.user.count({ where: { role: { not: 'ADMIN' } } }),
+      this.prisma.user.count({ where: { role: { not: 'ADMIN' }, payments: { some: { status: 'VALIDATED' } } } }),
       this.prisma.user.count({ where: { role: 'PREMIUM' } }),
       this.prisma.question.count({ where: { isActive: true } }),
       this.prisma.payment.count({ where: { status: 'PENDING' } }),
       this.prisma.payment.count({ where: { status: 'PENDING', planType: 'GROUP' } }),
-      this.prisma.user.count({ where: { createdAt: { gte: startOfDay } } }),
-      this.prisma.user.count({ where: { createdAt: { gte: startOfWeek } } }),
+      this.prisma.payment.count({ where: { status: 'VALIDATED', validatedAt: { gte: startOfDay } } }),
+      this.prisma.payment.count({ where: { status: 'VALIDATED', validatedAt: { gte: startOfWeek } } }),
     ]);
 
     const [
@@ -117,7 +117,7 @@ export class AdminService {
   }
 
   async getUsers(page = 1, limit = 20, search?: string, planType?: string, expiringSoon?: boolean, profession?: string) {
-    const where: any = { role: { not: 'ADMIN' } };
+    const where: any = { role: { not: 'ADMIN' }, payments: { some: { status: 'VALIDATED' } } };
     if (planType) {
       where.payments = { some: { status: 'VALIDATED', planType } };
     }
@@ -161,9 +161,9 @@ export class AdminService {
         },
       }),
       this.prisma.user.count({ where }),
-      this.prisma.user.count({ where: { role: { not: 'ADMIN' }, profession: 'sage_femme' } }),
-      this.prisma.user.count({ where: { role: { not: 'ADMIN' }, profession: { in: ['etudiant_infirmier', 'infirmier_diplome'] } } }),
-      this.prisma.user.count({ where: { role: { not: 'ADMIN' }, profession: 'biologiste' } }),
+      this.prisma.user.count({ where: { role: { not: 'ADMIN' }, profession: 'sage_femme', payments: { some: { status: 'VALIDATED' } } } }),
+      this.prisma.user.count({ where: { role: { not: 'ADMIN' }, profession: { in: ['etudiant_infirmier', 'infirmier_diplome'] }, payments: { some: { status: 'VALIDATED' } } } }),
+      this.prisma.user.count({ where: { role: { not: 'ADMIN' }, profession: 'biologiste', payments: { some: { status: 'VALIDATED' } } } }),
     ]);
 
     return { users, total, page, totalPages: Math.ceil(total / limit), sageFemmeCount, infirmierCount, biologisteCount };

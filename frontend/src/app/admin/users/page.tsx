@@ -308,6 +308,7 @@ export default function AdminUsersPage() {
               <button onClick={() => { setProfFilter(null); }} className={`px-3 py-1.5 rounded-lg text-xs font-medium border transition ${!profFilter ? 'bg-slate-800 text-white border-slate-800' : 'border-slate-200 text-slate-500 hover:bg-slate-50'}`}>Tous</button>
               <button onClick={() => { setProfFilter('infirmier'); }} className={`px-3 py-1.5 rounded-lg text-xs font-medium border transition ${profFilter === 'infirmier' ? 'bg-blue-500 text-white border-blue-500' : 'border-slate-200 text-slate-500 hover:bg-slate-50'}`}>🏥 Infirmiers</button>
               <button onClick={() => { setProfFilter('sage_femme'); }} className={`px-3 py-1.5 rounded-lg text-xs font-medium border transition ${profFilter === 'sage_femme' ? 'bg-pink-500 text-white border-pink-500' : 'border-slate-200 text-slate-500 hover:bg-slate-50'}`}>👶 Sage-femmes</button>
+              <button onClick={() => { setProfFilter('biologiste'); }} className={`px-3 py-1.5 rounded-lg text-xs font-medium border transition ${profFilter === 'biologiste' ? 'bg-emerald-500 text-white border-emerald-500' : 'border-slate-200 text-slate-500 hover:bg-slate-50'}`}>🔬 Biologistes</button>
             </div>
           </div>
           {activityLoading ? (
