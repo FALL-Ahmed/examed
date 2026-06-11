@@ -237,11 +237,11 @@ function ResultsContent() {
             </p>
             <div className="grid grid-cols-2 gap-4">
               {(isAr ? [
-                { name: 'مريم', role: 'ممرضة', img: '/images/ar-com-1.jpeg' },
-                { name: 'سيدي', role: 'ممرض', img: '/images/ar-com-2.jpeg' },
+                { name: 'مريم', role: localState?.target === 'SAGE_FEMME' ? 'قابلة' : localState?.target === 'BIOLOGISTE' ? 'بيولوجية' : 'ممرضة', img: '/images/ar-com-1.jpeg' },
+                { name: 'سيدي', role: localState?.target === 'SAGE_FEMME' ? 'قابل' : localState?.target === 'BIOLOGISTE' ? 'بيولوجي' : 'ممرض', img: '/images/ar-com-2.jpeg' },
               ] : [
-                { name: 'Fatimetou', role: 'Infirmière', img: '/images/fr-com-1.jpeg' },
-                { name: 'Mohamed',   role: 'Infirmier',  img: '/images/fr-com-2.png'  },
+                { name: 'Fatimetou', role: localState?.target === 'SAGE_FEMME' ? 'Sage-femme' : localState?.target === 'BIOLOGISTE' ? 'Biologiste' : 'Infirmière', img: '/images/fr-com-1.jpeg' },
+                { name: 'Mohamed',   role: localState?.target === 'SAGE_FEMME' ? 'Sage-femme' : localState?.target === 'BIOLOGISTE' ? 'Biologiste' : 'Infirmier',  img: '/images/fr-com-2.png'  },
               ]).map(t => (
                 <div key={t.name} className="flex flex-col items-center text-center">
                   <div className="mb-2 overflow-hidden rounded-xl w-full">

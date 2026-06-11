@@ -142,14 +142,14 @@ export function ExamenBlancPageContent({ target }: { target: Target }) {
   useEffect(() => { load(); }, [load]);
   useEffect(() => {
     const testimonials = isAr
-      ? [{ name: 'مريم', role: isSF ? 'قابلة' : 'ممرضة', img: '/images/ar-com-1.jpeg' }, { name: 'سيدي', role: isSF ? 'قابل' : 'ممرض', img: '/images/ar-com-2.jpeg' }]
-      : [{ name: 'Fatimetou', role: isSF ? 'Sage-femme' : 'Infirmière', img: '/images/fr-com-1.jpeg' }, { name: 'Mohamed', role: isSF ? 'Sage-femme' : 'Infirmier', img: '/images/fr-com-2.png' }];
+      ? [{ name: 'مريم', role: isSF ? 'قابلة' : isBIO ? 'بيولوجية' : 'ممرضة', img: '/images/ar-com-1.jpeg' }, { name: 'سيدي', role: isSF ? 'قابل' : isBIO ? 'بيولوجي' : 'ممرض', img: '/images/ar-com-2.jpeg' }]
+      : [{ name: 'Fatimetou', role: isSF ? 'Sage-femme' : isBIO ? 'Biologiste' : 'Infirmière', img: '/images/fr-com-1.jpeg' }, { name: 'Mohamed', role: isSF ? 'Sage-femme' : isBIO ? 'Biologiste' : 'Infirmier', img: '/images/fr-com-2.png' }];
     const id = setInterval(() => {
       setTestFade(false);
       setTimeout(() => { setTestIdx(i => (i + 1) % testimonials.length); setTestFade(true); }, 700);
     }, 7000);
     return () => clearInterval(id);
-  }, [isAr, isSF]);
+  }, [isAr, isSF, isBIO]);
 
   if (loading && !data) return (
     <div className="min-h-screen flex items-center justify-center" style={{ background: theme.bg }}>
@@ -224,7 +224,7 @@ export function ExamenBlancPageContent({ target }: { target: Target }) {
           <h1 className="text-4xl sm:text-5xl lg:text-6xl font-black text-white leading-tight mb-4">
             {isAr ? 'امتحان تجريبي' : 'Examen Blanc'}
             <span className="block text-5xl sm:text-7xl lg:text-8xl" style={{ background: theme.textGrad, WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', paddingBottom: '0.15em' }}>
-              {isAr ? (isSF ? 'للقابلات' : 'للممرضين') : (isSF ? 'Sage-femme' : 'Infirmier')}
+              {isAr ? (isSF ? 'للقابلات' : isBIO ? 'للبيولوجيين' : 'للممرضين') : (isSF ? 'Sage-femme' : isBIO ? 'Biologiste' : 'Infirmier')}
             </span>
             <span className={`block text-2xl sm:text-3xl lg:text-4xl font-bold mt-2 ${theme.textDim}`}>
               {isAr ? 'على المستوى الوطني' : 'À l\'échelle nationale'}
@@ -308,8 +308,8 @@ export function ExamenBlancPageContent({ target }: { target: Target }) {
                 <div className="absolute -bottom-4 -left-4 w-20 h-20 rounded-full bg-white/5 pointer-events-none" />
                 <p className="font-extrabold text-sm mb-3 text-center">
                   {isAr
-                    ? (isSF ? 'هل تريد النجاح في مسابقة القابلات؟ 🎯' : 'هل تريد النجاح في مسابقة التمريض؟ 🎯')
-                    : (isSF ? 'Tu veux réussir le concours sage-femme ? 🎯' : 'Tu veux réussir le concours infirmier ? 🎯')}
+                    ? (isSF ? 'هل تريد النجاح في مسابقة القابلات؟ 🎯' : isBIO ? 'هل تريد النجاح في مسابقة البيولوجيا؟ 🎯' : 'هل تريد النجاح في مسابقة التمريض؟ 🎯')
+                    : (isSF ? 'Tu veux réussir le concours sage-femme ? 🎯' : isBIO ? 'Tu veux réussir le concours biologiste ? 🎯' : 'Tu veux réussir le concours infirmier ? 🎯')}
                 </p>
                 <div className="space-y-2 mb-4 text-left">
                   {[
@@ -326,7 +326,7 @@ export function ExamenBlancPageContent({ target }: { target: Target }) {
                 </div>
                 <Link href="/register"
                   className="flex items-center justify-center gap-1.5 w-full py-3 rounded-xl bg-white font-black text-xs transition active:scale-95"
-                  style={{ color: isSF ? '#9f1239' : '#7c3aed' }}>
+                  style={{ color: isSF ? '#9f1239' : isBIO ? '#047857' : '#7c3aed' }}>
                   🚀 {isAr ? 'فعّل حسابك الآن' : 'Activez votre compte maintenant'}
                 </Link>
               </div>
@@ -411,8 +411,8 @@ export function ExamenBlancPageContent({ target }: { target: Target }) {
         {/* Témoignages carousel */}
         {(() => {
           const testimonials = isAr
-            ? [{ name: 'مريم', role: isSF ? 'قابلة' : 'ممرضة', img: '/images/ar-com-1.jpeg' }, { name: isSF ? 'آمنة' : 'سيدي', role: isSF ? 'قابلة' : 'ممرض', img: '/images/ar-com-2.jpeg' }]
-            : [{ name: 'Fatimetou', role: isSF ? 'Sage-femme' : 'Infirmière', img: '/images/fr-com-1.jpeg' }, { name: isSF ? 'Marième' : 'Mohamed', role: isSF ? 'Sage-femme' : 'Infirmier', img: '/images/fr-com-2.png' }];
+            ? [{ name: 'مريم', role: isSF ? 'قابلة' : isBIO ? 'بيولوجية' : 'ممرضة', img: '/images/ar-com-1.jpeg' }, { name: isSF ? 'آمنة' : 'سيدي', role: isSF ? 'قابلة' : isBIO ? 'بيولوجي' : 'ممرض', img: '/images/ar-com-2.jpeg' }]
+            : [{ name: 'Fatimetou', role: isSF ? 'Sage-femme' : isBIO ? 'Biologiste' : 'Infirmière', img: '/images/fr-com-1.jpeg' }, { name: isSF ? 'Marième' : 'Mohamed', role: isSF ? 'Sage-femme' : isBIO ? 'Biologiste' : 'Infirmier', img: '/images/fr-com-2.png' }];
           const t = testimonials[testIdx % testimonials.length];
           return (
             <div className={`${theme.cardBg} backdrop-blur border ${theme.cardBorder} rounded-3xl p-8 mb-16`}>
@@ -430,7 +430,7 @@ export function ExamenBlancPageContent({ target }: { target: Target }) {
                 {testimonials.map((_, i) => (
                   <button key={i} onClick={() => { setTestFade(false); setTimeout(() => { setTestIdx(i); setTestFade(true); }, 400); }}
                     className={`rounded-full transition-all ${i === testIdx ? 'w-4 h-1.5' : 'w-1.5 h-1.5'}`}
-                    style={{ background: i === testIdx ? (isSF ? '#9f1239' : '#7c3aed') : 'rgba(255,255,255,0.3)' }} />
+                    style={{ background: i === testIdx ? (isSF ? '#9f1239' : isBIO ? '#047857' : '#7c3aed') : 'rgba(255,255,255,0.3)' }} />
                 ))}
               </div>
             </div>

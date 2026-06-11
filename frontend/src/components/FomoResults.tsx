@@ -133,8 +133,8 @@ export function FomoResults({ score, totalQ, correctQ, themeName, subThemeName, 
 
         <p className="text-white font-extrabold text-lg mb-3">
           {isAr
-            ? (target === 'SAGE_FEMME' ? 'هل تريد النجاح في مسابقة القابلات؟ 🎯' : 'هل تريد النجاح في مسابقة التمريض؟ 🎯')
-            : (target === 'SAGE_FEMME' ? 'Tu veux réussir le concours sage-femme ? 🎯' : 'Tu veux réussir le concours infirmier ? 🎯')}
+            ? (target === 'SAGE_FEMME' ? 'هل تريد النجاح في مسابقة القابلات؟ 🎯' : target === 'BIOLOGISTE' ? 'هل تريد النجاح في مسابقة البيولوجيا؟ 🎯' : 'هل تريد النجاح في مسابقة التمريض؟ 🎯')
+            : (target === 'SAGE_FEMME' ? 'Tu veux réussir le concours sage-femme ? 🎯' : target === 'BIOLOGISTE' ? 'Tu veux réussir le concours biologiste ? 🎯' : 'Tu veux réussir le concours infirmier ? 🎯')}
         </p>
 
         {/* Promo badge */}

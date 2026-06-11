@@ -8,7 +8,7 @@ const daysAgo = (n: number) => toIso(new Date(Date.now() - n * 86400000));
 const fmtDay = (iso: string) => new Date(iso).toLocaleDateString('fr-FR', { day: '2-digit', month: 'short' });
 
 export default function FreeTrialStatsPage() {
-  const [tab, setTab] = useState<'trial' | 'practice' | 'sage-femme'>('trial');
+  const [tab, setTab] = useState<'trial' | 'practice' | 'sage-femme' | 'biologiste'>('trial');
   const today = toIso(new Date());
   const [startDate, setStartDate] = useState(daysAgo(6));
   const [endDate, setEndDate] = useState(today);
@@ -29,6 +29,11 @@ export default function FreeTrialStatsPage() {
   const [sfLoading, setSfLoading] = useState(false);
   const [sfStart, setSfStart] = useState(daysAgo(6));
   const [sfEnd, setSfEnd] = useState(today);
+
+  const [bioData, setBioData] = useState<any>(null);
+  const [bioLoading, setBioLoading] = useState(false);
+  const [bioStart, setBioStart] = useState(daysAgo(6));
+  const [bioEnd, setBioEnd] = useState(today);
 
   const load = useCallback(() => {
     setLoading(true);
@@ -57,6 +62,13 @@ export default function FreeTrialStatsPage() {
       .finally(() => setSfLoading(false));
   }, [sfStart, sfEnd]);
 
+  const loadBio = useCallback(() => {
+    setBioLoading(true);
+    adminApi.freePracticeStats({ startDate: bioStart, endDate: bioEnd, target: 'BIOLOGISTE' })
+      .then((r) => setBioData(r.data))
+      .finally(() => setBioLoading(false));
+  }, [bioStart, bioEnd]);
+
   useEffect(() => {
     if (tab !== 'practice') return;
     loadPractice();
@@ -66,6 +78,11 @@ export default function FreeTrialStatsPage() {
     if (tab !== 'sage-femme') return;
     loadSf();
   }, [tab, loadSf]);
+
+  useEffect(() => {
+    if (tab !== 'biologiste') return;
+    loadBio();
+  }, [tab, loadBio]);
 
   if (!data && loading) return (
     <div className="flex items-center justify-center py-32">
@@ -93,7 +110,7 @@ export default function FreeTrialStatsPage() {
         </div>
         <div>
           <h1 className="text-xl font-bold">Essais gratuits</h1>
-          <p className="text-xs text-muted-foreground">{tab === 'trial' ? period : tab === 'sage-femme' ? 'Sage-femme — sessions gratuites' : 'Free Pratique — /free-practice'}</p>
+          <p className="text-xs text-muted-foreground">{tab === 'trial' ? period : tab === 'sage-femme' ? 'Sage-femme — sessions gratuites' : tab === 'biologiste' ? 'Biologiste — sessions gratuites' : 'Free Pratique — /free-practice'}</p>
         </div>
       </div>
 
@@ -113,6 +130,11 @@ export default function FreeTrialStatsPage() {
           onClick={() => setTab('sage-femme')}
           className={`flex items-center gap-2 px-4 py-2.5 text-sm font-semibold border-b-2 transition -mb-px ${tab === 'sage-femme' ? 'border-pink-500 text-pink-600' : 'border-transparent text-muted-foreground hover:text-foreground'}`}>
           <BookOpen className="w-4 h-4" /> Sage-femme 👶
+        </button>
+        <button
+          onClick={() => setTab('biologiste')}
+          className={`flex items-center gap-2 px-4 py-2.5 text-sm font-semibold border-b-2 transition -mb-px ${tab === 'biologiste' ? 'border-emerald-500 text-emerald-600' : 'border-transparent text-muted-foreground hover:text-foreground'}`}>
+          <BookOpen className="w-4 h-4" /> Biologiste 🔬
         </button>
       </div>
 
@@ -575,6 +597,163 @@ export default function FreeTrialStatsPage() {
             <div className="bg-card border border-border rounded-2xl p-8 text-center">
               <p className="text-4xl mb-3">👶</p>
               <p className="font-semibold text-muted-foreground">Aucune session sage-femme sur cette période.</p>
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* ── Contenu Biologiste ── */}
+      {tab === 'biologiste' && (
+        <div className="space-y-6">
+          <div className="bg-card border border-border rounded-2xl p-4 flex flex-wrap items-end gap-3">
+            <div className="flex flex-col gap-1">
+              <label className="text-xs font-semibold text-muted-foreground">Du</label>
+              <input type="date" value={bioStart} max={bioEnd}
+                onChange={(e) => setBioStart(e.target.value)}
+                className="px-3 py-2 rounded-xl border border-border bg-secondary text-sm font-medium focus:outline-none focus:border-emerald-400" />
+            </div>
+            <div className="flex flex-col gap-1">
+              <label className="text-xs font-semibold text-muted-foreground">Au</label>
+              <input type="date" value={bioEnd} min={bioStart} max={today}
+                onChange={(e) => setBioEnd(e.target.value)}
+                className="px-3 py-2 rounded-xl border border-border bg-secondary text-sm font-medium focus:outline-none focus:border-emerald-400" />
+            </div>
+            <div className="flex gap-2">
+              {[7, 14, 30].map((n) => (
+                <button key={n} onClick={() => { setBioStart(daysAgo(n - 1)); setBioEnd(today); }}
+                  className={`px-3 py-2 rounded-xl text-xs font-bold border transition ${bioStart === daysAgo(n - 1) && bioEnd === today ? 'bg-emerald-600 text-white border-emerald-600' : 'border-border text-muted-foreground hover:text-foreground hover:border-emerald-400'}`}>
+                  {n}j
+                </button>
+              ))}
+            </div>
+            <button onClick={loadBio}
+              className="px-4 py-2 rounded-xl bg-emerald-600 text-white text-xs font-bold hover:bg-emerald-700 transition">
+              Appliquer
+            </button>
+          </div>
+
+          {bioLoading && (
+            <div className="flex items-center justify-center py-16">
+              <div className="w-6 h-6 border-2 border-emerald-500 border-t-transparent rounded-full animate-spin" />
+            </div>
+          )}
+
+          {!bioLoading && bioData && (() => {
+            const bioTheme = bioData.byTheme?.[0];
+            return (
+              <>
+                <div className="bg-card border border-border rounded-2xl p-5 space-y-3">
+                  <p className="text-xs font-bold text-muted-foreground uppercase tracking-wide">Entonnoir de conversion — période sélectionnée</p>
+                  <div className="flex flex-wrap items-center gap-2">
+                    {[
+                      { label: 'Sessions', value: bioData.totalSessions, color: 'bg-emerald-100 text-emerald-700', pct: null },
+                      { label: 'Complétées', value: Math.round((bioData.totalSessions * bioData.completionRate) / 100), color: 'bg-blue-100 text-blue-700', pct: bioData.completionRate },
+                      { label: 'Clic "Activez"', value: bioData.totalCtaClicks, color: 'bg-orange-100 text-orange-700', pct: bioData.ctaRate },
+                      { label: 'Inscriptions', value: bioData.registrations, color: 'bg-teal-100 text-teal-700', pct: bioData.registrationRate },
+                      { label: 'Paiements validés', value: bioData.validatedPayments, color: 'bg-rose-100 text-rose-700', pct: bioData.paymentRate },
+                    ].map((step, i, arr) => (
+                      <div key={step.label} className="flex items-center gap-2">
+                        <div className={`px-3 py-2 rounded-xl ${step.color} text-center min-w-[90px]`}>
+                          <p className="text-xl font-black">{step.value}</p>
+                          <p className="text-[10px] font-semibold mt-0.5">{step.label}</p>
+                          {step.pct !== null && <p className="text-[10px] opacity-70">{step.pct}% du précédent</p>}
+                        </div>
+                        {i < arr.length - 1 && <ArrowRight className="w-4 h-4 text-muted-foreground flex-shrink-0" />}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+                  {[
+                    { label: 'Sessions', value: bioData.totalSessions, color: 'text-emerald-600', bg: 'bg-emerald-50' },
+                    { label: 'Taux complétion', value: `${bioData.completionRate}%`, color: 'text-blue-600', bg: 'bg-blue-50' },
+                    { label: 'Taux réussite', value: bioTheme ? `${bioTheme.successRate}%` : '—', color: 'text-violet-600', bg: 'bg-violet-50' },
+                    { label: 'Paiements validés', value: bioData.validatedPayments, color: 'text-rose-600', bg: 'bg-rose-50' },
+                  ].map((k) => (
+                    <div key={k.label} className={`${k.bg} border border-border rounded-2xl p-4 space-y-1`}>
+                      <p className={`text-3xl font-black ${k.color}`}>{k.value}</p>
+                      <p className="text-xs text-muted-foreground font-semibold">{k.label}</p>
+                    </div>
+                  ))}
+                </div>
+
+                {bioData.byTheme?.length > 0 && (
+                  <div className="space-y-4">
+                    {bioData.byTheme.map((t: any) => (
+                      <div key={t.themeName} className="bg-card border border-border rounded-2xl overflow-hidden">
+                        <div className="px-5 py-4 border-b border-border flex items-center justify-between flex-wrap gap-3">
+                          <h3 className="font-bold text-base">{t.themeName}</h3>
+                          <div className="flex items-center gap-2 flex-wrap">
+                            <Badge value={t.totalSessions} label="sessions" color="#059669" />
+                            <Badge value={`${t.successRate}%`} label="réussite" color="#10b981" />
+                            <Badge value={`${t.completionRate}%`} label="complétion" color={t.completionRate >= 50 ? '#10b981' : t.completionRate >= 25 ? '#f59e0b' : '#ef4444'} />
+                          </div>
+                        </div>
+                        {t.subThemes?.length > 0 && (
+                          <div className="p-5">
+                            <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-3">Sous-thèmes</p>
+                            <div className="space-y-2">
+                              {t.subThemes.map((st: any) => (
+                                <div key={st.subThemeName} className="flex items-center gap-3 bg-secondary/40 rounded-xl px-3 py-2">
+                                  <span className="flex-1 text-sm font-medium truncate">{st.subThemeName}</span>
+                                  <span className="text-xs font-bold text-emerald-600 w-14 text-right flex-shrink-0">{st.totalSessions} sess.</span>
+                                  <span className="text-xs font-semibold w-12 text-right flex-shrink-0"
+                                    style={{ color: st.successRate >= 60 ? '#10b981' : st.successRate >= 40 ? '#f59e0b' : '#ef4444' }}>
+                                    {st.successRate}% ✓
+                                  </span>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                )}
+
+                {bioData.dailyStats?.length > 0 && (() => {
+                  const maxS = Math.max(...bioData.dailyStats.map((d: any) => d.sessions), 1);
+                  return (
+                    <div className="bg-card border border-border rounded-2xl overflow-hidden">
+                      <div className="px-5 py-4 border-b border-border"><h2 className="font-bold">Sessions journalières</h2></div>
+                      <div className="p-5">
+                        <div className="flex items-end gap-1.5" style={{ height: '100px' }}>
+                          {bioData.dailyStats.map((d: any) => {
+                            const h = Math.round((d.sessions / maxS) * 100);
+                            return (
+                              <div key={d.date} className="flex flex-col items-center flex-1 min-w-[28px] group h-full">
+                                <div className="flex-1 flex items-end w-full">
+                                  <div className="w-full bg-emerald-500 rounded-t hover:bg-emerald-600 transition-all cursor-pointer"
+                                    style={{ height: `${Math.max(h, 2)}%` }} title={`${d.date}: ${d.sessions}`} />
+                                </div>
+                                <span className="text-[8px] text-muted-foreground mt-1 whitespace-nowrap">{fmtDay(d.date)}</span>
+                              </div>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })()}
+
+                <div className="flex justify-end">
+                  <a href="/free-practice" target="_blank" rel="noopener noreferrer"
+                    className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-emerald-600 text-white text-sm font-semibold hover:bg-emerald-700 transition">
+                    Voir la page 🔬 <Globe className="w-4 h-4" />
+                  </a>
+                </div>
+              </>
+            );
+          })()}
+
+          {!bioLoading && !bioData && (
+            <p className="text-center text-muted-foreground py-12">Erreur de chargement.</p>
+          )}
+          {!bioLoading && bioData && bioData.totalSessions === 0 && (
+            <div className="bg-card border border-border rounded-2xl p-8 text-center">
+              <p className="text-4xl mb-3">🔬</p>
+              <p className="font-semibold text-muted-foreground">Aucune session biologiste sur cette période.</p>
             </div>
           )}
         </div>

@@ -377,18 +377,32 @@ function RegisterContent() {
             </p>
 
             {promoActive && (
-              <div className={`flex items-center gap-3 p-3.5 rounded-2xl border mb-5 bg-gradient-to-r ${isBiologiste && bioPromo?.active ? 'from-emerald-50 to-teal-50 border-emerald-200' : 'from-red-50 to-orange-50 border-red-200'}`}>
-                <span className="text-xl flex-shrink-0">{isBiologiste && bioPromo?.active ? '🔬' : '🎉'}</span>
-                <div>
-                  <p className={`text-sm font-bold ${isBiologiste && bioPromo?.active ? 'text-emerald-700' : 'text-red-700'}`}>
+              <div className={`relative overflow-hidden rounded-2xl mb-5 p-5 ${isBiologiste && bioPromo?.active ? 'bg-gradient-to-br from-emerald-500 via-teal-500 to-emerald-600' : 'bg-gradient-to-br from-red-500 via-orange-500 to-red-600'}`}>
+                <div className="absolute inset-0 opacity-10" style={{ backgroundImage: 'radial-gradient(circle at 1px 1px, white 1px, transparent 0)', backgroundSize: '16px 16px' }} />
+                <div className="relative text-center">
+                  {/* Badge discount centré et grand */}
+                  <div className="flex items-center justify-center gap-3 mb-3">
+                    <div className="bg-white rounded-2xl px-5 py-2 shadow-lg">
+                      <p className={`font-black text-4xl leading-none ${isBiologiste && bioPromo?.active ? 'text-emerald-600' : 'text-red-600'}`}>-{promoDiscount}%</p>
+                    </div>
+                  </div>
+                  {/* Titre */}
+                  <p className="text-white font-extrabold text-sm mb-3">
                     {isBiologiste && bioPromo?.active
-                      ? (isAr ? `عرض إطلاق البيولوجيا — خصم ${promoDiscount}%` : `Offre lancement Biologiste — -${promoDiscount}% !`)
-                      : (isAr ? `خصم ${promoDiscount}% على جميع الخطط !` : `-${promoDiscount}% sur tous les plans !`)}
+                      ? (isAr ? '🔬 عرض إطلاق البيولوجيا' : '🔬 Offre lancement Biologiste')
+                      : (isAr ? '🎉 عرض خاص محدود' : '🎉 Offre spéciale limitée')}
                   </p>
-                  <p className={`text-xs mt-0.5 ${isBiologiste && bioPromo?.active ? 'text-emerald-500' : 'text-red-500'}`}>
-                    {isAr ? 'ينتهي خلال' : 'Expire dans'}
-                  </p>
-                  <CountdownTimer isAr={isAr} endDate={promoEndDate ?? null} />
+                  {/* Date — grande et bien visible */}
+                  {promoEndDate ? (
+                    <div className="bg-white/20 border-2 border-white/40 rounded-xl px-4 py-3">
+                      <p className="text-white/80 text-[10px] uppercase tracking-widest font-bold mb-1">⏰ {isAr ? 'ينتهي في' : 'Expire le'}</p>
+                      <p className="text-white font-black text-2xl leading-tight">
+                        {new Date(promoEndDate).toLocaleDateString(isAr ? 'ar-EG' : 'fr-FR', { day: 'numeric', month: 'long', year: 'numeric' })}
+                      </p>
+                    </div>
+                  ) : (
+                    <p className="text-white font-bold text-base">{isAr ? 'عرض محدود' : 'Offre limitée'}</p>
+                  )}
                 </div>
               </div>
             )}

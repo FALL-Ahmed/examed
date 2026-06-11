@@ -974,10 +974,24 @@ export class AdminService {
     const since = from;
     const dateFilter = { gte: from, lte: to };
 
-    const targetFilter =
-      params?.target === 'SAGE_FEMME' ? { themeId: 'sf-free' } :
-      params?.target === 'INFIRMIER'  ? { themeId: { not: 'sf-free' } } :
-      {};
+    let targetFilter: any = {};
+    if (params?.target === 'SAGE_FEMME') {
+      targetFilter = { themeId: 'sf-free' };
+    } else if (params?.target === 'BIOLOGISTE') {
+      const bioThemes = await this.prisma.theme.findMany({
+        where: { target: 'BIOLOGISTE' },
+        select: { name: true },
+      });
+      const bioNames = bioThemes.map((t) => t.name);
+      targetFilter = { themeName: { in: bioNames } };
+    } else if (params?.target === 'INFIRMIER') {
+      const bioThemes = await this.prisma.theme.findMany({
+        where: { target: 'BIOLOGISTE' },
+        select: { name: true },
+      });
+      const bioNames = bioThemes.map((t) => t.name);
+      targetFilter = { themeId: { not: 'sf-free' }, themeName: { notIn: bioNames } };
+    }
 
     const events = await (this.prisma as any).freePracticeEvent.findMany({
       where: { createdAt: dateFilter, ...targetFilter },

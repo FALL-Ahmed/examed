@@ -382,7 +382,7 @@ export default function PaymentPage() {
         </div>
         <h1 className="text-3xl font-extrabold tracking-tight">Passez au niveau supérieur</h1>
         <p className="text-muted-foreground text-sm max-w-md mx-auto">
-          Tout ce qu'il vous faut pour préparer et réussir votre concours infirmier.
+          {isBiologiste ? "Tout ce qu'il vous faut pour préparer et réussir votre concours biologiste." : user?.profession === 'sage_femme' ? "Tout ce qu'il vous faut pour préparer et réussir votre concours sage-femme." : "Tout ce qu'il vous faut pour préparer et réussir votre concours infirmier."}
         </p>
       </div>
 
