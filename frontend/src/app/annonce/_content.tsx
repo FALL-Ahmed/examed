@@ -68,9 +68,9 @@ const CONTENT: Record<AnnonceProfession, { fr: any; ar: any }> = {
     fr: {
       label: 'Plateforme de préparation au concours de recrutement des',
       country: 'en Mauritanie',
-      subtitle: 'Prépare le concours officiel en toute confiance',
+      subtitle: 'Maîtrisez vos techniques de base de Labo médicale avant le concours',
       features: [
-        'Plus de 400 QCM biologistes, corrigés et commentés',
+        'Plus de 400 QCM, corrigés et commentés',
         'Suivi de ton évolution et comparaison nationale avec tes collègues',
         'Révision ciblée de tes points faibles, chapitre par chapitre',
       ],
@@ -80,7 +80,7 @@ const CONTENT: Record<AnnonceProfession, { fr: any; ar: any }> = {
     ar: {
       label: 'منصّة تدريب لمسابقة توظيف',
       country: 'في موريتانيا',
-      subtitle: 'استعدّ للامتحان الرسمي بثقة',
+      subtitle: 'أتقن تقنيات المختبر الطبي الأساسية قبل المسابقة',
       features: [
         'أكثر من 400 سؤال QCM خاصّ بالبيولوجيا، مع تصحيح وشرح',
         'متابعة تطوّر مستواك ومقارنة نتائجك بزملائك على المستوى الوطني',
