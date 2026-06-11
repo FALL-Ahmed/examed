@@ -1120,11 +1120,18 @@ export class AdminService {
     const totalCompleted = new Set(events.filter((e: any) => e.eventType === 'complete').map((e: any) => e.sessionId)).size;
     const totalCtaClicks = new Set(events.filter((e: any) => e.eventType === 'cta_click').map((e: any) => e.sessionId)).size;
 
+    // Filtre profession selon target
+    const professionFilter =
+      params?.target === 'BIOLOGISTE' ? { profession: 'biologiste' } :
+      params?.target === 'SAGE_FEMME' ? { profession: 'sage_femme' } :
+      params?.target === 'INFIRMIER'  ? { profession: 'etudiant_infirmier' } :
+      {};
+
     // Inscriptions issues de free-practice (source = 'free-practice', 30 derniers jours)
     const [registrations, validatedPayments, waLeads, utmBreakdown] = await Promise.all([
-      this.prisma.user.count({ where: { source: 'free-practice', createdAt: dateFilter } }),
+      this.prisma.user.count({ where: { source: 'free-practice', createdAt: dateFilter, ...professionFilter } }),
       this.prisma.payment.count({
-        where: { status: 'VALIDATED', createdAt: dateFilter, user: { source: 'free-practice' } },
+        where: { status: 'VALIDATED', createdAt: dateFilter, user: { source: 'free-practice', ...professionFilter } },
       }),
       (this.prisma as any).freeTrialLead.findMany({
         where: { source: 'free-practice', createdAt: dateFilter },
