@@ -175,23 +175,25 @@ function RegisterContent() {
 
           <div className="space-y-4">
 
-            {/* Langue des questions — EN PREMIER */}
-            <div>
-              <label className={labelCls}>{isFormAr ? 'لغة الأسئلة' : 'Langue des questions'} <span className="text-red-400">*</span></label>
-              <div className="grid grid-cols-2 gap-3" dir="ltr">
-                <button type="button" onClick={() => setFormLang('fr')}
-                  className={`py-3 rounded-xl border-2 font-bold text-sm transition-all ${formLang === 'fr' ? 'border-violet-500 bg-violet-500/15 text-white' : 'border-white/10 bg-white/5 text-white/50 hover:border-white/20'}`}>
-                  🇫🇷 Français
-                </button>
-                <button type="button" onClick={() => setFormLang('ar')}
-                  className={`py-3 rounded-xl border-2 font-bold text-sm transition-all ${formLang === 'ar' ? 'border-violet-500 bg-violet-500/15 text-white' : 'border-white/10 bg-white/5 text-white/50 hover:border-white/20'}`}>
-                  🇲🇷 العربية
-                </button>
+            {/* Langue des questions — masqué pour BIOLOGISTE (FR par défaut) */}
+            {targetParam !== 'BIOLOGISTE' && (
+              <div>
+                <label className={labelCls}>{isFormAr ? 'لغة الأسئلة' : 'Langue des questions'} <span className="text-red-400">*</span></label>
+                <div className="grid grid-cols-2 gap-3" dir="ltr">
+                  <button type="button" onClick={() => setFormLang('fr')}
+                    className={`py-3 rounded-xl border-2 font-bold text-sm transition-all ${formLang === 'fr' ? 'border-violet-500 bg-violet-500/15 text-white' : 'border-white/10 bg-white/5 text-white/50 hover:border-white/20'}`}>
+                    🇫🇷 Français
+                  </button>
+                  <button type="button" onClick={() => setFormLang('ar')}
+                    className={`py-3 rounded-xl border-2 font-bold text-sm transition-all ${formLang === 'ar' ? 'border-violet-500 bg-violet-500/15 text-white' : 'border-white/10 bg-white/5 text-white/50 hover:border-white/20'}`}>
+                    🇲🇷 العربية
+                  </button>
+                </div>
+                <p className="text-white/30 text-xs mt-1.5">
+                  {isFormAr ? 'ستكون جميع أسئلة الامتحان باللغة المختارة' : 'Toutes les questions de l\'examen seront dans cette langue'}
+                </p>
               </div>
-              <p className="text-white/30 text-xs mt-1.5">
-                {isFormAr ? 'ستكون جميع أسئلة الامتحان باللغة المختارة' : 'Toutes les questions de l\'examen seront dans cette langue'}
-              </p>
-            </div>
+            )}
 
             <div className="border-t border-white/10" />
 

@@ -649,6 +649,44 @@ export class ExamenBlancService {
       return deduped.sort(() => Math.random() - 0.5).slice(0, totalQ);
     }
 
+    // BIOLOGISTE : questions fixes + sous-thèmes ciblés
+    if (target === 'BIOLOGISTE') {
+      const BIO_FIXED = [
+        'cmq8klhmz008vcbjywf2diavv', // Caractères morphologiques Plasmodium falciparum
+        'cmq8kli66009dcbjyutomftje', // Caractéristiques microscopiques BAAR (tuberculose)
+        'cmq8klrru00ifcbjyo67o0mow', // Première mesure incident transfusionnel
+      ];
+      const BIO_SUBTHEMES = new Set([
+        'ÉLECTROLYTES ET ÉLÉMENTS MINÉRAUX',
+        'FONCTION RÉNALE (URÉE, CRÉATININE, ACIDE URIQUE)',
+        'MÉTABOLISME DES GLUCIDES (GLUCOSE)',
+        'ACCIDENTS DE LA TRANSFUSION SANGUINE',
+        'HÉMOGLOBINE ET CONSTANTES',
+        'EXAMEN CYTO-BACTÉRIOLOGIQUE DES URINES (ECBU) ET DU LCR',
+        'DIAGNOSTIC DE LA TUBERCULOSE ET DE LA LÈPRE',
+        'HYGIÈNE ET SÉCURITÉ AU LABORATOIRE',
+        'MESURE ET DISTRIBUTION DES LIQUIDES',
+        'CENTRIFUGATION',
+        'UTILISATION DU MICROSCOPE',
+      ]);
+      const fixedSet = new Set(BIO_FIXED);
+      const bioAvailable = available.filter((st: any) => BIO_SUBTHEMES.has(st.name.toUpperCase()));
+      const selected: string[] = [...BIO_FIXED];
+      const pool: string[] = [];
+      for (const st of bioAvailable) {
+        const ids = (st as any).questions.map((q: any) => q.id).filter((id: string) => !fixedSet.has(id));
+        const sorted = [...ids].sort(byFreshness);
+        if (sorted.length > 0) { selected.push(sorted[0]); }
+        if (sorted.length > 1) pool.push(...sorted.slice(1));
+      }
+      const needed = totalQ - selected.length;
+      if (needed > 0 && pool.length > 0) {
+        pool.sort(byFreshness);
+        selected.push(...pool.slice(0, Math.min(needed, pool.length)));
+      }
+      return selected.sort(() => Math.random() - 0.5).slice(0, totalQ);
+    }
+
     // INFIRMIER : algorithme inchangé
     const selected: string[] = [];
     const pool: string[] = [];
@@ -727,9 +765,45 @@ export class ExamenBlancService {
     });
     const available = allSubThemes.filter((st: any) => st.questions.length > 0);
 
-    // SAGE_FEMME smart: tous les sous-thèmes SF, ordonnés par score (identique à INFIRMIER)
+    // BIOLOGISTE smart : questions fixes + sous-thèmes ciblés, ordonnés par score
+    if (target === 'BIOLOGISTE') {
+      const BIO_FIXED = [
+        'cmq8klhmz008vcbjywf2diavv',
+        'cmq8kli66009dcbjyutomftje',
+        'cmq8klrru00ifcbjyo67o0mow',
+      ];
+      const BIO_SUBTHEMES = new Set([
+        'ÉLECTROLYTES ET ÉLÉMENTS MINÉRAUX',
+        'FONCTION RÉNALE (URÉE, CRÉATININE, ACIDE URIQUE)',
+        'MÉTABOLISME DES GLUCIDES (GLUCOSE)',
+        'ACCIDENTS DE LA TRANSFUSION SANGUINE',
+        'HÉMOGLOBINE ET CONSTANTES',
+        'EXAMEN CYTO-BACTÉRIOLOGIQUE DES URINES (ECBU) ET DU LCR',
+        'DIAGNOSTIC DE LA TUBERCULOSE ET DE LA LÈPRE',
+        'HYGIÈNE ET SÉCURITÉ AU LABORATOIRE',
+        'MESURE ET DISTRIBUTION DES LIQUIDES',
+        'CENTRIFUGATION',
+        'UTILISATION DU MICROSCOPE',
+      ]);
+      const fixedSet = new Set(BIO_FIXED);
+      const bioAvailable = available.filter((st: any) => BIO_SUBTHEMES.has(st.name.toUpperCase()));
+      const selected: string[] = [...BIO_FIXED];
+      const pool: string[] = [];
+      for (const st of bioAvailable) {
+        const ids = st.questions.map((q: any) => q.id).filter((id: string) => !fixedSet.has(id));
+        const sorted = [...ids].sort(byScore);
+        if (sorted.length > 0) selected.push(sorted[0]);
+        if (sorted.length > 1) pool.push(...sorted.slice(1));
+      }
+      const needed = totalQ - selected.length;
+      if (needed > 0 && pool.length > 0) {
+        pool.sort(byScore);
+        selected.push(...pool.slice(0, Math.min(needed, pool.length)));
+      }
+      return selected.sort(() => Math.random() - 0.5).slice(0, totalQ);
+    }
 
-    // INFIRMIER: 1 question per sub-theme (best/worst score), then fill pool
+    // INFIRMIER / SAGE_FEMME smart: 1 question per sub-theme (best/worst score), then fill pool
     const selected: string[] = [];
     const pool: string[] = [];
     for (const st of available) {
