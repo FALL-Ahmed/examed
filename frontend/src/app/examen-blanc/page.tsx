@@ -138,6 +138,7 @@ export function ExamenBlancPageContent({ target }: { target: Target }) {
   const [testIdx, setTestIdx] = useState(0);
   const [testFade, setTestFade] = useState(true);
 
+  useEffect(() => { if (isBIO) setLang('fr'); }, [isBIO]);
   useEffect(() => { window.scrollTo(0, 0); }, []);
   useEffect(() => { load(); }, [load]);
   useEffect(() => {
