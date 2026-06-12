@@ -195,16 +195,18 @@ export function ExamenBlancPageContent({ target }: { target: Target }) {
           <span className="text-white font-bold text-lg">Al Bourour</span>
         </Link>
         <div className="flex items-center gap-3">
-          <div className={`flex items-center gap-1 p-1 ${theme.navBoxBg} border ${theme.navBoxBorder} rounded-xl`}>
-            <button onClick={() => setLang('fr')}
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-semibold transition ${!isAr ? 'bg-white/15 text-white' : `${theme.textMuted} hover:text-white/90`}`}>
-              🇫🇷 Français
-            </button>
-            <button onClick={() => setLang('ar')}
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-semibold transition ${isAr ? 'bg-white/15 text-white' : `${theme.textMuted} hover:text-white/90`}`}>
-              🇲🇷 العربية
-            </button>
-          </div>
+          {!isBIO && (
+            <div className={`flex items-center gap-1 p-1 ${theme.navBoxBg} border ${theme.navBoxBorder} rounded-xl`}>
+              <button onClick={() => setLang('fr')}
+                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-semibold transition ${!isAr ? 'bg-white/15 text-white' : `${theme.textMuted} hover:text-white/90`}`}>
+                🇫🇷 Français
+              </button>
+              <button onClick={() => setLang('ar')}
+                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-semibold transition ${isAr ? 'bg-white/15 text-white' : `${theme.textMuted} hover:text-white/90`}`}>
+                🇲🇷 العربية
+              </button>
+            </div>
+          )}
           <Link href="/examen-blanc/leaderboard"
             className={`flex items-center gap-1.5 ${theme.textDim} hover:text-white text-sm font-medium transition`}>
             <Trophy className="w-4 h-4" />
