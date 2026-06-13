@@ -109,6 +109,8 @@ export default function AdminExamenBlancPage() {
   const [createSuccess, setCreateSuccess] = useState('');
   const [editing, setEditing] = useState<Record<string, any>>({});
   const [expandedEdit, setExpandedEdit] = useState<string | null>(null);
+  const [sortBy, setSortBy] = useState<'createdAt' | 'score' | 'none'>('createdAt');
+  const [sortDir, setSortDir] = useState<'asc' | 'desc'>('desc');
 
   const loadSessions = useCallback(async () => {
     setLoading(true);
@@ -1096,6 +1098,7 @@ export default function AdminExamenBlancPage() {
             </div>
           </div>
           <p className="text-xs text-muted-foreground">{filtered.length} participant(s) affiché(s)</p>
+          {(() => { if (sortBy === 'createdAt') { filtered.sort((a: any, b: any) => sortDir === 'desc' ? new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime() : new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()); } return null; })()}
 
           {/* Panneau envoi séquentiel */}
           {sendQueue && sendIdx < sendQueue.length && (
@@ -1152,11 +1155,16 @@ export default function AdminExamenBlancPage() {
                     {['Statut', 'Nom complet', 'Téléphone', 'Wilaya', 'Lg', 'Score', 'Rang', 'Résultats vus', 'WA', 'Temps'].map(h => (
                       <th key={h} className="text-left px-3 py-3 text-xs font-semibold text-muted-foreground whitespace-nowrap">{h}</th>
                     ))}
+                    <th
+                      onClick={() => { if (sortBy === 'createdAt') setSortDir(d => d === 'desc' ? 'asc' : 'desc'); else { setSortBy('createdAt'); setSortDir('desc'); } }}
+                      className="text-left px-3 py-3 text-xs font-semibold text-muted-foreground whitespace-nowrap cursor-pointer hover:text-foreground select-none">
+                      Entrée {sortBy === 'createdAt' ? (sortDir === 'desc' ? '↓' : '↑') : '↕'}
+                    </th>
                   </tr>
                 </thead>
                 <tbody>
                   {filtered.length === 0 ? (
-                    <tr><td colSpan={10} className="text-center py-12 text-muted-foreground">Aucun participant</td></tr>
+                    <tr><td colSpan={11} className="text-center py-12 text-muted-foreground">Aucun participant</td></tr>
                   ) : filtered.map((l: any) => (
                     <tr key={l.id} className={`border-t border-border hover:bg-muted/50 ${l.isRegistered ? '' : 'bg-amber-50/30 dark:bg-amber-900/5'}`}>
                       <td className="px-3 py-2.5 whitespace-nowrap">
@@ -1187,6 +1195,9 @@ export default function AdminExamenBlancPage() {
                         ) : <span />}
                       </td>
                       <td className="px-3 py-2.5 text-muted-foreground text-xs whitespace-nowrap">{l.timeTaken ? formatTime(l.timeTaken) : '—'}</td>
+                      <td className="px-3 py-2.5 text-xs whitespace-nowrap font-mono text-muted-foreground">
+                        {l.createdAt ? new Date(l.createdAt).toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' }) : '—'}
+                      </td>
                     </tr>
                   ))}
                 </tbody>
