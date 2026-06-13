@@ -86,8 +86,12 @@ export function BadgeSelect({ options, value, onChange, placeholder = '', newBad
                 </button>
               ))}
             </div>
-            {/* Bottom gradient — hints at more items below */}
-            <div className="absolute bottom-0 left-0 right-0 h-8 bg-gradient-to-t from-card to-transparent pointer-events-none" />
+            {/* Scroll hint — visible on mobile where scrollbar is hidden */}
+            {options.length > 6 && (
+              <div className="absolute bottom-0 left-0 right-0 h-10 bg-gradient-to-t from-card via-card/80 to-transparent pointer-events-none flex items-end justify-center pb-1">
+                <ChevronDown className="w-4 h-4 text-primary animate-bounce" />
+              </div>
+            )}
           </div>
         </div>
       )}
