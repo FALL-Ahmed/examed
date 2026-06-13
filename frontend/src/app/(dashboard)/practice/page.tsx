@@ -6,9 +6,11 @@ import { attemptsApi, themesApi } from '@/lib/api';
 import { useAuthStore } from '@/lib/auth-store';
 import { QuestionCard } from '@/components/QuestionCard';
 import { useLang } from '@/components/LanguageProvider';
-import { BookOpen, Loader2, Play, ChevronDown } from 'lucide-react';
+import { BookOpen, Loader2, Play } from 'lucide-react';
 import { ThemeSearchInput } from '@/components/ThemeSearchInput';
 import { sentenceCase } from '@/lib/utils';
+import { NEW_THEME_IDS, NEW_SUBTHEME_IDS } from '@/lib/new-content';
+import { BadgeSelect } from '@/components/BadgeSelect';
 
 const PRACTICE_KEY = 'practice_state';
 
@@ -169,19 +171,16 @@ export default function PracticePage() {
 
             <div>
               <label className="block text-sm font-semibold mb-2">{t('practice.selectTheme')}</label>
-              <div className="relative">
-                <select
-                  value={config.themeId}
-                  onChange={(e) => setConfig({ ...config, themeId: e.target.value, subThemeId: '' })}
-                  className="w-full appearance-none px-4 py-3 pr-10 bg-background border border-border rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary text-sm cursor-pointer"
-                >
-                  <option value="">{t('practice.allThemes')}</option>
-                  {themes.map((th) => (
-                    <option key={th.id} value={th.id}>{sentenceCase(th.name)}</option>
-                  ))}
-                </select>
-                <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none" />
-              </div>
+              <BadgeSelect
+                value={config.themeId}
+                onChange={(v) => setConfig({ ...config, themeId: v, subThemeId: '' })}
+                placeholder={t('practice.allThemes')}
+                newBadgeLabel={lang === 'ar' ? 'جديد' : 'Nouveau'}
+                options={[
+                  { value: '', label: t('practice.allThemes') },
+                  ...themes.map((th) => ({ value: th.id, label: sentenceCase(th.name), isNew: NEW_THEME_IDS.has(th.id) })),
+                ]}
+              />
             </div>
 
             {config.themeId && (() => {
@@ -191,21 +190,16 @@ export default function PracticePage() {
               return (
                 <div>
                   <label className="block text-sm font-semibold mb-2">{t('upload.subthemes')}</label>
-                  <div className="relative">
-                    <select
-                      value={config.subThemeId}
-                      onChange={(e) => setConfig({ ...config, subThemeId: e.target.value })}
-                      className="w-full appearance-none px-4 py-3 pr-10 bg-background border border-border rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary text-sm cursor-pointer"
-                    >
-                      <option value="">{t('practice.allThemes')}</option>
-                      {subThemes.map((s: any) => (
-                        <option key={s.id} value={s.id}>
-                          {sentenceCase(s.name)} ({s._count.questions} q.)
-                        </option>
-                      ))}
-                    </select>
-                    <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none" />
-                  </div>
+                  <BadgeSelect
+                    value={config.subThemeId}
+                    onChange={(v) => setConfig({ ...config, subThemeId: v })}
+                    placeholder={t('practice.allThemes')}
+                    newBadgeLabel={lang === 'ar' ? 'جديد' : 'Nouveau'}
+                    options={[
+                      { value: '', label: t('practice.allThemes') },
+                      ...subThemes.map((s: any) => ({ value: s.id, label: sentenceCase(s.name), isNew: NEW_SUBTHEME_IDS.has(s.id), count: s._count.questions })),
+                    ]}
+                  />
                 </div>
               );
             })()}

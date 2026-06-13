@@ -3,10 +3,12 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { attemptsApi, themesApi } from '@/lib/api';
 import { useAuthStore } from '@/lib/auth-store';
-import { Zap, Loader2, Timer, Play, PlayCircle, Trash2, ChevronDown } from 'lucide-react';
+import { Zap, Loader2, Timer, Play, PlayCircle, Trash2 } from 'lucide-react';
 import { ThemeSearchInput } from '@/components/ThemeSearchInput';
 import { useLang } from '@/components/LanguageProvider';
 import { sentenceCase } from '@/lib/utils';
+import { NEW_THEME_IDS } from '@/lib/new-content';
+import { BadgeSelect } from '@/components/BadgeSelect';
 
 export default function ExamConfigPage() {
   const router = useRouter();
@@ -132,19 +134,16 @@ export default function ExamConfigPage() {
 
           <div>
             <label className="block text-sm font-semibold mb-2">{t('practice.selectTheme')}</label>
-            <div className="relative">
-              <select
-                value={config.themeId}
-                onChange={(e) => setConfig({ ...config, themeId: e.target.value })}
-                className="w-full appearance-none px-4 py-3 pr-10 bg-background border border-border rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary text-sm cursor-pointer"
-              >
-                <option value="">{t('practice.allThemes')}</option>
-                {themes.map((th) => (
-                  <option key={th.id} value={th.id}>{sentenceCase(th.name)}</option>
-                ))}
-              </select>
-              <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none" />
-            </div>
+            <BadgeSelect
+              value={config.themeId}
+              onChange={(v) => setConfig({ ...config, themeId: v })}
+              placeholder={t('practice.allThemes')}
+              newBadgeLabel={lang === 'ar' ? 'جديد' : 'Nouveau'}
+              options={[
+                { value: '', label: t('practice.allThemes') },
+                ...themes.map((th) => ({ value: th.id, label: sentenceCase(th.name), isNew: NEW_THEME_IDS.has(th.id) })),
+              ]}
+            />
           </div>
 
           <div>

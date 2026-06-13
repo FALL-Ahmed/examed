@@ -2,6 +2,8 @@
 import { useState, useRef, useEffect } from 'react';
 import { Search, X } from 'lucide-react';
 import { sentenceCase } from '@/lib/utils';
+import { NEW_THEME_IDS, NEW_SUBTHEME_IDS, newLabel } from '@/lib/new-content';
+import { useLang } from '@/components/LanguageProvider';
 
 interface Theme {
   id: string;
@@ -31,6 +33,7 @@ export function ThemeSearchInput({ themes, themeId, subThemeId, onSelect, allLab
   const [query, setQuery] = useState('');
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
+  const { lang } = useLang();
 
   // Label affiché dans l'input quand une sélection est active
   const selectedLabel = (() => {
@@ -140,13 +143,23 @@ export function ThemeSearchInput({ themes, themeId, subThemeId, onSelect, allLab
                 ${r.themeId === themeId && r.subThemeId === subThemeId ? 'bg-primary/10 font-semibold text-primary' : ''}
               `}
             >
-              <span>
+              <span className="flex items-center gap-1.5 flex-wrap">
                 {r.type === 'all' && allLabel}
-                {r.type === 'theme' && sentenceCase(r.themeName)}
+                {r.type === 'theme' && (
+                  <>
+                    {sentenceCase(r.themeName)}
+                    {NEW_THEME_IDS.has(r.themeId) && (
+                      <span className="ml-1.5 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-green-500 text-white">{lang === 'ar' ? 'جديد' : 'Nouveau'}</span>
+                    )}
+                  </>
+                )}
                 {r.type === 'subtheme' && (
                   <>
                     <span className="text-muted-foreground text-xs">{sentenceCase(r.themeName)} / </span>
                     {sentenceCase(r.subThemeName!)}
+                    {(NEW_SUBTHEME_IDS.has(r.subThemeId!) || NEW_THEME_IDS.has(r.themeId)) && (
+                      <span className="ml-1.5 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-green-500 text-white">{lang === 'ar' ? 'جديد' : 'Nouveau'}</span>
+                    )}
                   </>
                 )}
               </span>

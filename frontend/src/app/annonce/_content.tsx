@@ -16,7 +16,7 @@ const CONTENT: Record<AnnonceProfession, { fr: any; ar: any }> = {
     fr: {
       label: 'Plateforme de préparation au concours de recrutement des',
       country: 'en Mauritanie',
-      subtitle: 'Prépare le concours officiel en toute confiance',
+      subtitle: 'Maîtrisez vos connaissances en soins infirmiers avant le concours',
       features: [
         'Plus de 800 QCM infirmiers, corrigés et commentés',
         'Suivi de ton évolution et comparaison nationale avec tes collègues',
@@ -42,7 +42,7 @@ const CONTENT: Record<AnnonceProfession, { fr: any; ar: any }> = {
     fr: {
       label: 'Plateforme de préparation au concours de recrutement des',
       country: 'en Mauritanie',
-      subtitle: 'Prépare le concours officiel en toute confiance',
+      subtitle: 'Maîtrisez vos connaissances en gynécologie-obstétrique avant le concours',
       features: [
         'Plus de 800 QCM sages‑femmes, corrigés et commentés par des gynécologues',
         'Suivi de ton évolution et comparaison nationale avec tes collègues',

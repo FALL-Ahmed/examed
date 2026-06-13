@@ -73,7 +73,7 @@ const defaultForm = {
   title: 'Examen Blanc National', descriptionFr: '', descriptionAr: '',
   startsAt: '', endsAt: '', resultsAt: '',
   totalQ: 80, durationMin: 120, target: 'INFIRMIER',
-  selectionMode: 'auto' as 'auto' | 'smart',
+  selectionMode: 'auto' as 'auto' | 'smart' | 'complement',
   smartCriteria: 'best' as 'best' | 'worst',
   smartFromLastN: 3,
 };
@@ -149,6 +149,8 @@ export default function AdminExamenBlancPage() {
       await examenBlancApi.adminCreateSession(form);
       const mode = form.selectionMode === 'smart'
         ? `sélection intelligente (${form.smartCriteria === 'best' ? 'meilleur score' : 'plus difficiles'})`
+        : form.selectionMode === 'complement'
+        ? 'programme complémentaire SF'
         : 'sélection automatique';
       setCreateSuccess(`✅ Session créée avec ${form.totalQ} questions — ${mode}`);
       setForm(defaultForm); setSmartPreview(null); loadSessions(); setTab('sessions');
@@ -545,14 +547,17 @@ export default function AdminExamenBlancPage() {
             <label className={labelCls}>Méthode de sélection des questions</label>
             <div className="flex gap-2">
               {([
-                { val: 'auto',  label: '🎲 Automatique',   desc: 'Par sous-thème, fraîcheur, aléatoire' },
-                { val: 'smart', label: '🧠 Intelligente',   desc: 'Basée sur les scores passés' },
+                { val: 'auto',       label: '🎲 Automatique',   desc: 'Par sous-thème, fraîcheur, aléatoire' },
+                { val: 'smart',      label: '🧠 Intelligente',   desc: 'Basée sur les scores passés' },
+                { val: 'complement', label: '🆕 Complément SF',  desc: '30 Cas clinique + 5 Réa + 3 Prév. + 22 Obst.' },
               ] as const).map(({ val, label, desc }) => (
                 <button key={val} type="button"
                   onClick={() => { setForm(p => ({ ...p, selectionMode: val })); setSmartPreview(null); }}
                   className={`flex-1 flex flex-col items-center gap-0.5 py-2.5 rounded-xl text-sm font-semibold border transition ${
                     form.selectionMode === val
-                      ? val === 'smart' ? 'bg-amber-500 border-amber-500 text-white' : 'bg-violet-600 border-violet-600 text-white'
+                      ? val === 'smart' ? 'bg-amber-500 border-amber-500 text-white'
+                        : val === 'complement' ? 'bg-green-600 border-green-600 text-white'
+                        : 'bg-violet-600 border-violet-600 text-white'
                       : 'border-border text-muted-foreground hover:bg-muted'
                   }`}>
                   <span>{label}</span>
@@ -564,6 +569,19 @@ export default function AdminExamenBlancPage() {
             {form.selectionMode === 'auto' && (
               <div className="bg-violet-50 dark:bg-violet-900/20 border border-violet-200 dark:border-violet-800 rounded-xl px-4 py-3 text-xs text-violet-700 dark:text-violet-300">
                 1 question minimum par sous-thème, uniquement les questions avec commentaire, priorité aux questions jamais utilisées.
+              </div>
+            )}
+
+            {form.selectionMode === 'complement' && (
+              <div className="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-xl px-4 py-3 text-xs text-green-800 dark:text-green-300 space-y-1">
+                <p className="font-semibold">Programme complémentaire Sage-Femme (60 QCM)</p>
+                <ul className="list-disc list-inside space-y-0.5 opacity-90">
+                  <li>30 QCM — Cas clinique</li>
+                  <li>5 QCM — Réanimation du nouveau-né</li>
+                  <li>3 QCM — Prévention cancer du col</li>
+                  <li>22 QCM — Déclenchement / Épreuve utérine / Tocolyse / Grossesse gémellaire / Liquide amniotique / Manœuvres</li>
+                </ul>
+                <p className="opacity-70 mt-1">Questions en français uniquement. Target forcé : SAGE_FEMME.</p>
               </div>
             )}
 
