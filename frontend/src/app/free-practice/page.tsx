@@ -61,7 +61,7 @@ export default function FreePracticePage() {
   const isDebug = typeof window !== 'undefined' && new URLSearchParams(window.location.search).get('debug') === '1';
   const [lang, setLang] = useState<'fr' | 'ar'>('fr');
   const isAr = lang === 'ar';
-  const [target, setTarget] = useState<Target>('BIOLOGISTE');
+  const [target, setTarget] = useState<Target>('SAGE_FEMME');
 
   const [themes, setThemes] = useState<any[]>([]);
   const [loadingThemes, setLoadingThemes] = useState(true);
