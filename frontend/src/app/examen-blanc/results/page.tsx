@@ -60,10 +60,6 @@ function ResultsContent() {
   const [localState, setLocalState] = useState<any>(null);
   const [promo, setPromo] = useState<{ active: boolean; discount: number } | null>(null);
   const [mySessions, setMySessions] = useState<any[]>([]);
-  const [showRecovery, setShowRecovery] = useState(false);
-  const [recoveryPhone, setRecoveryPhone] = useState('');
-  const [recovering, setRecovering] = useState(false);
-  const [recoveryError, setRecoveryError] = useState('');
 
   useEffect(() => {
     settingsApi.promo().then((r) => setPromo(r.data)).catch(() => {});
@@ -85,10 +81,10 @@ function ResultsContent() {
       return;
     }
     const raw = localStorage.getItem(stateKey);
-    if (!raw) { setShowRecovery(true); setLoading(false); return; }
+    if (!raw) { router.replace('/examen-blanc'); return; }
     let state: any;
-    try { state = JSON.parse(raw); } catch { setShowRecovery(true); setLoading(false); return; }
-    if (!state.sessionId) { setShowRecovery(true); setLoading(false); return; }
+    try { state = JSON.parse(raw); } catch { router.replace('/examen-blanc'); return; }
+    if (!state.sessionId) { router.replace('/examen-blanc'); return; }
     if (!state.isCompleted) {
       router.replace(isTestMode ? '/examen-blanc/exam?mode=test' : '/examen-blanc/exam');
       return;
@@ -129,96 +125,9 @@ function ResultsContent() {
     return () => clearTimeout(id);
   }, [results, resultsAt, load]);
 
-  async function handleRecovery(e: React.FormEvent) {
-    e.preventDefault();
-    setRecovering(true);
-    setRecoveryError('');
-    try {
-      const { data } = await examenBlancApi.recover(recoveryPhone);
-      const newState = {
-        sessionId: data.sessionId,
-        participantId: data.participantId,
-        examenBlancId: data.examenBlancId,
-        isCompleted: data.isCompleted,
-        durationMin: data.durationMin,
-        totalQ: data.totalQ,
-        startsAt: data.startsAt,
-        endsAt: data.endsAt,
-        resultsAt: data.resultsAt,
-        startedAt: data.startedAt,
-        participant: data.participant,
-        questions: data.questions,
-        answers: data.answers || {},
-      };
-      localStorage.setItem(stateKey, JSON.stringify(newState));
-      if (data.isCompleted) {
-        setShowRecovery(false);
-        setLoading(true);
-        load();
-      } else {
-        router.replace('/examen-blanc/exam');
-      }
-    } catch (err: any) {
-      setRecoveryError(
-        isAr
-          ? 'لم يتم العثور على أي مشارك بهذا الرقم'
-          : 'Aucun participant trouvé avec ce numéro'
-      );
-    } finally {
-      setRecovering(false);
-    }
-  }
-
   if (loading) return (
     <div className="min-h-screen flex items-center justify-center" style={{ background: 'linear-gradient(145deg,#0f0a2e,#1a1040,#0d1b3e)' }}>
       <div className="w-8 h-8 border-4 border-violet-400 border-t-transparent rounded-full animate-spin" />
-    </div>
-  );
-
-  if (showRecovery) return (
-    <div className="min-h-screen flex flex-col items-center justify-center p-6" dir={isAr ? 'rtl' : 'ltr'}
-      style={{ background: 'linear-gradient(145deg,#0f0a2e 0%,#1a1040 50%,#0d1b3e 100%)' }}>
-      <div className="max-w-sm w-full">
-        <div className="text-center mb-8">
-          <div className="text-5xl mb-4">📱</div>
-          <h2 className="text-white font-black text-2xl mb-2">
-            {isAr ? 'عرض نتائجك' : 'Voir vos résultats'}
-          </h2>
-          <p className="text-white/50 text-sm">
-            {isAr
-              ? 'أدخل رقم هاتفك للوصول إلى نتائجك من أي جهاز'
-              : 'Entrez votre numéro de téléphone pour accéder à vos résultats depuis n\'importe quel appareil'}
-          </p>
-        </div>
-        <form onSubmit={handleRecovery} className="space-y-4">
-          <input
-            type="tel"
-            value={recoveryPhone}
-            onChange={e => setRecoveryPhone(e.target.value)}
-            placeholder={isAr ? 'رقم الهاتف' : 'Numéro de téléphone'}
-            className="w-full px-4 py-4 rounded-2xl bg-white/10 border border-white/20 text-white placeholder-white/30 text-center text-lg font-bold focus:outline-none focus:border-violet-400"
-            dir="ltr"
-          />
-          {recoveryError && (
-            <p className="text-red-400 text-sm text-center">{recoveryError}</p>
-          )}
-          <button
-            type="submit"
-            disabled={recovering || !recoveryPhone.trim()}
-            className="w-full py-4 rounded-2xl font-black text-white text-lg disabled:opacity-50 transition-opacity"
-            style={{ background: 'linear-gradient(135deg,#7c3aed,#6366f1)' }}
-          >
-            {recovering
-              ? (isAr ? 'جارٍ البحث...' : 'Recherche...')
-              : (isAr ? 'عرض نتائجي' : 'Voir mes résultats')}
-          </button>
-        </form>
-        <div className="mt-6 text-center">
-          <Link href="/examen-blanc" className="text-white/30 text-sm hover:text-white/60 transition-colors">
-            {isAr ? '← العودة' : '← Retour'}
-          </Link>
-        </div>
-      </div>
     </div>
   );
 
