@@ -527,7 +527,7 @@ export class ExamenBlancService {
   async recoverSession(telephone: string) {
     const participant = await db(this.prisma).examenBlancParticipant.findFirst({
       where: { telephone: telephone.trim() },
-      orderBy: { createdAt: 'desc' },
+      orderBy: [{ isCompleted: 'desc' }, { createdAt: 'desc' }],
       include: { examenBlanc: true },
     });
     if (!participant) throw new NotFoundException('Aucun participant trouvé avec ce numéro');
