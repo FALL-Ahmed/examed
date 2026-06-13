@@ -233,7 +233,7 @@ function ResultsContent() {
           {/* Témoignages */}
           <div className="bg-white/5 border border-white/10 rounded-3xl p-6">
             <p className="text-white/60 text-xs font-bold uppercase tracking-widest text-center mb-4">
-              {isAr ? `انضموا إلى +${localState?.target === 'SAGE_FEMME' ? '700' : localState?.target === 'BIOLOGISTE' ? '400' : '600'} سؤال على Al Bourour` : `Ils ont rejoint les +${localState?.target === 'SAGE_FEMME' ? '700' : localState?.target === 'BIOLOGISTE' ? '400' : '600'} QCM d'Al Bourour`}
+              {isAr ? `انضموا إلى +${localState?.target === 'SAGE_FEMME' ? '800' : localState?.target === 'BIOLOGISTE' ? '400' : '800'} سؤال على Al Bourour` : `Ils ont rejoint les +${localState?.target === 'SAGE_FEMME' ? '800' : localState?.target === 'BIOLOGISTE' ? '400' : '800'} QCM d'Al Bourour`}
             </p>
             <div className="grid grid-cols-2 gap-4">
               {(isAr ? [
@@ -423,7 +423,7 @@ function ResultsContent() {
             {/* Bloc avantages */}
             <div className="w-full bg-white/10 border border-white/15 rounded-2xl px-5 py-4 space-y-2">
               <div className="text-sm text-white/70 space-y-1">
-                <p>✅ {isAr ? `${localState?.target === 'SAGE_FEMME' ? '700' : localState?.target === 'BIOLOGISTE' ? '400' : '600'}+ سؤال اختياري 🩺💊💉` : `${localState?.target === 'SAGE_FEMME' ? '700' : localState?.target === 'BIOLOGISTE' ? '400' : '600'}+ QCM 🩺💊💉`}</p>
+                <p>✅ {isAr ? `${localState?.target === 'SAGE_FEMME' ? '800' : localState?.target === 'BIOLOGISTE' ? '400' : '800'}+ سؤال اختياري 🩺💊💉` : `${localState?.target === 'SAGE_FEMME' ? '800' : localState?.target === 'BIOLOGISTE' ? '400' : '800'}+ QCM 🩺💊💉`}</p>
                 <p>✅ {isAr ? 'إحصائيات تفصيلية' : 'Statistiques détaillées'}</p>
                 <p>✅ {isAr ? 'الترتيب الوطني الكامل' : 'Classement national complet'}</p>
               </div>
@@ -573,8 +573,8 @@ function ResultsContent() {
           </h3>
           <p className="text-white/70 text-sm mb-6">
             {isAr
-              ? `اشترك في المنصة للوصول إلى أكثر من ${localState?.target === 'SAGE_FEMME' ? '700' : '600'} سؤال، ممارسة يومية وتحليل مفصّل.`
-              : `Accès à ${localState?.target === 'SAGE_FEMME' ? '700' : '600'}+ questions, entraînement quotidien et analyses détaillées.`}
+              ? `اشترك في المنصة للوصول إلى أكثر من ${localState?.target === 'SAGE_FEMME' ? '800' : '800'} سؤال، ممارسة يومية وتحليل مفصّل.`
+              : `Accès à ${localState?.target === 'SAGE_FEMME' ? '800' : '800'}+ questions, entraînement quotidien et analyses détaillées.`}
           </p>
           <Link href="/register"
             className="inline-flex items-center gap-2 px-8 py-3 rounded-2xl font-bold text-violet-900 bg-white hover:bg-gray-50 transition shadow-lg">

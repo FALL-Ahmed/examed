@@ -246,6 +246,8 @@ export const examenBlancApi = {
     api.post('/examen-blanc/admin/test-session', { examenBlancId, lang }),
   adminSmartPreview: (params: { target: string; totalQ: number; criteria: string; fromLastN: number }) =>
     api.get('/examen-blanc/admin/smart-preview', { params }),
+  setContacted: (id: string, contacted: boolean) =>
+    api.patch(`/examen-blanc/admin/participants/${id}/contacted`, { contacted }),
 };
 
 export const pushApi = {

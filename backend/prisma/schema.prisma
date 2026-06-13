@@ -333,6 +333,7 @@ model ExamenBlancParticipant {
   isTest        Boolean   @default(false)
   tricherie     Boolean   @default(false)
   tabSwitches   Int       @default(0)
+  contacted     Boolean   @default(false)
   submittedAt      DateTime?
   resultsViewedAt  DateTime?
   createdAt        DateTime  @default(now())

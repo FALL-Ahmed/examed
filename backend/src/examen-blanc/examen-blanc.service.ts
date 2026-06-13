@@ -137,6 +137,14 @@ export class ExamenBlancService {
     };
   }
 
+  async setContacted(id: string, contacted: boolean) {
+    return this.prisma.examenBlancParticipant.update({
+      where: { id },
+      data: { contacted },
+      select: { id: true, contacted: true },
+    });
+  }
+
   async register(dto: { nom: string; prenom: string; telephone: string; ville: string; examenBlancId: string; lang: string }) {
     const session = await db(this.prisma).examenBlanc.findUnique({ where: { id: dto.examenBlancId } });
     if (!session) throw new NotFoundException('Session introuvable');
@@ -1230,7 +1238,7 @@ export class ExamenBlancService {
         select: {
           id: true, examenBlancId: true, nom: true, prenom: true, telephone: true, ville: true,
           lang: true, score: true, timeTaken: true, isCompleted: true, tricherie: true, submittedAt: true, createdAt: true,
-          resultsViewedAt: true,
+          resultsViewedAt: true, contacted: true,
           examenBlanc: { select: { title: true, id: true } },
         },
       }),

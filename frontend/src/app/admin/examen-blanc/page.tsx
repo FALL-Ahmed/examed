@@ -1176,11 +1176,12 @@ export default function AdminExamenBlancPage() {
                       <th key={h} className="text-left px-3 py-3 text-xs font-semibold text-muted-foreground whitespace-nowrap">{h}</th>
                     ))}
                     <th className="text-left px-3 py-3 text-xs font-semibold text-muted-foreground whitespace-nowrap">Entrée</th>
+                    <th className="text-left px-3 py-3 text-xs font-semibold text-muted-foreground whitespace-nowrap">✅ Contacté</th>
                   </tr>
                 </thead>
                 <tbody>
                   {filtered.length === 0 ? (
-                    <tr><td colSpan={11} className="text-center py-12 text-muted-foreground">Aucun participant</td></tr>
+                    <tr><td colSpan={12} className="text-center py-12 text-muted-foreground">Aucun participant</td></tr>
                   ) : filtered.map((l: any) => (
                     <tr key={l.id} className={`border-t border-border hover:bg-muted/50 ${l.isRegistered ? '' : 'bg-amber-50/30 dark:bg-amber-900/5'}`}>
                       <td className="px-3 py-2.5 whitespace-nowrap">
@@ -1213,6 +1214,21 @@ export default function AdminExamenBlancPage() {
                       <td className="px-3 py-2.5 text-muted-foreground text-xs whitespace-nowrap">{l.timeTaken ? formatTime(l.timeTaken) : '—'}</td>
                       <td className="px-3 py-2.5 text-xs whitespace-nowrap font-mono text-muted-foreground">
                         {l.createdAt ? new Date(l.createdAt).toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' }) : '—'}
+                      </td>
+                      <td className="px-3 py-2.5">
+                        <input
+                          type="checkbox"
+                          checked={!!l.contacted}
+                          onChange={async (e) => {
+                            const val = e.target.checked;
+                            try {
+                              await examenBlancApi.setContacted(l.id, val);
+                              setLeads((prev: any[]) => prev.map((p: any) => p.id === l.id ? { ...p, contacted: val } : p));
+                            } catch {}
+                          }}
+                          className="w-4 h-4 accent-violet-600 cursor-pointer"
+                          title={l.contacted ? 'Marqué comme contacté' : 'Marquer comme contacté'}
+                        />
                       </td>
                     </tr>
                   ))}

@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Put, Param, Body, Query, UseGuards, ParseIntPipe, DefaultValuePipe } from '@nestjs/common';
+import { Controller, Get, Post, Put, Patch, Param, Body, Query, UseGuards, ParseIntPipe, DefaultValuePipe } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
@@ -123,5 +123,12 @@ export class ExamenBlancController {
   @Post('admin/test-session')
   adminTestSession(@Body() body: { examenBlancId: string; lang?: 'fr' | 'ar' }) {
     return this.service.adminTestSession(body.examenBlancId, body.lang ?? 'fr');
+  }
+
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('ADMIN')
+  @Patch('admin/participants/:id/contacted')
+  toggleContacted(@Param('id') id: string, @Body() body: { contacted: boolean }) {
+    return this.service.setContacted(id, body.contacted);
   }
 }
