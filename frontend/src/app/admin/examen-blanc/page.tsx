@@ -109,7 +109,7 @@ export default function AdminExamenBlancPage() {
   const [createSuccess, setCreateSuccess] = useState('');
   const [editing, setEditing] = useState<Record<string, any>>({});
   const [expandedEdit, setExpandedEdit] = useState<string | null>(null);
-  const [sortBy, setSortBy] = useState<'createdAt' | 'score' | 'none'>('createdAt');
+  const [sortBy, setSortBy] = useState<'createdAt' | 'score' | 'none'>('none');
   const [sortDir, setSortDir] = useState<'asc' | 'desc'>('desc');
 
   const loadSessions = useCallback(async () => {
@@ -1097,8 +1097,28 @@ export default function AdminExamenBlancPage() {
               </button>
             </div>
           </div>
-          <p className="text-xs text-muted-foreground">{filtered.length} participant(s) affiché(s)</p>
-          {(() => { if (sortBy === 'createdAt') { filtered.sort((a: any, b: any) => sortDir === 'desc' ? new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime() : new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()); } return null; })()}
+          <div className="flex items-center gap-2 flex-wrap">
+            <p className="text-xs text-muted-foreground">{filtered.length} participant(s) affiché(s)</p>
+            <div className="flex items-center gap-1 ml-auto">
+              <span className="text-xs text-muted-foreground">Trier :</span>
+              {([
+                { key: 'none',      label: 'Défaut' },
+                { key: 'createdAt', label: '🕐 Entrée' },
+                { key: 'score',     label: '🏆 Score' },
+              ] as const).map(({ key, label }) => (
+                <button key={key}
+                  onClick={() => { if (sortBy === key) setSortDir(d => d === 'desc' ? 'asc' : 'desc'); else { setSortBy(key); setSortDir('desc'); } }}
+                  className={`px-2.5 py-1 rounded-lg text-xs font-semibold transition ${sortBy === key ? 'bg-violet-600 text-white' : 'bg-muted text-muted-foreground hover:bg-muted/80'}`}>
+                  {label}{sortBy === key ? (sortDir === 'desc' ? ' ↓' : ' ↑') : ''}
+                </button>
+              ))}
+            </div>
+          </div>
+          {(() => {
+            if (sortBy === 'createdAt') filtered.sort((a: any, b: any) => sortDir === 'desc' ? new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime() : new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime());
+            else if (sortBy === 'score') filtered.sort((a: any, b: any) => { const sa = a.score ?? -999; const sb = b.score ?? -999; return sortDir === 'desc' ? sb - sa : sa - sb; });
+            return null;
+          })()}
 
           {/* Panneau envoi séquentiel */}
           {sendQueue && sendIdx < sendQueue.length && (
@@ -1155,11 +1175,7 @@ export default function AdminExamenBlancPage() {
                     {['Statut', 'Nom complet', 'Téléphone', 'Wilaya', 'Lg', 'Score', 'Rang', 'Résultats vus', 'WA', 'Temps'].map(h => (
                       <th key={h} className="text-left px-3 py-3 text-xs font-semibold text-muted-foreground whitespace-nowrap">{h}</th>
                     ))}
-                    <th
-                      onClick={() => { if (sortBy === 'createdAt') setSortDir(d => d === 'desc' ? 'asc' : 'desc'); else { setSortBy('createdAt'); setSortDir('desc'); } }}
-                      className="text-left px-3 py-3 text-xs font-semibold text-muted-foreground whitespace-nowrap cursor-pointer hover:text-foreground select-none">
-                      Entrée {sortBy === 'createdAt' ? (sortDir === 'desc' ? '↓' : '↑') : '↕'}
-                    </th>
+                    <th className="text-left px-3 py-3 text-xs font-semibold text-muted-foreground whitespace-nowrap">Entrée</th>
                   </tr>
                 </thead>
                 <tbody>
