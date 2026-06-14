@@ -73,7 +73,7 @@ const defaultForm = {
   title: 'Examen Blanc National', descriptionFr: '', descriptionAr: '',
   startsAt: '', endsAt: '', resultsAt: '',
   totalQ: 80, durationMin: 120, target: 'INFIRMIER',
-  selectionMode: 'auto' as 'auto' | 'smart' | 'complement',
+  selectionMode: 'auto' as 'auto' | 'smart' | 'complement' | 'infirmier-quota',
   smartCriteria: 'best' as 'best' | 'worst',
   smartFromLastN: 3,
 };
@@ -153,6 +153,8 @@ export default function AdminExamenBlancPage() {
         ? `sélection intelligente (${form.smartCriteria === 'best' ? 'meilleur score' : 'plus difficiles'})`
         : form.selectionMode === 'complement'
         ? 'programme complémentaire SF'
+        : form.selectionMode === 'infirmier-quota'
+        ? 'quotas Infirmier (45 Cas Clinique + 5 Sémio + 2 Transf. + 3 Anat. + 5 Pharma)'
         : 'sélection automatique';
       setCreateSuccess(`✅ Session créée avec ${form.totalQ} questions — ${mode}`);
       setForm(defaultForm); setSmartPreview(null); loadSessions(); setTab('sessions');
@@ -547,23 +549,25 @@ export default function AdminExamenBlancPage() {
           {/* Méthode de sélection */}
           <div className="space-y-3">
             <label className={labelCls}>Méthode de sélection des questions</label>
-            <div className="flex gap-2">
+            <div className="grid grid-cols-2 gap-2">
               {([
-                { val: 'auto',       label: '🎲 Automatique',   desc: 'Par sous-thème, fraîcheur, aléatoire' },
-                { val: 'smart',      label: '🧠 Intelligente',   desc: 'Basée sur les scores passés' },
-                { val: 'complement', label: '🆕 Complément SF',  desc: '30 Cas clinique + 5 Réa + 3 Prév. + 22 Obst.' },
-              ] as const).map(({ val, label, desc }) => (
+                { val: 'auto',            label: '🎲 Automatique',      desc: 'Par sous-thème, fraîcheur, aléatoire',                color: 'violet' },
+                { val: 'smart',           label: '🧠 Intelligente',      desc: 'Basée sur les scores passés',                         color: 'amber' },
+                { val: 'complement',      label: '🆕 Complément SF',     desc: '30 Cas clinique + 5 Réa + 3 Prév. + 22 Obst.',        color: 'green' },
+                { val: 'infirmier-quota', label: '🏥 Quotas Infirmier',  desc: '45 Cas Clinique + 5 Sémio + 2 Transf. + 3 Anat. + 5 Pharma', color: 'indigo' },
+              ] as const).map(({ val, label, desc, color }) => (
                 <button key={val} type="button"
-                  onClick={() => { setForm(p => ({ ...p, selectionMode: val })); setSmartPreview(null); }}
-                  className={`flex-1 flex flex-col items-center gap-0.5 py-2.5 rounded-xl text-sm font-semibold border transition ${
+                  onClick={() => { setForm(p => ({ ...p, selectionMode: val, ...(val === 'infirmier-quota' ? { totalQ: 60, target: 'INFIRMIER' } : {}) })); setSmartPreview(null); }}
+                  className={`flex flex-col items-center gap-0.5 py-2.5 rounded-xl text-sm font-semibold border transition ${
                     form.selectionMode === val
-                      ? val === 'smart' ? 'bg-amber-500 border-amber-500 text-white'
-                        : val === 'complement' ? 'bg-green-600 border-green-600 text-white'
+                      ? color === 'amber'  ? 'bg-amber-500 border-amber-500 text-white'
+                        : color === 'green'  ? 'bg-green-600 border-green-600 text-white'
+                        : color === 'indigo' ? 'bg-indigo-600 border-indigo-600 text-white'
                         : 'bg-violet-600 border-violet-600 text-white'
                       : 'border-border text-muted-foreground hover:bg-muted'
                   }`}>
                   <span>{label}</span>
-                  <span className={`text-xs font-normal ${form.selectionMode === val ? 'opacity-80' : 'opacity-60'}`}>{desc}</span>
+                  <span className={`text-xs font-normal text-center ${form.selectionMode === val ? 'opacity-80' : 'opacity-60'}`}>{desc}</span>
                 </button>
               ))}
             </div>
@@ -571,6 +575,20 @@ export default function AdminExamenBlancPage() {
             {form.selectionMode === 'auto' && (
               <div className="bg-violet-50 dark:bg-violet-900/20 border border-violet-200 dark:border-violet-800 rounded-xl px-4 py-3 text-xs text-violet-700 dark:text-violet-300">
                 1 question minimum par sous-thème, uniquement les questions avec commentaire, priorité aux questions jamais utilisées.
+              </div>
+            )}
+
+            {form.selectionMode === 'infirmier-quota' && (
+              <div className="bg-indigo-50 dark:bg-indigo-900/20 border border-indigo-200 dark:border-indigo-800 rounded-xl px-4 py-3 text-xs text-indigo-800 dark:text-indigo-300 space-y-1">
+                <p className="font-semibold">Quotas fixes Infirmier (60 QCM)</p>
+                <ul className="list-disc list-inside space-y-0.5 opacity-90">
+                  <li>45 QCM — Cas Clinique</li>
+                  <li>5 QCM — Sémiologie</li>
+                  <li>2 QCM — Transfusion</li>
+                  <li>3 QCM — Anatomie &amp; Physiologie</li>
+                  <li>5 QCM — Pharmacologie</li>
+                </ul>
+                <p className="opacity-70 mt-1">Target forcé : INFIRMIER · 60 questions.</p>
               </div>
             )}
 

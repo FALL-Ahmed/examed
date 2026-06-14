@@ -711,6 +711,77 @@ export class ExamenBlancService {
     return selected.sort(() => Math.random() - 0.5).slice(0, totalQ);
   }
 
+  // Examen blanc INFIRMIER — quotas fixes par catégorie
+  // 45 Cas Clinique + 5 Sémiologie + 2 Transfusion + 3 Anatomie + 5 Pharmacologie = 60 QCM
+  async generateInfirmierQuotaQuestions(totalQ = 60, lang: 'FR' | 'AR' = 'FR'): Promise<string[]> {
+    const target = 'INFIRMIER';
+    const previousSessions = await db(this.prisma).examenBlanc.findMany({
+      where: { target },
+      orderBy: { createdAt: 'asc' },
+      select: { questionIdsFr: true, questionIdsAr: true },
+    });
+    const usedAge = new Map<string, number>();
+    previousSessions.forEach((s: any, idx: number) => {
+      const ids: string[] = lang === 'FR' ? s.questionIdsFr : s.questionIdsAr;
+      ids.forEach(id => usedAge.set(id, idx));
+    });
+    const freshness = (id: string): number => usedAge.has(id) ? usedAge.get(id)! : Infinity;
+    const byFreshness = (a: string, b: string) => {
+      const fa = freshness(a), fb = freshness(b);
+      if (fa === fb) return Math.random() - 0.5;
+      if (fa === Infinity) return -1;
+      if (fb === Infinity) return 1;
+      return fa - fb;
+    };
+
+    const allSubThemes = await this.prisma.subTheme.findMany({
+      where: { theme: { language: lang, target } },
+      include: {
+        theme: { select: { name: true } },
+        questions: {
+          where: { isActive: true, explanation: { not: '' } },
+          select: { id: true },
+        },
+      },
+    });
+    const available = allSubThemes.filter((st: any) => st.questions.length > 0);
+
+    const pick = (matcher: (subName: string, themeName: string) => boolean, n: number): string[] => {
+      const pool: string[] = [];
+      for (const st of available) {
+        const s = st.name.toLowerCase();
+        const t = (st.theme?.name ?? '').toLowerCase();
+        if (matcher(s, t)) pool.push(...st.questions.map((q: any) => q.id));
+      }
+      pool.sort(byFreshness);
+      return pool.slice(0, n);
+    };
+
+    let selected: string[];
+
+    if (lang === 'AR') {
+      selected = [
+        ...pick((_s, t) => t === 'حالة سريرية', 45),
+        ...pick((_s, t) => t === 'السيميولوجيا', 5),
+        ...pick((s) => s.includes('نقل الدم'), 2),
+        ...pick((_s, t) => t.includes('التشريح'), 3),
+        ...pick((_s, t) => t === 'الدوائية والعلاج', 5),
+      ];
+    } else {
+      selected = [
+        ...pick((_s, t) => t === 'cas clinique', 45),
+        ...pick((_s, t) => t === 'semiologie', 5),
+        ...pick((s) => s === 'transfusion', 2),
+        ...pick((_s, t) => t === 'anatomie et physiologie', 3),
+        ...pick((_s, t) => t === 'pharmacologie', 5),
+      ];
+    }
+
+    const seen = new Set<string>();
+    const deduped = selected.filter(id => { if (seen.has(id)) return false; seen.add(id); return true; });
+    return deduped.sort(() => Math.random() - 0.5).slice(0, totalQ);
+  }
+
   // Examen blanc SAGE_FEMME — programme complémentaire
   // 30 CAS CLINIQUE + 5 RÉANIMATION NOUVEAU NÉ + 3 PRÉVENTION CANCER COL + 22 DÉCLENCHEMENT/TOCOLYSE/GROSSESSE GÉMELLAIRE/LIQUIDE AMNIOTIQUE/MANŒUVRES
   async generateComplementQuestions(totalQ = 60, lang: 'FR' | 'AR' = 'FR'): Promise<string[]> {
@@ -960,20 +1031,26 @@ export class ExamenBlancService {
     title?: string; descriptionFr?: string; descriptionAr?: string;
     startsAt: string; endsAt: string; resultsAt?: string;
     totalQ?: number; durationMin?: number; target?: string;
-    selectionMode?: 'auto' | 'smart' | 'complement';
+    selectionMode?: 'auto' | 'smart' | 'complement' | 'infirmier-quota';
     smartCriteria?: 'best' | 'worst';
     smartFromLastN?: number;
   }) {
     const selectionMode = dto.selectionMode ?? 'auto';
-    const totalQ = dto.totalQ ?? 80;
-    const target = selectionMode === 'complement' ? 'SAGE_FEMME' : (dto.target?.toUpperCase() || 'INFIRMIER');
+    const totalQ = dto.totalQ ?? (selectionMode === 'infirmier-quota' ? 60 : 80);
+    const target = selectionMode === 'complement' ? 'SAGE_FEMME' : selectionMode === 'infirmier-quota' ? 'INFIRMIER' : (dto.target?.toUpperCase() || 'INFIRMIER');
     const smartCriteria = dto.smartCriteria ?? 'best';
     const smartFromLastN = dto.smartFromLastN ?? 3;
 
     let questionIdsFr: string[];
     let questionIdsAr: string[];
 
-    if (selectionMode === 'complement') {
+    if (selectionMode === 'infirmier-quota') {
+      // 45 Cas Clinique + 5 Sémiologie + 2 Transfusion + 3 Anatomie + 5 Pharmacologie = 60 QCM
+      [questionIdsFr, questionIdsAr] = await Promise.all([
+        this.generateInfirmierQuotaQuestions(totalQ, 'FR'),
+        this.generateInfirmierQuotaQuestions(totalQ, 'AR'),
+      ]);
+    } else if (selectionMode === 'complement') {
       // Programme complémentaire SAGE_FEMME — target forcé SAGE_FEMME, FR + AR
       [questionIdsFr, questionIdsAr] = await Promise.all([
         this.generateComplementQuestions(totalQ, 'FR'),

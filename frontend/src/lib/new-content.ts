@@ -6,6 +6,8 @@ export const NEW_THEME_IDS = new Set([
   'cmqbp9c180000a9wiu0vprkay', // حالة سريرية (AR)
   'cmqc5okpa000011gggo5atvyu', // SOINS NÉONATAUX ET RÉANIMATION (FR, thème indépendant)
   'cmqc5t2tb0000dd0tpcvjamh4', // رعاية حديثي الولادة والإنعاش (AR, thème indépendant)
+  'cmqdohqpl0000sj35udqn2gdg', // CAS CLINIQUE INFIRMIER (FR, importé le 2026-06-14)
+  'cmqdoxdnx000014l3gvei98v1', // حالة سريرية INFIRMIER (AR, importé le 2026-06-14)
 ]);
 
 export const NEW_SUBTHEME_IDS = new Set([
