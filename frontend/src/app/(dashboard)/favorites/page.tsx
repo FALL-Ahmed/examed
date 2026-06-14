@@ -30,23 +30,36 @@ export default function FavoritesPage() {
   }
 
   async function openQuestion(q: any) {
-    const { data } = await attemptsApi.start({ mode: 'FAVORITES', questionIds: [q.id] });
-    setAttemptId(data.id);
+    try {
+      const { data } = await attemptsApi.start({ mode: 'FAVORITES', questionIds: [q.id] });
+      setAttemptId(data.id);
+    } catch {
+      setAttemptId(null);
+    }
     setPracticeQuestions([q]);
     setCurrent(0);
   }
 
   async function startAll() {
     if (!questions.length) return;
-    const { data } = await attemptsApi.start({ mode: 'FAVORITES', questionIds: questions.map((q: any) => q.id) });
-    setAttemptId(data.id);
+    try {
+      const { data } = await attemptsApi.start({ mode: 'FAVORITES', questionIds: questions.map((q: any) => q.id) });
+      setAttemptId(data.id);
+    } catch {
+      setAttemptId(null);
+    }
     setPracticeQuestions([...questions]);
     setCurrent(0);
   }
 
   async function handleAnswer(answer: string) {
-    if (!attemptId) return { isCorrect: false, correctAnswer: '', explanation: '' };
     const q = practiceQuestions[current];
+    if (!attemptId) {
+      // Fallback : corriger localement sans enregistrer
+      const correct = q.correctAnswer ?? '';
+      const normalize = (s: string) => s.toUpperCase().split(',').map((x: string) => x.trim()).sort().join(',');
+      return { isCorrect: normalize(answer) === normalize(correct), correctAnswer: correct, explanation: q.explanation || '' };
+    }
     const { data } = await attemptsApi.answer(attemptId, { questionId: q.id, answer });
     return { isCorrect: data.isCorrect, correctAnswer: data.correctAnswer, explanation: data.explanation || '' };
   }
