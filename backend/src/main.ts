@@ -5,11 +5,14 @@ import { AppModule } from './app.module';
 import { join } from 'path';
 import { NestExpressApplication } from '@nestjs/platform-express';
 import * as express from 'express';
+import * as compression from 'compression';
 
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule, {
     bodyParser: false,
   });
+
+  app.use(compression());
 
   // Body parser avec limite élevée (avant tout le reste)
   app.use(express.json({ limit: '50mb' }));
