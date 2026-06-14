@@ -1186,22 +1186,8 @@ export default function AdminExamenBlancPage() {
           )}
 
           <div className="bg-card border border-border rounded-2xl overflow-hidden">
-            <div>
-              <table className="w-full text-xs" style={{ tableLayout: 'fixed' }}>
-                <colgroup>
-                  <col style={{ width: '8%' }} />   {/* Statut */}
-                  <col style={{ width: '13%' }} />  {/* Nom complet */}
-                  <col style={{ width: '9%' }} />   {/* Téléphone */}
-                  <col style={{ width: '9%' }} />   {/* Wilaya */}
-                  <col style={{ width: '3%' }} />   {/* Lg */}
-                  <col style={{ width: '6%' }} />   {/* Score */}
-                  <col style={{ width: '6%' }} />   {/* Rang */}
-                  <col style={{ width: '10%' }} />  {/* Résultats vus */}
-                  <col style={{ width: '4%' }} />   {/* WA */}
-                  <col style={{ width: '6%' }} />   {/* Temps */}
-                  <col style={{ width: '9%' }} />   {/* Entrée */}
-                  <col style={{ width: '7%' }} />   {/* Contacté */}
-                </colgroup>
+            <div className="overflow-x-auto">
+              <table className="w-full text-xs" style={{ minWidth: '900px' }}>
                 <thead className="bg-muted border-b border-border">
                   <tr>
                     {['Statut', 'Nom complet', 'Téléphone', 'Wilaya', 'Lg', 'Score', 'Rang', 'Vu résultats', 'WA', 'Temps'].map(h => (
