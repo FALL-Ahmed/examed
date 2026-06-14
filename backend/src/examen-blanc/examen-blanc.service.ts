@@ -102,7 +102,7 @@ export class ExamenBlancService {
 
     const questions = await this.prisma.question.findMany({
       where: { id: { in: questionIds }, isActive: true },
-      include: { subTheme: { include: { theme: true } } },
+      select: { id: true, text: true, choiceA: true, choiceB: true, choiceC: true, choiceD: true, choiceE: true, imageUrl: true, correctAnswer: true, subTheme: { select: { name: true, theme: { select: { name: true } } } } },
     });
 
     const ordered = questionIds
@@ -177,7 +177,7 @@ export class ExamenBlancService {
 
     const questions = await this.prisma.question.findMany({
       where: { id: { in: questionIds }, isActive: true },
-      include: { subTheme: { include: { theme: true } } },
+      select: { id: true, text: true, choiceA: true, choiceB: true, choiceC: true, choiceD: true, choiceE: true, imageUrl: true, correctAnswer: true, subTheme: { select: { name: true, theme: { select: { name: true } } } } },
     });
 
     const ordered = questionIds
@@ -227,7 +227,7 @@ export class ExamenBlancService {
 
     const questions = await this.prisma.question.findMany({
       where: { id: { in: questionIds }, isActive: true },
-      include: { subTheme: { include: { theme: true } } },
+      select: { id: true, text: true, choiceA: true, choiceB: true, choiceC: true, choiceD: true, choiceE: true, imageUrl: true, correctAnswer: true, subTheme: { select: { name: true, theme: { select: { name: true } } } } },
     });
 
     const answersMap: Record<string, string> = {};
@@ -378,7 +378,7 @@ export class ExamenBlancService {
     const questionIds: string[] = lang === 'ar' ? session.questionIdsAr : session.questionIdsFr;
     const questions = await this.prisma.question.findMany({
       where: { id: { in: questionIds } },
-      include: { subTheme: { include: { theme: true } } },
+      select: { id: true, text: true, choiceA: true, choiceB: true, choiceC: true, choiceD: true, choiceE: true, imageUrl: true, correctAnswer: true, explanation: true, subTheme: { select: { name: true, theme: { select: { name: true } } } } },
     });
 
     const answersMap: Record<string, any> = {};
