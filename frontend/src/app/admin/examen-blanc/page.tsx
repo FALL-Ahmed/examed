@@ -1186,8 +1186,8 @@ export default function AdminExamenBlancPage() {
           )}
 
           <div className="bg-card border border-border rounded-2xl overflow-hidden">
-            <div>
-              <table className="w-full text-xs">
+            <div className="overflow-x-auto">
+              <table className="w-full text-xs min-w-[900px]">
                 <thead className="bg-muted border-b border-border">
                   <tr>
                     {['Statut', 'Nom complet', 'Téléphone', 'Wilaya', 'Lg', 'Score', 'Rang', 'Résultats vus', 'WA', 'Temps'].map(h => (
