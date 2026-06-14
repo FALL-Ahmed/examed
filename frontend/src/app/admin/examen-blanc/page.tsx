@@ -1186,15 +1186,29 @@ export default function AdminExamenBlancPage() {
           )}
 
           <div className="bg-card border border-border rounded-2xl overflow-hidden">
-            <div className="overflow-x-auto">
-              <table className="w-full text-xs min-w-[900px]">
+            <div>
+              <table className="w-full text-xs" style={{ tableLayout: 'fixed' }}>
+                <colgroup>
+                  <col style={{ width: '8%' }} />   {/* Statut */}
+                  <col style={{ width: '13%' }} />  {/* Nom complet */}
+                  <col style={{ width: '9%' }} />   {/* Téléphone */}
+                  <col style={{ width: '9%' }} />   {/* Wilaya */}
+                  <col style={{ width: '3%' }} />   {/* Lg */}
+                  <col style={{ width: '6%' }} />   {/* Score */}
+                  <col style={{ width: '6%' }} />   {/* Rang */}
+                  <col style={{ width: '10%' }} />  {/* Résultats vus */}
+                  <col style={{ width: '4%' }} />   {/* WA */}
+                  <col style={{ width: '6%' }} />   {/* Temps */}
+                  <col style={{ width: '9%' }} />   {/* Entrée */}
+                  <col style={{ width: '7%' }} />   {/* Contacté */}
+                </colgroup>
                 <thead className="bg-muted border-b border-border">
                   <tr>
-                    {['Statut', 'Nom complet', 'Téléphone', 'Wilaya', 'Lg', 'Score', 'Rang', 'Résultats vus', 'WA', 'Temps'].map(h => (
-                      <th key={h} className="text-left px-3 py-3 text-xs font-semibold text-muted-foreground whitespace-nowrap">{h}</th>
+                    {['Statut', 'Nom complet', 'Téléphone', 'Wilaya', 'Lg', 'Score', 'Rang', 'Vu résultats', 'WA', 'Temps'].map(h => (
+                      <th key={h} className="text-left px-2 py-3 text-xs font-semibold text-muted-foreground whitespace-nowrap overflow-hidden">{h}</th>
                     ))}
-                    <th className="text-left px-3 py-3 text-xs font-semibold text-muted-foreground whitespace-nowrap">Entrée</th>
-                    <th className="text-left px-3 py-3 text-xs font-semibold text-muted-foreground whitespace-nowrap">✅ Contacté</th>
+                    <th className="text-left px-2 py-3 text-xs font-semibold text-muted-foreground whitespace-nowrap">Entrée</th>
+                    <th className="text-left px-2 py-3 text-xs font-semibold text-muted-foreground whitespace-nowrap">✅ Contacté</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -1202,18 +1216,18 @@ export default function AdminExamenBlancPage() {
                     <tr><td colSpan={12} className="text-center py-12 text-muted-foreground">Aucun participant</td></tr>
                   ) : filtered.map((l: any) => (
                     <tr key={l.id} className={`border-t border-border hover:bg-muted/50 ${l.isRegistered ? '' : 'bg-amber-50/30 dark:bg-amber-900/5'}`}>
-                      <td className="px-3 py-2.5 whitespace-nowrap">
+                      <td className="px-2 py-2.5 whitespace-nowrap">
                         {l.isRegistered
                           ? <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-bold bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400"><CheckCircle className="w-3 h-3" />Inscrit</span>
                           : <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-bold bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400">Prospect</span>}
                       </td>
-                      <td className="px-3 py-2.5 font-semibold text-foreground whitespace-nowrap">{l.prenom} {l.nom}</td>
-                      <td className="px-3 py-2.5 font-mono text-foreground text-xs whitespace-nowrap">{l.telephone}</td>
-                      <td className="px-3 py-2.5 text-muted-foreground text-xs whitespace-nowrap">{l.ville}</td>
-                      <td className="px-3 py-2.5 text-xs font-semibold whitespace-nowrap">{l.lang === 'ar' ? '🇲🇷' : '🇫🇷'}</td>
-                      <td className="px-3 py-2.5 font-bold text-violet-600 whitespace-nowrap">{l.score != null ? `${l.score.toFixed(1)}%` : '—'}</td>
-                      <td className="px-3 py-2.5 text-xs text-muted-foreground whitespace-nowrap">{l.classement ? `${l.classement}/${l.totalParticipants}` : '—'}</td>
-                      <td className="px-3 py-2.5 whitespace-nowrap">
+                      <td className="px-2 py-2.5 font-semibold text-foreground overflow-hidden text-ellipsis whitespace-nowrap">{l.prenom} {l.nom}</td>
+                      <td className="px-2 py-2.5 font-mono text-foreground text-xs whitespace-nowrap">{l.telephone}</td>
+                      <td className="px-2 py-2.5 text-muted-foreground text-xs overflow-hidden text-ellipsis whitespace-nowrap">{l.ville}</td>
+                      <td className="px-2 py-2.5 text-xs font-semibold whitespace-nowrap">{l.lang === 'ar' ? '🇲🇷' : '🇫🇷'}</td>
+                      <td className="px-2 py-2.5 font-bold text-violet-600 whitespace-nowrap">{l.score != null ? `${l.score.toFixed(1)}%` : '—'}</td>
+                      <td className="px-2 py-2.5 text-xs text-muted-foreground whitespace-nowrap">{l.classement ? `${l.classement}/${l.totalParticipants}` : '—'}</td>
+                      <td className="px-2 py-2.5 whitespace-nowrap">
                         {l.resultsViewedAt
                           ? <span className="flex items-center gap-1 text-emerald-600 text-xs font-semibold"><Eye className="w-3.5 h-3.5" />{new Date(l.resultsViewedAt).toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' })}</span>
                           : <span className="text-muted-foreground text-xs">—</span>}
@@ -1229,11 +1243,11 @@ export default function AdminExamenBlancPage() {
                           </a>
                         ) : <span />}
                       </td>
-                      <td className="px-3 py-2.5 text-muted-foreground text-xs whitespace-nowrap">{l.timeTaken ? formatTime(l.timeTaken) : '—'}</td>
-                      <td className="px-3 py-2.5 text-xs whitespace-nowrap font-mono text-muted-foreground">
+                      <td className="px-2 py-2.5 text-muted-foreground text-xs whitespace-nowrap">{l.timeTaken ? formatTime(l.timeTaken) : '—'}</td>
+                      <td className="px-2 py-2.5 text-xs whitespace-nowrap font-mono text-muted-foreground">
                         {l.createdAt ? new Date(l.createdAt).toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' }) : '—'}
                       </td>
-                      <td className="px-3 py-2.5">
+                      <td className="px-2 py-2.5">
                         <input
                           type="checkbox"
                           checked={!!l.contacted}
