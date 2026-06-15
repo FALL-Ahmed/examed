@@ -16,9 +16,11 @@ const CONTENT: Record<AnnonceProfession, { fr: any; ar: any }> = {
     fr: {
       label: 'Plateforme de préparation au concours de recrutement des',
       country: 'en Mauritanie',
-      subtitle: 'Maîtrisez vos connaissances en soins infirmiers avant le concours',
+      subtitle: 'Faites le tour du programme de révision',
+      subtitleHighlight: '3 fois en 3 semaines',
       features: [
         'Plus de 800 QCM infirmiers, corrigés et commentés',
+        'Un examen blanc chaque semaine',
         'Suivi de ton évolution et comparaison nationale avec tes collègues',
         'Révision ciblée de tes points faibles, chapitre par chapitre',
       ],
@@ -28,8 +30,10 @@ const CONTENT: Record<AnnonceProfession, { fr: any; ar: any }> = {
     ar: {
       label: 'منصّة تدريب لمسابقة توظيف',
       country: 'في موريتانيا',
-      subtitle: 'استعدّ للامتحان الرسمي باطمئنان',
+      subtitle: 'راجع البرنامج الكامل',
+      subtitleHighlight: '3 مرات في 3 أسابيع',
       features: [
+        'اختبار تجريبي كل أسبوع',
         'أكثر من 800 سؤال QCM خاصّة بالممرّضين مع تصحيح وشرح',
         'متابعة تطوّر مستواك ومقارنة نتائجك بزملائك على المستوى الوطني',
         'تحديد نِقَاط الضعف ومراجعتها محورًا بمحور',
@@ -42,9 +46,11 @@ const CONTENT: Record<AnnonceProfession, { fr: any; ar: any }> = {
     fr: {
       label: 'Plateforme de préparation au concours de recrutement des',
       country: 'en Mauritanie',
-      subtitle: 'Maîtrisez vos connaissances en gynécologie-obstétrique avant le concours',
+      subtitle: 'Faites le tour du programme de révision',
+      subtitleHighlight: '3 fois en 3 semaines',
       features: [
         'Plus de 800 QCM sages‑femmes, corrigés et commentés par des gynécologues',
+        'Un examen blanc chaque semaine',
         'Suivi de ton évolution et comparaison nationale avec tes collègues',
         'Révision ciblée de tes points faibles, chapitre par chapitre',
       ],
@@ -54,8 +60,10 @@ const CONTENT: Record<AnnonceProfession, { fr: any; ar: any }> = {
     ar: {
       label: 'منصّة تدريب لمسابقة توظيف',
       country: 'في موريتانيا',
-      subtitle: 'استعدّي للامتحان الرسمي بثقة',
+      subtitle: 'راجعي البرنامج الكامل',
+      subtitleHighlight: '3 مرات في 3 أسابيع',
       features: [
+        'اختبار تجريبي كل أسبوع',
         'أكثر من 800 سؤال QCM خاصّ بالقابلات، مع تصحيح وشرح من أطبّاء نساء وتوليد',
         'متابعة تطوّر مستواك ومقارنة نتائجك بزميلاتك على المستوى الوطني',
         'مراجعة مركَّزة لنِقَاط الضعف، محورًا بمحور',
@@ -68,9 +76,11 @@ const CONTENT: Record<AnnonceProfession, { fr: any; ar: any }> = {
     fr: {
       label: 'Plateforme de préparation au concours de recrutement des',
       country: 'en Mauritanie',
-      subtitle: 'Maîtrisez vos techniques de base de Labo médicale avant le concours',
+      subtitle: 'Faites le tour du programme de révision',
+      subtitleHighlight: '3 fois en 3 semaines',
       features: [
         'Plus de 400 QCM, corrigés et commentés',
+        'Un examen blanc chaque semaine',
         'Suivi de ton évolution et comparaison nationale avec tes collègues',
         'Révision ciblée de tes points faibles, chapitre par chapitre',
       ],
@@ -80,8 +90,10 @@ const CONTENT: Record<AnnonceProfession, { fr: any; ar: any }> = {
     ar: {
       label: 'منصّة تدريب لمسابقة توظيف',
       country: 'في موريتانيا',
-      subtitle: 'أتقن تقنيات المختبر الطبي الأساسية قبل المسابقة',
+      subtitle: 'راجع البرنامج الكامل',
+      subtitleHighlight: '3 مرات في 3 أسابيع',
       features: [
+        'اختبار تجريبي كل أسبوع',
         'أكثر من 400 سؤال QCM خاصّ بالبيولوجيا، مع تصحيح وشرح',
         'متابعة تطوّر مستواك ومقارنة نتائجك بزملائك على المستوى الوطني',
         'مراجعة مركَّزة لنِقَاط الضعف، محورًا بمحور',
@@ -128,7 +140,7 @@ const THEME: Record<AnnonceProfession, any> = {
   },
 };
 
-const ICONS = ['✅', '📊', '🎯'];
+const ICONS = ['✅', '🗓️', '📊', '🎯'];
 
 export function AnnoncePageContent({ target }: { target: AnnonceProfession }) {
   const { lang, setLang } = useLang();
@@ -189,7 +201,14 @@ export function AnnoncePageContent({ target }: { target: AnnonceProfession }) {
         <p className={`text-base font-bold mt-0 mb-3 ${theme.dimText}`}>
           {c.country}
         </p>
-        <p className="text-white/80 text-sm font-semibold mb-4">{c.subtitle}</p>
+        <p className="text-white/80 text-sm font-semibold mb-1">{c.subtitle}</p>
+        {c.subtitleHighlight && (
+          <p className="text-center mb-4">
+            <span className="font-black text-white px-3 py-1 rounded-lg text-sm" style={{ background: 'rgba(255,255,255,0.18)', border: '1.5px solid rgba(255,255,255,0.35)' }}>
+              {c.subtitleHighlight}
+            </span>
+          </p>
+        )}
       </section>
 
       {/* Features */}
@@ -197,11 +216,11 @@ export function AnnoncePageContent({ target }: { target: AnnonceProfession }) {
         {c.features.map((f: string, i: number) => (
           <div
             key={i}
-            className={`rounded-2xl px-5 py-4 flex items-center gap-4 ${isAr ? 'flex-row-reverse text-right' : ''}`}
+            className="rounded-2xl px-5 py-4 flex items-center gap-4"
             style={{ background: theme.featuresBg, border: `1px solid ${theme.featuresBorder}` }}
           >
             <span className="text-3xl flex-shrink-0">{ICONS[i]}</span>
-            <p className="text-white font-bold text-base leading-snug">{f}</p>
+            <p className={`text-white font-bold text-base leading-snug ${isAr ? 'text-right' : ''}`}>{f}</p>
           </div>
         ))}
       </section>
