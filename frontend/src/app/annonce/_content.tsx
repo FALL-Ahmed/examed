@@ -221,8 +221,8 @@ export function AnnoncePageContent({ target }: { target: AnnonceProfession }) {
           >
             <span className="text-3xl flex-shrink-0">{ICONS[i]}</span>
             <p className={`text-white font-bold text-base leading-snug ${isAr ? 'text-right' : ''}`}>
-              {f.split(/(\d+ QCM|examen blanc|اختبار تجريبي)/i).map((part, j) =>
-                /^\d+ QCM$|^examen blanc$|^اختبار تجريبي$/i.test(part)
+              {f.split(/(\d+ QCM|\d+ سؤال QCM|examen blanc|اختبار تجريبي)/i).map((part, j) =>
+                /^\d+ QCM$|^\d+ سؤال QCM$|^examen blanc$|^اختبار تجريبي$/i.test(part)
                   ? <span key={j} className="font-black text-white px-2 py-0.5 rounded-lg mx-0.5" style={{ background: theme.accent }}>{part}</span>
                   : part
               )}
