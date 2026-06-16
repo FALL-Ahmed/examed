@@ -133,9 +133,17 @@ export class PaymentsService {
     const payment = await this.prisma.payment.findUnique({ where: { id: paymentId } });
     if (!payment) throw new NotFoundException('Paiement introuvable');
 
-    return this.prisma.payment.update({
+    await this.prisma.payment.update({
       where: { id: paymentId },
       data: { status: 'REJECTED', validatedBy: adminId, rejectionReason: reason },
     });
+
+    // Supprimer le user si ce paiement était son seul paiement (faux paiement)
+    const otherValidated = await this.prisma.payment.count({
+      where: { userId: payment.userId, status: 'VALIDATED' },
+    });
+    if (otherValidated === 0) {
+      await this.prisma.user.delete({ where: { id: payment.userId } });
+    }
   }
 }
