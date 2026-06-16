@@ -23,6 +23,7 @@ export default function ExamPage() {
   const [submitting, setSubmitting] = useState(false);
   const [showGrid, setShowGrid] = useState(false);
   const [remainingSeconds, setRemainingSeconds] = useState<number | null>(null);
+  const [expiredOnLoad, setExpiredOnLoad] = useState(false);
 
   // Load session: from localStorage first, then from URL param
   useEffect(() => {
@@ -35,7 +36,23 @@ export default function ExamPage() {
       setAnswers(saved.answers || {});
       setMarked(saved.marked || {});
       setCurrentIndex(saved.currentIndex || 0);
-      setRemainingSeconds(saved.remainingSeconds ?? null);
+
+      // Check if backend time has already expired (wall-clock)
+      const startedAt = saved.session?.startedAt;
+      const timeLimit = saved.session?.timeLimit;
+      if (startedAt && timeLimit) {
+        const elapsed = (Date.now() - new Date(startedAt).getTime()) / 1000;
+        if (elapsed > timeLimit) {
+          // Time expired while paused — store answers for auto-finish
+          setExpiredOnLoad(true);
+          setRemainingSeconds(0);
+          return;
+        }
+        // Recalculate remaining from server start, not from saved localStorage value
+        setRemainingSeconds(Math.max(0, Math.floor(timeLimit - elapsed)));
+      } else {
+        setRemainingSeconds(saved.remainingSeconds ?? null);
+      }
       return;
     }
 
@@ -70,32 +87,45 @@ export default function ExamPage() {
     setRemainingSeconds(remaining);
   }
 
-  function handlePause() {
-    const mode = session?.mode;
-    if (mode === 'REVIEW') router.push('/review');
-    else router.push('/exam');
-  }
+  // Ref to track which answers are already saved on the backend (for real-time dedup)
+  const savedAnswersRef = useRef<Record<string, string>>({});
+  // Ref to always have latest answers accessible in effects without stale closure
+  const answersRef = useRef<AnswerState>({});
+  answersRef.current = answers;
+  const sessionRef = useRef<any>(null);
+  sessionRef.current = session;
 
   const finishExam = useCallback(async () => {
     if (submitting) return;
     setSubmitting(true);
     localStorage.removeItem(STORAGE_KEY);
 
-    const questions = session?.questions || [];
+    // Fallback: submit any answers not yet sent to backend in real-time
+    const questions = sessionRef.current?.questions || [];
     for (const question of questions) {
-      if (answers[question.id]) {
+      const ans = answersRef.current[question.id];
+      if (ans && savedAnswersRef.current[question.id] !== ans) {
         try {
-          await attemptsApi.answer(attemptId, {
-            questionId: question.id,
-            answer: answers[question.id],
-          });
+          await attemptsApi.answer(attemptId, { questionId: question.id, answer: ans });
         } catch {}
       }
     }
 
     try { await attemptsApi.finish(attemptId); } catch {}
     router.push(`/exam/${attemptId}/results`);
-  }, [submitting, session, answers, attemptId]);
+  }, [submitting, attemptId]);
+
+  // Auto-finish if time had expired while the exam was paused
+  useEffect(() => {
+    if (!expiredOnLoad || !session) return;
+    finishExam();
+  }, [expiredOnLoad, session]);
+
+  function handlePause() {
+    const mode = session?.mode;
+    if (mode === 'REVIEW') router.push('/review');
+    else router.push('/exam');
+  }
 
   if (!session) {
     return (
@@ -134,7 +164,13 @@ export default function ExamPage() {
       const next = current.includes(letter)
         ? current.filter((l) => l !== letter)
         : [...current, letter].sort();
-      return { ...prev, [q.id]: next.join(',') };
+      const newAnswer = next.join(',');
+      // Save to backend immediately so answers survive a pause/expiry
+      if (newAnswer) {
+        savedAnswersRef.current[q.id] = newAnswer;
+        attemptsApi.answer(attemptId, { questionId: q.id, answer: newAnswer }).catch(() => {});
+      }
+      return { ...prev, [q.id]: newAnswer };
     });
   }
 

@@ -133,15 +133,6 @@ export class AttemptsService {
     });
     if (!attempt) throw new NotFoundException('Tentative introuvable ou déjà terminée');
 
-    // Vérifier timeout
-    if (attempt.timeLimit) {
-      const elapsed = Math.floor((Date.now() - attempt.startedAt.getTime()) / 1000);
-      if (elapsed > attempt.timeLimit + 30) { // 30s de grâce
-        await this.finishAttempt(userId, attemptId);
-        throw new BadRequestException('Temps écoulé');
-      }
-    }
-
     const question = await this.prisma.question.findUnique({ where: { id: dto.questionId } });
     if (!question) throw new NotFoundException('Question introuvable');
 
