@@ -1326,9 +1326,13 @@ export class ExamenBlancService {
     ]);
 
     const phoneToUser: Record<string, any> = {};
+    const nameToUser: Record<string, any> = {};
     users.forEach((u: any) => {
-      const key = normalizePhone(u.phone ?? '');
-      if (key) phoneToUser[key] = u;
+      const phoneKey = normalizePhone(u.phone ?? '');
+      if (phoneKey) phoneToUser[phoneKey] = u;
+      // Indexer aussi par mots du nom triés (gère ordre inversé nom/prénom)
+      const nameKey = (u.fullName ?? '').toLowerCase().split(/\s+/).filter(Boolean).sort().join('|');
+      if (nameKey) nameToUser[nameKey] = u;
     });
 
     // Group by normalized phone
@@ -1367,7 +1371,8 @@ export class ExamenBlancService {
     return Object.entries(grouped).map(([key, g]) => {
       const professions = [...new Set(g.sessions.map(s => s.target))];
       const completedSessions = g.sessions.filter(s => s.isCompleted).length;
-      const matched = phoneToUser[key];
+      const leadNameKey = `${g.nom ?? ''} ${g.prenom ?? ''}`.toLowerCase().split(/\s+/).filter(Boolean).sort().join('|');
+      const matched = phoneToUser[normalizePhone(g.telephone ?? '')] ?? (leadNameKey ? nameToUser[leadNameKey] : undefined);
       return {
         telephone: g.telephone,
         nom: g.nom, prenom: g.prenom, ville: g.ville, lang: g.lang,
