@@ -1,7 +1,9 @@
 'use client';
 import { useEffect, useState, useMemo } from 'react';
 import { examenBlancApi } from '@/lib/api';
-import { Users, Phone, MapPin, CheckCircle, Clock, Filter, Search, ChevronDown, ChevronUp } from 'lucide-react';
+import { Users, Phone, MapPin, CheckCircle, Search, ChevronDown, ChevronUp, ChevronLeft, ChevronRight } from 'lucide-react';
+
+const PAGE_SIZE = 100;
 
 const PROF_LABEL: Record<string, string> = {
   INFIRMIER: 'Infirmier',
@@ -19,8 +21,9 @@ export default function AdminLeadsPage() {
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
   const [filterProf, setFilterProf] = useState<string>('');
-  const [filterRegistered, setFilterRegistered] = useState<string>('');
+  const [filterRegistered, setFilterRegistered] = useState<string>('no');
   const [expanded, setExpanded] = useState<string | null>(null);
+  const [page, setPage] = useState(1);
 
   useEffect(() => {
     examenBlancApi.adminUniqueLeads()
@@ -30,6 +33,7 @@ export default function AdminLeadsPage() {
   }, []);
 
   const filtered = useMemo(() => {
+    setPage(1);
     return leads.filter((l) => {
       if (filterProf && !l.professions.includes(filterProf)) return false;
       if (filterRegistered === 'yes' && !l.isRegistered) return false;
@@ -42,6 +46,9 @@ export default function AdminLeadsPage() {
       return true;
     });
   }, [leads, filterProf, filterRegistered, search]);
+
+  const totalPages = Math.ceil(filtered.length / PAGE_SIZE);
+  const paginated = filtered.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
 
   const stats = useMemo(() => ({
     total: leads.length,
@@ -108,12 +115,41 @@ export default function AdminLeadsPage() {
         </select>
         <select value={filterRegistered} onChange={e => setFilterRegistered(e.target.value)}
           className="text-sm border border-border rounded-xl px-3 py-2 bg-background">
-          <option value="">Tous</option>
-          <option value="yes">Inscrit app</option>
-          <option value="no">Non inscrit</option>
+          <option value="">Tous (inscrit + non inscrit)</option>
+          <option value="no">Non inscrits seulement</option>
+          <option value="yes">Déjà inscrits</option>
         </select>
         <span className="text-sm text-muted-foreground font-medium ml-auto">{filtered.length} résultats</span>
       </div>
+
+      {/* Pagination top */}
+      {totalPages > 1 && (
+        <div className="flex items-center justify-between">
+          <p className="text-sm text-muted-foreground">Page {page} / {totalPages} · {filtered.length} leads</p>
+          <div className="flex items-center gap-1">
+            <button onClick={() => setPage(1)} disabled={page === 1}
+              className="px-2 py-1.5 rounded-lg text-sm border border-border disabled:opacity-40 hover:bg-muted transition">«</button>
+            <button onClick={() => setPage(p => Math.max(1, p - 1))} disabled={page === 1}
+              className="p-1.5 rounded-lg border border-border disabled:opacity-40 hover:bg-muted transition">
+              <ChevronLeft className="w-4 h-4" /></button>
+            {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
+              const start = Math.max(1, Math.min(page - 2, totalPages - 4));
+              const n = start + i;
+              return n <= totalPages ? (
+                <button key={n} onClick={() => setPage(n)}
+                  className={`w-8 h-8 rounded-lg text-sm font-semibold border transition ${n === page ? 'bg-primary text-white border-primary' : 'border-border hover:bg-muted'}`}>
+                  {n}
+                </button>
+              ) : null;
+            })}
+            <button onClick={() => setPage(p => Math.min(totalPages, p + 1))} disabled={page === totalPages}
+              className="p-1.5 rounded-lg border border-border disabled:opacity-40 hover:bg-muted transition">
+              <ChevronRight className="w-4 h-4" /></button>
+            <button onClick={() => setPage(totalPages)} disabled={page === totalPages}
+              className="px-2 py-1.5 rounded-lg text-sm border border-border disabled:opacity-40 hover:bg-muted transition">»</button>
+          </div>
+        </div>
+      )}
 
       {/* Table */}
       <div className="bg-card border border-border rounded-2xl overflow-hidden">
@@ -132,7 +168,7 @@ export default function AdminLeadsPage() {
               </tr>
             </thead>
             <tbody>
-              {filtered.map((lead) => {
+              {paginated.map((lead) => {
                 const isExpanded = expanded === lead.telephone;
                 return (
                   <>
@@ -221,6 +257,32 @@ export default function AdminLeadsPage() {
           <div className="text-center py-12 text-muted-foreground">Aucun lead trouvé</div>
         )}
       </div>
+
+      {/* Pagination bottom */}
+      {totalPages > 1 && (
+        <div className="flex items-center justify-center gap-1 pb-4">
+          <button onClick={() => setPage(1)} disabled={page === 1}
+            className="px-2 py-1.5 rounded-lg text-sm border border-border disabled:opacity-40 hover:bg-muted transition">«</button>
+          <button onClick={() => setPage(p => Math.max(1, p - 1))} disabled={page === 1}
+            className="p-1.5 rounded-lg border border-border disabled:opacity-40 hover:bg-muted transition">
+            <ChevronLeft className="w-4 h-4" /></button>
+          {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
+            const start = Math.max(1, Math.min(page - 2, totalPages - 4));
+            const n = start + i;
+            return n <= totalPages ? (
+              <button key={n} onClick={() => setPage(n)}
+                className={`w-8 h-8 rounded-lg text-sm font-semibold border transition ${n === page ? 'bg-primary text-white border-primary' : 'border-border hover:bg-muted'}`}>
+                {n}
+              </button>
+            ) : null;
+          })}
+          <button onClick={() => setPage(p => Math.min(totalPages, p + 1))} disabled={page === totalPages}
+            className="p-1.5 rounded-lg border border-border disabled:opacity-40 hover:bg-muted transition">
+            <ChevronRight className="w-4 h-4" /></button>
+          <button onClick={() => setPage(totalPages)} disabled={page === totalPages}
+            className="px-2 py-1.5 rounded-lg text-sm border border-border disabled:opacity-40 hover:bg-muted transition">»</button>
+        </div>
+      )}
     </div>
   );
 }
