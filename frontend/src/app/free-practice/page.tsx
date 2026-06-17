@@ -104,6 +104,29 @@ export default function FreePracticePage() {
       .finally(() => setLoadingThemes(false));
   }, [lang, target]);
 
+  async function startFreeSession() {
+    setLoadingQ(true);
+    setSessionThemeName('Cas Clinique');
+    setSessionSubThemeName('');
+    try {
+      const { data } = await publicApi.freeSession(lang);
+      practiceSession.current = {
+        sessionId: `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
+        themeId: 'sf-free',
+        themeName: 'Cas Clinique',
+        lang,
+      };
+      localStorage.setItem('albourour_source', 'free-practice');
+      trackPracticeEvent('start', { count: data.length });
+      setQuestions(data);
+      setResults([]);
+      setCurrentIdx(0);
+      setSelected([]);
+      setRevealed(false);
+      setPhase('session');
+    } catch { } finally { setLoadingQ(false); }
+  }
+
   async function startSession() {
     if (!selectedTheme) return;
     setLoadingQ(true);
@@ -225,7 +248,7 @@ export default function FreePracticePage() {
                   </h1>
                   <p className="text-white/70 text-sm mt-0.5">
                     {target === 'SAGE_FEMME'
-                    ? (isAr ? 'الولادة + عسر الولادة مجانان · الباقي يتطلب اشتراكاً' : 'Accouchement & Dystocies gratuits · Les autres nécessitent un abonnement')
+                    ? (isAr ? '30 حالة سريرية مجانية · الباقي يتطلب اشتراكاً' : '30 cas cliniques gratuits · Les autres thèmes nécessitent un abonnement')
                     : target === 'BIOLOGISTE'
                     ? (isAr ? 'إجراءات المختبر + مقدمة في أمراض الدم مجانية' : 'Procédures labo (complet) + 2 chapitres Hématologie gratuits')
                     : (isAr ? 'موضوعان مجانيان · المواضيع الأخرى تتطلب اشتراكاً' : '2 thèmes offerts · Les autres nécessitent un abonnement Premium')
@@ -235,25 +258,44 @@ export default function FreePracticePage() {
               </div>
             </div>
 
+            {/* Sélecteur filière */}
+            <div className="flex gap-2 flex-wrap">
+              {([
+                { value: 'INFIRMIER'  as Target, icon: '🏥', fr: 'Infirmier(e)', ar: 'ممرض / ممرضة',   active: 'border-indigo-500 bg-indigo-50 text-indigo-700' },
+                { value: 'SAGE_FEMME' as Target, icon: '👶', fr: 'Sage-femme',   ar: 'قابلة',           active: 'border-pink-500 bg-pink-50 text-pink-700' },
+                { value: 'BIOLOGISTE' as Target, icon: '🔬', fr: 'Biologiste',   ar: 'تقني مختبر',      active: 'border-emerald-500 bg-emerald-50 text-emerald-700' },
+              ]).map((t) => (
+                <button key={t.value} onClick={() => { setTarget(t.value); setSelectedTheme(null); setSelectedSubTheme(null); setSearch(''); setPremiumModal(null); }}
+                  className={`flex-1 min-w-[110px] flex items-center justify-center gap-2 px-4 py-3 rounded-2xl border-2 text-sm font-bold transition
+                    ${target === t.value ? t.active + ' shadow-sm' : 'border-border bg-card text-muted-foreground hover:border-border/80'}`}>
+                  <span className="text-xl">{t.icon}</span> {isAr ? t.ar : t.fr}
+                </button>
+              ))}
+            </div>
+
+            {target === 'SAGE_FEMME' ? (
+              /* ── Bouton direct SF ── */
+              <div className="flex flex-col items-center justify-center py-10 gap-6">
+                <div className="text-center space-y-3">
+                  <h2 className="text-xl font-bold">{isAr ? 'جلسة تدريب مجانية' : 'Session d\'entraînement gratuite'}</h2>
+                  <div className="inline-flex items-center gap-2 px-5 py-2.5 rounded-2xl bg-pink-100 border-2 border-pink-300">
+                    <span className="text-2xl font-black text-pink-700">30</span>
+                    <span className="text-base font-bold text-pink-600">{isAr ? 'حالة سريرية' : 'cas cliniques'}</span>
+                  </div>
+                </div>
+                <button
+                  onClick={startFreeSession}
+                  disabled={loadingQ}
+                  className="flex items-center gap-2 px-8 py-4 bg-pink-600 hover:bg-pink-700 text-white font-bold text-lg rounded-2xl transition disabled:opacity-60 shadow-lg shadow-pink-500/20">
+                  {loadingQ ? <Loader2 className="w-5 h-5 animate-spin" /> : <ChevronRight className="w-5 h-5" />}
+                  {isAr ? 'ابدأ الجلسة' : 'Démarrer la session'}
+                </button>
+              </div>
+            ) : (
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
 
               {/* Grille thèmes */}
               <div className="lg:col-span-2 space-y-4">
-
-                {/* Sélecteur filière */}
-                <div className="flex gap-2 flex-wrap">
-                  {([
-                    { value: 'INFIRMIER'  as Target, icon: '🏥', fr: 'Infirmier(e)', ar: 'ممرض / ممرضة',   active: 'border-indigo-500 bg-indigo-50 text-indigo-700' },
-                    { value: 'SAGE_FEMME' as Target, icon: '👶', fr: 'Sage-femme',   ar: 'قابلة',           active: 'border-pink-500 bg-pink-50 text-pink-700' },
-                    { value: 'BIOLOGISTE' as Target, icon: '🔬', fr: 'Biologiste',   ar: 'تقني مختبر',      active: 'border-emerald-500 bg-emerald-50 text-emerald-700' },
-                  ]).map((t) => (
-                    <button key={t.value} onClick={() => { setTarget(t.value); setSelectedTheme(null); setSelectedSubTheme(null); setSearch(''); setPremiumModal(null); }}
-                      className={`flex-1 min-w-[110px] flex items-center justify-center gap-2 px-4 py-3 rounded-2xl border-2 text-sm font-bold transition
-                        ${target === t.value ? t.active + ' shadow-sm' : 'border-border bg-card text-muted-foreground hover:border-border/80'}`}>
-                      <span className="text-xl">{t.icon}</span> {isAr ? t.ar : t.fr}
-                    </button>
-                  ))}
-                </div>
 
                 {/* Barre de recherche */}
                 <div className="relative">
@@ -443,6 +485,7 @@ export default function FreePracticePage() {
                 </div>
               </div>
             </div>
+            )}
           </div>
         )}
 
@@ -478,14 +521,16 @@ export default function FreePracticePage() {
                   const isCorrect = correctArr.includes(letter);
                   const isSelected = selected.includes(letter);
 
+                  const isGoodPick  = revealed && isCorrect && isSelected;
+                  const isMissed    = revealed && isCorrect && !isSelected;
+                  const isWrongPick = revealed && !isCorrect && isSelected;
+
                   let cls = 'border-border text-foreground hover:border-primary/40 hover:bg-primary/5';
-                  if (revealed) {
-                    if (isCorrect) cls = 'border-emerald-500 bg-emerald-50 text-emerald-800 dark:bg-emerald-900/20 dark:text-emerald-300';
-                    else if (isSelected) cls = 'border-red-400 bg-red-50 text-red-700 dark:bg-red-900/20 dark:text-red-300';
-                    else cls = 'border-border text-muted-foreground opacity-50';
-                  } else if (isSelected) {
-                    cls = 'border-primary bg-primary/5 text-primary';
-                  }
+                  if (isGoodPick)  cls = 'border-emerald-500 bg-emerald-50 text-emerald-800';
+                  else if (isMissed)    cls = 'border-amber-400 bg-amber-50 text-amber-800';
+                  else if (isWrongPick) cls = 'border-red-400 bg-red-50 text-red-700';
+                  else if (revealed)    cls = 'border-border text-muted-foreground opacity-40';
+                  else if (isSelected)  cls = 'border-primary bg-primary/5 text-primary';
 
                   return (
                     <button key={letter} disabled={revealed}
@@ -497,16 +542,26 @@ export default function FreePracticePage() {
                         }
                       }}
                       className={`w-full ${isAr ? 'text-right' : 'text-left'} flex items-start gap-3 p-3 rounded-xl border-2 transition-all ${cls}`}>
-                      <span className="w-6 h-6 rounded-full border-2 flex items-center justify-center text-xs font-bold flex-shrink-0 border-current">
+                      <span className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0
+                        ${isGoodPick ? 'bg-emerald-500 text-white' : isMissed ? 'bg-amber-400 text-white' : isWrongPick ? 'bg-red-400 text-white' : 'border-2 border-current'}`}>
                         {isAr ? AR_LETTERS[letter] : letter}
                       </span>
                       <span className="text-sm leading-relaxed flex-1">{q[`choice${letter}`]}</span>
-                      {revealed && isCorrect && <CheckCircle2 className="w-4 h-4 text-emerald-500 flex-shrink-0 mt-0.5" />}
-                      {revealed && isSelected && !isCorrect && <XCircle className="w-4 h-4 text-red-500 flex-shrink-0 mt-0.5" />}
+                      {isMissed    && <span className="text-[10px] font-bold text-amber-600 flex-shrink-0 mt-0.5">{isAr ? 'فاتتك' : 'manquée'}</span>}
+                      {isGoodPick  && <CheckCircle2 className="w-4 h-4 text-emerald-500 flex-shrink-0 mt-0.5" />}
+                      {isWrongPick && <XCircle className="w-4 h-4 text-red-500 flex-shrink-0 mt-0.5" />}
                     </button>
                   );
                 })}
               </div>
+
+              {revealed && (
+                <div className={`flex flex-wrap gap-3 text-xs text-muted-foreground ${isAr ? 'flex-row-reverse' : ''}`}>
+                  <span className="flex items-center gap-1"><span className="w-3 h-3 rounded-sm bg-emerald-500 inline-block" />{isAr ? 'إجابة صحيحة' : 'Bonne réponse'}</span>
+                  <span className="flex items-center gap-1"><span className="w-3 h-3 rounded-sm bg-amber-400 inline-block" />{isAr ? 'فاتتك' : 'Manquée'}</span>
+                  <span className="flex items-center gap-1"><span className="w-3 h-3 rounded-sm bg-red-400 inline-block" />{isAr ? 'خاطئة' : 'Mauvais choix'}</span>
+                </div>
+              )}
 
               {revealed && q.explanation && (
                 <div className="bg-primary/5 border border-primary/20 rounded-xl p-3 text-sm text-foreground">

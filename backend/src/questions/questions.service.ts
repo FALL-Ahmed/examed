@@ -115,44 +115,31 @@ export class QuestionsService {
   async getSageFemmeFreeSession(lang: string = 'fr') {
     const langUp = lang.toUpperCase() as 'FR' | 'AR';
 
-    // Questions depuis GROSSESSE NORMALE (tous ses sous-thèmes)
-    const grossesseQuestions = await this.prisma.question.findMany({
+    // Récupérer tous les sous-thèmes du thème CAS CLINIQUE
+    const subThemes = await this.prisma.subTheme.findMany({
       where: {
-        isActive: true,
-        explanation: { not: '' },
-        subTheme: {
-          theme: {
-            language: langUp,
-            target: 'SAGE_FEMME',
-            name: { contains: 'grossesse', mode: 'insensitive' },
-          },
+        theme: {
+          language: langUp,
+          target: 'SAGE_FEMME',
+          name: { contains: 'cas clinique', mode: 'insensitive' },
         },
       },
-      include: { subTheme: { include: { theme: true } } },
-      orderBy: { id: 'asc' },
+      select: { id: true },
     });
 
-    // Questions depuis le sous-thème "infections sexuellement" de GYNECOLOGIE
-    const infectionQuestions = await this.prisma.question.findMany({
-      where: {
-        isActive: true,
-        explanation: { not: '' },
-        subTheme: {
-          name: { contains: 'infections sexuellement', mode: 'insensitive' },
-          theme: { language: langUp, target: 'SAGE_FEMME' },
-        },
-      },
-      include: { subTheme: { include: { theme: true } } },
-      orderBy: { id: 'asc' },
-    });
+    // 5 premières questions par sous-thème (triées par ID = toujours les mêmes)
+    const perSubTheme = await Promise.all(
+      subThemes.map((st) =>
+        this.prisma.question.findMany({
+          where: { isActive: true, subThemeId: st.id },
+          include: { subTheme: { include: { theme: true } } },
+          orderBy: { id: 'asc' },
+          take: 5,
+        }),
+      ),
+    );
 
-    // 20 grossesse + 10 IST = 30 questions
-    grossesseQuestions.sort((a, b) => a.id < b.id ? -1 : 1);
-    infectionQuestions.sort((a, b) => a.id < b.id ? -1 : 1);
-    const selected = [
-      ...grossesseQuestions.slice(0, 20),
-      ...infectionQuestions.slice(0, 10),
-    ];
+    const selected = perSubTheme.flat();
 
     return selected.map((q, idx) => ({
       index: idx,

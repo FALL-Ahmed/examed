@@ -97,7 +97,15 @@ export default function ResultsPage() {
     setReviewLoading(true);
     try {
       const { data } = await attemptsApi.start({ mode: 'REVIEW', questionIds: wrongIds });
-      router.push(`/exam/${data.attemptId}?data=${encodeURIComponent(JSON.stringify(data))}`);
+      localStorage.setItem('exam_state', JSON.stringify({
+        attemptId: data.attemptId,
+        session: data,
+        answers: {},
+        marked: {},
+        currentIndex: 0,
+        remainingSeconds: null,
+      }));
+      router.push(`/exam/${data.attemptId}`);
     } catch (err: any) {
       alert(err?.response?.data?.message || 'Erreur lors du démarrage de la révision');
     } finally { setReviewLoading(false); }
