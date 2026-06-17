@@ -1307,6 +1307,82 @@ export class ExamenBlancService {
     return db(this.prisma).examenBlanc.update({ where: { id }, data });
   }
 
+  async getUniqueLeads() {
+    const [participants, users] = await Promise.all([
+      db(this.prisma).examenBlancParticipant.findMany({
+        where: { isTest: false },
+        orderBy: { createdAt: 'desc' },
+        select: {
+          id: true, examenBlancId: true, nom: true, prenom: true, telephone: true,
+          ville: true, lang: true, score: true, isCompleted: true, contacted: true,
+          submittedAt: true, createdAt: true,
+          examenBlanc: { select: { title: true, target: true } },
+        },
+      }),
+      this.prisma.user.findMany({
+        where: { phone: { not: null } },
+        select: { phone: true, fullName: true, role: true },
+      }),
+    ]);
+
+    const phoneToUser: Record<string, any> = {};
+    users.forEach((u: any) => {
+      const key = normalizePhone(u.phone ?? '');
+      if (key) phoneToUser[key] = u;
+    });
+
+    // Group by normalized phone
+    const grouped: Record<string, {
+      telephone: string; nom: string; prenom: string; ville: string; lang: string;
+      sessions: { examenBlancId: string; title: string; target: string; score: number | null; isCompleted: boolean; date: Date }[];
+      contacted: boolean; lastDate: Date;
+    }> = {};
+
+    for (const p of participants) {
+      const key = normalizePhone(p.telephone ?? '') || p.telephone || p.id;
+      if (!grouped[key]) {
+        grouped[key] = {
+          telephone: p.telephone ?? '',
+          nom: p.nom, prenom: p.prenom, ville: p.ville, lang: p.lang,
+          sessions: [], contacted: false, lastDate: p.createdAt,
+        };
+      }
+      grouped[key].sessions.push({
+        examenBlancId: p.examenBlancId,
+        title: p.examenBlanc?.title ?? '',
+        target: p.examenBlanc?.target ?? '',
+        score: p.score, isCompleted: p.isCompleted,
+        date: p.submittedAt ?? p.createdAt,
+      });
+      if (p.contacted) grouped[key].contacted = true;
+      if (p.createdAt > grouped[key].lastDate) {
+        grouped[key].lastDate = p.createdAt;
+        grouped[key].nom = p.nom;
+        grouped[key].prenom = p.prenom;
+        grouped[key].ville = p.ville;
+        grouped[key].lang = p.lang;
+      }
+    }
+
+    return Object.entries(grouped).map(([key, g]) => {
+      const professions = [...new Set(g.sessions.map(s => s.target))];
+      const completedSessions = g.sessions.filter(s => s.isCompleted).length;
+      const matched = phoneToUser[key];
+      return {
+        telephone: g.telephone,
+        nom: g.nom, prenom: g.prenom, ville: g.ville, lang: g.lang,
+        sessionsCount: g.sessions.length,
+        completedCount: completedSessions,
+        professions,
+        sessions: g.sessions,
+        contacted: g.contacted,
+        isRegistered: !!matched,
+        registeredUser: matched ?? null,
+        lastDate: g.lastDate,
+      };
+    }).sort((a, b) => b.sessionsCount - a.sessionsCount || b.lastDate.getTime() - a.lastDate.getTime());
+  }
+
   async getAllParticipants() {
     const [participants, users] = await Promise.all([
       db(this.prisma).examenBlancParticipant.findMany({

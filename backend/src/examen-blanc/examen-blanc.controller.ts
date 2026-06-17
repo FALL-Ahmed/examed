@@ -96,6 +96,13 @@ export class ExamenBlancController {
 
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles('ADMIN')
+  @Get('admin/unique-leads')
+  adminGetUniqueLeads() {
+    return this.service.getUniqueLeads();
+  }
+
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('ADMIN')
   @Get('admin/app-users')
   adminGetAppUsers() {
     return this.service.getAppUsersWithExamStatus();

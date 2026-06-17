@@ -4,7 +4,7 @@ import { useRouter, usePathname } from 'next/navigation';
 import Link from 'next/link';
 import { useAuthStore } from '@/lib/auth-store';
 import { adminApi } from '@/lib/api';
-import { Users, FileText, CreditCard, Upload, BarChart2, LogOut, Shield, PieChart, Sun, Moon, Menu, X, Trophy, Globe, FlaskConical, Download } from 'lucide-react';
+import { Users, FileText, CreditCard, Upload, BarChart2, LogOut, Shield, PieChart, Sun, Moon, Menu, X, Trophy, Globe, FlaskConical, Download, UserSearch } from 'lucide-react';
 import { useTheme } from '@/components/ThemeProvider';
 import { useLang } from '@/components/LanguageProvider';
 import { LanguageSwitcherLight } from '@/components/LanguageSwitcher';
@@ -30,6 +30,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     { href: '/admin/free-trial',    icon: FlaskConical,  label: 'Essais gratuits',      badge: false },
     { href: '/admin/pdf-downloads', icon: Download,      label: 'Téléch. PDF',          badge: false },
     { href: '/admin/examen-blanc',  icon: Trophy,        label: 'Examen Blanc',         badge: false },
+    { href: '/admin/leads',         icon: UserSearch,    label: 'Leads',                badge: false },
   ];
 
   useEffect(() => {
