@@ -50,14 +50,16 @@ export default function AdminLeadsPage() {
   const totalPages = Math.ceil(filtered.length / PAGE_SIZE);
   const paginated = filtered.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
 
-  const stats = useMemo(() => ({
-    total: leads.length,
-    infirmier: leads.filter(l => l.professions.includes('INFIRMIER')).length,
-    sageFemme: leads.filter(l => l.professions.includes('SAGE_FEMME')).length,
-    biologiste: leads.filter(l => l.professions.includes('BIOLOGISTE')).length,
-    registered: leads.filter(l => l.isRegistered).length,
-    multi: leads.filter(l => l.sessionsCount > 1).length,
-  }), [leads]);
+  const stats = useMemo(() => {
+    const nonReg = leads.filter(l => !l.isRegistered);
+    return {
+      total: nonReg.length,
+      infirmier: nonReg.filter(l => l.professions.includes('INFIRMIER')).length,
+      sageFemme: nonReg.filter(l => l.professions.includes('SAGE_FEMME')).length,
+      biologiste: nonReg.filter(l => l.professions.includes('BIOLOGISTE')).length,
+      multi: nonReg.filter(l => l.sessionsCount > 1).length,
+    };
+  }, [leads]);
 
   if (loading) return (
     <div className="flex items-center justify-center py-24">
@@ -85,7 +87,6 @@ export default function AdminLeadsPage() {
           { label: 'Infirmier', value: stats.infirmier, color: 'bg-violet-100 text-violet-800' },
           { label: 'Sage-femme', value: stats.sageFemme, color: 'bg-pink-100 text-pink-800' },
           { label: 'Biologiste', value: stats.biologiste, color: 'bg-emerald-100 text-emerald-800' },
-          { label: 'Inscrits app', value: stats.registered, color: 'bg-blue-100 text-blue-800' },
           { label: '2+ examens', value: stats.multi, color: 'bg-amber-100 text-amber-800' },
         ].map(s => (
           <div key={s.label} className={`rounded-xl p-3 text-center ${s.color}`}>
