@@ -33,6 +33,12 @@ export class QuestionsService {
     const user = await this.prisma.user.findUnique({ where: { id: userId }, select: { profession: true } });
     const userTarget = user?.profession === 'sage_femme' ? 'SAGE_FEMME' : user?.profession === 'biologiste' ? 'BIOLOGISTE' : 'INFIRMIER';
 
+    let bioShowUnpublished = true;
+    if (userTarget === 'BIOLOGISTE') {
+      const bioSetting = await this.prisma.setting.findUnique({ where: { key: 'BIO_NEW_CONTENT_VISIBLE' } });
+      bioShowUnpublished = bioSetting?.value === 'true';
+    }
+
     const where: any = { isActive: true };
     if (opts.subThemeId) {
       where.subThemeId = opts.subThemeId;
@@ -41,6 +47,7 @@ export class QuestionsService {
       if (opts.themeId) subFilter.themeId = opts.themeId;
       const themeFilter: any = { target: userTarget };
       if (opts.language) themeFilter.language = opts.language;
+      if (!bioShowUnpublished) themeFilter.isPublished = true;
       subFilter.theme = themeFilter;
       where.subTheme = subFilter;
     }
@@ -71,11 +78,18 @@ export class QuestionsService {
     const userExam = await this.prisma.user.findUnique({ where: { id: userId }, select: { profession: true } });
     const examTarget = userExam?.profession === 'sage_femme' ? 'SAGE_FEMME' : userExam?.profession === 'biologiste' ? 'BIOLOGISTE' : 'INFIRMIER';
 
+    let bioExamShowUnpublished = true;
+    if (examTarget === 'BIOLOGISTE') {
+      const bioSetting = await this.prisma.setting.findUnique({ where: { key: 'BIO_NEW_CONTENT_VISIBLE' } });
+      bioExamShowUnpublished = bioSetting?.value === 'true';
+    }
+
     const where: any = { isActive: true };
     const subFilter: any = {};
     if (opts.themeId) subFilter.themeId = opts.themeId;
     const themeFilterExam: any = { target: examTarget };
     if (opts.language) themeFilterExam.language = opts.language;
+    if (!bioExamShowUnpublished) themeFilterExam.isPublished = true;
     subFilter.theme = themeFilterExam;
     where.subTheme = subFilter;
 

@@ -52,8 +52,10 @@ export class ThemesService {
     }
 
     if (profession === 'biologiste') {
+      const bioSetting = await this.prisma.setting.findUnique({ where: { key: 'BIO_NEW_CONTENT_VISIBLE' } });
+      const showUnpublished = bioSetting?.value === 'true';
       return this.prisma.theme.findMany({
-        where: { target: 'BIOLOGISTE', ...(language ? { language } : {}) },
+        where: { target: 'BIOLOGISTE', ...(language ? { language } : {}), ...(showUnpublished ? {} : { isPublished: true }) },
         include: {
           subThemes: {
             select: { id: true, name: true, order: true, _count: { select: { questions: true } } },

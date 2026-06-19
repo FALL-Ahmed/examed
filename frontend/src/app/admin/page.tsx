@@ -61,6 +61,7 @@ export default function AdminDashboard() {
   const [promoIncludesGroup, setPromoIncludesGroup] = useState(false);
   const [savingPromo, setSavingPromo] = useState(false);
   const [savedPromo, setSavedPromo] = useState(false);
+  const [bioNewContentVisible, setBioNewContentVisible] = useState(false);
   const [promoBioEnabled, setPromoBioEnabled] = useState(false);
   const [promoBioDiscount, setPromoBioDiscount] = useState('30');
   const [promoBioEndDate, setPromoBioEndDate] = useState('');
@@ -86,6 +87,7 @@ export default function AdminDashboard() {
       setPromoDiscount(r.data.PROMO_DISCOUNT ?? '30');
       setPromoEndDate(r.data.PROMO_END_DATE ?? '');
       setPromoIncludesGroup(r.data.PROMO_INCLUDES_GROUP === 'true');
+      setBioNewContentVisible(r.data.BIO_NEW_CONTENT_VISIBLE === 'true');
       setPromoBioEnabled(r.data.PROMO_BIO_ACTIVE === 'true');
       setPromoBioDiscount(r.data.PROMO_BIO_DISCOUNT ?? '30');
       setPromoBioEndDate(r.data.PROMO_BIO_END_DATE ?? '');
@@ -189,6 +191,11 @@ export default function AdminDashboard() {
     ]).catch(() => {});
     setSavedPromo(true); setTimeout(() => setSavedPromo(false), 3000);
     setSavingPromo(false);
+  }
+  async function toggleBioNewContent() {
+    const next = !bioNewContentVisible;
+    setBioNewContentVisible(next);
+    await adminApi.setSetting('BIO_NEW_CONTENT_VISIBLE', String(next)).catch(() => setBioNewContentVisible(!next));
   }
   async function togglePromoBio() {
     const next = !promoBioEnabled;
@@ -413,6 +420,15 @@ export default function AdminDashboard() {
             className="w-full px-3 py-2 bg-background border border-border rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 text-muted-foreground" />
         </div>
         <div className="border-t border-border pt-4 mt-2">
+          <div className="flex items-center justify-between mb-4 p-3 bg-emerald-50 rounded-xl border border-emerald-200">
+            <div>
+              <p className="text-sm font-semibold flex items-center gap-1.5 text-emerald-800">🔬 Nouveau contenu biologiste visible</p>
+              <p className="text-xs text-emerald-600 mt-0.5">{bioNewContentVisible ? 'Les nouveaux thèmes sont visibles par les users' : 'Nouveaux thèmes masqués (isPublished: false)'}</p>
+            </div>
+            <button type="button" onClick={toggleBioNewContent} className={`relative w-11 h-6 rounded-full transition-colors flex-shrink-0 ${bioNewContentVisible ? 'bg-emerald-500' : 'bg-border'}`}>
+              <span className={`absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full shadow transition-transform ${bioNewContentVisible ? 'translate-x-5' : 'translate-x-0'}`} />
+            </button>
+          </div>
           <div className="flex items-center justify-between mb-3">
             <div>
               <p className="text-sm font-semibold flex items-center gap-1.5">🔬 Promotion Lancement Biologiste</p>
