@@ -660,37 +660,42 @@ export class ExamenBlancService {
     // BIOLOGISTE : questions fixes + sous-thèmes ciblés
     if (target === 'BIOLOGISTE') {
       const BIO_FIXED = [
-        'cmq8klhmz008vcbjywf2diavv', // Caractères morphologiques Plasmodium falciparum
-        'cmq8kli66009dcbjyutomftje', // Caractéristiques microscopiques BAAR (tuberculose)
-        'cmq8klrru00ifcbjyo67o0mow', // Première mesure incident transfusionnel
+        // Paludisme — parasitologie (3 Q)
+        'cmq8klhmz008vcbjywf2diavv', // Caractères morphologiques Plasmodium falciparum (identification spécifique)
+        'cmq8klglc007vcbjy5dibyo8t', // Intérêts goutte épaisse vs frottis (diagnostic paludisme)
+        'cmq8klgne007xcbjygkf4pyrw', // Caractères morphologiques Plasmodium falciparum (étalement)
+        // Paludisme — hématologie (1 Q)
+        'cmq8klna200e5cbjybsiharuq', // Structures confondues avec parasites du paludisme sur frottis
+        // Tuberculose — bactériologie (1 Q)
+        'cmq8kli66009dcbjyutomftje', // Caractéristiques microscopiques BAAR Ziehl-Neelsen
       ];
-      const BIO_SUBTHEMES = new Set([
-        'ÉLECTROLYTES ET ÉLÉMENTS MINÉRAUX',
-        'FONCTION RÉNALE (URÉE, CRÉATININE, ACIDE URIQUE)',
-        'MÉTABOLISME DES GLUCIDES (GLUCOSE)',
-        'ACCIDENTS DE LA TRANSFUSION SANGUINE',
-        'HÉMOGLOBINE ET CONSTANTES',
-        'EXAMEN CYTO-BACTÉRIOLOGIQUE DES URINES (ECBU) ET DU LCR',
-        'DIAGNOSTIC DE LA TUBERCULOSE ET DE LA LÈPRE',
-        'HYGIÈNE ET SÉCURITÉ AU LABORATOIRE',
-        'MESURE ET DISTRIBUTION DES LIQUIDES',
-        'CENTRIFUGATION',
-        'UTILISATION DU MICROSCOPE',
-      ]);
+      const BIO_QUOTAS: Record<string, number> = {
+        'ÉLECTROLYTES ET ÉLÉMENTS MINÉRAUX':               4,
+        'GÉNÉRALITÉS ET PRÉLÈVEMENTS':                     4,
+        'HÉMOGLOBINE ET CONSTANTES':                       6,
+        'LE PRÉLÈVEMENT SANGUIN':                          4,
+        'MORPHOLOGIE ET ANOMALIES DES HÉMATIES':           4, // 1 fixe paludisme + 3 pool
+        'MESURE ET DISTRIBUTION DES LIQUIDES':             4,
+        'GÉNÉRALITÉS, PRÉLÈVEMENTS ET COLORATIONS DE BASE': 4,
+        'DIAGNOSTIC DE LA TUBERCULOSE ET DE LA LÈPRE':    4, // 1 fixe BAAR + 3 pool
+        'GÉNÉRALITÉS':                                     4,
+        'PARASITES DU SANG, DE LA PEAU ET DES URINES':    6, // 3 fixes paludisme + 3 pool
+        'STRUCTURES ET PROPRIÉTÉS DES ACIDES NUCLÉIQUES': 6,
+        'PCR':                                             6,
+        'ÉLECTROPHORÈSE':                                  4,
+      };
       const fixedSet = new Set(BIO_FIXED);
-      const bioAvailable = available.filter((st: any) => BIO_SUBTHEMES.has(st.name.toUpperCase()));
+      const bioAvailable = available.filter((st: any) => BIO_QUOTAS[st.name.toUpperCase()] !== undefined);
       const selected: string[] = [...BIO_FIXED];
-      const pool: string[] = [];
       for (const st of bioAvailable) {
-        const ids = (st as any).questions.map((q: any) => q.id).filter((id: string) => !fixedSet.has(id));
-        const sorted = [...ids].sort(byFreshness);
-        if (sorted.length > 0) { selected.push(sorted[0]); }
-        if (sorted.length > 1) pool.push(...sorted.slice(1));
-      }
-      const needed = totalQ - selected.length;
-      if (needed > 0 && pool.length > 0) {
-        pool.sort(byFreshness);
-        selected.push(...pool.slice(0, Math.min(needed, pool.length)));
+        const nameUp = (st as any).name.toUpperCase();
+        const quota = BIO_QUOTAS[nameUp];
+        const allIds: string[] = (st as any).questions.map((q: any) => q.id);
+        const fixedInThis = BIO_FIXED.filter(id => allIds.includes(id)).length;
+        const needFromPool = quota - fixedInThis;
+        if (needFromPool <= 0) continue;
+        const poolIds = allIds.filter((id: string) => !fixedSet.has(id)).sort(byFreshness);
+        selected.push(...poolIds.slice(0, needFromPool));
       }
       return selected.sort(() => Math.random() - 0.5).slice(0, totalQ);
     }
@@ -1061,6 +1066,10 @@ export class ExamenBlancService {
         this.generateSmartQuestions(totalQ, 'FR', target, smartCriteria, smartFromLastN),
         this.generateSmartQuestions(totalQ, 'AR', target, smartCriteria, smartFromLastN),
       ]);
+    } else if (target === 'BIOLOGISTE') {
+      // Biologiste : tout le contenu est en FR uniquement
+      questionIdsFr = await this.generateQuestions(totalQ, 'FR', 'BIOLOGISTE');
+      questionIdsAr = [...questionIdsFr];
     } else {
       [questionIdsFr, questionIdsAr] = await Promise.all([
         this.generateQuestions(totalQ, 'FR', target),

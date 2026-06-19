@@ -167,8 +167,9 @@ export default function ExamPage() {
       const newAnswer = next.join(',');
       // Save to backend immediately so answers survive a pause/expiry
       if (newAnswer) {
-        savedAnswersRef.current[q.id] = newAnswer;
-        attemptsApi.answer(attemptId, { questionId: q.id, answer: newAnswer }).catch(() => {});
+        attemptsApi.answer(attemptId, { questionId: q.id, answer: newAnswer })
+          .then(() => { savedAnswersRef.current[q.id] = newAnswer; })
+          .catch(() => {});
       }
       return { ...prev, [q.id]: newAnswer };
     });
