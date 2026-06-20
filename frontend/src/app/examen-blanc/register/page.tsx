@@ -62,7 +62,7 @@ function RegisterContent() {
           const state = JSON.parse(saved);
           const targetId = examenBlancId || currentSession?.id;
           if (!state.isTest && state.sessionId && state.examenBlancId && state.examenBlancId === targetId) {
-            router.replace(state.isCompleted ? '/examen-blanc/results' : '/examen-blanc/exam');
+            router.replace(state.isCompleted ? '/examen-blanc/results' : `/examen-blanc/exam?target=${targetParam}`);
             return;
           } else {
             // Session test ou obsolète — effacer
@@ -116,7 +116,7 @@ function RegisterContent() {
         target: targetParam,
         answers: {},
       }));
-      router.push('/examen-blanc/exam');
+      router.push(`/examen-blanc/exam?target=${targetParam}`);
     } catch (err: any) {
       setError(err.response?.data?.message || 'Une erreur est survenue');
       setSubmitting(false);
@@ -159,7 +159,7 @@ function RegisterContent() {
         answers: {},
       }));
 
-      router.push('/examen-blanc/exam');
+      router.push(`/examen-blanc/exam?target=${targetParam}`);
     } catch (err: any) {
       setError(err.response?.data?.message || (isFormAr ? 'حدث خطأ، حاول مجدداً' : 'Une erreur est survenue'));
       setSubmitting(false);

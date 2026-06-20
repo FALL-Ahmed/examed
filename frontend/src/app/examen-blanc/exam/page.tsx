@@ -47,6 +47,8 @@ function ExamContent() {
 
   const { lang, setLang } = useLang();
   const isAr = lang === 'ar';
+  const targetParam = searchParams.get('target') || 'INFIRMIER';
+  const targetPath = targetParam === 'SAGE_FEMME' ? '/examen-blanc/sage-femme' : targetParam === 'BIOLOGISTE' ? '/examen-blanc/biologiste' : '/examen-blanc';
 
   const [state, setState] = useState<any>(null);
   const [currentIdx, setCurrentIdx] = useState(0);
@@ -65,7 +67,7 @@ function ExamContent() {
     if (!raw) { router.replace('/examen-blanc'); return; }
     try {
       const s = JSON.parse(raw);
-      if (!s.sessionId || !s.questions?.length) { router.replace('/examen-blanc'); return; }
+      if (!s.sessionId || !s.questions?.length) { router.replace(targetPath); return; }
       if (s.isCompleted) {
         router.replace(isTestMode ? '/examen-blanc/results?mode=test' : '/examen-blanc/results');
         return;
@@ -80,7 +82,7 @@ function ExamContent() {
         setExamEndTime(startTs + limit * 1000);
       }).catch(() => {
         localStorage.removeItem(stateKey);
-        router.replace('/examen-blanc');
+        router.replace(targetPath);
       });
     } catch { router.replace('/examen-blanc'); }
   }, [router, stateKey, isTestMode]);
