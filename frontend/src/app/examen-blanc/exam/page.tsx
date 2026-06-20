@@ -70,12 +70,18 @@ function ExamContent() {
         router.replace(isTestMode ? '/examen-blanc/results?mode=test' : '/examen-blanc/results');
         return;
       }
-      setState(s);
-      setAnswers(s.answers || {});
-      startTimeRef.current = new Date(s.startedAt);
-      const limit = (s.durationMin || 120) * 60;
-      const startTs = s.startedAt ? new Date(s.startedAt).getTime() : Date.now();
-      setExamEndTime(startTs + limit * 1000);
+      // Verify session still exists in DB
+      examenBlancApi.getSession(s.sessionId).then(() => {
+        setState(s);
+        setAnswers(s.answers || {});
+        startTimeRef.current = new Date(s.startedAt);
+        const limit = (s.durationMin || 120) * 60;
+        const startTs = s.startedAt ? new Date(s.startedAt).getTime() : Date.now();
+        setExamEndTime(startTs + limit * 1000);
+      }).catch(() => {
+        localStorage.removeItem(stateKey);
+        router.replace('/examen-blanc');
+      });
     } catch { router.replace('/examen-blanc'); }
   }, [router, stateKey, isTestMode]);
 
