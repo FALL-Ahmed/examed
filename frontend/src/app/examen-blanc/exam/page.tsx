@@ -276,7 +276,7 @@ function ExamContent() {
 
           {/* Question text */}
           <div className="bg-white/5 backdrop-blur border border-white/10 rounded-2xl p-6 mb-4">
-            <p className="text-white text-base leading-relaxed font-medium">{q.text}</p>
+            <p className="text-white text-base leading-relaxed font-medium" dir="auto">{q.text}</p>
             {q.imageUrl && (
               <img src={q.imageUrl} alt="" className="mt-4 rounded-xl max-h-64 object-contain" />
             )}
@@ -290,7 +290,7 @@ function ExamContent() {
               const isSelected = selectedAnswers.includes(choice);
               return (
                 <button key={choice} onClick={() => toggleAnswer(q.id, choice, q.isMultiple)}
-                  className={`w-full text-left flex items-center gap-4 px-5 py-4 rounded-2xl border-2 transition-all font-medium
+                  className={`w-full text-start flex items-center gap-4 px-5 py-4 rounded-2xl border-2 transition-all font-medium
                     ${isSelected
                       ? 'border-violet-500 bg-violet-500/15 text-white'
                       : 'border-white/10 bg-white/3 text-white/70 hover:border-white/20 hover:bg-white/5'}`}>
@@ -298,7 +298,7 @@ function ExamContent() {
                     ${isSelected ? 'bg-violet-500 text-white' : 'bg-white/10 text-white/50'}`}>
                     {isSelected ? <CheckCircle2 className="w-4 h-4" /> : choice}
                   </div>
-                  <span className="text-sm leading-snug">{text}</span>
+                  <span className="text-sm leading-snug" dir="auto">{text}</span>
                 </button>
               );
             })}
