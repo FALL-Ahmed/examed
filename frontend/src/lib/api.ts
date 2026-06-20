@@ -241,6 +241,8 @@ export const examenBlancApi = {
   adminParticipants: () => api.get('/examen-blanc/admin/participants'),
   adminUniqueLeads: () => api.get('/examen-blanc/admin/unique-leads'),
   adminAppUsers: () => api.get('/examen-blanc/admin/app-users'),
+  registerFromAccount: (data: { examenBlancId: string; lang: string }) =>
+    api.post('/examen-blanc/register-from-account', data),
   recover: (telephone: string) => axios.post(`${API_URL}/examen-blanc/recover`, { telephone }),
   mySessions: (participantId: string) => axios.get(`${API_URL}/examen-blanc/my-sessions`, { params: { participantId } }),
   adminTestSession: (examenBlancId: string, lang: 'fr' | 'ar') =>

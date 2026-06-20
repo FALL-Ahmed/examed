@@ -72,6 +72,7 @@ export class ExamenBlancService {
         isOpen: now >= new Date(session.startsAt) && now <= new Date(session.endsAt),
         isClosed: now > new Date(session.endsAt),
         isResultsReady: now >= new Date(session.resultsAt),
+        requiresAccount: session.requiresAccount ?? false,
       } : null,
       stats,
     };
@@ -210,6 +211,24 @@ export class ExamenBlancService {
         theme: q.subTheme?.theme?.name || null,
       })),
     };
+  }
+
+  async registerFromAccount(userId: string, dto: { examenBlancId: string; lang: string }) {
+    const user = await db(this.prisma).user.findUnique({ where: { id: userId } });
+    if (!user) throw new NotFoundException('Utilisateur introuvable');
+
+    const parts = (user.fullName || '').trim().split(' ');
+    const prenom = parts[0] || user.fullName;
+    const nom = parts.slice(1).join(' ') || prenom;
+
+    return this.register({
+      nom,
+      prenom,
+      telephone: user.phone || '',
+      ville: user.wilaya || '',
+      examenBlancId: dto.examenBlancId,
+      lang: dto.lang,
+    });
   }
 
   async getSession(sessionId: string) {
@@ -620,7 +639,7 @@ export class ExamenBlancService {
 
     const available = allSubThemes.filter((st: any) => st.questions.length > 0);
 
-    // Pour SAGE_FEMME : quotas fixes par sous-thème
+    // Pour SAGE_FEMME : quotas fixes par sous-thème (nouvelle distribution)
     if (target === 'SAGE_FEMME') {
       const pick = (matcher: (subName: string, themeName: string) => boolean, n: number): string[] => {
         const pool: string[] = [];
@@ -634,23 +653,35 @@ export class ExamenBlancService {
       };
 
       const sfSelected = [
-        ...pick((_s, t) => t.includes('grossesse normale') || t.includes('الحمل الطبيعي'), 10),
-        ...pick((_s, t) => t.includes('complications') && t.includes('grossesse') || t.includes('المضاعفات الرئيسية'), 2),
-        ...pick((s) => /l.?accouchement|فصل الولادة/i.test(s), 8),
-        ...pick((s) => /alimentation.*enceinte|النظام الغذائي/i.test(s), 4),
-        ...pick((s) => /fi[èe]vre.*grossesse|الحمى أثناء/i.test(s), 4),
-        ...pick((s) => /h[ée]morragie.*grossesse|النزيف والحمل/i.test(s), 6),
-        ...pick((s) => /hypertension.*grossesse|ارتفاع ضغط الدم والحمل/i.test(s), 4),
-        ...pick((s) => /dystocie|عسر الولادة/i.test(s), 4),
-        ...pick((s) => /rythme cardiaque|RCF|معدل ضربات/i.test(s), 2),
-        ...pick((s) => /m[ée]dicament.*grossesse|الأدوية والحمل/i.test(s), 2),
-        ...pick((s) => /leucorrh|الإفرازات المهبلية/i.test(s), 5),
-        ...pick((s) => /contraception|منع الحمل/i.test(s), 5),
-        ...pick((s) => /anomalies du cycle|cycle menstruel|اضطرابات الدورة/i.test(s), 2),
-        ...pick((s) => /douleurs? pelviennes?|ألم الحوض/i.test(s), 2),
+        // CAS CLINIQUE (حالة سريرية) — 29 Q
+        ...pick((_s, t) => t.includes('cas clinique') || t.includes('حالة سريرية'), 29),
+        // IST (الأمراض المنقولة جنسياً) — 4 Q
+        ...pick((s) => /infections? sexuellement|IST\b|الأمراض المنقولة جنسياً/i.test(s), 4),
+        // Leucorrhées (الإفرازات المهبلية) — 3 Q
+        ...pick((s) => /leucorrh|الإفرازات المهبلية/i.test(s), 3),
+        // Soins néonataux (رعاية حديثي الولادة) — 3 Q
+        ...pick((_s, t) => /soins.n[ée]onataux|n[ée]onataux|رعاية حديثي الولادة/i.test(t + ' ' + _s), 3),
+        // Grossesse gémellaire (الحمل المتعدد) — 3 Q
+        ...pick((s) => /grossesse g[ée]mellaire|الحمل المتعدد/i.test(s), 3),
+        // Placenta (المشيمة) — 2 Q
+        ...pick((s) => /placenta|المشيمة/i.test(s), 2),
+        // Liquide amniotique (السائل الأمنيوسي) — 2 Q
+        ...pick((s) => /liquide amniotique|السائل الأمنيوسي/i.test(s), 2),
+        // Hémorragie grossesse (النزيف والحمل) — 2 Q
+        ...pick((s) => /h[ée]morragie.*grossesse|النزيف والحمل/i.test(s), 2),
+        // Fièvre grossesse (الحمى أثناء الحمل) — 2 Q
+        ...pick((s) => /fi[èe]vre.*grossesse|الحمى أثناء الحمل/i.test(s), 2),
+        // Hypertension (ارتفاع ضغط الدم) — 2 Q
+        ...pick((s) => /hypertension.*grossesse|ارتفاع ضغط الدم والحمل/i.test(s), 2),
+        // RPM (تمزق الأغشية) — 2 Q
+        ...pick((s) => /rupture pr[ée]matur[ée]|RPM|تمزق الأغشية/i.test(s), 2),
+        // Accouchement (فصل الولادة) — 2 Q
+        ...pick((s) => /l.?accouchement|فصل الولادة/i.test(s), 2),
+        // Dystocie (عسر الولادة) — 2 Q
+        ...pick((s) => /dystocie|عسر الولادة/i.test(s), 2),
       ];
 
-      // Dédoublonner au cas où une question apparaît dans plusieurs groupes
+      // Dédoublonner
       const seen = new Set<string>();
       const deduped = sfSelected.filter(id => { if (seen.has(id)) return false; seen.add(id); return true; });
 
@@ -1110,7 +1141,9 @@ export class ExamenBlancService {
       orderBy: { createdAt: 'desc' },
       include: { _count: { select: { participants: { where: { isTest: false } } } } },
     });
-    return sessions.map((s: any) => ({ ...s, participantCount: s._count.participants }));
+    const raw: any[] = await this.prisma.$queryRaw`SELECT id, "requiresAccount" FROM "ExamenBlanc"`;
+    const raMap = Object.fromEntries(raw.map((r: any) => [r.id, r.requiresAccount]));
+    return sessions.map((s: any) => ({ ...s, requiresAccount: raMap[s.id] ?? false, participantCount: s._count.participants }));
   }
 
   async getSessionStats(id: string, lang?: 'fr' | 'ar') {
@@ -1321,6 +1354,11 @@ export class ExamenBlancService {
     if (dto.isActive !== undefined) data.isActive = dto.isActive;
     if (dto.durationMin !== undefined) data.durationMin = dto.durationMin;
     if (dto.totalQ !== undefined) data.totalQ = dto.totalQ;
+    const anyDto = dto as any;
+    if (anyDto.requiresAccount !== undefined) {
+      await this.prisma.$executeRaw`UPDATE "ExamenBlanc" SET "requiresAccount" = ${anyDto.requiresAccount} WHERE id = ${id}`;
+    }
+    if (Object.keys(data).length === 0) return { id };
     return db(this.prisma).examenBlanc.update({ where: { id }, data });
   }
 

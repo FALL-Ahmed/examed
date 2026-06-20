@@ -3,8 +3,9 @@ import { useState, useEffect, Suspense } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { examenBlancApi } from '@/lib/api';
+import { useAuthStore } from '@/lib/auth-store';
 import { useLang } from '@/components/LanguageProvider';
-import { BookOpen, Loader2, ChevronRight, AlertCircle } from 'lucide-react';
+import { BookOpen, Loader2, ChevronRight, AlertCircle, Lock } from 'lucide-react';
 
 const WILAYAS = [
   'Hodh Ech Chargui', 'Hodh El Gharbi', 'Assaba', 'Gorgol', 'Brakna',
@@ -31,6 +32,7 @@ function RegisterContent() {
   const examenBlancId = searchParams.get('id') || '';
   const targetParam = (searchParams.get('target') || 'INFIRMIER').toUpperCase();
 
+  const { login, user } = useAuthStore();
   const [session, setSession] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
@@ -39,6 +41,13 @@ function RegisterContent() {
   const [formLang, setFormLang] = useState<'fr' | 'ar'>('fr');
   const [form, setForm] = useState({ prenom: '', nom: '', telephone: '', ville: '' });
   const isFormAr = formLang === 'ar';
+
+  // Login form state (used when session.requiresAccount)
+  const [loginEmail, setLoginEmail] = useState('');
+  const [loginPassword, setLoginPassword] = useState('');
+  const [loginLoading, setLoginLoading] = useState(false);
+  const [loginError, setLoginError] = useState('');
+  const [loginDone, setLoginDone] = useState(false); // after login → show lang picker
 
   useEffect(() => {
     examenBlancApi.current(targetParam).then(r => {
@@ -68,6 +77,49 @@ function RegisterContent() {
   }, [router, examenBlancId]);
 
   function set(k: string, v: string) { setForm(p => ({ ...p, [k]: v })); }
+
+  async function handleLogin() {
+    setLoginLoading(true); setLoginError('');
+    try {
+      const result = await login(loginEmail.trim(), loginPassword);
+      if (result.requiresDeviceVerification) {
+        setLoginError('Vérification de l\'appareil requise — connecte-toi depuis l\'application.');
+        return;
+      }
+      setLoginDone(true);
+    } catch {
+      setLoginError('Email ou mot de passe incorrect');
+    } finally {
+      setLoginLoading(false);
+    }
+  }
+
+  async function handleRegisterFromAccount() {
+    setSubmitting(true); setError('');
+    const id = examenBlancId || session?.id;
+    if (!id) { setError('Aucune session active'); setSubmitting(false); return; }
+    try {
+      const { data } = await examenBlancApi.registerFromAccount({ examenBlancId: id, lang: formLang });
+      localStorage.setItem(EB_STATE_KEY, JSON.stringify({
+        sessionId: data.sessionId,
+        participantId: data.participantId,
+        examenBlancId: data.examenBlancId,
+        durationMin: data.durationMin,
+        totalQ: data.totalQ,
+        startedAt: data.startedAt,
+        endsAt: data.endsAt,
+        resultsAt: data.resultsAt,
+        participant: data.participant,
+        questions: data.questions,
+        target: targetParam,
+        answers: {},
+      }));
+      router.push('/examen-blanc/exam');
+    } catch (err: any) {
+      setError(err.response?.data?.message || 'Une erreur est survenue');
+      setSubmitting(false);
+    }
+  }
 
   async function handleSubmit() {
     setError('');
@@ -120,6 +172,94 @@ function RegisterContent() {
       <div className="w-8 h-8 border-4 border-violet-400 border-t-transparent rounded-full animate-spin" />
     </div>
   );
+
+  // ── Session réservée aux inscrits ──────────────────────────────────────────
+  if (session?.requiresAccount) {
+    const alreadyLoggedIn = !!user || loginDone;
+    const bgUrl = targetParam === 'SAGE_FEMME'
+      ? 'linear-gradient(145deg,#f48fb1 0%,#f06292 50%,#e91e8c 100%)'
+      : targetParam === 'BIOLOGISTE'
+        ? 'linear-gradient(145deg,#052e16 0%,#14532d 50%,#052e16 100%)'
+        : 'linear-gradient(145deg,#0f0a2e 0%,#1a1040 50%,#0d1b3e 100%)';
+    return (
+      <div className="min-h-screen flex items-center justify-center p-4" style={{ background: bgUrl }}>
+        <div className="relative z-10 w-full max-w-md space-y-6">
+          <div className="text-center">
+            <Link href="/examen-blanc" className="inline-flex items-center gap-2 mb-6">
+              <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: 'linear-gradient(135deg,#7c3aed,#6366f1)' }}>
+                <BookOpen className="w-5 h-5 text-white" />
+              </div>
+              <span className="text-white font-bold text-xl">Al Bourour</span>
+            </Link>
+            <div className="flex items-center justify-center gap-2 mb-2">
+              <Lock className="w-5 h-5 text-white/70" />
+              <h1 className="text-2xl font-black text-white">Accès réservé aux inscrits</h1>
+            </div>
+            <p className="text-white/50 text-sm">Connecte-toi avec ton compte Al Bourour pour participer</p>
+          </div>
+
+          {!alreadyLoggedIn ? (
+            <div className="bg-white/10 backdrop-blur border border-white/20 rounded-3xl p-7 space-y-4">
+              {loginError && (
+                <div className="flex items-center gap-2 bg-red-500/10 border border-red-500/20 text-red-300 px-4 py-3 rounded-xl text-sm">
+                  <AlertCircle className="w-4 h-4 flex-shrink-0" /> {loginError}
+                </div>
+              )}
+              <div>
+                <label className={labelCls}>Email</label>
+                <input type="email" value={loginEmail} onChange={e => setLoginEmail(e.target.value)}
+                  onKeyDown={e => e.key === 'Enter' && handleLogin()}
+                  className={inputCls} placeholder="ton@email.com" dir="ltr" />
+              </div>
+              <div>
+                <label className={labelCls}>Mot de passe</label>
+                <input type="password" value={loginPassword} onChange={e => setLoginPassword(e.target.value)}
+                  onKeyDown={e => e.key === 'Enter' && handleLogin()}
+                  className={inputCls} placeholder="••••••••" dir="ltr" />
+              </div>
+              <button onClick={handleLogin} disabled={loginLoading || !loginEmail || !loginPassword}
+                className="w-full py-4 rounded-2xl font-bold text-base text-white flex items-center justify-center gap-2 hover:opacity-90 transition disabled:opacity-60"
+                style={{ background: 'linear-gradient(135deg,#7c3aed,#6366f1)' }}>
+                {loginLoading ? <Loader2 className="w-5 h-5 animate-spin" /> : <>Se connecter <ChevronRight className="w-5 h-5" /></>}
+              </button>
+            </div>
+          ) : (
+            <div className="bg-white/10 backdrop-blur border border-white/20 rounded-3xl p-7 space-y-4">
+              <p className="text-white font-semibold text-center">
+                ✅ Connecté — choisir la langue des questions
+              </p>
+              {targetParam !== 'BIOLOGISTE' && (
+                <div className="grid grid-cols-2 gap-3">
+                  <button type="button" onClick={() => setFormLang('fr')}
+                    className={`py-3 rounded-xl border-2 font-bold text-sm transition-all ${formLang === 'fr' ? 'border-violet-500 bg-violet-500/15 text-white' : 'border-white/10 bg-white/5 text-white/50'}`}>
+                    🇫🇷 Français
+                  </button>
+                  <button type="button" onClick={() => setFormLang('ar')}
+                    className={`py-3 rounded-xl border-2 font-bold text-sm transition-all ${formLang === 'ar' ? 'border-violet-500 bg-violet-500/15 text-white' : 'border-white/10 bg-white/5 text-white/50'}`}>
+                    🇲🇷 العربية
+                  </button>
+                </div>
+              )}
+              {error && (
+                <div className="flex items-center gap-2 bg-red-500/10 border border-red-500/20 text-red-300 px-4 py-3 rounded-xl text-sm">
+                  <AlertCircle className="w-4 h-4 flex-shrink-0" /> {error}
+                </div>
+              )}
+              <button onClick={handleRegisterFromAccount} disabled={submitting}
+                className="w-full py-4 rounded-2xl font-bold text-base text-white flex items-center justify-center gap-2 hover:opacity-90 transition disabled:opacity-60"
+                style={{ background: 'linear-gradient(135deg,#7c3aed,#6366f1)' }}>
+                {submitting ? <Loader2 className="w-5 h-5 animate-spin" /> : <>Commencer l&apos;examen <ChevronRight className="w-5 h-5" /></>}
+              </button>
+            </div>
+          )}
+
+          <Link href="/examen-blanc" className="block text-center text-white/30 text-sm hover:text-white/50 transition">
+            ← Retour
+          </Link>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen flex items-center justify-center p-4" dir={isAr ? 'rtl' : 'ltr'}

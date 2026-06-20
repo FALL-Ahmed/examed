@@ -389,6 +389,12 @@ export default function AdminExamenBlancPage() {
                         className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg border border-border text-muted-foreground text-xs hover:bg-accent transition">
                         <Eye className="w-3.5 h-3.5" /> Stats
                       </button>
+                      <button
+                        onClick={async () => { await examenBlancApi.adminUpdateSession(s.id, { requiresAccount: !s.requiresAccount }); loadSessions(); }}
+                        title={s.requiresAccount ? 'Accès : inscrits seulement → cliquer pour ouvrir à tous' : 'Accès : tous → cliquer pour réserver aux inscrits'}
+                        className={`px-2.5 py-1.5 rounded-lg text-xs font-semibold transition ${s.requiresAccount ? 'bg-amber-50 text-amber-700 hover:bg-amber-100 dark:bg-amber-900/20 dark:text-amber-400' : 'bg-slate-50 text-slate-500 hover:bg-slate-100 dark:bg-slate-800 dark:text-slate-400'}`}>
+                        {s.requiresAccount ? '🔐 Inscrits' : '🌐 Tous'}
+                      </button>
                       <button onClick={() => toggleActive(s.id, s.isActive)}
                         className={`px-2.5 py-1.5 rounded-lg text-xs font-semibold transition ${s.isActive ? 'bg-red-50 text-red-600 hover:bg-red-100 dark:bg-red-900/20 dark:text-red-400' : 'bg-emerald-50 text-emerald-700 hover:bg-emerald-100 dark:bg-emerald-900/20 dark:text-emerald-400'}`}>
                         {s.isActive ? 'Désactiver' : 'Activer'}
