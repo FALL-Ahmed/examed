@@ -22,7 +22,7 @@ export class ExamenBlancController {
 
   @UseGuards(JwtAuthGuard)
   @Post('register-from-account')
-  registerFromAccount(@Req() req: any, @Body() body: { examenBlancId: string; lang: string }) {
+  registerFromAccount(@Req() req: any, @Body() body: { examenBlancId: string; lang: string; telephone?: string }) {
     return this.service.registerFromAccount(req.user.sub, body);
   }
 

@@ -213,7 +213,7 @@ export class ExamenBlancService {
     };
   }
 
-  async registerFromAccount(userId: string, dto: { examenBlancId: string; lang: string }) {
+  async registerFromAccount(userId: string, dto: { examenBlancId: string; lang: string; telephone?: string }) {
     const user = await db(this.prisma).user.findUnique({ where: { id: userId } });
     if (!user) throw new NotFoundException('Utilisateur introuvable');
 
@@ -224,7 +224,7 @@ export class ExamenBlancService {
     return this.register({
       nom,
       prenom,
-      telephone: user.phone || '',
+      telephone: dto.telephone || user.phone || '',
       ville: user.wilaya || '',
       examenBlancId: dto.examenBlancId,
       lang: dto.lang,

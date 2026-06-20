@@ -47,7 +47,8 @@ function RegisterContent() {
   const [loginPassword, setLoginPassword] = useState('');
   const [loginLoading, setLoginLoading] = useState(false);
   const [loginError, setLoginError] = useState('');
-  const [loginDone, setLoginDone] = useState(false); // after login → show lang picker
+  const [loginDone, setLoginDone] = useState(false);
+  const [accountPhone, setAccountPhone] = useState('');
 
   useEffect(() => {
     examenBlancApi.current(targetParam).then(r => {
@@ -96,10 +97,11 @@ function RegisterContent() {
 
   async function handleRegisterFromAccount() {
     setSubmitting(true); setError('');
+    if (!accountPhone.trim()) { setError('Numéro de téléphone requis'); setSubmitting(false); return; }
     const id = examenBlancId || session?.id;
     if (!id) { setError('Aucune session active'); setSubmitting(false); return; }
     try {
-      const { data } = await examenBlancApi.registerFromAccount({ examenBlancId: id, lang: formLang });
+      const { data } = await examenBlancApi.registerFromAccount({ examenBlancId: id, lang: formLang, telephone: accountPhone.trim() });
       localStorage.setItem(EB_STATE_KEY, JSON.stringify({
         sessionId: data.sessionId,
         participantId: data.participantId,
@@ -228,6 +230,13 @@ function RegisterContent() {
               <p className="text-white font-semibold text-center">
                 ✅ Connecté — choisir la langue des questions
               </p>
+              <div>
+                <label className={labelCls}>📱 Numéro de téléphone <span className="text-red-400">*</span></label>
+                <input type="tel" value={accountPhone}
+                  onChange={e => setAccountPhone(e.target.value.replace(/[^0-9+\s]/g, ''))}
+                  className={inputCls} placeholder="+222 XX XX XX XX" dir="ltr" />
+                <p className="text-white/30 text-xs mt-1">Pour recevoir vos résultats via WhatsApp</p>
+              </div>
               {targetParam !== 'BIOLOGISTE' && (
                 <div className="grid grid-cols-2 gap-3">
                   <button type="button" onClick={() => setFormLang('fr')}
