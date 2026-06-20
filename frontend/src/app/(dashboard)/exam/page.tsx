@@ -7,7 +7,6 @@ import { Zap, Loader2, Timer, Play, PlayCircle, Trash2 } from 'lucide-react';
 import { ThemeSearchInput } from '@/components/ThemeSearchInput';
 import { useLang } from '@/components/LanguageProvider';
 import { sentenceCase } from '@/lib/utils';
-import { NEW_THEME_IDS } from '@/lib/new-content';
 import { BadgeSelect } from '@/components/BadgeSelect';
 
 export default function ExamConfigPage() {
@@ -141,7 +140,7 @@ export default function ExamConfigPage() {
               newBadgeLabel={lang === 'ar' ? 'جديد' : 'Nouveau'}
               options={[
                 { value: '', label: t('practice.allThemes') },
-                ...themes.map((th) => ({ value: th.id, label: sentenceCase(th.name), isNew: NEW_THEME_IDS.has(th.id) })),
+                ...themes.map((th) => ({ value: th.id, label: sentenceCase(th.name) })),
               ]}
             />
           </div>

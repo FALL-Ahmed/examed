@@ -670,19 +670,27 @@ export class ExamenBlancService {
         'cmq8kli66009dcbjyutomftje', // Caractéristiques microscopiques BAAR Ziehl-Neelsen
       ];
       const BIO_QUOTAS: Record<string, number> = {
-        'ÉLECTROLYTES ET ÉLÉMENTS MINÉRAUX':               4,
-        'GÉNÉRALITÉS ET PRÉLÈVEMENTS':                     4,
-        'HÉMOGLOBINE ET CONSTANTES':                       6,
-        'LE PRÉLÈVEMENT SANGUIN':                          4,
-        'MORPHOLOGIE ET ANOMALIES DES HÉMATIES':           4, // 1 fixe paludisme + 3 pool
-        'MESURE ET DISTRIBUTION DES LIQUIDES':             4,
-        'GÉNÉRALITÉS, PRÉLÈVEMENTS ET COLORATIONS DE BASE': 4,
-        'DIAGNOSTIC DE LA TUBERCULOSE ET DE LA LÈPRE':    4, // 1 fixe BAAR + 3 pool
-        'GÉNÉRALITÉS':                                     4,
-        'PARASITES DU SANG, DE LA PEAU ET DES URINES':    6, // 3 fixes paludisme + 3 pool
-        'STRUCTURES ET PROPRIÉTÉS DES ACIDES NUCLÉIQUES': 6,
-        'PCR':                                             6,
-        'ÉLECTROPHORÈSE':                                  4,
+        // Biochimie
+        'ÉLECTROLYTES ET ÉLÉMENTS MINÉRAUX':                    5,
+        'FONCTION RÉNALE (URÉE, CRÉATININE, ACIDE URIQUE)':    3,
+        'MÉTABOLISME DES GLUCIDES (GLUCOSE)':                   3,
+        // Hématologie
+        'GÉNÉRALITÉS ET PRÉLÈVEMENTS':                          4,
+        'HÉMOGLOBINE ET CONSTANTES':                            6,
+        'LE PRÉLÈVEMENT SANGUIN':                               4,
+        'MORPHOLOGIE ET ANOMALIES DES HÉMATIES':                4, // 1 fixe paludisme + 3 pool
+        // Procédures générales
+        'MESURE ET DISTRIBUTION DES LIQUIDES':                  4,
+        // Bactériologie
+        'GÉNÉRALITÉS, PRÉLÈVEMENTS ET COLORATIONS DE BASE':     4,
+        'DIAGNOSTIC DE LA TUBERCULOSE ET DE LA LÈPRE':         4, // 1 fixe BAAR + 3 pool
+        // Parasitologie
+        'GÉNÉRALITÉS':                                          4,
+        'PARASITES DU SANG, DE LA PEAU ET DES URINES':         6, // 3 fixes paludisme + 3 pool
+        // Biologie moléculaire & techniques
+        'STRUCTURES ET PROPRIÉTÉS DES ACIDES NUCLÉIQUES':      3,
+        'PCR':                                                  3,
+        'ÉLECTROPHORÈSE':                                       3,
       };
       const fixedSet = new Set(BIO_FIXED);
       const bioAvailable = available.filter((st: any) => BIO_QUOTAS[st.name.toUpperCase()] !== undefined);

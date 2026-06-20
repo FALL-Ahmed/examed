@@ -57,10 +57,11 @@ export default function ResultsPage() {
   );
   if (!review) return <p className="text-center text-muted-foreground">{isAr ? 'النتائج غير موجودة' : 'Résultats non trouvés'}</p>;
 
-  const score = review.score;
   const rawScore: number = review.rawScore ?? review.correctQ;
   const total = review.questions.length;
   const noteOn10 = total > 0 ? Math.round((rawScore / total) * 100) / 10 : 0;
+  // Utilise le score live calculé depuis les réponses réelles (évite l'incohérence réseau)
+  const score = total > 0 ? Math.round((rawScore / total) * 1000) / 10 : review.score;
   const scoreColor = score >= 70 ? '#10b981' : score >= 50 ? '#f59e0b' : '#ef4444';
   const scoreLabel = score >= 70
     ? (isAr ? 'ممتاز !' : 'Excellent !')

@@ -9,7 +9,6 @@ import { useLang } from '@/components/LanguageProvider';
 import { BookOpen, Loader2, Play } from 'lucide-react';
 import { ThemeSearchInput } from '@/components/ThemeSearchInput';
 import { sentenceCase } from '@/lib/utils';
-import { NEW_THEME_IDS, NEW_SUBTHEME_IDS } from '@/lib/new-content';
 import { BadgeSelect } from '@/components/BadgeSelect';
 
 const PRACTICE_KEY = 'practice_state';
@@ -178,7 +177,7 @@ export default function PracticePage() {
                 newBadgeLabel={lang === 'ar' ? 'جديد' : 'Nouveau'}
                 options={[
                   { value: '', label: t('practice.allThemes') },
-                  ...themes.map((th) => ({ value: th.id, label: sentenceCase(th.name), isNew: NEW_THEME_IDS.has(th.id) })),
+                  ...themes.map((th) => ({ value: th.id, label: sentenceCase(th.name) })),
                 ]}
               />
             </div>
@@ -197,7 +196,7 @@ export default function PracticePage() {
                     newBadgeLabel={lang === 'ar' ? 'جديد' : 'Nouveau'}
                     options={[
                       { value: '', label: t('practice.allThemes') },
-                      ...subThemes.map((s: any) => ({ value: s.id, label: sentenceCase(s.name), isNew: NEW_SUBTHEME_IDS.has(s.id), count: s._count.questions })),
+                      ...subThemes.map((s: any) => ({ value: s.id, label: sentenceCase(s.name), count: s._count.questions })),
                     ]}
                   />
                 </div>
