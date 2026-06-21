@@ -739,7 +739,91 @@ export class ExamenBlancService {
       return selected.sort(() => Math.random() - 0.5).slice(0, totalQ);
     }
 
-    // INFIRMIER : algorithme inchangé
+    // INFIRMIER : quotas fixes par sous-thème
+    if (target === 'INFIRMIER') {
+      const pick = (matcher: (subName: string, themeName: string) => boolean, n: number): string[] => {
+        const pool: string[] = [];
+        for (const st of available) {
+          const s = st.name.toLowerCase();
+          const t = ((st as any).theme?.name ?? '').toLowerCase();
+          if (matcher(s, t)) pool.push(...(st as any).questions.map((q: any) => q.id));
+        }
+        pool.sort(byFreshness);
+        return pool.slice(0, n);
+      };
+
+      const infSelected = lang === 'AR' ? [
+        // CAS CLINIQUE AR (حالة سريرية) — 26 Q
+        ...pick((_s, t) => t.includes('حالة سريرية'), 26),
+        // Diphtérie AR (الدفتيريا) — 2 Q
+        ...pick((s) => s.includes('الدفتيريا'), 2),
+        // Paludisme AR (الملاريا) — 2 Q
+        ...pick((s) => s.includes('الملاريا'), 2),
+        // IST / VIH / Syphilis AR (الأمراض المنقولة جنسياً) — 3 Q
+        ...pick((s) => s.includes('المنقولة جنسياً') || s.includes('المنقولة جنسيا'), 3),
+        // Sonde urinaire AR (قسطرة المسالك البولية) — 3 Q
+        ...pick((s) => s.includes('قسطرة المسالك البولية'), 3),
+        // Diabète AR (السكري) — 2 Q (pas l'insuline)
+        ...pick((s) => /^السكري/.test(s), 2),
+        // Fracture AR (الكسور) — 1 Q
+        ...pick((s) => s.includes('الكسور'), 1),
+        // Transfusion AR (نقل الدم) — 3 Q
+        ...pick((s) => s.includes('نقل الدم'), 3),
+        // Tuberculose AR (السل) — 2 Q
+        ...pick((s) => s.includes('السل'), 2),
+        // Pharmacologie AR (الدوائية والعلاج) — 4 Q
+        ...pick((_s, t) => t.includes('الدوائية'), 4),
+        // Pédiatrie AR (طب الأطفال) — 2 Q
+        ...pick((_s, t) => t.includes('طب الأطفال'), 2),
+        // Sémiologie digestif AR (سيميولوجيا الجهاز الهضمي) — 3 Q
+        ...pick((s) => s.includes('سيميولوجيا الجهاز الهضمي'), 3),
+        // Sonde nasogastrique AR (الأنابيب الأنفية) — 2 Q
+        ...pick((s) => s.includes('الأنابيب الأنفية'), 2),
+        // HTA AR (ارتفاع ضغط الدم — cardiologie uniquement) — 2 Q
+        ...pick((s, t) => t.includes('طب القلب') && s.includes('ارتفاع ضغط الدم'), 2),
+        // Infection des parties molles AR (عدوى الأنسجة الرخوة) — 3 Q
+        ...pick((s) => s.includes('عدوى الأنسجة الرخوة'), 3),
+      ] : [
+        // CAS CLINIQUE FR — 26 Q
+        ...pick((_s, t) => t === 'cas clinique', 26),
+        // Diphtérie FR — 2 Q
+        ...pick((s) => /diphterie/i.test(s), 2),
+        // Paludisme FR — 2 Q
+        ...pick((s) => /paludisme/i.test(s), 2),
+        // IST / VIH / Syphilis FR (infections sexuellement transmissibles) — 3 Q
+        ...pick((s) => /infections?.+sexuellement|transmissibles/i.test(s), 3),
+        // Sonde urinaire FR — 3 Q
+        ...pick((s) => /sondes?.+urinaires?/i.test(s), 3),
+        // Diabète FR — 2 Q
+        ...pick((s) => /^diabete/i.test(s), 2),
+        // Fracture FR — 1 Q
+        ...pick((s) => /^fracture/i.test(s), 1),
+        // Transfusion FR — 3 Q
+        ...pick((s) => /^transfusion/i.test(s), 3),
+        // Tuberculose FR — 2 Q
+        ...pick((s) => /tuberculose/i.test(s), 2),
+        // Pharmacologie FR — 3 Q
+        ...pick((_s, t) => /pharmacologie/i.test(t), 3),
+        // Pédiatrie FR — 2 Q
+        ...pick((_s, t) => /p[ée]diatrie/i.test(t), 2),
+        // Sémiologie de l'appareil digestif FR — 3 Q
+        ...pick((s, t) => /semiologie/i.test(t) && /digestif/i.test(s), 3),
+        // Sonde nasogastrique FR — 2 Q
+        ...pick((s) => /nasogastrique/i.test(s), 2),
+        // HTA FR (urgence hypertensive) — 2 Q
+        ...pick((s) => /hta|urgence hypertensive/i.test(s), 2),
+        // Oxygénothérapie FR — 2 Q
+        ...pick((s) => /oxygenoth/i.test(s), 2),
+        // Infection des parties molles FR — 2 Q
+        ...pick((s) => /parties molles/i.test(s), 2),
+      ];
+
+      const seen = new Set<string>();
+      const deduped = infSelected.filter(id => { if (seen.has(id)) return false; seen.add(id); return true; });
+      return deduped.sort(() => Math.random() - 0.5).slice(0, totalQ);
+    }
+
+    // Fallback générique : 1 question par sous-thème + pool
     const selected: string[] = [];
     const pool: string[] = [];
     for (const st of available) {
