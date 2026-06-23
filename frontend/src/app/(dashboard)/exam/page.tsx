@@ -2,6 +2,7 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { attemptsApi, themesApi } from '@/lib/api';
+import { NEW_THEME_IDS } from '@/lib/new-content';
 import { useAuthStore } from '@/lib/auth-store';
 import { Zap, Loader2, Timer, Play, PlayCircle, Trash2 } from 'lucide-react';
 import { ThemeSearchInput } from '@/components/ThemeSearchInput';
@@ -140,7 +141,7 @@ export default function ExamConfigPage() {
               newBadgeLabel={lang === 'ar' ? 'جديد' : 'Nouveau'}
               options={[
                 { value: '', label: t('practice.allThemes') },
-                ...themes.map((th) => ({ value: th.id, label: sentenceCase(th.name) })),
+                ...themes.map((th) => ({ value: th.id, label: sentenceCase(th.name), isNew: NEW_THEME_IDS.has(th.id) })),
               ]}
             />
           </div>

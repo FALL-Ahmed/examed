@@ -3,6 +3,7 @@ import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { attemptsApi, themesApi } from '@/lib/api';
+import { NEW_THEME_IDS, NEW_SUBTHEME_IDS } from '@/lib/new-content';
 import { useAuthStore } from '@/lib/auth-store';
 import { QuestionCard } from '@/components/QuestionCard';
 import { useLang } from '@/components/LanguageProvider';
@@ -177,7 +178,7 @@ export default function PracticePage() {
                 newBadgeLabel={lang === 'ar' ? 'جديد' : 'Nouveau'}
                 options={[
                   { value: '', label: t('practice.allThemes') },
-                  ...themes.map((th) => ({ value: th.id, label: sentenceCase(th.name) })),
+                  ...themes.map((th) => ({ value: th.id, label: sentenceCase(th.name), isNew: NEW_THEME_IDS.has(th.id) })),
                 ]}
               />
             </div>
@@ -196,7 +197,7 @@ export default function PracticePage() {
                     newBadgeLabel={lang === 'ar' ? 'جديد' : 'Nouveau'}
                     options={[
                       { value: '', label: t('practice.allThemes') },
-                      ...subThemes.map((s: any) => ({ value: s.id, label: sentenceCase(s.name), count: s._count.questions })),
+                      ...subThemes.map((s: any) => ({ value: s.id, label: sentenceCase(s.name), count: s._count.questions, isNew: NEW_SUBTHEME_IDS.has(s.id) })),
                     ]}
                   />
                 </div>
