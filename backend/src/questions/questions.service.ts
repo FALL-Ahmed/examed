@@ -129,13 +129,17 @@ export class QuestionsService {
   async getSageFemmeFreeSession(lang: string = 'fr') {
     const langUp = lang.toUpperCase() as 'FR' | 'AR';
 
-    // Récupérer tous les sous-thèmes du thème CAS CLINIQUE
+    // Thème CAS CLINIQUE : "cas clinique" en FR, "حالة سريرية" en AR
+    const themeNameFilter = langUp === 'AR'
+      ? { name: { contains: 'حالة سريرية', mode: 'insensitive' as const } }
+      : { name: { contains: 'cas clinique', mode: 'insensitive' as const } };
+
     const subThemes = await this.prisma.subTheme.findMany({
       where: {
         theme: {
           language: langUp,
           target: 'SAGE_FEMME',
-          name: { contains: 'cas clinique', mode: 'insensitive' },
+          ...themeNameFilter,
         },
       },
       select: { id: true },
