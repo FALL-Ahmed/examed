@@ -30,7 +30,11 @@ export default function ExamConfigPage() {
   useEffect(() => {
     try {
       const saved = JSON.parse(localStorage.getItem('exam_state') || 'null');
-      if (saved?.attemptId && saved?.session?.mode === 'EXAM') setSavedExam(saved);
+      if (saved?.attemptId && saved?.session?.mode === 'EXAM' && (saved.remainingSeconds ?? 0) > 0) {
+        setSavedExam(saved);
+      } else if (saved?.attemptId) {
+        localStorage.removeItem('exam_state');
+      }
     } catch {}
   }, []);
 
@@ -51,6 +55,7 @@ export default function ExamConfigPage() {
         marked: {},
         currentIndex: 0,
         remainingSeconds: data.timeLimit ?? null,
+        savedAt: Date.now(),
       }));
       router.push(`/exam/${data.attemptId}`);
     } catch (err: any) {

@@ -38,17 +38,27 @@ export default function ExamPage() {
       setCurrentIndex(saved.currentIndex || 0);
 
       // Check if backend time has already expired (wall-clock)
-      const startedAt = saved.session?.startedAt;
+      // Use savedAt (client timestamp) + remainingSeconds to avoid server/client clock skew
       const timeLimit = saved.session?.timeLimit;
-      if (startedAt && timeLimit) {
-        const elapsed = (Date.now() - new Date(startedAt).getTime()) / 1000;
-        if (elapsed > timeLimit) {
-          // Time expired while paused — store answers for auto-finish
+      const savedAt = saved.savedAt;
+      const savedRemaining = saved.remainingSeconds;
+      if (timeLimit && savedAt != null && savedRemaining != null) {
+        const elapsedSinceSave = (Date.now() - savedAt) / 1000;
+        const remaining = Math.max(0, Math.floor(savedRemaining - elapsedSinceSave));
+        if (remaining <= 0) {
           setExpiredOnLoad(true);
           setRemainingSeconds(0);
           return;
         }
-        // Recalculate remaining from server start, not from saved localStorage value
+        setRemainingSeconds(remaining);
+      } else if (timeLimit && saved.session?.startedAt) {
+        // Fallback for old localStorage entries without savedAt
+        const elapsed = (Date.now() - new Date(saved.session.startedAt).getTime()) / 1000;
+        if (elapsed > timeLimit) {
+          setExpiredOnLoad(true);
+          setRemainingSeconds(0);
+          return;
+        }
         setRemainingSeconds(Math.max(0, Math.floor(timeLimit - elapsed)));
       } else {
         setRemainingSeconds(saved.remainingSeconds ?? null);
@@ -79,6 +89,7 @@ export default function ExamPage() {
         marked,
         currentIndex,
         remainingSeconds,
+        savedAt: Date.now(),
       }));
     }, 300);
   }, [session, answers, marked, currentIndex, remainingSeconds]);
@@ -98,6 +109,8 @@ export default function ExamPage() {
   const finishExam = useCallback(async () => {
     if (submitting) return;
     setSubmitting(true);
+    // Cancel any pending debounced save so it can't overwrite the removal below
+    if (saveRef.current) { clearTimeout(saveRef.current); saveRef.current = null; }
     localStorage.removeItem(STORAGE_KEY);
 
     // Fallback: submit any answers not yet sent to backend in real-time
