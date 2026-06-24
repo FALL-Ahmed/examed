@@ -118,6 +118,13 @@ export default function ExamPage() {
   // Auto-finish if time had expired while the exam was paused
   useEffect(() => {
     if (!expiredOnLoad || !session) return;
+    // Si aucune réponse locale → session fantôme (mauvais localStorage), abandonner sans soumettre
+    const hasAnswers = Object.values(answersRef.current).some(Boolean);
+    if (!hasAnswers) {
+      localStorage.removeItem(STORAGE_KEY);
+      router.replace('/exam');
+      return;
+    }
     finishExam();
   }, [expiredOnLoad, session]);
 

@@ -130,6 +130,19 @@ function ExamContent() {
     if (!state || finishing) return;
     setFinishing(true);
     try {
+      // Resync toutes les réponses depuis localStorage avant finish
+      // (au cas où des appels fire-and-forget ont échoué en cours de route)
+      const raw = localStorage.getItem(stateKey);
+      if (raw) {
+        const saved = JSON.parse(raw);
+        const localAnswers: Record<string, string> = saved.answers || {};
+        await Promise.allSettled(
+          Object.entries(localAnswers).map(([questionId, reponse]) => {
+            if (!reponse) return Promise.resolve();
+            return examenBlancApi.submitAnswer(state.sessionId, { questionId, reponse });
+          })
+        );
+      }
       await examenBlancApi.finish(state.sessionId, tabSwitchesRef.current);
     } catch (err: any) {
       if (!isTestMode) {
