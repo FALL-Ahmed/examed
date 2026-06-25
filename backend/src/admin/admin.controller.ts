@@ -231,4 +231,32 @@ export class AdminController {
   getPdfDownloads(@Query('filename') filename?: string) {
     return this.adminService.getPdfDownloads(filename);
   }
+
+  // ── Fiches Mémo ──
+  @Get('fiches-memo')
+  getFichesMemo() {
+    return this.adminService.getFichesMemo();
+  }
+
+  @Post('fiches-memo')
+  @UseInterceptors(FileInterceptor('file', { storage: memoryStorage() }))
+  async createFicheMemo(
+    @UploadedFile() file: Express.Multer.File,
+    @Body() body: { title: string; target: string },
+  ) {
+    if (!file) throw new BadRequestException('Fichier requis');
+    const fileUrl = await this.storageService.uploadFiche(file);
+    if (!fileUrl) throw new BadRequestException('Erreur upload fichier');
+    return this.adminService.createFicheMemo({ title: body.title, fileUrl, target: body.target });
+  }
+
+  @Put('fiches-memo/:id/toggle-visibility')
+  toggleFicheVisibility(@Param('id') id: string) {
+    return this.adminService.toggleFicheVisibility(id);
+  }
+
+  @Delete('fiches-memo/:id')
+  deleteFicheMemo(@Param('id') id: string) {
+    return this.adminService.deleteFicheMemo(id);
+  }
 }

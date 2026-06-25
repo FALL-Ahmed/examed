@@ -88,6 +88,8 @@ export const userApi = {
   myPayments: () => api.get('/payments/me'),
   trackPdf: (filename: string, source = 'app') => api.post('/users/track-pdf', { filename, source }),
   updateMe: (data: { fullName?: string; gender?: string; phone?: string; wilaya?: string; profession?: string }) => api.patch('/users/me', data),
+  fichesMemo: () => api.get('/users/fiches-memo'),
+  ficheViewUrl: (id: string) => `${API_URL}/users/fiches-memo/${id}/view`,
 };
 
 // Themes
@@ -163,6 +165,7 @@ export const settingsApi = {
   contact: () => api.get('/settings/contact'),
   pricing: () => api.get('/settings/pricing'),
   promo: () => api.get('/settings/promo'),
+  features: () => api.get('/settings/features'),
 };
 
 // Admin
@@ -221,6 +224,16 @@ export const adminApi = {
   freeTrialStats: (params?: { startDate?: string; endDate?: string; compareStart?: string; compareEnd?: string }) =>
     api.get('/admin/free-trial-stats', { params }),
   freePracticeStats: (params?: { startDate?: string; endDate?: string; target?: string }) => api.get('/admin/free-practice-stats', { params }),
+  fichesMemo: () => api.get('/admin/fiches-memo'),
+  createFicheMemo: (file: File, title: string, target: string) => {
+    const fd = new FormData();
+    fd.append('file', file);
+    fd.append('title', title);
+    fd.append('target', target);
+    return api.post('/admin/fiches-memo', fd, { headers: { 'Content-Type': 'multipart/form-data' } });
+  },
+  toggleFicheVisibility: (id: string) => api.put(`/admin/fiches-memo/${id}/toggle-visibility`),
+  deleteFicheMemo: (id: string) => api.delete(`/admin/fiches-memo/${id}`),
 };
 
 export const examenBlancApi = {

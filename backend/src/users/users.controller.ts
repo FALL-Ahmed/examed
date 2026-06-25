@@ -1,4 +1,5 @@
-import { Controller, Get, Post, Patch, Body, Req, UseGuards } from '@nestjs/common';
+import { Controller, Get, Post, Patch, Body, Req, Param, Res, UseGuards, NotFoundException } from '@nestjs/common';
+import { Response } from 'express';
 import { ApiTags, ApiBearerAuth } from '@nestjs/swagger';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { UsersService } from './users.service';
@@ -28,5 +29,18 @@ export class UsersController {
   @Post('track-pdf')
   trackPdf(@Req() req: any, @Body() body: { filename: string; source?: string }) {
     return this.usersService.trackPdfDownload(req.user.sub, body.filename || 'fiche-memo.pdf', body.source || 'app');
+  }
+
+  @Get('fiches-memo')
+  getFichesMemo(@Req() req: any) {
+    return this.usersService.getFichesMemo(req.user.sub);
+  }
+
+  @Get('fiches-memo/:id/view')
+  async viewFiche(@Param('id') id: string, @Req() req: any, @Res() res: Response) {
+    const buffer = await this.usersService.getFicheWatermarked(req.user.sub, id);
+    if (!buffer) throw new NotFoundException('Fiche introuvable');
+    res.set({ 'Content-Type': 'image/*', 'Cache-Control': 'private, max-age=3600', 'X-Content-Type-Options': 'nosniff' });
+    res.end(buffer);
   }
 }

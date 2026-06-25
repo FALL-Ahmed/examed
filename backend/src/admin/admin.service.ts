@@ -1191,4 +1191,22 @@ export class AdminService {
       take: 200,
     });
   }
+
+  async getFichesMemo() {
+    return this.prisma.ficheMemo.findMany({ orderBy: { createdAt: 'desc' } });
+  }
+
+  async createFicheMemo(data: { title: string; fileUrl: string; target: string }) {
+    return this.prisma.ficheMemo.create({ data });
+  }
+
+  async toggleFicheVisibility(id: string) {
+    const f = await this.prisma.ficheMemo.findUnique({ where: { id } });
+    if (!f) return null;
+    return this.prisma.ficheMemo.update({ where: { id }, data: { isVisible: !f.isVisible } });
+  }
+
+  async deleteFicheMemo(id: string) {
+    return this.prisma.ficheMemo.delete({ where: { id } });
+  }
 }

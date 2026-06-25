@@ -6,30 +6,33 @@ import { useAuthStore } from '@/lib/auth-store';
 import { useTheme } from '@/components/ThemeProvider';
 import { useLang } from '@/components/LanguageProvider';
 import { LanguageSwitcher } from '@/components/LanguageSwitcher';
+import { settingsApi } from '@/lib/api';
 import {
-  BookOpen, RefreshCw, Home, LogOut, Zap, Menu, X, TrendingUp, Sun, Moon, HeadphonesIcon, Heart,
+  BookOpen, RefreshCw, Home, LogOut, Zap, Menu, X, TrendingUp, Sun, Moon, HeadphonesIcon, Heart, FileText,
 } from 'lucide-react';
 
 const NAV_ITEMS = [
-  { href: '/dashboard',  icon: Home,           label_key: 'nav.dashboard', color: '#818cf8' },
-  { href: '/practice',   icon: BookOpen,       label_key: 'nav.practice',  color: '#0ea5e9' },
-  { href: '/exam',       icon: Zap,            label_key: 'nav.exam',      color: '#a78bfa' },
-  { href: '/review',     icon: RefreshCw,      label_key: 'nav.review',    color: '#fbbf24' },
-  { href: '/favorites',  icon: Heart,          label_key: 'nav.favorites', color: '#f43f5e' },
-  { href: '/stats',      icon: TrendingUp,     label_key: 'nav.stats',     color: '#38bdf8' },
-  { href: '/support',    icon: HeadphonesIcon, label_key: 'nav.support',   color: '#34d399' },
+  { href: '/dashboard',    icon: Home,           label_key: 'nav.dashboard',   color: '#818cf8' },
+  { href: '/practice',     icon: BookOpen,       label_key: 'nav.practice',    color: '#0ea5e9' },
+  { href: '/exam',         icon: Zap,            label_key: 'nav.exam',        color: '#a78bfa' },
+  { href: '/fiches-memo',  icon: FileText,       label_key: 'nav.fichesMemo',  color: '#10b981' },
+  { href: '/review',       icon: RefreshCw,      label_key: 'nav.review',      color: '#fbbf24' },
+  { href: '/favorites',    icon: Heart,          label_key: 'nav.favorites',   color: '#f43f5e' },
+  { href: '/stats',        icon: TrendingUp,     label_key: 'nav.stats',       color: '#38bdf8' },
+  { href: '/support',      icon: HeadphonesIcon, label_key: 'nav.support',     color: '#34d399' },
 ];
 
-function NavItems({ onNav }: { onNav?: () => void }) {
+function NavItems({ onNav, fichesMemoEnabled }: { onNav?: () => void; fichesMemoEnabled: boolean }) {
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const { t } = useLang();
   const isPracticeResults = pathname.startsWith('/exam/') && searchParams.get('from') === 'practice';
+  const visibleItems = NAV_ITEMS.filter(item => item.href !== '/fiches-memo' || fichesMemoEnabled);
 
   return (
     <nav className="flex-1 px-3 py-3 space-y-0.5 overflow-hidden">
       <p className="text-white/20 text-xs font-semibold uppercase tracking-wider px-3 mb-2">Menu</p>
-      {NAV_ITEMS.map((item) => {
+      {visibleItems.map((item) => {
         const active = isPracticeResults
           ? item.href === '/practice'
           : pathname === item.href || pathname.startsWith(item.href + '/');
@@ -55,6 +58,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   const { t, isRTL } = useLang();
   const [mobileOpen, setMobileOpen] = useState(false);
   const [ready, setReady] = useState(false);
+  const [fichesMemoEnabled, setFichesMemoEnabled] = useState(true);
 
   useEffect(() => {
     loadUser().then(() => {
@@ -64,6 +68,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
       else if (u.role === 'FREE') router.push('/pending');
       else setReady(true);
     });
+    settingsApi.features().then(r => setFichesMemoEnabled(r.data.fichesMemoEnabled)).catch(() => {});
   }, []);
 
   if (!ready || !user) return (
@@ -109,7 +114,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
       {/* Nav — isolé dans Suspense pour useSearchParams */}
       <Suspense fallback={<div className="flex-1" />}>
-        <NavItems onNav={onNav} />
+        <NavItems onNav={onNav} fichesMemoEnabled={fichesMemoEnabled} />
       </Suspense>
 
       {/* Bottom actions */}

@@ -7,7 +7,7 @@ import { attemptsApi, userApi, statsApi } from '@/lib/api';
 import { useLang } from '@/components/LanguageProvider';
 import {
   BookOpen, Zap, RefreshCw, TrendingUp,
-  Clock, ArrowRight, Target, Award, Flame, ChevronRight, AlertTriangle, CalendarCheck, Download, FileText, Trophy,
+  Clock, ArrowRight, Target, Award, Flame, ChevronRight, AlertTriangle, CalendarCheck, FileText, Trophy,
 } from 'lucide-react';
 import { ProfileCompletionModal } from '@/components/ProfileCompletionModal';
 
@@ -46,6 +46,7 @@ export default function DashboardPage() {
   const [streak, setStreak] = useState(0);
   const [weakTheme, setWeakTheme] = useState<{ themeId: string; name: string; avgScore: number; sessions: number } | null>(null);
   const [showProfileModal, setShowProfileModal] = useState(false);
+  const [fichesMemo, setFichesMemo] = useState<any[]>([]);
 
   useEffect(() => {
     userApi.stats().then((r) => setStats(r.data)).catch(() => {});
@@ -70,6 +71,7 @@ export default function DashboardPage() {
     }).catch(() => {});
     statsApi.myRank().then((r) => setMyRank(r.data)).catch(() => {});
     attemptsApi.weakTheme().then((r) => setWeakTheme(r.data)).catch(() => {});
+    userApi.fichesMemo().then((r) => setFichesMemo(r.data)).catch(() => {});
   }, []);
 
   async function startWeakThemePractice() {
@@ -104,41 +106,6 @@ export default function DashboardPage() {
   const subEnd = profile?.subscriptionEnd ? new Date(profile.subscriptionEnd) : null;
   const daysLeft = subEnd ? Math.ceil((subEnd.getTime() - Date.now()) / 86400000) : null;
 
-  const [slideIdx, setSlideIdx] = useState(0);
-  const [fadeIn, setFadeIn] = useState(true);
-  useEffect(() => {
-    const id = setInterval(() => {
-      setFadeIn(false);
-      setTimeout(() => { setSlideIdx(i => (i + 1) % 2); setFadeIn(true); }, 300);
-    }, 10000);
-    return () => clearInterval(id);
-  }, []);
-
-  const SLIDES = [
-    {
-      badge: 'PDF',
-      image: null as string | null,
-      title: isAr
-        ? 'بطاقة المراجعة — احفظها عن ظهر قلب'
-        : 'Fiche mémo — À retenir par cœur',
-      desc: isAr
-        ? 'كل ما يجب حفظه قبل يوم المسابقة — الصيغ، المعايير البيولوجية، المقاييس. حمّل وراجع !'
-        : 'Tout ce que tu dois mémoriser avant le jour J — formules, constantes, scores. Télécharge et révise !',
-      download: '/fiche-memo.pdf' as string | null,
-    },
-    {
-      badge: isAr ? 'جديد' : 'Nouveau',
-      image: '/correction.png' as string | null,
-      title: isAr
-        ? 'طريقة تصحيح جديدة مطابقة لمسابقة التوظيف الوطنية'
-        : 'Nouvelle méthode de correction adaptée au concours national',
-      desc: isAr
-        ? 'يتم التقييم دون أي تدخل بشري. تُمنح نقطة كاملة لكل إجابة صحيحة تماماً. ويُعتمد نظام التنقيط الجزئي التناسبي مع تطبيق غرامة على كل إجابة خاطئة محددة.'
-        : "L'évaluation se fait sans intervention humaine. Un point complet est attribué pour chaque réponse entièrement correcte. Un système de notation partielle proportionnelle est utilisé, avec pénalité pour chaque mauvaise réponse.",
-      download: null as string | null,
-    },
-  ];
-
   return (
     <div className="max-w-5xl mx-auto space-y-6">
 
@@ -171,56 +138,6 @@ export default function DashboardPage() {
         </div>
       </div>
 
-
-      {/* ── Annonces cycliques (10s) ── */}
-      <div
-        className={`overflow-hidden rounded-2xl border border-violet-500/30 bg-gradient-to-b from-violet-500/10 to-indigo-500/10 ${isAr ? 'text-right' : ''}`}
-        style={{ transition: 'opacity 0.3s ease', opacity: fadeIn ? 1 : 0 }}
-      >
-        {SLIDES[slideIdx].image ? (
-          <img src={SLIDES[slideIdx].image!} alt="" className="w-full h-auto object-contain" />
-        ) : SLIDES[slideIdx].download ? (
-          <div className="relative overflow-hidden bg-gradient-to-br from-emerald-500 to-teal-600 px-6 pt-6 pb-4 flex items-center gap-4">
-            <div className="w-14 h-14 rounded-2xl bg-white/20 border border-white/30 flex items-center justify-center flex-shrink-0">
-              <FileText className="w-7 h-7 text-white" />
-            </div>
-            <div className={`flex-1 ${isAr ? 'text-right' : ''}`}>
-              <p className="text-white font-bold text-lg leading-tight">
-                {isAr ? 'الصيغ الطبية الأساسية' : 'Formules & Constantes'}
-              </p>
-              <p className="text-white/70 text-xs mt-0.5">
-                {isAr ? 'ملف PDF · صفحتان' : 'Fichier PDF · 2 pages'}
-              </p>
-            </div>
-            {/* Decorative circles */}
-            <div className="absolute -right-6 -top-6 w-24 h-24 rounded-full bg-white/10" />
-            <div className="absolute -right-2 -bottom-8 w-20 h-20 rounded-full bg-white/10" />
-          </div>
-        ) : null}
-        <div className="p-5 flex flex-col gap-2">
-          <span className={`inline-block w-fit bg-violet-500 text-white text-[10px] font-bold px-2.5 py-0.5 rounded-full uppercase tracking-wider ${isAr ? 'self-end' : ''}`}>
-            {SLIDES[slideIdx].badge}
-          </span>
-          <p className="font-bold text-base leading-snug">{SLIDES[slideIdx].title}</p>
-          <p className="text-sm text-muted-foreground leading-relaxed">{SLIDES[slideIdx].desc}</p>
-          {SLIDES[slideIdx].download && (
-            <a
-              href={SLIDES[slideIdx].download!}
-              download
-className={`inline-flex items-center gap-2 mt-2 w-fit bg-violet-600 hover:bg-violet-700 text-white text-sm font-semibold px-4 py-2 rounded-xl transition ${isAr ? 'flex-row-reverse self-end' : ''}`}
-            >
-              <Download className="w-4 h-4" />
-              {isAr ? 'تحميل الملف' : 'Télécharger le PDF'}
-            </a>
-          )}
-          <div className={`flex gap-1.5 mt-1 ${isAr ? 'justify-end' : ''}`}>
-            {SLIDES.map((_, i) => (
-              <button key={i} onClick={() => { setFadeIn(false); setTimeout(() => { setSlideIdx(i); setFadeIn(true); }, 300); }}
-                className={`w-1.5 h-1.5 rounded-full transition-all ${i === slideIdx ? 'bg-violet-500 w-4' : 'bg-violet-300/50'}`} />
-            ))}
-          </div>
-        </div>
-      </div>
 
       {/* ── Subscription expiry banner ── */}
       {subEnd && daysLeft !== null && daysLeft <= 0 && (
@@ -462,6 +379,37 @@ className={`inline-flex items-center gap-2 mt-2 w-fit bg-violet-600 hover:bg-vio
               <p className="text-xs text-muted-foreground mt-0.5">{s.label}</p>
             </div>
           ))}
+        </div>
+      )}
+
+      {/* ── Fiches Mémo ── */}
+      {fichesMemo.length > 0 && (
+        <div>
+          <h2 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider mb-3">
+            {isAr ? 'بطاقات المراجعة' : 'Fiches mémo pour votre concours'}
+          </h2>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            {fichesMemo.map((f) => (
+              <a
+                key={f.id}
+                href={f.fileUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="group flex items-center gap-3 bg-card border border-border rounded-xl p-4 hover:border-violet-400/50 hover:shadow-md transition-all duration-200"
+              >
+                <div className="w-10 h-10 rounded-xl bg-violet-500/10 border border-violet-500/20 flex items-center justify-center flex-shrink-0">
+                  <FileText className="w-5 h-5 text-violet-500" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="font-semibold text-sm truncate">{f.title}</p>
+                  <p className="text-xs text-muted-foreground mt-0.5">
+                    {isAr ? 'اضغط للتحميل' : 'Appuyer pour télécharger'}
+                  </p>
+                </div>
+                <ChevronRight className="w-4 h-4 text-muted-foreground flex-shrink-0 group-hover:translate-x-0.5 transition-transform" />
+              </a>
+            ))}
+          </div>
         </div>
       )}
 

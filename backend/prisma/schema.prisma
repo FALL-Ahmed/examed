@@ -298,6 +298,17 @@ model FreePracticeEvent {
   @@index([sessionId])
 }
 
+model FicheMemo {
+  id        String   @id @default(cuid())
+  title     String
+  fileUrl   String
+  target    String   // 'INFIRMIER' | 'SAGE_FEMME' | 'BIOLOGISTE' | 'ALL'
+  isVisible Boolean  @default(true)
+  createdAt DateTime @default(now())
+
+  @@index([target])
+}
+
 model ExamenBlanc {
   id             String   @id @default(cuid())
   title          String   @default("Examen Blanc National")

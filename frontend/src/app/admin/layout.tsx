@@ -31,6 +31,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     { href: '/admin/pdf-downloads', icon: Download,      label: 'Téléch. PDF',          badge: false },
     { href: '/admin/examen-blanc',  icon: Trophy,        label: 'Examen Blanc',         badge: false },
     { href: '/admin/leads',         icon: UserSearch,    label: 'Leads',                badge: false },
+    { href: '/admin/fiches-memo',   icon: FileText,      label: 'Fiches Mémo',          badge: false },
   ];
 
   useEffect(() => {

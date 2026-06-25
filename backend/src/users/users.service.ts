@@ -112,4 +112,30 @@ export class UsersService {
   async trackPdfDownload(userId: string, filename: string, source = 'app') {
     return this.prisma.pdfDownload.create({ data: { userId, filename, source } });
   }
+
+  async getFichesMemo(userId: string) {
+    const user = await this.prisma.user.findUnique({ where: { id: userId }, select: { profession: true } });
+    const profession = (user?.profession ?? '').toUpperCase();
+    // Ne jamais exposer fileUrl — retourner seulement l'id, title, target
+    const fiches = await this.prisma.ficheMemo.findMany({
+      where: { isVisible: true, OR: [{ target: 'ALL' }, { target: profession }] },
+      orderBy: { createdAt: 'desc' },
+      select: { id: true, title: true, target: true, createdAt: true },
+    });
+    return fiches;
+  }
+
+  async getFicheWatermarked(userId: string, ficheId: string): Promise<Buffer | null> {
+    const user = await this.prisma.user.findUnique({ where: { id: userId }, select: { profession: true } });
+    const profession = (user?.profession ?? '').toUpperCase();
+
+    const fiche = await this.prisma.ficheMemo.findFirst({
+      where: { id: ficheId, isVisible: true, OR: [{ target: 'ALL' }, { target: profession }] },
+    });
+    if (!fiche) return null;
+
+    const response = await fetch(fiche.fileUrl);
+    if (!response.ok) return null;
+    return Buffer.from(await response.arrayBuffer());
+  }
 }

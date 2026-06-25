@@ -57,6 +57,12 @@ export class SettingsController {
     }));
   }
 
+  @Get('features')
+  async getFeatures() {
+    const fichesMemo = await this.adminService.getSetting('FICHES_MEMO_ENABLED');
+    return { fichesMemoEnabled: fichesMemo !== 'false' }; // activé par défaut
+  }
+
   @Get('promo')
   async getPromo() {
     const [active, discount, endDate, includesGroup, bioActive, bioDiscount, bioEndDate, bioIncludesGroup] = await Promise.all([
