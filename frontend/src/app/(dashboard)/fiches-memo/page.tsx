@@ -1,8 +1,8 @@
 'use client';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState, useCallback } from 'react';
 import { userApi, api } from '@/lib/api';
 import { useLang } from '@/components/LanguageProvider';
-import { FileText, X, ZoomIn } from 'lucide-react';
+import { FileText, X, ZoomIn, ZoomOut, Maximize2 } from 'lucide-react';
 
 function useFicheBlob(ficheId: string | null) {
   const [blobUrl, setBlobUrl] = useState<string | null>(null);
@@ -24,40 +24,171 @@ function useFicheBlob(ficheId: string | null) {
 
 function FicheModal({ f, onClose }: { f: any; onClose: () => void }) {
   const blobUrl = useFicheBlob(f.id);
+  const [scale, setScale] = useState(1);
+  const [pos, setPos] = useState({ x: 0, y: 0 });
+  const stateRef = useRef({ scale: 1, pos: { x: 0, y: 0 } });
+  const dragging = useRef(false);
+  const lastMouse = useRef({ x: 0, y: 0 });
+  const lastDist = useRef(0);
+  const lastMidpoint = useRef({ x: 0, y: 0 });
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  const applyScale = useCallback((nextScale: number, originX = 0, originY = 0) => {
+    const s = Math.min(5, Math.max(1, nextScale));
+    const prev = stateRef.current;
+    const ratio = s / prev.scale;
+    const x = originX + (prev.pos.x - originX) * ratio;
+    const y = originY + (prev.pos.y - originY) * ratio;
+    const next = { scale: s, pos: s === 1 ? { x: 0, y: 0 } : { x, y } };
+    stateRef.current = next;
+    setScale(next.scale);
+    setPos(next.pos);
+  }, []);
+
+  // Wheel zoom (desktop)
+  useEffect(() => {
+    const el = containerRef.current;
+    if (!el) return;
+    const handler = (e: WheelEvent) => {
+      e.preventDefault();
+      const rect = el.getBoundingClientRect();
+      const ox = e.clientX - rect.left - rect.width / 2;
+      const oy = e.clientY - rect.top - rect.height / 2;
+      applyScale(stateRef.current.scale * (1 - e.deltaY * 0.001), ox, oy);
+    };
+    el.addEventListener('wheel', handler, { passive: false });
+    return () => el.removeEventListener('wheel', handler);
+  }, [applyScale]);
+
+  // Touch pinch + pan (mobile) — listeners non-passifs
+  useEffect(() => {
+    const el = containerRef.current;
+    if (!el) return;
+
+    const touchStart = (e: TouchEvent) => {
+      if (e.touches.length === 2) {
+        const dx = e.touches[0].clientX - e.touches[1].clientX;
+        const dy = e.touches[0].clientY - e.touches[1].clientY;
+        lastDist.current = Math.sqrt(dx * dx + dy * dy);
+        lastMidpoint.current = {
+          x: (e.touches[0].clientX + e.touches[1].clientX) / 2,
+          y: (e.touches[0].clientY + e.touches[1].clientY) / 2,
+        };
+      } else if (e.touches.length === 1 && stateRef.current.scale > 1) {
+        dragging.current = true;
+        lastMouse.current = { x: e.touches[0].clientX, y: e.touches[0].clientY };
+      }
+    };
+
+    const touchMove = (e: TouchEvent) => {
+      e.preventDefault();
+      if (e.touches.length === 2) {
+        const dx = e.touches[0].clientX - e.touches[1].clientX;
+        const dy = e.touches[0].clientY - e.touches[1].clientY;
+        const dist = Math.sqrt(dx * dx + dy * dy);
+        const ratio = dist / lastDist.current;
+        lastDist.current = dist;
+        const rect = el.getBoundingClientRect();
+        const mx = (e.touches[0].clientX + e.touches[1].clientX) / 2;
+        const my = (e.touches[0].clientY + e.touches[1].clientY) / 2;
+        const ox = mx - rect.left - rect.width / 2;
+        const oy = my - rect.top - rect.height / 2;
+        applyScale(stateRef.current.scale * ratio, ox, oy);
+      } else if (e.touches.length === 1 && dragging.current) {
+        const dx = e.touches[0].clientX - lastMouse.current.x;
+        const dy = e.touches[0].clientY - lastMouse.current.y;
+        lastMouse.current = { x: e.touches[0].clientX, y: e.touches[0].clientY };
+        const next = { ...stateRef.current, pos: { x: stateRef.current.pos.x + dx, y: stateRef.current.pos.y + dy } };
+        stateRef.current = next;
+        setPos(next.pos);
+      }
+    };
+
+    const touchEnd = () => { dragging.current = false; };
+
+    el.addEventListener('touchstart', touchStart, { passive: false });
+    el.addEventListener('touchmove', touchMove, { passive: false });
+    el.addEventListener('touchend', touchEnd);
+    return () => {
+      el.removeEventListener('touchstart', touchStart);
+      el.removeEventListener('touchmove', touchMove);
+      el.removeEventListener('touchend', touchEnd);
+    };
+  }, [applyScale]);
+
+  const onMouseDown = (e: React.MouseEvent) => {
+    if (stateRef.current.scale <= 1) return;
+    dragging.current = true;
+    lastMouse.current = { x: e.clientX, y: e.clientY };
+  };
+  const onMouseMove = (e: React.MouseEvent) => {
+    if (!dragging.current) return;
+    const dx = e.clientX - lastMouse.current.x;
+    const dy = e.clientY - lastMouse.current.y;
+    lastMouse.current = { x: e.clientX, y: e.clientY };
+    const next = { ...stateRef.current, pos: { x: stateRef.current.pos.x + dx, y: stateRef.current.pos.y + dy } };
+    stateRef.current = next;
+    setPos(next.pos);
+  };
+  const onMouseUp = () => { dragging.current = false; };
+
+  const resetZoom = () => { stateRef.current = { scale: 1, pos: { x: 0, y: 0 } }; setScale(1); setPos({ x: 0, y: 0 }); };
 
   return (
-    <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/85 p-4"
-      onClick={onClose}
-    >
-      <div
-        className="relative max-w-3xl w-full max-h-[90vh] flex flex-col rounded-2xl overflow-hidden bg-black"
-        onClick={(e) => e.stopPropagation()}
-      >
-        <div className="flex items-center justify-between px-4 py-3 bg-black/80">
-          <p className="text-white font-semibold text-sm truncate">{f.title}</p>
-          <button onClick={onClose} className="text-white/60 hover:text-white transition p-1">
-            <X className="w-5 h-5" />
-          </button>
+    <div className="fixed inset-0 z-50 bg-black/90 flex flex-col" onClick={onClose}>
+      <div className="flex flex-col w-full h-full" onClick={(e) => e.stopPropagation()}>
+        {/* Barre titre */}
+        <div className="flex items-center justify-between px-4 py-3 bg-black/80 flex-shrink-0">
+          <p className="text-white font-semibold text-sm truncate max-w-[60%]">{f.title}</p>
+          <div className="flex items-center gap-1">
+            <button onClick={() => applyScale(stateRef.current.scale + 0.5)} className="text-white/60 hover:text-white p-1.5 rounded-lg hover:bg-white/10 transition">
+              <ZoomIn className="w-4 h-4" />
+            </button>
+            <button onClick={() => applyScale(stateRef.current.scale - 0.5)} className="text-white/60 hover:text-white p-1.5 rounded-lg hover:bg-white/10 transition">
+              <ZoomOut className="w-4 h-4" />
+            </button>
+            {scale > 1 && (
+              <button onClick={resetZoom} className="text-white/60 hover:text-white p-1.5 rounded-lg hover:bg-white/10 transition">
+                <Maximize2 className="w-4 h-4" />
+              </button>
+            )}
+            <span className="text-white/30 text-xs w-9 text-center">{Math.round(scale * 100)}%</span>
+            <button onClick={onClose} className="text-white/60 hover:text-white p-1.5 rounded-lg hover:bg-white/10 transition ml-1">
+              <X className="w-5 h-5" />
+            </button>
+          </div>
         </div>
 
+        {/* Zone image zoomable */}
         <div
-          className="overflow-auto flex-1 select-none"
+          ref={containerRef}
+          className="flex-1 overflow-hidden flex items-center justify-center select-none"
+          style={{ cursor: scale > 1 ? 'grab' : 'default', touchAction: 'none' }}
+          onMouseDown={onMouseDown}
+          onMouseMove={onMouseMove}
+          onMouseUp={onMouseUp}
+          onMouseLeave={onMouseUp}
           onContextMenu={(e) => e.preventDefault()}
         >
           {blobUrl ? (
             <img
               src={blobUrl}
               alt={f.title}
-              className="w-full h-auto"
               draggable={false}
               onContextMenu={(e) => e.preventDefault()}
-              style={{ WebkitUserDrag: 'none' } as any}
+              style={{
+                maxWidth: '100%',
+                maxHeight: '100%',
+                objectFit: 'contain',
+                transform: `translate(${pos.x}px, ${pos.y}px) scale(${scale})`,
+                transformOrigin: 'center center',
+                transition: dragging.current ? 'none' : 'transform 0.05s ease-out',
+                WebkitUserDrag: 'none',
+                userSelect: 'none',
+              } as any}
             />
           ) : (
-            <div className="flex items-center justify-center py-20">
-              <div className="w-6 h-6 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-            </div>
+            <div className="w-8 h-8 border-2 border-white/30 border-t-white rounded-full animate-spin" />
           )}
         </div>
       </div>
