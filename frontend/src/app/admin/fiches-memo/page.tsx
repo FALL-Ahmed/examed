@@ -66,11 +66,14 @@ export default function FichesMemoPage() {
   async function handleEdit() {
     if (!editing) return;
     setSaving(true);
+    setError('');
     try {
       const updated = await adminApi.updateFicheMemo(editing.id, { title: editing.title, target: editing.target }).then(r => r.data);
       setFiches(f => f.map(x => x.id === editing.id ? { ...x, ...updated } : x));
       setEditing(null);
-    } catch {} finally { setSaving(false); }
+    } catch (e: any) {
+      setError(e?.response?.data?.message || e?.message || 'Erreur lors de la sauvegarde');
+    } finally { setSaving(false); }
   }
 
   async function handleDelete(id: string) {
@@ -227,6 +230,7 @@ export default function FichesMemoPage() {
             >
               {TARGETS.map(t => <option key={t.value} value={t.value}>{t.label}</option>)}
             </select>
+            {error && <p className="text-sm text-red-500">{error}</p>}
             <div className="flex justify-end gap-2">
               <button onClick={() => setEditing(null)} className="px-4 py-2 rounded-xl text-sm border border-border hover:bg-secondary transition">
                 Annuler
