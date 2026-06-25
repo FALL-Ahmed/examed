@@ -15,7 +15,7 @@ const NAV_ITEMS = [
   { href: '/dashboard',    icon: Home,           label_key: 'nav.dashboard',   color: '#818cf8' },
   { href: '/practice',     icon: BookOpen,       label_key: 'nav.practice',    color: '#0ea5e9' },
   { href: '/exam',         icon: Zap,            label_key: 'nav.exam',        color: '#a78bfa' },
-  { href: '/fiches-memo',  icon: FileText,       label_key: 'nav.fichesMemo',  color: '#10b981' },
+  { href: '/fiches-memo',  icon: FileText,       label_key: 'nav.fichesMemo',  color: '#10b981', badge: 'Nouveau' },
   { href: '/review',       icon: RefreshCw,      label_key: 'nav.review',      color: '#fbbf24' },
   { href: '/favorites',    icon: Heart,          label_key: 'nav.favorites',   color: '#f43f5e' },
   { href: '/stats',        icon: TrendingUp,     label_key: 'nav.stats',       color: '#38bdf8' },
@@ -43,7 +43,12 @@ function NavItems({ onNav, fichesMemoEnabled }: { onNav?: () => void; fichesMemo
             style={active ? { background: `${item.color}18`, borderInlineStart: `3px solid ${item.color}` } : {}}
           >
             <item.icon className="w-4 h-4 flex-shrink-0" style={{ color: active ? item.color : undefined }} />
-            {t(item.label_key as any)}
+            <span className="flex-1">{t(item.label_key as any)}</span>
+            {(item as any).badge && (
+              <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-full bg-emerald-500 text-white leading-none flex-shrink-0">
+                {t('common.new')}
+              </span>
+            )}
           </Link>
         );
       })}

@@ -29,6 +29,7 @@ export const translations = {
 
     // ─── Commun ────────────────────────────────────────────────────────────
     'common.logout': 'Déconnexion',
+    'common.new': 'Nouveau',
     'common.dark': 'Mode sombre',
     'common.light': 'Mode clair',
     'common.member': 'Membre actif',
@@ -379,6 +380,7 @@ export const translations = {
 
     // ─── Commun ────────────────────────────────────────────────────────────
     'common.logout': 'تسجيل الخروج',
+    'common.new': 'جديد',
     'common.dark': 'الوضع الداكن',
     'common.light': 'الوضع الفاتح',
     'common.member': 'عضو نشط',
