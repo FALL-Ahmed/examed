@@ -104,7 +104,8 @@ function FicheCard({ f, isAr, onOpen }: { f: any; isAr: boolean; onOpen: () => v
 }
 
 export default function FichesMemoPage() {
-  const { isAr } = useLang();
+  const { lang } = useLang();
+  const isAr = lang === 'ar';
   const [fiches, setFiches] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [selected, setSelected] = useState<any>(null);
