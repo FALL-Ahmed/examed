@@ -113,14 +113,18 @@ export class UsersService {
     return this.prisma.pdfDownload.create({ data: { userId, filename, source } });
   }
 
-  async getFichesMemo(userId: string) {
+  async getFichesMemo(userId: string, lang?: string) {
     const user = await this.prisma.user.findUnique({ where: { id: userId }, select: { profession: true } });
     const profession = (user?.profession ?? '').toUpperCase();
-    // Ne jamais exposer fileUrl — retourner seulement l'id, title, target
+    const langUpper = (lang ?? 'FR').toUpperCase();
     const fiches = await this.prisma.ficheMemo.findMany({
-      where: { isVisible: true, OR: [{ target: 'ALL' }, { target: profession }] },
+      where: {
+        isVisible: true,
+        lang: langUpper,
+        OR: [{ target: 'ALL' }, { target: profession }],
+      },
       orderBy: { createdAt: 'desc' },
-      select: { id: true, title: true, target: true, createdAt: true },
+      select: { id: true, title: true, target: true, lang: true, createdAt: true },
     });
     return fiches;
   }

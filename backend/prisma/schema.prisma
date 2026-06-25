@@ -303,10 +303,12 @@ model FicheMemo {
   title     String
   fileUrl   String
   target    String   // 'INFIRMIER' | 'SAGE_FEMME' | 'BIOLOGISTE' | 'ALL'
+  lang      String   @default("FR") // 'FR' | 'AR'
   isVisible Boolean  @default(true)
   createdAt DateTime @default(now())
 
   @@index([target])
+  @@index([lang])
 }
 
 model ExamenBlanc {

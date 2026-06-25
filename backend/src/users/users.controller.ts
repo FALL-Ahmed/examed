@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Patch, Body, Req, Param, Res, UseGuards, NotFoundException } from '@nestjs/common';
+import { Controller, Get, Post, Patch, Body, Req, Param, Query, Res, UseGuards, NotFoundException } from '@nestjs/common';
 import { Response } from 'express';
 import { ApiTags, ApiBearerAuth } from '@nestjs/swagger';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
@@ -32,8 +32,8 @@ export class UsersController {
   }
 
   @Get('fiches-memo')
-  getFichesMemo(@Req() req: any) {
-    return this.usersService.getFichesMemo(req.user.sub);
+  getFichesMemo(@Req() req: any, @Query('lang') lang?: string) {
+    return this.usersService.getFichesMemo(req.user.sub, lang);
   }
 
   @Get('fiches-memo/:id/view')

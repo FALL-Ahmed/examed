@@ -242,8 +242,8 @@ export default function FichesMemoPage() {
   const [selected, setSelected] = useState<any>(null);
 
   useEffect(() => {
-    userApi.fichesMemo().then(r => setFiches(r.data)).catch(() => {}).finally(() => setLoading(false));
-  }, []);
+    userApi.fichesMemo(lang.toUpperCase()).then(r => setFiches(r.data)).catch(() => {}).finally(() => setLoading(false));
+  }, [lang]);
 
   return (
     <div className="max-w-5xl mx-auto space-y-6">

@@ -1196,7 +1196,7 @@ export class AdminService {
     return this.prisma.ficheMemo.findMany({ orderBy: { createdAt: 'desc' } });
   }
 
-  async createFicheMemo(data: { title: string; fileUrl: string; target: string }) {
+  async createFicheMemo(data: { title: string; fileUrl: string; target: string; lang?: string }) {
     return this.prisma.ficheMemo.create({ data });
   }
 
@@ -1206,7 +1206,7 @@ export class AdminService {
     return this.prisma.ficheMemo.update({ where: { id }, data: { isVisible: !f.isVisible } });
   }
 
-  async updateFicheMemo(id: string, data: { title?: string; target?: string }) {
+  async updateFicheMemo(id: string, data: { title?: string; target?: string; lang?: string }) {
     return this.prisma.ficheMemo.update({ where: { id }, data });
   }
 

@@ -242,16 +242,16 @@ export class AdminController {
   @UseInterceptors(FileInterceptor('file', { storage: memoryStorage() }))
   async createFicheMemo(
     @UploadedFile() file: Express.Multer.File,
-    @Body() body: { title: string; target: string },
+    @Body() body: { title: string; target: string; lang: string },
   ) {
     if (!file) throw new BadRequestException('Fichier requis');
     const fileUrl = await this.storageService.uploadFiche(file);
     if (!fileUrl) throw new BadRequestException('Erreur upload fichier');
-    return this.adminService.createFicheMemo({ title: body.title, fileUrl, target: body.target });
+    return this.adminService.createFicheMemo({ title: body.title, fileUrl, target: body.target, lang: body.lang || 'FR' });
   }
 
   @Patch('fiches-memo/:id')
-  updateFicheMemo(@Param('id') id: string, @Body() body: { title?: string; target?: string }) {
+  updateFicheMemo(@Param('id') id: string, @Body() body: { title?: string; target?: string; lang?: string }) {
     return this.adminService.updateFicheMemo(id, body);
   }
 

@@ -88,7 +88,7 @@ export const userApi = {
   myPayments: () => api.get('/payments/me'),
   trackPdf: (filename: string, source = 'app') => api.post('/users/track-pdf', { filename, source }),
   updateMe: (data: { fullName?: string; gender?: string; phone?: string; wilaya?: string; profession?: string }) => api.patch('/users/me', data),
-  fichesMemo: () => api.get('/users/fiches-memo'),
+  fichesMemo: (lang: string) => api.get('/users/fiches-memo', { params: { lang } }),
   ficheViewUrl: (id: string) => `${API_URL}/users/fiches-memo/${id}/view`,
 };
 
@@ -225,14 +225,15 @@ export const adminApi = {
     api.get('/admin/free-trial-stats', { params }),
   freePracticeStats: (params?: { startDate?: string; endDate?: string; target?: string }) => api.get('/admin/free-practice-stats', { params }),
   fichesMemo: () => api.get('/admin/fiches-memo'),
-  createFicheMemo: (file: File, title: string, target: string) => {
+  createFicheMemo: (file: File, title: string, target: string, lang = 'FR') => {
     const fd = new FormData();
     fd.append('file', file);
     fd.append('title', title);
     fd.append('target', target);
+    fd.append('lang', lang);
     return api.post('/admin/fiches-memo', fd, { headers: { 'Content-Type': 'multipart/form-data' } });
   },
-  updateFicheMemo: (id: string, data: { title?: string; target?: string }) => api.patch(`/admin/fiches-memo/${id}`, data),
+  updateFicheMemo: (id: string, data: { title?: string; target?: string; lang?: string }) => api.patch(`/admin/fiches-memo/${id}`, data),
   toggleFicheVisibility: (id: string) => api.put(`/admin/fiches-memo/${id}/toggle-visibility`),
   deleteFicheMemo: (id: string) => api.delete(`/admin/fiches-memo/${id}`),
 };
