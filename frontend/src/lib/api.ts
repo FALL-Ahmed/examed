@@ -232,6 +232,7 @@ export const adminApi = {
     fd.append('target', target);
     return api.post('/admin/fiches-memo', fd, { headers: { 'Content-Type': 'multipart/form-data' } });
   },
+  updateFicheMemo: (id: string, data: { title?: string; target?: string }) => api.patch(`/admin/fiches-memo/${id}`, data),
   toggleFicheVisibility: (id: string) => api.put(`/admin/fiches-memo/${id}/toggle-visibility`),
   deleteFicheMemo: (id: string) => api.delete(`/admin/fiches-memo/${id}`),
 };

@@ -1206,6 +1206,10 @@ export class AdminService {
     return this.prisma.ficheMemo.update({ where: { id }, data: { isVisible: !f.isVisible } });
   }
 
+  async updateFicheMemo(id: string, data: { title?: string; target?: string }) {
+    return this.prisma.ficheMemo.update({ where: { id }, data });
+  }
+
   async deleteFicheMemo(id: string) {
     return this.prisma.ficheMemo.delete({ where: { id } });
   }

@@ -1,7 +1,7 @@
 'use client';
 import { useEffect, useRef, useState } from 'react';
 import { adminApi, settingsApi } from '@/lib/api';
-import { FileText, Upload, Trash2, Plus, Loader2, Eye, EyeOff } from 'lucide-react';
+import { FileText, Upload, Trash2, Plus, Loader2, Eye, EyeOff, Pencil, Check, X } from 'lucide-react';
 
 const TARGETS = [
   { value: 'ALL',        label: 'Toutes professions' },
@@ -20,6 +20,8 @@ export default function FichesMemoPage() {
   const [error, setError] = useState('');
   const [menuEnabled, setMenuEnabled] = useState(true);
   const [togglingMenu, setTogglingMenu] = useState(false);
+  const [editing, setEditing] = useState<{ id: string; title: string; target: string } | null>(null);
+  const [saving, setSaving] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
 
   function load() {
@@ -59,6 +61,16 @@ export default function FichesMemoPage() {
   async function handleToggle(id: string) {
     const updated = await adminApi.toggleFicheVisibility(id).then(r => r.data).catch(() => null);
     if (updated) setFiches(f => f.map(x => x.id === id ? { ...x, isVisible: updated.isVisible } : x));
+  }
+
+  async function handleEdit() {
+    if (!editing) return;
+    setSaving(true);
+    try {
+      const updated = await adminApi.updateFicheMemo(editing.id, { title: editing.title, target: editing.target }).then(r => r.data);
+      setFiches(f => f.map(x => x.id === editing.id ? { ...x, ...updated } : x));
+      setEditing(null);
+    } catch {} finally { setSaving(false); }
   }
 
   async function handleDelete(id: string) {
@@ -160,14 +172,14 @@ export default function FichesMemoPage() {
                   {TARGETS.find(t => t.value === f.target)?.label ?? f.target} · {new Date(f.createdAt).toLocaleDateString('fr-FR')}
                 </p>
               </div>
-              <a
-                href={f.fileUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-xs text-primary hover:underline flex-shrink-0"
+              {/* Modifier */}
+              <button
+                onClick={() => setEditing({ id: f.id, title: f.title, target: f.target })}
+                title="Modifier"
+                className="p-1.5 rounded-lg hover:bg-secondary text-muted-foreground hover:text-foreground transition flex-shrink-0"
               >
-                Voir
-              </a>
+                <Pencil className="w-4 h-4" />
+              </button>
               {/* Toggle visible/masqué */}
               <button
                 onClick={() => handleToggle(f.id)}
@@ -188,6 +200,47 @@ export default function FichesMemoPage() {
               </button>
             </div>
           ))}
+        </div>
+      )}
+
+      {/* Modale édition */}
+      {editing && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4" onClick={() => setEditing(null)}>
+          <div className="bg-card border border-border rounded-2xl p-5 w-full max-w-md space-y-4 shadow-xl" onClick={e => e.stopPropagation()}>
+            <div className="flex items-center justify-between">
+              <p className="font-bold text-base">Modifier la fiche</p>
+              <button onClick={() => setEditing(null)} className="text-muted-foreground hover:text-foreground p-1">
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+            <input
+              type="text"
+              value={editing.title}
+              onChange={e => setEditing(ed => ed ? { ...ed, title: e.target.value } : ed)}
+              placeholder="Titre"
+              className="w-full border border-border rounded-xl px-3 py-2 text-sm bg-background focus:outline-none focus:ring-2 focus:ring-primary"
+            />
+            <select
+              value={editing.target}
+              onChange={e => setEditing(ed => ed ? { ...ed, target: e.target.value } : ed)}
+              className="w-full border border-border rounded-xl px-3 py-2 text-sm bg-background focus:outline-none focus:ring-2 focus:ring-primary"
+            >
+              {TARGETS.map(t => <option key={t.value} value={t.value}>{t.label}</option>)}
+            </select>
+            <div className="flex justify-end gap-2">
+              <button onClick={() => setEditing(null)} className="px-4 py-2 rounded-xl text-sm border border-border hover:bg-secondary transition">
+                Annuler
+              </button>
+              <button
+                onClick={handleEdit}
+                disabled={saving || !editing.title.trim()}
+                className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold text-white gradient-primary disabled:opacity-50 transition"
+              >
+                {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Check className="w-4 h-4" />}
+                Enregistrer
+              </button>
+            </div>
+          </div>
         </div>
       )}
     </div>

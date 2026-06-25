@@ -1,6 +1,6 @@
 import 'multer';
 import {
-  Controller, Get, Post, Put, Delete, Body, Param, Query, Req, UseGuards,
+  Controller, Get, Post, Put, Patch, Delete, Body, Param, Query, Req, UseGuards,
   UploadedFile, UseInterceptors, BadRequestException,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
@@ -248,6 +248,11 @@ export class AdminController {
     const fileUrl = await this.storageService.uploadFiche(file);
     if (!fileUrl) throw new BadRequestException('Erreur upload fichier');
     return this.adminService.createFicheMemo({ title: body.title, fileUrl, target: body.target });
+  }
+
+  @Patch('fiches-memo/:id')
+  updateFicheMemo(@Param('id') id: string, @Body() body: { title?: string; target?: string }) {
+    return this.adminService.updateFicheMemo(id, body);
   }
 
   @Put('fiches-memo/:id/toggle-visibility')
