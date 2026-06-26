@@ -138,8 +138,17 @@ function FicheModal({ f, onClose }: { f: any; onClose: () => void }) {
   const resetZoom = () => { stateRef.current = { scale: 1, pos: { x: 0, y: 0 } }; setScale(1); setPos({ x: 0, y: 0 }); };
 
   return (
-    <div className="fixed inset-0 z-50 bg-black/90 flex flex-col" style={{ height: '100dvh' }} onClick={onClose}>
-      <div className="flex flex-col w-full" style={{ height: '100dvh' }} onClick={(e) => e.stopPropagation()}>
+    <div
+      className="fixed inset-0 z-50 bg-black flex flex-col"
+      style={{
+        paddingTop: 'env(safe-area-inset-top)',
+        paddingBottom: 'env(safe-area-inset-bottom)',
+        paddingLeft: 'env(safe-area-inset-left)',
+        paddingRight: 'env(safe-area-inset-right)',
+      }}
+      onClick={onClose}
+    >
+      <div className="flex flex-col w-full h-full" onClick={(e) => e.stopPropagation()}>
         {/* Barre titre */}
         <div className="flex items-center justify-between px-4 py-3 bg-black/80 flex-shrink-0">
           <p className="text-white font-semibold text-sm truncate max-w-[60%]">{f.title}</p>
