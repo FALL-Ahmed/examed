@@ -138,22 +138,28 @@ export default function DashboardPage() {
 
 
       {/* ── Fiches Mémo promo ── */}
-      <div className="flex items-center gap-4 rounded-2xl px-5 py-4 border border-emerald-500/30 bg-emerald-500/10">
-        <div className="w-10 h-10 rounded-xl bg-emerald-500/20 flex items-center justify-center flex-shrink-0">
-          <span className="text-xl">📋</span>
+      <div className="rounded-2xl overflow-hidden" style={{ background: 'linear-gradient(135deg, #065f46 0%, #047857 50%, #059669 100%)' }}>
+        <div className="px-6 py-5 flex flex-col sm:flex-row sm:items-center gap-4">
+          <div className="flex-1">
+            <div className="flex items-center gap-2 mb-1">
+              <span className="text-xs font-bold bg-white/20 text-white px-2 py-0.5 rounded-full uppercase tracking-wide">
+                {isAr ? 'جديد' : 'Nouveau'}
+              </span>
+            </div>
+            <h2 className="text-white font-bold text-lg md:text-xl leading-tight">
+              {isAr ? '📋 بطاقات المراجعة متاحة الآن !' : '📋 Fiches Mémo disponibles !'}
+            </h2>
+            <p className="text-white/70 text-sm mt-1">
+              {isAr
+                ? 'كل ما تحتاج حفظه قبل يوم المسابقة — بالفرنسية والعربية'
+                : 'Tout ce qu\'il faut retenir avant le concours — en FR et AR'}
+            </p>
+          </div>
+          <Link href="/fiches-memo"
+            className="flex-shrink-0 flex items-center gap-2 bg-white text-emerald-700 font-bold px-5 py-3 rounded-xl text-sm hover:bg-white/90 transition shadow-lg">
+            {isAr ? 'اكتشف الآن' : 'Découvrir'} <ArrowRight className="w-4 h-4" />
+          </Link>
         </div>
-        <div className="flex-1 min-w-0">
-          <p className="font-semibold text-sm text-emerald-400">
-            {isAr ? '🆕 بطاقات المراجعة متاحة الآن !' : '🆕 Fiches Mémo disponibles !'}
-          </p>
-          <p className="text-xs text-muted-foreground mt-0.5">
-            {isAr ? 'كل ما تحتاج حفظه قبل يوم المسابقة' : 'Tout ce qu\'il faut retenir avant le concours'}
-          </p>
-        </div>
-        <Link href="/fiches-memo"
-          className="flex-shrink-0 flex items-center gap-1.5 bg-emerald-500 hover:bg-emerald-600 text-white text-xs font-semibold px-3 py-2 rounded-xl transition">
-          {isAr ? 'اكتشف' : 'Découvrir'} <ArrowRight className="w-3 h-3" />
-        </Link>
       </div>
 
       {/* ── Subscription expiry banner ── */}
