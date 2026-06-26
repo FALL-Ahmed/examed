@@ -151,8 +151,8 @@ export default function DashboardPage() {
             </h2>
             <p className="text-white/70 text-sm mt-1">
               {isAr
-                ? 'كل ما تحتاج حفظه قبل يوم المسابقة — بالفرنسية والعربية'
-                : 'Tout ce qu\'il faut retenir avant le concours — en FR et AR'}
+                ? 'كل ما تحتاج حفظه قبل يوم المسابقة'
+                : 'Tout ce qu\'il faut retenir avant le concours'}
             </p>
           </div>
           <Link href="/fiches-memo"
