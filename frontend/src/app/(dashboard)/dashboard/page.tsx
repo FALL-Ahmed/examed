@@ -7,7 +7,7 @@ import { attemptsApi, userApi, statsApi } from '@/lib/api';
 import { useLang } from '@/components/LanguageProvider';
 import {
   BookOpen, Zap, RefreshCw, TrendingUp,
-  Clock, ArrowRight, Target, Award, Flame, ChevronRight, AlertTriangle, CalendarCheck, FileText, Trophy,
+  Clock, ArrowRight, Target, Award, Flame, ChevronRight, AlertTriangle, CalendarCheck,
 } from 'lucide-react';
 import { ProfileCompletionModal } from '@/components/ProfileCompletionModal';
 
@@ -46,7 +46,6 @@ export default function DashboardPage() {
   const [streak, setStreak] = useState(0);
   const [weakTheme, setWeakTheme] = useState<{ themeId: string; name: string; avgScore: number; sessions: number } | null>(null);
   const [showProfileModal, setShowProfileModal] = useState(false);
-  const [fichesMemo, setFichesMemo] = useState<any[]>([]);
 
   useEffect(() => {
     userApi.stats().then((r) => setStats(r.data)).catch(() => {});
@@ -71,7 +70,6 @@ export default function DashboardPage() {
     }).catch(() => {});
     statsApi.myRank().then((r) => setMyRank(r.data)).catch(() => {});
     attemptsApi.weakTheme().then((r) => setWeakTheme(r.data)).catch(() => {});
-    userApi.fichesMemo().then((r) => setFichesMemo(r.data)).catch(() => {});
   }, []);
 
   async function startWeakThemePractice() {
@@ -379,37 +377,6 @@ export default function DashboardPage() {
               <p className="text-xs text-muted-foreground mt-0.5">{s.label}</p>
             </div>
           ))}
-        </div>
-      )}
-
-      {/* ── Fiches Mémo ── */}
-      {fichesMemo.length > 0 && (
-        <div>
-          <h2 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider mb-3">
-            {isAr ? 'بطاقات المراجعة' : 'Fiches mémo pour votre concours'}
-          </h2>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            {fichesMemo.map((f) => (
-              <a
-                key={f.id}
-                href={f.fileUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="group flex items-center gap-3 bg-card border border-border rounded-xl p-4 hover:border-violet-400/50 hover:shadow-md transition-all duration-200"
-              >
-                <div className="w-10 h-10 rounded-xl bg-violet-500/10 border border-violet-500/20 flex items-center justify-center flex-shrink-0">
-                  <FileText className="w-5 h-5 text-violet-500" />
-                </div>
-                <div className="flex-1 min-w-0">
-                  <p className="font-semibold text-sm truncate">{f.title}</p>
-                  <p className="text-xs text-muted-foreground mt-0.5">
-                    {isAr ? 'اضغط للتحميل' : 'Appuyer pour télécharger'}
-                  </p>
-                </div>
-                <ChevronRight className="w-4 h-4 text-muted-foreground flex-shrink-0 group-hover:translate-x-0.5 transition-transform" />
-              </a>
-            ))}
-          </div>
         </div>
       )}
 
