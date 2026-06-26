@@ -135,8 +135,8 @@ function FicheModal({ f, onClose }: { f: any; onClose: () => void }) {
   const resetZoom = () => { stateRef.current = { scale: 1, pos: { x: 0, y: 0 } }; setScale(1); setPos({ x: 0, y: 0 }); };
 
   return (
-    <div className="fixed inset-0 z-50 bg-black/90 flex flex-col" onClick={onClose}>
-      <div className="flex flex-col w-full h-full" onClick={(e) => e.stopPropagation()}>
+    <div className="fixed inset-0 z-50 bg-black/90 flex flex-col" style={{ height: '100dvh' }} onClick={onClose}>
+      <div className="flex flex-col w-full" style={{ height: '100dvh' }} onClick={(e) => e.stopPropagation()}>
         {/* Barre titre */}
         <div className="flex items-center justify-between px-4 py-3 bg-black/80 flex-shrink-0">
           <p className="text-white font-semibold text-sm truncate max-w-[60%]">{f.title}</p>
@@ -162,7 +162,7 @@ function FicheModal({ f, onClose }: { f: any; onClose: () => void }) {
         {/* Zone image zoomable */}
         <div
           ref={containerRef}
-          className="flex-1 overflow-hidden flex items-center justify-center select-none"
+          className="flex-1 min-h-0 overflow-hidden flex items-center justify-center select-none"
           style={{ cursor: scale > 1 ? 'grab' : 'default', touchAction: 'none' }}
           onMouseDown={onMouseDown}
           onMouseMove={onMouseMove}
