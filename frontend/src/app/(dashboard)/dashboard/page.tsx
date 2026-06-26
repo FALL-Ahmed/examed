@@ -137,6 +137,25 @@ export default function DashboardPage() {
       </div>
 
 
+      {/* ── Fiches Mémo promo ── */}
+      <div className="flex items-center gap-4 rounded-2xl px-5 py-4 border border-emerald-500/30 bg-emerald-500/10">
+        <div className="w-10 h-10 rounded-xl bg-emerald-500/20 flex items-center justify-center flex-shrink-0">
+          <span className="text-xl">📋</span>
+        </div>
+        <div className="flex-1 min-w-0">
+          <p className="font-semibold text-sm text-emerald-400">
+            {isAr ? '🆕 بطاقات المراجعة متاحة الآن !' : '🆕 Fiches Mémo disponibles !'}
+          </p>
+          <p className="text-xs text-muted-foreground mt-0.5">
+            {isAr ? 'كل ما تحتاج حفظه قبل يوم المسابقة' : 'Tout ce qu\'il faut retenir avant le concours'}
+          </p>
+        </div>
+        <Link href="/fiches-memo"
+          className="flex-shrink-0 flex items-center gap-1.5 bg-emerald-500 hover:bg-emerald-600 text-white text-xs font-semibold px-3 py-2 rounded-xl transition">
+          {isAr ? 'اكتشف' : 'Découvrir'} <ArrowRight className="w-3 h-3" />
+        </Link>
+      </div>
+
       {/* ── Subscription expiry banner ── */}
       {subEnd && daysLeft !== null && daysLeft <= 0 && (
         <div className="flex items-center gap-3 rounded-2xl px-5 py-4 border bg-red-500/10 border-red-500/30 text-red-400">
