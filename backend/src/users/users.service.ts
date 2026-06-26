@@ -115,7 +115,14 @@ export class UsersService {
 
   async getFichesMemo(userId: string, lang?: string) {
     const user = await this.prisma.user.findUnique({ where: { id: userId }, select: { profession: true } });
-    const profession = (user?.profession ?? '').toUpperCase();
+    const rawProf = (user?.profession ?? '').toLowerCase();
+    const PROF_MAP: Record<string, string> = {
+      etudiant_infirmier: 'INFIRMIER',
+      infirmier: 'INFIRMIER',
+      sage_femme: 'SAGE_FEMME',
+      biologiste: 'BIOLOGISTE',
+    };
+    const profession = PROF_MAP[rawProf] ?? rawProf.toUpperCase();
     const langUpper = (lang ?? 'FR').toUpperCase();
     const fiches = await this.prisma.ficheMemo.findMany({
       where: {
@@ -131,7 +138,14 @@ export class UsersService {
 
   async getFicheWatermarked(userId: string, ficheId: string): Promise<Buffer | null> {
     const user = await this.prisma.user.findUnique({ where: { id: userId }, select: { profession: true } });
-    const profession = (user?.profession ?? '').toUpperCase();
+    const rawProf = (user?.profession ?? '').toLowerCase();
+    const PROF_MAP: Record<string, string> = {
+      etudiant_infirmier: 'INFIRMIER',
+      infirmier: 'INFIRMIER',
+      sage_femme: 'SAGE_FEMME',
+      biologiste: 'BIOLOGISTE',
+    };
+    const profession = PROF_MAP[rawProf] ?? rawProf.toUpperCase();
 
     const fiche = await this.prisma.ficheMemo.findFirst({
       where: { id: ficheId, isVisible: true, OR: [{ target: 'ALL' }, { target: profession }] },
