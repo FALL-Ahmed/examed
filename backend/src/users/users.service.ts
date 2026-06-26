@@ -162,4 +162,40 @@ export class UsersService {
     if (!response.ok) return null;
     return Buffer.from(await response.arrayBuffer());
   }
+
+  async getFicheThumbnail(userId: string, ficheId: string): Promise<{ buffer: Buffer; contentType: string } | null> {
+    const user = await this.prisma.user.findUnique({ where: { id: userId }, select: { profession: true } });
+    const rawProf = (user?.profession ?? '').toLowerCase();
+    const PROF_MAP: Record<string, string> = {
+      etudiant_infirmier: 'INFIRMIER',
+      etudiant_infirmier_3eme: 'INFIRMIER',
+      infirmier: 'INFIRMIER',
+      infirmier_diplome: 'INFIRMIER',
+      aide_soignant: 'INFIRMIER',
+      sage_femme: 'SAGE_FEMME',
+      biologiste: 'BIOLOGISTE',
+    };
+    const profession = PROF_MAP[rawProf] ?? rawProf.toUpperCase();
+
+    const fiche = await this.prisma.ficheMemo.findFirst({
+      where: { id: ficheId, isVisible: true, OR: [{ target: 'ALL' }, { target: profession }] },
+    });
+    if (!fiche) return null;
+
+    const response = await fetch(fiche.fileUrl);
+    if (!response.ok) return null;
+    const original = Buffer.from(await response.arrayBuffer());
+
+    try {
+      // eslint-disable-next-line @typescript-eslint/no-var-requires
+      const sharp = require('sharp');
+      const compressed = await sharp(original)
+        .resize({ width: 600, withoutEnlargement: true })
+        .webp({ quality: 70 })
+        .toBuffer();
+      return { buffer: compressed, contentType: 'image/webp' };
+    } catch {
+      return { buffer: original, contentType: 'image/jpeg' };
+    }
+  }
 }

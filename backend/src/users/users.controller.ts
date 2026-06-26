@@ -40,7 +40,15 @@ export class UsersController {
   async viewFiche(@Param('id') id: string, @Req() req: any, @Res() res: Response) {
     const buffer = await this.usersService.getFicheWatermarked(req.user.sub, id);
     if (!buffer) throw new NotFoundException('Fiche introuvable');
-    res.set({ 'Content-Type': 'image/*', 'Cache-Control': 'private, max-age=3600', 'X-Content-Type-Options': 'nosniff' });
+    res.set({ 'Content-Type': 'image/jpeg', 'Cache-Control': 'private, max-age=3600', 'X-Content-Type-Options': 'nosniff' });
     res.end(buffer);
+  }
+
+  @Get('fiches-memo/:id/thumb')
+  async thumbFiche(@Param('id') id: string, @Req() req: any, @Res() res: Response) {
+    const result = await this.usersService.getFicheThumbnail(req.user.sub, id);
+    if (!result) throw new NotFoundException('Fiche introuvable');
+    res.set({ 'Content-Type': result.contentType, 'Cache-Control': 'private, max-age=86400', 'X-Content-Type-Options': 'nosniff' });
+    res.end(result.buffer);
   }
 }

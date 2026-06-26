@@ -4,20 +4,23 @@ import { userApi, api } from '@/lib/api';
 import { useLang } from '@/components/LanguageProvider';
 import { FileText, X, ZoomIn, ZoomOut, Maximize2 } from 'lucide-react';
 
-function useFicheBlob(ficheId: string | null) {
+function useFicheBlob(ficheId: string | null, thumb = false) {
   const [blobUrl, setBlobUrl] = useState<string | null>(null);
 
   useEffect(() => {
     if (!ficheId) return;
     let url: string | null = null;
-    api.get(`/users/fiches-memo/${ficheId}/view`, { responseType: 'blob' })
+    const endpoint = thumb
+      ? `/users/fiches-memo/${ficheId}/thumb`
+      : `/users/fiches-memo/${ficheId}/view`;
+    api.get(endpoint, { responseType: 'blob' })
       .then(r => {
         url = URL.createObjectURL(r.data);
         setBlobUrl(url);
       })
       .catch(() => {});
     return () => { if (url) URL.revokeObjectURL(url); };
-  }, [ficheId]);
+  }, [ficheId, thumb]);
 
   return blobUrl;
 }
@@ -197,10 +200,22 @@ function FicheModal({ f, onClose }: { f: any; onClose: () => void }) {
 }
 
 function FicheCard({ f, isAr, onOpen }: { f: any; isAr: boolean; onOpen: () => void }) {
-  const blobUrl = useFicheBlob(f.id);
+  const cardRef = useRef<HTMLDivElement>(null);
+  const [visible, setVisible] = useState(false);
+  const blobUrl = useFicheBlob(visible ? f.id : null, true);
+
+  useEffect(() => {
+    const el = cardRef.current;
+    if (!el) return;
+    const obs = new IntersectionObserver(([entry]) => {
+      if (entry.isIntersecting) { setVisible(true); obs.disconnect(); }
+    }, { rootMargin: '300px' });
+    obs.observe(el);
+    return () => obs.disconnect();
+  }, []);
 
   return (
-    <div className="bg-card border border-border rounded-2xl overflow-hidden flex flex-col hover:shadow-md hover:border-emerald-400/40 transition-all duration-200">
+    <div ref={cardRef} className="bg-card border border-border rounded-2xl overflow-hidden flex flex-col hover:shadow-md hover:border-emerald-400/40 transition-all duration-200">
       <button
         onClick={onOpen}
         className="w-full aspect-[4/3] bg-secondary overflow-hidden flex items-center justify-center relative group"
