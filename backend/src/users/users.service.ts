@@ -118,7 +118,10 @@ export class UsersService {
     const rawProf = (user?.profession ?? '').toLowerCase();
     const PROF_MAP: Record<string, string> = {
       etudiant_infirmier: 'INFIRMIER',
+      etudiant_infirmier_3eme: 'INFIRMIER',
       infirmier: 'INFIRMIER',
+      infirmier_diplome: 'INFIRMIER',
+      aide_soignant: 'INFIRMIER',
       sage_femme: 'SAGE_FEMME',
       biologiste: 'BIOLOGISTE',
     };
@@ -141,7 +144,10 @@ export class UsersService {
     const rawProf = (user?.profession ?? '').toLowerCase();
     const PROF_MAP: Record<string, string> = {
       etudiant_infirmier: 'INFIRMIER',
+      etudiant_infirmier_3eme: 'INFIRMIER',
       infirmier: 'INFIRMIER',
+      infirmier_diplome: 'INFIRMIER',
+      aide_soignant: 'INFIRMIER',
       sage_femme: 'SAGE_FEMME',
       biologiste: 'BIOLOGISTE',
     };
