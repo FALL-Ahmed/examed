@@ -692,28 +692,46 @@ export class ExamenBlancService {
     if (target === 'BIOLOGISTE') {
       // Quotas fixes par sous-thème — total = 60 questions
       const BIO_QUOTAS: Record<string, number> = {
-        // Biochimie
-        'ÉLECTROLYTES ET ÉLÉMENTS MINÉRAUX':                    4,
-        // Hématologie
-        'LE PRÉLÈVEMENT SANGUIN':                               4,
-        'GÉNÉRALITÉS ET PRÉLÈVEMENTS':                          4,
-        'HÉMOGLOBINE ET CONSTANTES':                            6,
-        // Procédures générales
-        'MESURE ET DISTRIBUTION DES LIQUIDES':                  4,
-        // Bactériologie
-        'GÉNÉRALITÉS, PRÉLÈVEMENTS ET COLORATIONS DE BASE':     4,
-        'DIAGNOSTIC DE LA TUBERCULOSE ET DE LA LÈPRE':         4,
-        // Parasitologie
-        'GÉNÉRALITÉS':                                          4,
-        'PARASITES DU SANG, DE LA PEAU ET DES URINES':         6,
-        // Biologie moléculaire
-        'STRUCTURES ET PROPRIÉTÉS DES ACIDES NUCLÉIQUES':      5,
-        'ÉLECTROPHORÈSE':                                       5,
-        'PCR':                                                  4,
-        // Génétique
-        'GÉNIE GÉNÉTIQUE':                                      3,
-        // Virologie
-        'NATURE, STRUCTURE ET STABILITÉ DES VIRUS':             3,
+        // Hématologie — 9Q
+        'QUALIFICATION BIOLOGIQUE DU DON':                                    5,
+        'HÉMOSTASE ET COAGULATION':                                           4,
+        // Biochimie — 10Q (1Q par sous-thème)
+        'ANALYSES QUALITATIVES DES URINES':                                   1,
+        'BILAN HÉPATIQUE ET BILIRUBINE':                                      1,
+        'BILAN LIPIDIQUE (CHOLESTÉROL ET TRIGLYCÉRIDES)':                     1,
+        'CALCULS ET UNITÉS (SYSTÈME INTERNATIONAL)':                          1,
+        'ENZYMOLOGIE CLINIQUE':                                               1,
+        'FONCTION RÉNALE (URÉE, CRÉATININE, ACIDE URIQUE)':                  1,
+        'GÉNÉRALITÉS ET CONDITIONS DE PRÉLÈVEMENT':                           1,
+        'MÉTABOLISME DES GLUCIDES (GLUCOSE)':                                 1,
+        'PROTÉINES ET ALBUMINE':                                              1,
+        'ÉLECTROLYTES ET ÉLÉMENTS MINÉRAUX':                                  1,
+        // Immunologie / Sérologie — 2Q
+        'GROUPES SANGUINS ET TRANSFUSION (SÉROLOGIE ÉRYTHROCYTAIRE)':        1,
+        'TESTS SÉROLOGIQUES (AGGLUTINATION ET PRÉCIPITATION)':                1,
+        // Bactériologie — 10Q
+        'HÉMOCULTURE ET SÉROLOGIE':                                           3,
+        'EXAMEN CYTO-BACTÉRIOLOGIQUE DES URINES (ECBU) ET DU LCR':          4,
+        'COPROCULTURE ET PATHOGÈNES ÉPIDÉMIQUES':                             3,
+        // Parasitologie — 8Q
+        'GÉNÉRALITÉS':                                                        4,
+        'PARASITES DU SANG, DE LA PEAU ET DES URINES':                       4,
+        // Procédures générales — 3Q
+        'MESURE ET DISTRIBUTION DES LIQUIDES':                                1,
+        'CENTRIFUGATION':                                                     1,
+        'UTILISATION DU MICROSCOPE':                                          1,
+        // Biologie moléculaire — 7Q
+        'STRUCTURES ET PROPRIÉTÉS DES ACIDES NUCLÉIQUES':                    2,
+        'LA RÉPLICATION DE L\'ADN':                                           2,
+        'TRANSCRIPTION':                                                      1,
+        'MATURATION DES ARN':                                                 1,
+        'LA TRADUCTION':                                                      1,
+        // Techniques de biologie moléculaire — 8Q
+        'ÉLECTROPHORÈSE':                                                     2,
+        'PCR':                                                                3,
+        'EXTRACTION ET PURIFICATION DES ACIDES NUCLÉIQUES':                  3,
+        // Virologie — 3Q
+        'TECHNIQUES DE DÉTECTION DIRECTE ET MOLÉCULAIRE':                    3,
       };
       const bioAvailable = available.filter((st: any) => BIO_QUOTAS[st.name.toUpperCase()] !== undefined);
       const selected: string[] = [];
@@ -1040,20 +1058,46 @@ export class ExamenBlancService {
     // BIOLOGISTE smart : sous-thèmes ciblés, ordonnés par score (les plus faibles en priorité)
     if (target === 'BIOLOGISTE') {
       const BIO_SUBTHEMES = new Set([
+        // Hématologie
+        'QUALIFICATION BIOLOGIQUE DU DON',
+        'HÉMOSTASE ET COAGULATION',
+        // Biochimie
+        'ANALYSES QUALITATIVES DES URINES',
+        'BILAN HÉPATIQUE ET BILIRUBINE',
+        'BILAN LIPIDIQUE (CHOLESTÉROL ET TRIGLYCÉRIDES)',
+        'CALCULS ET UNITÉS (SYSTÈME INTERNATIONAL)',
+        'ENZYMOLOGIE CLINIQUE',
+        'FONCTION RÉNALE (URÉE, CRÉATININE, ACIDE URIQUE)',
+        'GÉNÉRALITÉS ET CONDITIONS DE PRÉLÈVEMENT',
+        'MÉTABOLISME DES GLUCIDES (GLUCOSE)',
+        'PROTÉINES ET ALBUMINE',
         'ÉLECTROLYTES ET ÉLÉMENTS MINÉRAUX',
-        'LE PRÉLÈVEMENT SANGUIN',
-        'GÉNÉRALITÉS ET PRÉLÈVEMENTS',
-        'HÉMOGLOBINE ET CONSTANTES',
-        'MESURE ET DISTRIBUTION DES LIQUIDES',
-        'GÉNÉRALITÉS, PRÉLÈVEMENTS ET COLORATIONS DE BASE',
-        'DIAGNOSTIC DE LA TUBERCULOSE ET DE LA LÈPRE',
+        // Immunologie / Sérologie
+        'GROUPES SANGUINS ET TRANSFUSION (SÉROLOGIE ÉRYTHROCYTAIRE)',
+        'TESTS SÉROLOGIQUES (AGGLUTINATION ET PRÉCIPITATION)',
+        // Bactériologie
+        'HÉMOCULTURE ET SÉROLOGIE',
+        'EXAMEN CYTO-BACTÉRIOLOGIQUE DES URINES (ECBU) ET DU LCR',
+        'COPROCULTURE ET PATHOGÈNES ÉPIDÉMIQUES',
+        // Parasitologie
         'GÉNÉRALITÉS',
         'PARASITES DU SANG, DE LA PEAU ET DES URINES',
+        // Procédures générales
+        'MESURE ET DISTRIBUTION DES LIQUIDES',
+        'CENTRIFUGATION',
+        'UTILISATION DU MICROSCOPE',
+        // Biologie moléculaire
         'STRUCTURES ET PROPRIÉTÉS DES ACIDES NUCLÉIQUES',
+        "LA RÉPLICATION DE L'ADN",
+        'TRANSCRIPTION',
+        'MATURATION DES ARN',
+        'LA TRADUCTION',
+        // Techniques de biologie moléculaire
         'ÉLECTROPHORÈSE',
         'PCR',
-        'GÉNIE GÉNÉTIQUE',
-        'NATURE, STRUCTURE ET STABILITÉ DES VIRUS',
+        'EXTRACTION ET PURIFICATION DES ACIDES NUCLÉIQUES',
+        // Virologie
+        'TECHNIQUES DE DÉTECTION DIRECTE ET MOLÉCULAIRE',
       ]);
       const bioAvailable = available.filter((st: any) => BIO_SUBTHEMES.has(st.name.toUpperCase()));
       const selected: string[] = [];

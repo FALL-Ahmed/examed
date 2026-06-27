@@ -143,8 +143,8 @@ export function ExamenBlancPageContent({ target }: { target: Target }) {
   useEffect(() => { load(); }, [load]);
   useEffect(() => {
     const testimonials = isAr
-      ? [{ name: 'مريم', role: isSF ? 'قابلة' : isBIO ? 'بيولوجية' : 'ممرضة', img: '/images/ar-com-1.jpeg' }, { name: 'سيدي', role: isSF ? 'قابل' : isBIO ? 'بيولوجي' : 'ممرض', img: '/images/ar-com-2.jpeg' }]
-      : [{ name: 'Fatimetou', role: isSF ? 'Sage-femme' : isBIO ? 'Biologiste' : 'Infirmière', img: '/images/fr-com-1.jpeg' }, { name: 'Mohamed', role: isSF ? 'Sage-femme' : isBIO ? 'Biologiste' : 'Infirmier', img: '/images/fr-com-2.png' }];
+      ? [{ name: 'حمزة', role: isSF ? 'قابل' : isBIO ? 'بيولوجي' : 'ممرض دولة', img: '/images/fr-com-3.jpeg' }, { name: 'مريم', role: isSF ? 'قابلة' : isBIO ? 'بيولوجية' : 'ممرضة', img: '/images/ar-com-1.jpeg' }, { name: 'سيدي', role: isSF ? 'قابل' : isBIO ? 'بيولوجي' : 'ممرض', img: '/images/ar-com-2.jpeg' }]
+      : [{ name: 'Hamza', role: isSF ? 'Sage-femme' : isBIO ? 'Biologiste' : "Infirmier d'État", img: '/images/fr-com-3.jpeg' }, { name: 'Fatimetou', role: isSF ? 'Sage-femme' : isBIO ? 'Biologiste' : 'Infirmière', img: '/images/fr-com-1.jpeg' }, { name: 'Mohamed', role: isSF ? 'Sage-femme' : isBIO ? 'Biologiste' : 'Infirmier', img: '/images/fr-com-2.png' }];
     const id = setInterval(() => {
       setTestFade(false);
       setTimeout(() => { setTestIdx(i => (i + 1) % testimonials.length); setTestFade(true); }, 700);
@@ -415,7 +415,7 @@ export function ExamenBlancPageContent({ target }: { target: Target }) {
         {(() => {
           const testimonials = isAr
             ? [{ name: 'مريم', role: isSF ? 'قابلة' : isBIO ? 'بيولوجية' : 'ممرضة', img: '/images/ar-com-1.jpeg' }, { name: isSF ? 'آمنة' : 'سيدي', role: isSF ? 'قابلة' : isBIO ? 'بيولوجي' : 'ممرض', img: '/images/ar-com-2.jpeg' }]
-            : [{ name: 'Fatimetou', role: isSF ? 'Sage-femme' : isBIO ? 'Biologiste' : 'Infirmière', img: '/images/fr-com-1.jpeg' }, { name: isSF ? 'Marième' : 'Mohamed', role: isSF ? 'Sage-femme' : isBIO ? 'Biologiste' : 'Infirmier', img: '/images/fr-com-2.png' }];
+            : [{ name: 'Hamza', role: isSF ? 'Sage-femme' : isBIO ? 'Biologiste' : "Infirmier d'État", img: '/images/fr-com-3.jpeg' }, { name: 'Fatimetou', role: isSF ? 'Sage-femme' : isBIO ? 'Biologiste' : 'Infirmière', img: '/images/fr-com-1.jpeg' }, { name: isSF ? 'Marième' : 'Mohamed', role: isSF ? 'Sage-femme' : isBIO ? 'Biologiste' : 'Infirmier', img: '/images/fr-com-2.png' }];
           const t = testimonials[testIdx % testimonials.length];
           return (
             <div className={`${theme.cardBg} backdrop-blur border ${theme.cardBorder} rounded-3xl p-8 mb-16`}>

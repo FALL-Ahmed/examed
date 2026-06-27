@@ -34,6 +34,7 @@ export default function LandingPage() {
 
 
   const TESTIMONIALS = [
+    { name: 'Hamza',     role: 'Infirmier d\'État',  img: '/images/fr-com-3.jpeg' },
     { name: 'Fatimetou', role: 'Étudiante en sciences infirmières', img: '/images/fr-com-1.jpeg' },
     { name: 'Mohamed',   role: 'Étudiant en sciences infirmières',  img: '/images/fr-com-2.png' },
     { name: 'مريم',     role: 'ممرضة متخرجة، نواكشوط',            img: '/images/ar-com-1.jpeg' },
@@ -222,7 +223,7 @@ export default function LandingPage() {
             <p className="text-violet-600 text-xs font-bold uppercase tracking-widest mb-3">{t('landing.testi.badge')}</p>
             <h2 className="text-3xl md:text-5xl font-extrabold text-gray-900 max-w-lg">{t('landing.testi.h2')}</h2>
           </div>
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-8">
+          <div className="grid grid-cols-2 sm:grid-cols-5 gap-8">
             {TESTIMONIALS.map((testi) => (
               <div key={testi.name} className="flex flex-col items-center text-center group cursor-pointer">
                 <div className="relative mb-4 overflow-hidden rounded-xl shadow-lg transition-all duration-300 group-hover:shadow-2xl group-hover:scale-105">

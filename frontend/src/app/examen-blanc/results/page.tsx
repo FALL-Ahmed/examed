@@ -126,11 +126,17 @@ function ResultsContent() {
     }
   }
 
-  const fichesFR = [
+  const fichesFR = localState?.target === 'BIOLOGISTE' ? [
+    { title: 'Technique PCR et Variantes', url: 'https://nhsiszjkamiwkrokgopd.supabase.co/storage/v1/object/public/fiches-memo/1782419855530-mlqdetkjgt.jpeg' },
+    { title: 'Hématologie de base et prélèvement', url: 'https://nhsiszjkamiwkrokgopd.supabase.co/storage/v1/object/public/fiches-memo/1782420873936-any5o1gow0g.jpeg' },
+  ] : [
     { title: 'Secourisme et réanimation cardio-pulmonaire', url: 'https://nhsiszjkamiwkrokgopd.supabase.co/storage/v1/object/public/fiches-memo/1782492389421-9qgmjakqd44.jpeg' },
     { title: 'Les urgences chirurgicales abdominales', url: 'https://nhsiszjkamiwkrokgopd.supabase.co/storage/v1/object/public/fiches-memo/1782491414460-qvte7es8xd8.jpeg' },
   ];
-  const fichesAR = [
+  const fichesAR = localState?.target === 'BIOLOGISTE' ? [
+    { title: 'Technique PCR et Variantes', url: 'https://nhsiszjkamiwkrokgopd.supabase.co/storage/v1/object/public/fiches-memo/1782419855530-mlqdetkjgt.jpeg' },
+    { title: 'Hématologie de base et prélèvement', url: 'https://nhsiszjkamiwkrokgopd.supabase.co/storage/v1/object/public/fiches-memo/1782420873936-any5o1gow0g.jpeg' },
+  ] : [
     { title: 'الاستعجالات الجراحية البطنية', url: 'https://nhsiszjkamiwkrokgopd.supabase.co/storage/v1/object/public/fiches-memo/1782493862017-q4pr6zwhyy.jpeg' },
     { title: 'التهاب الكبد الفيروسي', url: 'https://nhsiszjkamiwkrokgopd.supabase.co/storage/v1/object/public/fiches-memo/1782494840952-25a8s85sakt.jpeg' },
   ];
@@ -316,11 +322,13 @@ function ResultsContent() {
             <p className="text-white/60 text-xs font-bold uppercase tracking-widest text-center mb-4">
               {isAr ? `انضموا إلى +${localState?.target === 'SAGE_FEMME' ? '800' : localState?.target === 'BIOLOGISTE' ? '400' : '800'} سؤال على Al Bourour` : `Ils ont rejoint les +${localState?.target === 'SAGE_FEMME' ? '800' : localState?.target === 'BIOLOGISTE' ? '400' : '800'} QCM d'Al Bourour`}
             </p>
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-3 gap-4">
               {(isAr ? [
+                { name: 'حمزة', role: localState?.target === 'SAGE_FEMME' ? 'قابل' : localState?.target === 'BIOLOGISTE' ? 'بيولوجي' : 'ممرض دولة', img: '/images/fr-com-3.jpeg' },
                 { name: 'مريم', role: localState?.target === 'SAGE_FEMME' ? 'قابلة' : localState?.target === 'BIOLOGISTE' ? 'بيولوجية' : 'ممرضة', img: '/images/ar-com-1.jpeg' },
                 { name: 'سيدي', role: localState?.target === 'SAGE_FEMME' ? 'قابل' : localState?.target === 'BIOLOGISTE' ? 'بيولوجي' : 'ممرض', img: '/images/ar-com-2.jpeg' },
               ] : [
+                { name: 'Hamza',     role: localState?.target === 'SAGE_FEMME' ? 'Sage-femme' : localState?.target === 'BIOLOGISTE' ? 'Biologiste' : "Infirmier d'État", img: '/images/fr-com-3.jpeg' },
                 { name: 'Fatimetou', role: localState?.target === 'SAGE_FEMME' ? 'Sage-femme' : localState?.target === 'BIOLOGISTE' ? 'Biologiste' : 'Infirmière', img: '/images/fr-com-1.jpeg' },
                 { name: 'Mohamed',   role: localState?.target === 'SAGE_FEMME' ? 'Sage-femme' : localState?.target === 'BIOLOGISTE' ? 'Biologiste' : 'Infirmier',  img: '/images/fr-com-2.png'  },
               ]).map(t => (

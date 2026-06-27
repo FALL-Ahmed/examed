@@ -179,11 +179,13 @@ export function FomoResults({ score, totalQ, correctQ, themeName, subThemeName, 
         <p className="text-xs font-bold text-gray-500 uppercase tracking-wider text-center">
           {isAr ? 'ماذا يقول الطلاب ؟' : 'Ils ont réussi avec Al Bourour'}
         </p>
-        <div className="grid grid-cols-2 gap-3">
+        <div className="grid grid-cols-3 gap-3">
           {(isAr ? [
+            { name: 'حمزة',  role: 'ممرض دولة',                       img: '/images/fr-com-3.jpeg' },
             { name: 'مريم',  role: 'ممرضة متخرجة، نواكشوط',          img: '/images/ar-com-1.jpeg' },
             { name: 'سيدي',  role: 'طالب في العلوم التمريضية',        img: '/images/ar-com-2.jpeg' },
           ] : [
+            { name: 'Hamza',     role: "Infirmier d'État",                  img: '/images/fr-com-3.jpeg' },
             { name: 'Fatimetou', role: 'Étudiante en sciences infirmières', img: '/images/fr-com-1.jpeg' },
             { name: 'Mohamed',   role: 'Étudiant en sciences infirmières',  img: '/images/fr-com-2.png'  },
           ]).map((t) => (
