@@ -59,6 +59,11 @@ export class ExamenBlancController {
     return this.service.recoverSession(body.telephone);
   }
 
+  @Post('fiche-download')
+  logFicheDownload(@Body() body: { ficheTitle: string; participantId?: string; prenom?: string; nom?: string; telephone?: string; ville?: string; target?: string; lang?: string; sessionTitle?: string }) {
+    return this.service.logFicheDownload(body);
+  }
+
   @Get('my-sessions')
   getMySessions(@Query('participantId') participantId: string) {
     return this.service.getMySessions(participantId);
@@ -143,5 +148,12 @@ export class ExamenBlancController {
   @Patch('admin/participants/:id/contacted')
   toggleContacted(@Param('id') id: string, @Body() body: { contacted: boolean }) {
     return this.service.setContacted(id, body.contacted);
+  }
+
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('ADMIN')
+  @Get('admin/fiche-downloads')
+  adminFicheDownloads() {
+    return this.service.getFicheDownloads();
   }
 }

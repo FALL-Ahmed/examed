@@ -112,6 +112,17 @@ function ResultsContent() {
   }
 
   async function downloadFiche(url: string, title: string) {
+    examenBlancApi.logFicheDownload({
+      ficheTitle: title,
+      participantId: localState?.participantId,
+      prenom: localState?.participant?.prenom,
+      nom: localState?.participant?.nom,
+      telephone: localState?.participant?.telephone,
+      ville: localState?.participant?.ville,
+      target: localState?.target,
+      lang: localState?.lang,
+      sessionTitle: localState?.sessionTitle,
+    });
     try {
       const res = await fetch(url);
       const blob = await res.blob();

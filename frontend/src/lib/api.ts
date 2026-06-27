@@ -266,6 +266,9 @@ export const examenBlancApi = {
     api.get('/examen-blanc/admin/smart-preview', { params }),
   setContacted: (id: string, contacted: boolean) =>
     api.patch(`/examen-blanc/admin/participants/${id}/contacted`, { contacted }),
+  logFicheDownload: (data: { ficheTitle: string; participantId?: string; prenom?: string; nom?: string; telephone?: string; ville?: string; target?: string; lang?: string; sessionTitle?: string }) =>
+    axios.post(`${API_URL}/examen-blanc/fiche-download`, data).catch(() => {}),
+  adminFicheDownloads: () => api.get('/examen-blanc/admin/fiche-downloads'),
 };
 
 export const pushApi = {

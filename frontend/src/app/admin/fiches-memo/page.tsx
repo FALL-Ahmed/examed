@@ -1,7 +1,7 @@
 'use client';
 import { useEffect, useRef, useState } from 'react';
-import { adminApi, settingsApi } from '@/lib/api';
-import { FileText, Upload, Trash2, Plus, Loader2, Eye, EyeOff, Pencil, Check, X } from 'lucide-react';
+import { adminApi, settingsApi, examenBlancApi } from '@/lib/api';
+import { FileText, Upload, Trash2, Plus, Loader2, Eye, EyeOff, Pencil, Check, X, Download } from 'lucide-react';
 
 const TARGETS = [
   { value: 'ALL',        label: 'Toutes professions' },
@@ -37,6 +37,9 @@ export default function FichesMemoPage() {
   const [filterTarget, setFilterTarget] = useState('ALL_FILTER');
   const [filterLang, setFilterLang] = useState('ALL');
   const fileRef = useRef<HTMLInputElement>(null);
+  const [dlSearch, setDlSearch] = useState('');
+  const [downloads, setDownloads] = useState<any[]>([]);
+  const [loadingDl, setLoadingDl] = useState(true);
 
   function load() {
     adminApi.fichesMemo().then(r => setFiches(r.data)).catch(() => {}).finally(() => setLoading(false));
@@ -45,6 +48,7 @@ export default function FichesMemoPage() {
   useEffect(() => {
     load();
     settingsApi.features().then(r => setMenuEnabled(r.data.fichesMemoEnabled)).catch(() => {});
+    examenBlancApi.adminFicheDownloads().then(r => setDownloads(r.data)).catch(() => {}).finally(() => setLoadingDl(false));
   }, []);
 
   async function toggleMenu() {
@@ -253,6 +257,82 @@ export default function FichesMemoPage() {
           ))}
         </div>
       )}
+
+      {/* Téléchargements Examen Blanc */}
+      <div className="space-y-3">
+        <div className="flex items-center gap-2">
+          <Download className="w-4 h-4 text-violet-500" />
+          <p className="font-semibold text-sm">Téléchargements depuis Examen Blanc</p>
+          <span className="text-xs text-muted-foreground ml-auto">{downloads.length} total · {new Set(downloads.map(d => d.telephone || d.participantId).filter(Boolean)).size} participants uniques</span>
+        </div>
+
+        {/* Stats par fiche */}
+        {downloads.length > 0 && (() => {
+          const byFiche: Record<string, number> = {};
+          for (const d of downloads) byFiche[d.ficheTitle] = (byFiche[d.ficheTitle] || 0) + 1;
+          return (
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
+              {Object.entries(byFiche).sort((a, b) => b[1] - a[1]).map(([title, count]) => (
+                <div key={title} className="bg-card border border-border rounded-xl p-3">
+                  <p className="text-xs text-muted-foreground leading-snug mb-1">{title}</p>
+                  <p className="text-xl font-black">{count} <span className="text-xs font-normal text-muted-foreground">téléch.</span></p>
+                </div>
+              ))}
+            </div>
+          );
+        })()}
+
+        <input
+          type="text"
+          placeholder="Rechercher par nom, téléphone, ville, fiche..."
+          value={dlSearch}
+          onChange={e => setDlSearch(e.target.value)}
+          className="w-full border border-border rounded-xl px-4 py-2 text-sm bg-background"
+        />
+
+        {loadingDl ? (
+          <div className="text-sm text-muted-foreground">Chargement...</div>
+        ) : downloads.length === 0 ? (
+          <div className="text-sm text-muted-foreground">Aucun téléchargement enregistré.</div>
+        ) : (() => {
+          const q = dlSearch.toLowerCase();
+          const filtered = downloads.filter(d =>
+            !q || [d.prenom, d.nom, d.telephone, d.ville, d.ficheTitle, d.target].some(v => v?.toLowerCase().includes(q))
+          );
+          return (
+            <div className="bg-card border border-border rounded-2xl overflow-auto">
+              <table className="w-full text-sm">
+                <thead>
+                  <tr className="border-b border-border bg-secondary/40">
+                    <th className="text-left px-4 py-3 font-semibold text-muted-foreground">Participant</th>
+                    <th className="text-left px-4 py-3 font-semibold text-muted-foreground">Téléphone</th>
+                    <th className="text-left px-4 py-3 font-semibold text-muted-foreground">Ville</th>
+                    <th className="text-left px-4 py-3 font-semibold text-muted-foreground">Fiche</th>
+                    <th className="text-left px-4 py-3 font-semibold text-muted-foreground">Cible</th>
+                    <th className="text-left px-4 py-3 font-semibold text-muted-foreground whitespace-nowrap">Date</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-border">
+                  {filtered.map(d => (
+                    <tr key={d.id} className="hover:bg-secondary/30 transition">
+                      <td className="px-4 py-3 font-medium whitespace-nowrap">{[d.prenom, d.nom].filter(Boolean).join(' ') || <span className="text-muted-foreground italic">—</span>}</td>
+                      <td className="px-4 py-3 text-muted-foreground">{d.telephone || '—'}</td>
+                      <td className="px-4 py-3 text-muted-foreground">{d.ville || '—'}</td>
+                      <td className="px-4 py-3 text-xs font-semibold max-w-[180px] leading-snug">{d.ficheTitle}</td>
+                      <td className="px-4 py-3">
+                        {d.target && <span className={`inline-flex px-2 py-0.5 rounded-full text-xs font-semibold ${d.target === 'BIOLOGISTE' ? 'bg-blue-100 text-blue-700' : d.target === 'SAGE_FEMME' ? 'bg-pink-100 text-pink-700' : 'bg-violet-100 text-violet-700'}`}>{d.target}</span>}
+                      </td>
+                      <td className="px-4 py-3 text-muted-foreground whitespace-nowrap">
+                        {new Date(d.downloadedAt).toLocaleString('fr-FR', { dateStyle: 'short', timeStyle: 'short' })}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          );
+        })()}
+      </div>
 
       {/* Modale édition */}
       {editing && (

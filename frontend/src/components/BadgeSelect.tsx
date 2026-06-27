@@ -43,7 +43,7 @@ export function BadgeSelect({ options, value, onChange, placeholder = '', newBad
             <>
               <span className="truncate">{selected.label}</span>
               {selected.isNew && (
-                <span className="flex-shrink-0 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-green-500 text-white">{newBadgeLabel}</span>
+                <span className="flex-shrink-0 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-orange-500 text-white">{newBadgeLabel}</span>
               )}
               {selected.count !== undefined && (
                 <span className="flex-shrink-0 text-xs text-muted-foreground">({selected.count} q.)</span>
@@ -74,7 +74,7 @@ export function BadgeSelect({ options, value, onChange, placeholder = '', newBad
                   <span className="flex items-center gap-2 min-w-0">
                     <span className="truncate">{opt.label}</span>
                     {opt.isNew && (
-                      <span className="flex-shrink-0 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-green-500 text-white">{newBadgeLabel}</span>
+                      <span className="flex-shrink-0 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-orange-500 text-white">{newBadgeLabel}</span>
                     )}
                   </span>
                   <span className="flex items-center gap-2 flex-shrink-0">

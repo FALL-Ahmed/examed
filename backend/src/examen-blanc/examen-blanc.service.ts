@@ -603,6 +603,19 @@ export class ExamenBlancService {
     };
   }
 
+  async logFicheDownload(dto: { ficheTitle: string; participantId?: string; prenom?: string; nom?: string; telephone?: string; ville?: string; target?: string; lang?: string; sessionTitle?: string }) {
+    await db(this.prisma).ebFicheDownload.create({ data: dto });
+    return { ok: true };
+  }
+
+  async getFicheDownloads() {
+    const rows = await db(this.prisma).ebFicheDownload.findMany({
+      orderBy: { downloadedAt: 'desc' },
+      take: 500,
+    });
+    return rows;
+  }
+
   async generateQuestions(totalQ = 80, lang: 'FR' | 'AR' = 'FR', target = 'INFIRMIER'): Promise<string[]> {
     // Sessions précédentes du plus ancien au plus récent (même target)
     const previousSessions = await db(this.prisma).examenBlanc.findMany({

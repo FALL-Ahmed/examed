@@ -298,6 +298,24 @@ model FreePracticeEvent {
   @@index([sessionId])
 }
 
+model EbFicheDownload {
+  id           String   @id @default(cuid())
+  ficheTitle   String
+  participantId String?
+  prenom       String?
+  nom          String?
+  telephone    String?
+  ville        String?
+  target       String?
+  lang         String?
+  sessionTitle String?
+  downloadedAt DateTime @default(now())
+
+  @@index([downloadedAt])
+  @@index([ficheTitle])
+  @@index([target])
+}
+
 model FicheMemo {
   id        String   @id @default(cuid())
   title     String
