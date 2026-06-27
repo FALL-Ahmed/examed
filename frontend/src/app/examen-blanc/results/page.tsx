@@ -280,6 +280,9 @@ function ResultsContent() {
             </div>
           )}
 
+          {/* Fiches mémo téléchargeables */}
+          <FichesMemo fichesData={isAr ? fichesAR : fichesFR} isAr={isAr} onDownload={downloadFiche} />
+
           {/* Classement verrouillé */}
           <div className="rounded-3xl p-8 text-center relative overflow-hidden"
             style={{ background: 'linear-gradient(135deg,#7c3aed 0%,#6366f1 50%,#4f46e5 100%)' }}>
@@ -313,9 +316,6 @@ function ResultsContent() {
               {isAr ? 'التسجيل' : "Je m'inscris"}
             </Link>
           </div>
-
-          {/* Fiches mémo téléchargeables */}
-          <FichesMemo fichesData={isAr ? fichesAR : fichesFR} isAr={isAr} onDownload={downloadFiche} />
 
           {/* Témoignages */}
           <div className="bg-white/5 border border-white/10 rounded-3xl p-6">
