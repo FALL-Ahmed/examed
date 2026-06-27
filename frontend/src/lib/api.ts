@@ -269,6 +269,7 @@ export const examenBlancApi = {
   logFicheDownload: (data: { ficheTitle: string; participantId?: string; prenom?: string; nom?: string; telephone?: string; ville?: string; target?: string; lang?: string; sessionTitle?: string }) =>
     axios.post(`${API_URL}/examen-blanc/fiche-download`, data).catch(() => {}),
   adminFicheDownloads: () => api.get('/examen-blanc/admin/fiche-downloads'),
+  fichesPreview: (target: string, lang: string) => axios.get(`${API_URL}/examen-blanc/fiches-preview`, { params: { target, lang } }),
 };
 
 export const pushApi = {

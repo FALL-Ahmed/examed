@@ -603,6 +603,19 @@ export class ExamenBlancService {
     };
   }
 
+  async getFichesPreview(target: string, lang: string) {
+    const fiches = await db(this.prisma).ficheMemo.findMany({
+      where: {
+        isVisible: true,
+        target: target?.toUpperCase() || 'INFIRMIER',
+        lang: lang?.toUpperCase() || 'FR',
+      },
+      select: { id: true, title: true, fileUrl: true },
+      orderBy: { createdAt: 'asc' },
+    });
+    return fiches;
+  }
+
   async logFicheDownload(dto: { ficheTitle: string; participantId?: string; prenom?: string; nom?: string; telephone?: string; ville?: string; target?: string; lang?: string; sessionTitle?: string }) {
     await db(this.prisma).ebFicheDownload.create({ data: dto });
     return { ok: true };
@@ -613,6 +626,31 @@ export class ExamenBlancService {
       orderBy: { downloadedAt: 'desc' },
       take: 2000,
     });
+
+    // Enrichir les anciens enregistrements sans téléphone via ExamenBlancParticipant
+    const missing = rows.filter((r: any) => !r.telephone && (r.prenom || r.nom));
+    if (missing.length > 0) {
+      const names = missing.map((r: any) => ({ prenom: r.prenom, nom: r.nom }));
+      const participants = await db(this.prisma).examenBlancParticipant.findMany({
+        where: {
+          OR: names.map((n: any) => ({ prenom: n.prenom, nom: n.nom })),
+          isTest: false,
+        },
+        select: { prenom: true, nom: true, telephone: true, ville: true },
+        distinct: ['prenom', 'nom', 'telephone'],
+      });
+      const phoneMap = new Map<string, string>();
+      for (const p of participants) {
+        const key = `${p.prenom}:${p.nom}`;
+        if (!phoneMap.has(key) && p.telephone) phoneMap.set(key, p.telephone);
+      }
+      for (const r of rows as any[]) {
+        if (!r.telephone && (r.prenom || r.nom)) {
+          r.telephone = phoneMap.get(`${r.prenom}:${r.nom}`) || null;
+        }
+      }
+    }
+
     // Déduplique : une seule entrée par (participantId|telephone + ficheTitle)
     const seen = new Set<string>();
     return rows.filter((r: any) => {

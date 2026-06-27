@@ -10,13 +10,17 @@ const EB_STATE_KEY = 'examen_blanc_state';
 const EB_TEST_KEY = 'examen_blanc_test_state';
 const pad = (n: number) => String(n).padStart(2, '0');
 
-function FichesMemo({ fichesData, isAr, onDownload }: {
+function FichesMemo({ fichesData, isAr, onDownload, allFiches }: {
   fichesData: { title: string; url: string }[];
   isAr: boolean;
   onDownload: (url: string, title: string) => void;
+  allFiches?: { id: string; title: string; fileUrl: string }[];
 }) {
+  const lockedFiches = (allFiches || []).filter(f => !fichesData.some(fd => fd.url === f.fileUrl));
+
   return (
     <div className="rounded-3xl bg-white overflow-hidden shadow-xl">
+      {/* Header */}
       <div className="px-5 pt-5 pb-4 text-center" style={{ background: 'linear-gradient(135deg,#7c3aed,#6366f1)' }}>
         <div className="inline-flex items-center gap-1.5 bg-white/20 text-white text-[11px] font-black uppercase tracking-widest px-3 py-1 rounded-full mb-3">
           🎁 {isAr ? 'هدية مجانية' : 'Cadeau gratuit'}
@@ -28,6 +32,8 @@ function FichesMemo({ fichesData, isAr, onDownload }: {
           {isAr ? 'من مذكرات المنصة — مجاناً' : 'Parmi les fiches de la plateforme — gratuitement'}
         </p>
       </div>
+
+      {/* 2 fiches gratuites */}
       <div className="grid grid-cols-2 gap-3 p-4">
         {fichesData.map((fiche, i) => (
           <div key={i} className="group flex flex-col rounded-2xl overflow-hidden border-2 border-gray-100 hover:border-violet-300 transition-all shadow-sm hover:shadow-md cursor-pointer"
@@ -47,6 +53,59 @@ function FichesMemo({ fichesData, isAr, onDownload }: {
           </div>
         ))}
       </div>
+
+      {/* Fiches verrouillées — carousel horizontal */}
+      {lockedFiches.length > 0 && (
+        <div className="border-t-2 border-dashed border-violet-100 pt-4 pb-5" style={{ background: 'linear-gradient(180deg,#faf5ff,#f5f3ff)' }}>
+          <div className="px-4 mb-3 flex items-center justify-between">
+            <div>
+              <p className="text-sm font-black text-gray-800">
+                🔒 {isAr ? `${lockedFiches.length} فيش ميمو أخرى` : `${lockedFiches.length} fiches mémo de plus`}
+              </p>
+              <p className="text-xs text-violet-500 font-semibold mt-0.5">
+                {isAr ? 'للمشتركين فقط — سجّل للوصول' : 'Réservées aux inscrits · Crée ton compte'}
+              </p>
+            </div>
+            <Link href="/register"
+              className="text-xs font-black text-white px-3 py-1.5 rounded-xl flex-shrink-0"
+              style={{ background: 'linear-gradient(135deg,#7c3aed,#6366f1)' }}>
+              {isAr ? 'تسجيل ←' : 'S\'inscrire →'}
+            </Link>
+          </div>
+
+          <style>{`
+            @keyframes marquee-fiches {
+              0% { transform: translateX(0); }
+              100% { transform: translateX(-50%); }
+            }
+            .marquee-track { animation: marquee-fiches ${Math.max(lockedFiches.length * 3, 20)}s linear infinite; }
+            .marquee-track:hover { animation-play-state: paused; }
+          `}</style>
+          <div className="overflow-hidden px-4 pb-1">
+            <div className="marquee-track flex gap-3" style={{ width: 'max-content' }}>
+              {[...lockedFiches, ...lockedFiches].map((fiche, i) => (
+                <Link key={`${fiche.id}-${i}`} href="/register" className="flex-shrink-0 w-32 flex flex-col rounded-2xl overflow-hidden shadow-md border-2 border-violet-100 relative">
+                  <div className="relative overflow-hidden" style={{ aspectRatio: '3/4' }}>
+                    <img src={fiche.fileUrl} alt="" className="w-full h-full object-cover object-top scale-105" style={{ filter: 'blur(3px) brightness(0.6)' }} />
+                    <div className="absolute inset-0 flex flex-col items-center justify-center gap-1.5"
+                      style={{ background: 'linear-gradient(135deg,rgba(124,58,237,0.5),rgba(99,102,241,0.5))' }}>
+                      <div className="w-9 h-9 rounded-full bg-white/20 backdrop-blur flex items-center justify-center">
+                        <span className="text-xl">🔒</span>
+                      </div>
+                      <span className="text-white text-[9px] font-black uppercase tracking-wider opacity-80">
+                        {isAr ? 'مقفل' : 'Verrouillé'}
+                      </span>
+                    </div>
+                  </div>
+                  <div className="bg-white px-2 py-2 text-center border-t border-violet-100">
+                    <p className="text-gray-500 text-[10px] font-semibold leading-tight line-clamp-2">{fiche.title}</p>
+                  </div>
+                </Link>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
@@ -101,10 +160,20 @@ function ResultsContent() {
   const [localState, setLocalState] = useState<any>(null);
   const [promo, setPromo] = useState<{ active: boolean; discount: number } | null>(null);
   const [mySessions, setMySessions] = useState<any[]>([]);
+  const [allFiches, setAllFiches] = useState<{ id: string; title: string; fileUrl: string }[]>([]);
 
   useEffect(() => {
     settingsApi.promo().then((r) => setPromo(r.data)).catch(() => {});
   }, []);
+
+  useEffect(() => {
+    if (!localState) return;
+    const target = localState.target || 'INFIRMIER';
+    const lang = localState.lang || 'fr';
+    examenBlancApi.fichesPreview(target, lang.toUpperCase())
+      .then((r) => setAllFiches(r.data))
+      .catch(() => {});
+  }, [localState]);
 
   function handlePrint() {
     setShowAll(true);
@@ -298,7 +367,7 @@ function ResultsContent() {
           )}
 
           {/* Fiches mémo téléchargeables */}
-          <FichesMemo fichesData={isAr ? fichesAR : fichesFR} isAr={isAr} onDownload={downloadFiche} />
+          <FichesMemo fichesData={isAr ? fichesAR : fichesFR} isAr={isAr} onDownload={downloadFiche} allFiches={allFiches} />
 
           {/* Classement verrouillé */}
           <div className="rounded-3xl p-8 text-center relative overflow-hidden"
@@ -526,6 +595,11 @@ function ResultsContent() {
                 : (isAr ? 'واصل التدريب على المنصة' : "Continuer à s'entraîner sur la plateforme")}
             </Link>
 
+            {/* Fiches mémo téléchargeables */}
+            <div className="w-full no-print">
+              <FichesMemo fichesData={isAr ? fichesAR : fichesFR} isAr={isAr} onDownload={downloadFiche} allFiches={allFiches} />
+            </div>
+
             {/* Bloc avantages */}
             <div className="w-full bg-white/10 border border-white/15 rounded-2xl px-5 py-4 space-y-2">
               <div className="text-sm text-white/70 space-y-1">
@@ -553,11 +627,6 @@ function ResultsContent() {
       </div>
 
       <div className="max-w-4xl mx-auto px-6 py-10 space-y-8">
-
-        {/* Fiches mémo téléchargeables */}
-        <div className="no-print">
-          <FichesMemo fichesData={isAr ? fichesAR : fichesFR} isAr={isAr} onDownload={downloadFiche} />
-        </div>
 
         {/* Question review — grille numérotée */}
         {results.questions?.length > 0 && (() => {

@@ -64,6 +64,11 @@ export class ExamenBlancController {
     return this.service.logFicheDownload(body);
   }
 
+  @Get('fiches-preview')
+  getFichesPreview(@Query('target') target: string, @Query('lang') lang: string) {
+    return this.service.getFichesPreview(target, lang);
+  }
+
   @Get('my-sessions')
   getMySessions(@Query('participantId') participantId: string) {
     return this.service.getMySessions(participantId);
