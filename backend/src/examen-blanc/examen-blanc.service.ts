@@ -430,6 +430,8 @@ export class ExamenBlancService {
 
     return {
       locked: false,
+      target: session.target,
+      lang: participant.lang,
       participant: { nom: participant.nom, prenom: participant.prenom, ville: participant.ville, telephone: participant.telephone },
       score: participant.score,
       rawScore: participant.rawScore,

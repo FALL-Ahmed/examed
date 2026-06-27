@@ -167,13 +167,12 @@ function ResultsContent() {
   }, []);
 
   useEffect(() => {
-    if (!localState) return;
-    const target = localState.target || 'INFIRMIER';
-    const lang = localState.lang || 'fr';
+    const target = results?.target || localState?.target || 'BIOLOGISTE';
+    const lang = results?.lang || localState?.lang || 'fr';
     examenBlancApi.fichesPreview(target, lang.toUpperCase())
       .then((r) => setAllFiches(r.data))
       .catch(() => {});
-  }, [localState]);
+  }, [results, localState]);
 
   function handlePrint() {
     setShowAll(true);
@@ -212,16 +211,25 @@ function ResultsContent() {
     }
   }
 
-  const fichesFR = localState?.target === 'BIOLOGISTE' ? [
+  const effectiveTarget = results?.target || localState?.target || 'BIOLOGISTE';
+
+  const fichesFR = effectiveTarget === 'BIOLOGISTE' ? [
     { title: 'Technique PCR et Variantes', url: 'https://nhsiszjkamiwkrokgopd.supabase.co/storage/v1/object/public/fiches-memo/1782419855530-mlqdetkjgt.jpeg' },
     { title: 'Hématologie de base et prélèvement', url: 'https://nhsiszjkamiwkrokgopd.supabase.co/storage/v1/object/public/fiches-memo/1782420873936-any5o1gow0g.jpeg' },
+  ] : effectiveTarget === 'SAGE_FEMME' ? [
+    { title: 'Accouchement et gestion de la délivrance', url: 'https://nhsiszjkamiwkrokgopd.supabase.co/storage/v1/object/public/fiches-memo/sf-1782552699271-8jzcx3g3gl.jpg' },
+    { title: 'Bilans, prévention et hygiène', url: 'https://nhsiszjkamiwkrokgopd.supabase.co/storage/v1/object/public/fiches-memo/sf-1782552699896-v16o1jwmnw.jpg' },
   ] : [
     { title: 'Secourisme et réanimation cardio-pulmonaire', url: 'https://nhsiszjkamiwkrokgopd.supabase.co/storage/v1/object/public/fiches-memo/1782492389421-9qgmjakqd44.jpeg' },
     { title: 'Les urgences chirurgicales abdominales', url: 'https://nhsiszjkamiwkrokgopd.supabase.co/storage/v1/object/public/fiches-memo/1782491414460-qvte7es8xd8.jpeg' },
   ];
-  const fichesAR = localState?.target === 'BIOLOGISTE' ? [
+
+  const fichesAR = effectiveTarget === 'BIOLOGISTE' ? [
     { title: 'Technique PCR et Variantes', url: 'https://nhsiszjkamiwkrokgopd.supabase.co/storage/v1/object/public/fiches-memo/1782419855530-mlqdetkjgt.jpeg' },
     { title: 'Hématologie de base et prélèvement', url: 'https://nhsiszjkamiwkrokgopd.supabase.co/storage/v1/object/public/fiches-memo/1782420873936-any5o1gow0g.jpeg' },
+  ] : effectiveTarget === 'SAGE_FEMME' ? [
+    { title: 'ألم الحوض والتشريح السريري', url: 'https://nhsiszjkamiwkrokgopd.supabase.co/storage/v1/object/public/fiches-memo/sf-1782552685858-28gmeyjr6w.jpg' },
+    { title: 'إيقاف تقلصات الرحم والكورتيكوستيرويدات', url: 'https://nhsiszjkamiwkrokgopd.supabase.co/storage/v1/object/public/fiches-memo/sf-1782552687250-22x9pyc12d.jpg' },
   ] : [
     { title: 'الاستعجالات الجراحية البطنية', url: 'https://nhsiszjkamiwkrokgopd.supabase.co/storage/v1/object/public/fiches-memo/1782493862017-q4pr6zwhyy.jpeg' },
     { title: 'التهاب الكبد الفيروسي', url: 'https://nhsiszjkamiwkrokgopd.supabase.co/storage/v1/object/public/fiches-memo/1782494840952-25a8s85sakt.jpeg' },
