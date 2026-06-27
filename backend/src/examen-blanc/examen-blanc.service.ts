@@ -690,51 +690,39 @@ export class ExamenBlancService {
 
     // BIOLOGISTE : questions fixes + sous-thèmes ciblés
     if (target === 'BIOLOGISTE') {
-      const BIO_FIXED = [
-        // Paludisme — parasitologie (3 Q)
-        'cmq8klhmz008vcbjywf2diavv', // Caractères morphologiques Plasmodium falciparum (identification spécifique)
-        'cmq8klglc007vcbjy5dibyo8t', // Intérêts goutte épaisse vs frottis (diagnostic paludisme)
-        'cmq8klgne007xcbjygkf4pyrw', // Caractères morphologiques Plasmodium falciparum (étalement)
-        // Paludisme — hématologie (1 Q)
-        'cmq8klna200e5cbjybsiharuq', // Structures confondues avec parasites du paludisme sur frottis
-        // Tuberculose — bactériologie (1 Q)
-        'cmq8kli66009dcbjyutomftje', // Caractéristiques microscopiques BAAR Ziehl-Neelsen
-      ];
+      // Quotas fixes par sous-thème — total = 60 questions
       const BIO_QUOTAS: Record<string, number> = {
         // Biochimie
-        'ÉLECTROLYTES ET ÉLÉMENTS MINÉRAUX':                    5,
-        'FONCTION RÉNALE (URÉE, CRÉATININE, ACIDE URIQUE)':    3,
-        'MÉTABOLISME DES GLUCIDES (GLUCOSE)':                   3,
+        'ÉLECTROLYTES ET ÉLÉMENTS MINÉRAUX':                    4,
         // Hématologie
+        'LE PRÉLÈVEMENT SANGUIN':                               4,
         'GÉNÉRALITÉS ET PRÉLÈVEMENTS':                          4,
         'HÉMOGLOBINE ET CONSTANTES':                            6,
-        'LE PRÉLÈVEMENT SANGUIN':                               4,
-        'MORPHOLOGIE ET ANOMALIES DES HÉMATIES':                4, // 1 fixe paludisme + 3 pool
         // Procédures générales
         'MESURE ET DISTRIBUTION DES LIQUIDES':                  4,
         // Bactériologie
         'GÉNÉRALITÉS, PRÉLÈVEMENTS ET COLORATIONS DE BASE':     4,
-        'DIAGNOSTIC DE LA TUBERCULOSE ET DE LA LÈPRE':         4, // 1 fixe BAAR + 3 pool
+        'DIAGNOSTIC DE LA TUBERCULOSE ET DE LA LÈPRE':         4,
         // Parasitologie
         'GÉNÉRALITÉS':                                          4,
-        'PARASITES DU SANG, DE LA PEAU ET DES URINES':         6, // 3 fixes paludisme + 3 pool
-        // Biologie moléculaire & techniques
-        'STRUCTURES ET PROPRIÉTÉS DES ACIDES NUCLÉIQUES':      3,
-        'PCR':                                                  3,
-        'ÉLECTROPHORÈSE':                                       3,
+        'PARASITES DU SANG, DE LA PEAU ET DES URINES':         6,
+        // Biologie moléculaire
+        'STRUCTURES ET PROPRIÉTÉS DES ACIDES NUCLÉIQUES':      5,
+        'ÉLECTROPHORÈSE':                                       5,
+        'PCR':                                                  4,
+        // Génétique
+        'GÉNIE GÉNÉTIQUE':                                      3,
+        // Virologie
+        'NATURE, STRUCTURE ET STABILITÉ DES VIRUS':             3,
       };
-      const fixedSet = new Set(BIO_FIXED);
       const bioAvailable = available.filter((st: any) => BIO_QUOTAS[st.name.toUpperCase()] !== undefined);
-      const selected: string[] = [...BIO_FIXED];
+      const selected: string[] = [];
       for (const st of bioAvailable) {
         const nameUp = (st as any).name.toUpperCase();
         const quota = BIO_QUOTAS[nameUp];
         const allIds: string[] = (st as any).questions.map((q: any) => q.id);
-        const fixedInThis = BIO_FIXED.filter(id => allIds.includes(id)).length;
-        const needFromPool = quota - fixedInThis;
-        if (needFromPool <= 0) continue;
-        const poolIds = allIds.filter((id: string) => !fixedSet.has(id)).sort(byFreshness);
-        selected.push(...poolIds.slice(0, needFromPool));
+        const poolIds = allIds.sort(byFreshness);
+        selected.push(...poolIds.slice(0, quota));
       }
       return selected.sort(() => Math.random() - 0.5).slice(0, totalQ);
     }
@@ -1049,33 +1037,29 @@ export class ExamenBlancService {
     });
     const available = allSubThemes.filter((st: any) => st.questions.length > 0);
 
-    // BIOLOGISTE smart : questions fixes + sous-thèmes ciblés, ordonnés par score
+    // BIOLOGISTE smart : sous-thèmes ciblés, ordonnés par score (les plus faibles en priorité)
     if (target === 'BIOLOGISTE') {
-      const BIO_FIXED = [
-        'cmq8klhmz008vcbjywf2diavv',
-        'cmq8kli66009dcbjyutomftje',
-        'cmq8klrru00ifcbjyo67o0mow',
-      ];
       const BIO_SUBTHEMES = new Set([
         'ÉLECTROLYTES ET ÉLÉMENTS MINÉRAUX',
-        'FONCTION RÉNALE (URÉE, CRÉATININE, ACIDE URIQUE)',
-        'MÉTABOLISME DES GLUCIDES (GLUCOSE)',
-        'ACCIDENTS DE LA TRANSFUSION SANGUINE',
+        'LE PRÉLÈVEMENT SANGUIN',
+        'GÉNÉRALITÉS ET PRÉLÈVEMENTS',
         'HÉMOGLOBINE ET CONSTANTES',
-        'EXAMEN CYTO-BACTÉRIOLOGIQUE DES URINES (ECBU) ET DU LCR',
-        'DIAGNOSTIC DE LA TUBERCULOSE ET DE LA LÈPRE',
-        'HYGIÈNE ET SÉCURITÉ AU LABORATOIRE',
         'MESURE ET DISTRIBUTION DES LIQUIDES',
-        'CENTRIFUGATION',
-        'UTILISATION DU MICROSCOPE',
+        'GÉNÉRALITÉS, PRÉLÈVEMENTS ET COLORATIONS DE BASE',
+        'DIAGNOSTIC DE LA TUBERCULOSE ET DE LA LÈPRE',
+        'GÉNÉRALITÉS',
+        'PARASITES DU SANG, DE LA PEAU ET DES URINES',
+        'STRUCTURES ET PROPRIÉTÉS DES ACIDES NUCLÉIQUES',
+        'ÉLECTROPHORÈSE',
+        'PCR',
+        'GÉNIE GÉNÉTIQUE',
+        'NATURE, STRUCTURE ET STABILITÉ DES VIRUS',
       ]);
-      const fixedSet = new Set(BIO_FIXED);
       const bioAvailable = available.filter((st: any) => BIO_SUBTHEMES.has(st.name.toUpperCase()));
-      const selected: string[] = [...BIO_FIXED];
+      const selected: string[] = [];
       const pool: string[] = [];
       for (const st of bioAvailable) {
-        const ids = st.questions.map((q: any) => q.id).filter((id: string) => !fixedSet.has(id));
-        const sorted = [...ids].sort(byScore);
+        const sorted = [...st.questions.map((q: any) => q.id)].sort(byScore);
         if (sorted.length > 0) selected.push(sorted[0]);
         if (sorted.length > 1) pool.push(...sorted.slice(1));
       }

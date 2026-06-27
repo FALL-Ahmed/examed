@@ -10,6 +10,47 @@ const EB_STATE_KEY = 'examen_blanc_state';
 const EB_TEST_KEY = 'examen_blanc_test_state';
 const pad = (n: number) => String(n).padStart(2, '0');
 
+function FichesMemo({ fichesData, isAr, onDownload }: {
+  fichesData: { title: string; url: string }[];
+  isAr: boolean;
+  onDownload: (url: string, title: string) => void;
+}) {
+  return (
+    <div className="rounded-3xl bg-white overflow-hidden shadow-xl">
+      <div className="px-5 pt-5 pb-4 text-center" style={{ background: 'linear-gradient(135deg,#7c3aed,#6366f1)' }}>
+        <div className="inline-flex items-center gap-1.5 bg-white/20 text-white text-[11px] font-black uppercase tracking-widest px-3 py-1 rounded-full mb-3">
+          🎁 {isAr ? 'هدية مجانية' : 'Cadeau gratuit'}
+        </div>
+        <p className="text-white font-black text-xl leading-tight">
+          {isAr ? 'حمّل مذكرتين من فيش ميمو' : '2 fiches mémo offertes'}
+        </p>
+        <p className="text-white/70 text-xs mt-1">
+          {isAr ? 'من مذكرات المنصة — مجاناً' : 'Parmi les fiches de la plateforme — gratuitement'}
+        </p>
+      </div>
+      <div className="grid grid-cols-2 gap-3 p-4">
+        {fichesData.map((fiche, i) => (
+          <div key={i} className="group flex flex-col rounded-2xl overflow-hidden border-2 border-gray-100 hover:border-violet-300 transition-all shadow-sm hover:shadow-md cursor-pointer"
+            onClick={() => onDownload(fiche.url, fiche.title)}>
+            <div className="relative overflow-hidden" style={{ aspectRatio: '3/4' }}>
+              <img src={fiche.url} alt={fiche.title} className="w-full h-full object-cover object-top group-hover:scale-105 transition-transform duration-300" />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent" />
+            </div>
+            <div className="bg-white px-3 pt-2.5 pb-3 flex flex-col gap-2">
+              <p className="text-gray-800 text-xs font-bold leading-snug text-center">{fiche.title}</p>
+              <div className="flex items-center justify-center gap-1.5 py-2 rounded-xl text-white text-xs font-black active:scale-95 transition-transform"
+                style={{ background: 'linear-gradient(135deg,#7c3aed,#6366f1)' }}>
+                <Download className="w-3 h-3" />
+                {isAr ? 'تحميل' : 'Télécharger'}
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 function formatTime(sec: number) {
   const h = Math.floor(sec / 3600);
   const m = Math.floor((sec % 3600) / 60);
@@ -70,13 +111,50 @@ function ResultsContent() {
     setTimeout(() => window.print(), 300);
   }
 
+  async function downloadFiche(url: string, title: string) {
+    try {
+      const res = await fetch(url);
+      const blob = await res.blob();
+      const blobUrl = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = blobUrl;
+      a.download = title + '.jpeg';
+      a.click();
+      URL.revokeObjectURL(blobUrl);
+    } catch {
+      window.open(url, '_blank');
+    }
+  }
+
+  const fichesFR = [
+    { title: 'Secourisme et réanimation cardio-pulmonaire', url: 'https://nhsiszjkamiwkrokgopd.supabase.co/storage/v1/object/public/fiches-memo/1782492389421-9qgmjakqd44.jpeg' },
+    { title: 'Les urgences chirurgicales abdominales', url: 'https://nhsiszjkamiwkrokgopd.supabase.co/storage/v1/object/public/fiches-memo/1782491414460-qvte7es8xd8.jpeg' },
+  ];
+  const fichesAR = [
+    { title: 'الاستعجالات الجراحية البطنية', url: 'https://nhsiszjkamiwkrokgopd.supabase.co/storage/v1/object/public/fiches-memo/1782493862017-q4pr6zwhyy.jpeg' },
+    { title: 'التهاب الكبد الفيروسي', url: 'https://nhsiszjkamiwkrokgopd.supabase.co/storage/v1/object/public/fiches-memo/1782494840952-25a8s85sakt.jpeg' },
+  ];
+
   const isMock = searchParams.get('mock') === '1';
+  const isMock2 = searchParams.get('mock') === '2';
 
   const load = useCallback(async () => {
     if (isMock) {
       setLocalState({ totalQ: 60, resultsAt: new Date(Date.now() + 20 * 3600 * 1000).toISOString(), participant: { prenom: 'Fatimetou', nom: '' } });
       setResults({ locked: true, score: 72.5, correctQ: 43, totalQ: 60, answeredQ: 58, resultsAt: new Date(Date.now() + 20 * 3600 * 1000).toISOString(), participant: { prenom: 'Fatimetou' } });
       setResultsAt(new Date(Date.now() + 20 * 3600 * 1000));
+      setLoading(false);
+      return;
+    }
+    if (isMock2) {
+      const mockQs = Array.from({ length: 10 }, (_, i) => ({
+        id: `q${i}`, text: `Question ${i + 1} — Lorem ipsum dolor sit amet ?`, userAnswer: i % 3 === 0 ? '' : i % 2 === 0 ? 'A' : 'B,C',
+        correctAnswer: i % 2 === 0 ? 'A' : 'B,C', isCorrect: i % 2 === 0, partialScore: i % 3 === 0 ? 0 : i % 2 === 0 ? 1 : -0.5,
+        choiceA: 'Réponse A correcte', choiceB: 'Réponse B', choiceC: 'Réponse C correcte', choiceD: 'Réponse D', choiceE: '',
+        explanation: i % 2 === 0 ? 'Explication détaillée de la réponse correcte.' : '',
+      }));
+      setLocalState({ totalQ: 60, target: 'INFIRMIER', participant: { prenom: 'Fatimetou', nom: 'Mint Ahmed', ville: 'Nouakchott' } });
+      setResults({ locked: false, score: 72.5, correctQ: 43, totalQ: 60, answeredQ: 58, timeTaken: 4320, classement: 12, totalParticipants: 148, participant: { prenom: 'Fatimetou', nom: 'Mint Ahmed', ville: 'Nouakchott' }, questions: mockQs });
       setLoading(false);
       return;
     }
@@ -229,6 +307,9 @@ function ResultsContent() {
               {isAr ? 'التسجيل' : "Je m'inscris"}
             </Link>
           </div>
+
+          {/* Fiches mémo téléchargeables */}
+          <FichesMemo fichesData={isAr ? fichesAR : fichesFR} isAr={isAr} onDownload={downloadFiche} />
 
           {/* Témoignages */}
           <div className="bg-white/5 border border-white/10 rounded-3xl p-6">
@@ -447,6 +528,11 @@ function ResultsContent() {
       </div>
 
       <div className="max-w-4xl mx-auto px-6 py-10 space-y-8">
+
+        {/* Fiches mémo téléchargeables */}
+        <div className="no-print">
+          <FichesMemo fichesData={isAr ? fichesAR : fichesFR} isAr={isAr} onDownload={downloadFiche} />
+        </div>
 
         {/* Question review — grille numérotée */}
         {results.questions?.length > 0 && (() => {
