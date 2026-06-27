@@ -21,6 +21,9 @@ const FILTER_TARGETS = [
 ];
 
 export default function FichesMemoPage() {
+  const [tab, setTab] = useState<'fiches' | 'downloads'>('fiches');
+
+  // Fiches state
   const [fiches, setFiches] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [uploading, setUploading] = useState(false);
@@ -37,9 +40,11 @@ export default function FichesMemoPage() {
   const [filterTarget, setFilterTarget] = useState('ALL_FILTER');
   const [filterLang, setFilterLang] = useState('ALL');
   const fileRef = useRef<HTMLInputElement>(null);
-  const [dlSearch, setDlSearch] = useState('');
+
+  // Downloads state
   const [downloads, setDownloads] = useState<any[]>([]);
   const [loadingDl, setLoadingDl] = useState(true);
+  const [dlSearch, setDlSearch] = useState('');
 
   function load() {
     adminApi.fichesMemo().then(r => setFiches(r.data)).catch(() => {}).finally(() => setLoading(false));
@@ -106,9 +111,19 @@ export default function FichesMemoPage() {
     return matchTarget && matchLang;
   });
 
+  const dlFiltered = (() => {
+    const q = dlSearch.toLowerCase();
+    return !q ? downloads : downloads.filter(d =>
+      [d.prenom, d.nom, d.telephone, d.ville, d.ficheTitle, d.target].some(v => v?.toLowerCase().includes(q))
+    );
+  })();
+
+  const byFiche: Record<string, number> = {};
+  for (const d of downloads) byFiche[d.ficheTitle] = (byFiche[d.ficheTitle] || 0) + 1;
+
   return (
     <div className="space-y-6">
-      {/* Header + switch */}
+      {/* Header */}
       <div className="flex items-center justify-between gap-3">
         <div className="flex items-center gap-3">
           <div className="w-10 h-10 rounded-xl bg-violet-500/10 border border-violet-500/20 flex items-center justify-center">
@@ -116,7 +131,7 @@ export default function FichesMemoPage() {
           </div>
           <div>
             <h1 className="text-xl font-bold">Fiches Mémo</h1>
-            <p className="text-sm text-muted-foreground">{fiches.length} fiche{fiches.length !== 1 ? 's' : ''}</p>
+            <p className="text-sm text-muted-foreground">{fiches.length} fiche{fiches.length !== 1 ? 's' : ''} · {downloads.length} téléchargements</p>
           </div>
         </div>
 
@@ -135,171 +150,182 @@ export default function FichesMemoPage() {
         </div>
       </div>
 
-      {/* Upload form */}
-      <div className="bg-card border border-border rounded-2xl p-5 space-y-4">
-        <p className="font-semibold text-sm">Ajouter une fiche</p>
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-          <input
-            type="text"
-            placeholder="Titre de la fiche"
-            value={title}
-            onChange={e => setTitle(e.target.value)}
-            className="border border-border rounded-xl px-3 py-2 text-sm bg-background focus:outline-none focus:ring-2 focus:ring-primary"
-          />
-          <select
-            value={target}
-            onChange={e => { setTarget(e.target.value); if (e.target.value === 'BIOLOGISTE') setLang('FR'); }}
-            className="border border-border rounded-xl px-3 py-2 text-sm bg-background focus:outline-none focus:ring-2 focus:ring-primary"
-          >
-            {TARGETS.map(t => <option key={t.value} value={t.value}>{t.label}</option>)}
-          </select>
-          {showLang(target) ? (
-            <select
-              value={lang}
-              onChange={e => setLang(e.target.value)}
-              className="border border-border rounded-xl px-3 py-2 text-sm bg-background focus:outline-none focus:ring-2 focus:ring-primary"
-            >
-              {LANGS.map(l => <option key={l.value} value={l.value}>{l.label}</option>)}
-            </select>
-          ) : (
-            <div className="border border-border rounded-xl px-3 py-2 text-sm bg-secondary text-muted-foreground">🇫🇷 Français uniquement</div>
-          )}
-        </div>
-        <div className="flex items-center gap-3">
-          <label className="flex items-center gap-2 cursor-pointer border border-dashed border-border rounded-xl px-4 py-2.5 text-sm text-muted-foreground hover:border-primary transition">
-            <Upload className="w-4 h-4" />
-            {file ? file.name : 'Choisir un fichier (PDF ou image)'}
-            <input
-              ref={fileRef}
-              type="file"
-              accept=".pdf,image/*"
-              className="hidden"
-              onChange={e => setFile(e.target.files?.[0] || null)}
-            />
-          </label>
-          <button
-            onClick={handleUpload}
-            disabled={uploading || !file || !title.trim()}
-            className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold text-white gradient-primary disabled:opacity-50 transition"
-          >
-            {uploading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Plus className="w-4 h-4" />}
-            Ajouter
-          </button>
-        </div>
-        {error && <p className="text-sm text-red-500">{error}</p>}
+      {/* Tabs */}
+      <div className="flex gap-1 bg-secondary/50 border border-border rounded-xl p-1 w-fit">
+        <button
+          onClick={() => setTab('fiches')}
+          className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold transition ${tab === 'fiches' ? 'bg-background shadow text-foreground' : 'text-muted-foreground hover:text-foreground'}`}
+        >
+          <FileText className="w-4 h-4" />
+          Fiches
+          <span className="ml-1 text-xs bg-secondary px-1.5 py-0.5 rounded-full">{fiches.length}</span>
+        </button>
+        <button
+          onClick={() => setTab('downloads')}
+          className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold transition ${tab === 'downloads' ? 'bg-background shadow text-foreground' : 'text-muted-foreground hover:text-foreground'}`}
+        >
+          <Download className="w-4 h-4" />
+          Téléchargements
+          <span className="ml-1 text-xs bg-secondary px-1.5 py-0.5 rounded-full">{downloads.length}</span>
+        </button>
       </div>
 
-      {/* Filtres */}
-      <div className="flex flex-wrap gap-2 items-center">
-        <span className="text-xs text-muted-foreground font-semibold uppercase tracking-wide">Filtrer :</span>
-        <div className="flex gap-1 flex-wrap">
-          {FILTER_TARGETS.map(t => (
-            <button
-              key={t.value}
-              onClick={() => setFilterTarget(t.value)}
-              className={`px-3 py-1 rounded-full text-xs font-semibold transition ${filterTarget === t.value ? 'bg-primary text-primary-foreground' : 'bg-secondary text-muted-foreground hover:bg-secondary/70'}`}
-            >
-              {t.label}
-            </button>
-          ))}
-        </div>
-        <div className="w-px h-4 bg-border mx-1" />
-        <div className="flex gap-1">
-          {[{ value: 'ALL', label: 'Toutes langues' }, ...LANGS].map(l => (
-            <button
-              key={l.value}
-              onClick={() => setFilterLang(l.value)}
-              className={`px-3 py-1 rounded-full text-xs font-semibold transition ${filterLang === l.value ? 'bg-primary text-primary-foreground' : 'bg-secondary text-muted-foreground hover:bg-secondary/70'}`}
-            >
-              {l.label}
-            </button>
-          ))}
-        </div>
-        {(filterTarget !== 'ALL_FILTER' || filterLang !== 'ALL') && (
-          <span className="text-xs text-muted-foreground ml-1">{filtered.length} résultat{filtered.length !== 1 ? 's' : ''}</span>
-        )}
-      </div>
-
-      {/* List */}
-      {loading ? (
-        <div className="text-sm text-muted-foreground">Chargement...</div>
-      ) : filtered.length === 0 ? (
-        <div className="text-sm text-muted-foreground">Aucune fiche pour ce filtre.</div>
-      ) : (
-        <div className="bg-card border border-border rounded-2xl overflow-hidden divide-y divide-border">
-          {filtered.map(f => (
-            <div key={f.id} className={`flex items-center gap-3 px-4 py-3 hover:bg-secondary/30 transition ${!f.isVisible ? 'opacity-50' : ''}`}>
-              <FileText className="w-5 h-5 text-violet-500 flex-shrink-0" />
-              <div className="flex-1 min-w-0">
-                <div className="flex items-center gap-2 flex-wrap">
-                  <p className="font-medium text-sm truncate">{f.title}</p>
-                  <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded-full flex-shrink-0 ${f.lang === 'AR' ? 'bg-amber-500/15 text-amber-600 dark:text-amber-400' : 'bg-blue-500/15 text-blue-600 dark:text-blue-400'}`}>
-                    {f.lang === 'AR' ? 'AR' : 'FR'}
-                  </span>
-                  {!f.isVisible && (
-                    <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-full bg-secondary text-muted-foreground flex-shrink-0">Masqué</span>
-                  )}
-                </div>
-                <p className="text-xs text-muted-foreground">
-                  {TARGETS.find(t => t.value === f.target)?.label ?? f.target} · {new Date(f.createdAt).toLocaleDateString('fr-FR')}
-                </p>
-              </div>
-              <button onClick={() => setEditing({ id: f.id, title: f.title, target: f.target, lang: f.lang ?? 'FR' })} className="p-1.5 rounded-lg hover:bg-secondary text-muted-foreground hover:text-foreground transition flex-shrink-0">
-                <Pencil className="w-4 h-4" />
-              </button>
-              <button onClick={() => handleToggle(f.id)} className={`p-1.5 rounded-lg transition flex-shrink-0 ${f.isVisible ? 'text-emerald-500 hover:bg-emerald-100 dark:hover:bg-emerald-900/30' : 'text-muted-foreground hover:bg-secondary'}`}>
-                {f.isVisible ? <Eye className="w-4 h-4" /> : <EyeOff className="w-4 h-4" />}
-              </button>
-              <button onClick={() => handleDelete(f.id)} className="p-1.5 rounded-lg hover:bg-red-100 dark:hover:bg-red-900/30 text-red-500 transition flex-shrink-0">
-                <Trash2 className="w-4 h-4" />
+      {/* Tab: Fiches */}
+      {tab === 'fiches' && (
+        <div className="space-y-6">
+          {/* Upload form */}
+          <div className="bg-card border border-border rounded-2xl p-5 space-y-4">
+            <p className="font-semibold text-sm">Ajouter une fiche</p>
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+              <input
+                type="text"
+                placeholder="Titre de la fiche"
+                value={title}
+                onChange={e => setTitle(e.target.value)}
+                className="border border-border rounded-xl px-3 py-2 text-sm bg-background focus:outline-none focus:ring-2 focus:ring-primary"
+              />
+              <select
+                value={target}
+                onChange={e => { setTarget(e.target.value); if (e.target.value === 'BIOLOGISTE') setLang('FR'); }}
+                className="border border-border rounded-xl px-3 py-2 text-sm bg-background focus:outline-none focus:ring-2 focus:ring-primary"
+              >
+                {TARGETS.map(t => <option key={t.value} value={t.value}>{t.label}</option>)}
+              </select>
+              {showLang(target) ? (
+                <select
+                  value={lang}
+                  onChange={e => setLang(e.target.value)}
+                  className="border border-border rounded-xl px-3 py-2 text-sm bg-background focus:outline-none focus:ring-2 focus:ring-primary"
+                >
+                  {LANGS.map(l => <option key={l.value} value={l.value}>{l.label}</option>)}
+                </select>
+              ) : (
+                <div className="border border-border rounded-xl px-3 py-2 text-sm bg-secondary text-muted-foreground">🇫🇷 Français uniquement</div>
+              )}
+            </div>
+            <div className="flex items-center gap-3">
+              <label className="flex items-center gap-2 cursor-pointer border border-dashed border-border rounded-xl px-4 py-2.5 text-sm text-muted-foreground hover:border-primary transition">
+                <Upload className="w-4 h-4" />
+                {file ? file.name : 'Choisir un fichier (PDF ou image)'}
+                <input
+                  ref={fileRef}
+                  type="file"
+                  accept=".pdf,image/*"
+                  className="hidden"
+                  onChange={e => setFile(e.target.files?.[0] || null)}
+                />
+              </label>
+              <button
+                onClick={handleUpload}
+                disabled={uploading || !file || !title.trim()}
+                className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold text-white gradient-primary disabled:opacity-50 transition"
+              >
+                {uploading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Plus className="w-4 h-4" />}
+                Ajouter
               </button>
             </div>
-          ))}
-        </div>
-      )}
+            {error && <p className="text-sm text-red-500">{error}</p>}
+          </div>
 
-      {/* Téléchargements Examen Blanc */}
-      <div className="space-y-3">
-        <div className="flex items-center gap-2">
-          <Download className="w-4 h-4 text-violet-500" />
-          <p className="font-semibold text-sm">Téléchargements depuis Examen Blanc</p>
-          <span className="text-xs text-muted-foreground ml-auto">{downloads.length} total · {new Set(downloads.map(d => d.telephone || d.participantId).filter(Boolean)).size} participants uniques</span>
-        </div>
+          {/* Filtres */}
+          <div className="flex flex-wrap gap-2 items-center">
+            <span className="text-xs text-muted-foreground font-semibold uppercase tracking-wide">Filtrer :</span>
+            <div className="flex gap-1 flex-wrap">
+              {FILTER_TARGETS.map(t => (
+                <button
+                  key={t.value}
+                  onClick={() => setFilterTarget(t.value)}
+                  className={`px-3 py-1 rounded-full text-xs font-semibold transition ${filterTarget === t.value ? 'bg-primary text-primary-foreground' : 'bg-secondary text-muted-foreground hover:bg-secondary/70'}`}
+                >
+                  {t.label}
+                </button>
+              ))}
+            </div>
+            <div className="w-px h-4 bg-border mx-1" />
+            <div className="flex gap-1">
+              {[{ value: 'ALL', label: 'Toutes langues' }, ...LANGS].map(l => (
+                <button
+                  key={l.value}
+                  onClick={() => setFilterLang(l.value)}
+                  className={`px-3 py-1 rounded-full text-xs font-semibold transition ${filterLang === l.value ? 'bg-primary text-primary-foreground' : 'bg-secondary text-muted-foreground hover:bg-secondary/70'}`}
+                >
+                  {l.label}
+                </button>
+              ))}
+            </div>
+            {(filterTarget !== 'ALL_FILTER' || filterLang !== 'ALL') && (
+              <span className="text-xs text-muted-foreground ml-1">{filtered.length} résultat{filtered.length !== 1 ? 's' : ''}</span>
+            )}
+          </div>
 
-        {/* Stats par fiche */}
-        {downloads.length > 0 && (() => {
-          const byFiche: Record<string, number> = {};
-          for (const d of downloads) byFiche[d.ficheTitle] = (byFiche[d.ficheTitle] || 0) + 1;
-          return (
-            <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
-              {Object.entries(byFiche).sort((a, b) => b[1] - a[1]).map(([title, count]) => (
-                <div key={title} className="bg-card border border-border rounded-xl p-3">
-                  <p className="text-xs text-muted-foreground leading-snug mb-1">{title}</p>
-                  <p className="text-xl font-black">{count} <span className="text-xs font-normal text-muted-foreground">téléch.</span></p>
+          {/* List */}
+          {loading ? (
+            <div className="text-sm text-muted-foreground">Chargement...</div>
+          ) : filtered.length === 0 ? (
+            <div className="text-sm text-muted-foreground">Aucune fiche pour ce filtre.</div>
+          ) : (
+            <div className="bg-card border border-border rounded-2xl overflow-hidden divide-y divide-border">
+              {filtered.map(f => (
+                <div key={f.id} className={`flex items-center gap-3 px-4 py-3 hover:bg-secondary/30 transition ${!f.isVisible ? 'opacity-50' : ''}`}>
+                  <FileText className="w-5 h-5 text-violet-500 flex-shrink-0" />
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <p className="font-medium text-sm truncate">{f.title}</p>
+                      <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded-full flex-shrink-0 ${f.lang === 'AR' ? 'bg-amber-500/15 text-amber-600 dark:text-amber-400' : 'bg-blue-500/15 text-blue-600 dark:text-blue-400'}`}>
+                        {f.lang === 'AR' ? 'AR' : 'FR'}
+                      </span>
+                      {!f.isVisible && (
+                        <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-full bg-secondary text-muted-foreground flex-shrink-0">Masqué</span>
+                      )}
+                    </div>
+                    <p className="text-xs text-muted-foreground">
+                      {TARGETS.find(t => t.value === f.target)?.label ?? f.target} · {new Date(f.createdAt).toLocaleDateString('fr-FR')}
+                    </p>
+                  </div>
+                  <button onClick={() => setEditing({ id: f.id, title: f.title, target: f.target, lang: f.lang ?? 'FR' })} className="p-1.5 rounded-lg hover:bg-secondary text-muted-foreground hover:text-foreground transition flex-shrink-0">
+                    <Pencil className="w-4 h-4" />
+                  </button>
+                  <button onClick={() => handleToggle(f.id)} className={`p-1.5 rounded-lg transition flex-shrink-0 ${f.isVisible ? 'text-emerald-500 hover:bg-emerald-100 dark:hover:bg-emerald-900/30' : 'text-muted-foreground hover:bg-secondary'}`}>
+                    {f.isVisible ? <Eye className="w-4 h-4" /> : <EyeOff className="w-4 h-4" />}
+                  </button>
+                  <button onClick={() => handleDelete(f.id)} className="p-1.5 rounded-lg hover:bg-red-100 dark:hover:bg-red-900/30 text-red-500 transition flex-shrink-0">
+                    <Trash2 className="w-4 h-4" />
+                  </button>
                 </div>
               ))}
             </div>
-          );
-        })()}
+          )}
+        </div>
+      )}
 
-        <input
-          type="text"
-          placeholder="Rechercher par nom, téléphone, ville, fiche..."
-          value={dlSearch}
-          onChange={e => setDlSearch(e.target.value)}
-          className="w-full border border-border rounded-xl px-4 py-2 text-sm bg-background"
-        />
+      {/* Tab: Téléchargements */}
+      {tab === 'downloads' && (
+        <div className="space-y-4">
+          {/* Stats par fiche */}
+          {Object.keys(byFiche).length > 0 && (
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+              {Object.entries(byFiche).sort((a, b) => b[1] - a[1]).map(([title, count]) => (
+                <div key={title} className="bg-card border border-border rounded-xl p-4">
+                  <p className="text-xs text-muted-foreground leading-snug mb-1">{title}</p>
+                  <p className="text-2xl font-black">{count} <span className="text-xs font-normal text-muted-foreground">téléch.</span></p>
+                </div>
+              ))}
+            </div>
+          )}
 
-        {loadingDl ? (
-          <div className="text-sm text-muted-foreground">Chargement...</div>
-        ) : downloads.length === 0 ? (
-          <div className="text-sm text-muted-foreground">Aucun téléchargement enregistré.</div>
-        ) : (() => {
-          const q = dlSearch.toLowerCase();
-          const filtered = downloads.filter(d =>
-            !q || [d.prenom, d.nom, d.telephone, d.ville, d.ficheTitle, d.target].some(v => v?.toLowerCase().includes(q))
-          );
-          return (
+          <input
+            type="text"
+            placeholder="Rechercher par nom, téléphone, ville, fiche..."
+            value={dlSearch}
+            onChange={e => setDlSearch(e.target.value)}
+            className="w-full border border-border rounded-xl px-4 py-2 text-sm bg-background"
+          />
+
+          {loadingDl ? (
+            <div className="text-sm text-muted-foreground">Chargement...</div>
+          ) : downloads.length === 0 ? (
+            <div className="text-sm text-muted-foreground">Aucun téléchargement enregistré.</div>
+          ) : (
             <div className="bg-card border border-border rounded-2xl overflow-auto">
               <table className="w-full text-sm">
                 <thead>
@@ -313,7 +339,7 @@ export default function FichesMemoPage() {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-border">
-                  {filtered.map(d => (
+                  {dlFiltered.map(d => (
                     <tr key={d.id} className="hover:bg-secondary/30 transition">
                       <td className="px-4 py-3 font-medium whitespace-nowrap">{[d.prenom, d.nom].filter(Boolean).join(' ') || <span className="text-muted-foreground italic">—</span>}</td>
                       <td className="px-4 py-3 text-muted-foreground">{d.telephone || '—'}</td>
@@ -330,9 +356,9 @@ export default function FichesMemoPage() {
                 </tbody>
               </table>
             </div>
-          );
-        })()}
-      </div>
+          )}
+        </div>
+      )}
 
       {/* Modale édition */}
       {editing && (

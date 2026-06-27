@@ -1,5 +1,5 @@
 'use client';
-import { useEffect, useState, useCallback, Suspense } from 'react';
+import { useEffect, useState, useCallback, useRef, Suspense } from 'react';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { examenBlancApi, settingsApi } from '@/lib/api';
@@ -111,18 +111,24 @@ function ResultsContent() {
     setTimeout(() => window.print(), 300);
   }
 
+  const recentDownloads = useRef<Set<string>>(new Set());
   async function downloadFiche(url: string, title: string) {
-    examenBlancApi.logFicheDownload({
-      ficheTitle: title,
-      participantId: localState?.participantId,
-      prenom: localState?.participant?.prenom,
-      nom: localState?.participant?.nom,
-      telephone: localState?.participant?.telephone,
-      ville: localState?.participant?.ville,
-      target: localState?.target,
-      lang: localState?.lang,
-      sessionTitle: localState?.sessionTitle,
-    });
+    const key = `${localState?.participantId ?? 'anon'}:${title}`;
+    if (!recentDownloads.current.has(key)) {
+      recentDownloads.current.add(key);
+      setTimeout(() => recentDownloads.current.delete(key), 5000);
+      examenBlancApi.logFicheDownload({
+        ficheTitle: title,
+        participantId: localState?.participantId,
+        prenom: localState?.participant?.prenom,
+        nom: localState?.participant?.nom,
+        telephone: localState?.participant?.telephone,
+        ville: localState?.participant?.ville,
+        target: localState?.target,
+        lang: localState?.lang,
+        sessionTitle: localState?.sessionTitle,
+      });
+    }
     try {
       const res = await fetch(url);
       const blob = await res.blob();

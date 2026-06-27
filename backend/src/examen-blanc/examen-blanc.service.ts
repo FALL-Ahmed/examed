@@ -195,7 +195,7 @@ export class ExamenBlancService {
       endsAt: session.endsAt,
       resultsAt: session.resultsAt,
       startedAt: participant.createdAt,
-      participant: { nom: participant.nom, prenom: participant.prenom, ville: participant.ville },
+      participant: { nom: participant.nom, prenom: participant.prenom, ville: participant.ville, telephone: participant.telephone },
       questions: ordered.map((q: any, idx: number) => ({
         index: idx,
         id: q.id,
@@ -267,7 +267,7 @@ export class ExamenBlancService {
       endsAt: session.endsAt,
       resultsAt: session.resultsAt,
       startedAt: participant.createdAt,
-      participant: { nom: participant.nom, prenom: participant.prenom, ville: participant.ville },
+      participant: { nom: participant.nom, prenom: participant.prenom, ville: participant.ville, telephone: participant.telephone },
       questions: ordered.map((q: any, idx: number) => ({
         index: idx,
         id: q.id,
@@ -366,7 +366,7 @@ export class ExamenBlancService {
       answeredQ: participant.reponses.length,
       correctQ: participant.reponses.filter((r: any) => r.isCorrect).length,
       timeTaken: participant.timeTaken,
-      participant: { nom: participant.nom, prenom: participant.prenom, ville: participant.ville },
+      participant: { nom: participant.nom, prenom: participant.prenom, ville: participant.ville, telephone: participant.telephone },
     };
 
     // Marquer comme vu si pas encore fait
@@ -430,7 +430,7 @@ export class ExamenBlancService {
 
     return {
       locked: false,
-      participant: { nom: participant.nom, prenom: participant.prenom, ville: participant.ville },
+      participant: { nom: participant.nom, prenom: participant.prenom, ville: participant.ville, telephone: participant.telephone },
       score: participant.score,
       rawScore: participant.rawScore,
       classement,
@@ -589,7 +589,7 @@ export class ExamenBlancService {
       resultsAt: session.resultsAt,
       startedAt: participant.createdAt,
       isCompleted: participant.isCompleted,
-      participant: { nom: participant.nom, prenom: participant.prenom, ville: participant.ville },
+      participant: { nom: participant.nom, prenom: participant.prenom, ville: participant.ville, telephone: participant.telephone },
       questions: ordered.map((q: any, idx: number) => ({
         index: idx, id: q.id, text: q.text,
         choiceA: q.choiceA, choiceB: q.choiceB, choiceC: q.choiceC, choiceD: q.choiceD, choiceE: q.choiceE,
@@ -611,9 +611,16 @@ export class ExamenBlancService {
   async getFicheDownloads() {
     const rows = await db(this.prisma).ebFicheDownload.findMany({
       orderBy: { downloadedAt: 'desc' },
-      take: 500,
+      take: 2000,
     });
-    return rows;
+    // Déduplique : une seule entrée par (participantId|telephone + ficheTitle)
+    const seen = new Set<string>();
+    return rows.filter((r: any) => {
+      const key = `${r.participantId || r.telephone || r.prenom}:${r.ficheTitle}`;
+      if (seen.has(key)) return false;
+      seen.add(key);
+      return true;
+    });
   }
 
   async generateQuestions(totalQ = 80, lang: 'FR' | 'AR' = 'FR', target = 'INFIRMIER'): Promise<string[]> {
