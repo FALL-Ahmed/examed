@@ -9,6 +9,7 @@ interface User {
   role: 'FREE' | 'PREMIUM' | 'ADMIN';
   subscriptionEnd?: string;
   profession?: string;
+  phone?: string;
 }
 
 interface AuthStore {

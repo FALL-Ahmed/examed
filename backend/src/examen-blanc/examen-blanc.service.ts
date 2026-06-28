@@ -545,6 +545,118 @@ export class ExamenBlancService {
     return results;
   }
 
+  async getHistory(target: string, telephone?: string) {
+    const ebs = await db(this.prisma).examenBlanc.findMany({
+      where: { target: target.toUpperCase() },
+      orderBy: { startsAt: 'desc' },
+    });
+
+    const results = [];
+    for (const eb of ebs) {
+      const participantCount = await db(this.prisma).examenBlancParticipant.count({
+        where: { examenBlancId: eb.id, isCompleted: true, isTest: false },
+      });
+
+      let myAttempts: any[] = [];
+      if (telephone) {
+        const normalized = normalizePhone(telephone);
+        const mine = await db(this.prisma).examenBlancParticipant.findMany({
+          where: {
+            examenBlancId: eb.id,
+            isCompleted: true,
+            isTest: false,
+            OR: [
+              { telephone: normalized },
+              { telephone: { endsWith: normalized } },
+            ],
+          },
+          orderBy: { score: 'desc' },
+        });
+        for (const p of mine) {
+          const above = await db(this.prisma).examenBlancParticipant.count({
+            where: {
+              examenBlancId: eb.id, isCompleted: true, isTest: false,
+              OR: [{ score: { gt: p.score } }, { score: p.score, timeTaken: { lt: p.timeTaken } }],
+            },
+          });
+          myAttempts.push({ sessionId: p.sessionId, participantId: p.id, score: p.score, rank: above + 1, total: participantCount, date: p.submittedAt || p.createdAt });
+        }
+      }
+
+      results.push({
+        id: eb.id,
+        title: eb.title,
+        target: eb.target,
+        startsAt: eb.startsAt,
+        endsAt: eb.endsAt,
+        resultsAt: eb.resultsAt,
+        totalQ: eb.totalQ,
+        durationMin: eb.durationMin,
+        participantCount,
+        myBestScore: myAttempts[0]?.score ?? null,
+        myBestRank: myAttempts[0]?.rank ?? null,
+        myAttempts,
+      });
+    }
+    return results;
+  }
+
+  async registerPast(dto: { nom: string; prenom: string; telephone: string; ville: string; examenBlancId: string; lang: string }) {
+    const session = await db(this.prisma).examenBlanc.findUnique({ where: { id: dto.examenBlancId } });
+    if (!session) throw new NotFoundException('Session introuvable');
+
+    const lang = dto.lang === 'ar' ? 'ar' : 'fr';
+    const allIds: string[] = lang === 'ar' ? session.questionIdsAr : session.questionIdsFr;
+    const questionIds = allIds.slice(0, session.totalQ);
+    if (!questionIds?.length) throw new BadRequestException(`Aucune question disponible en ${lang.toUpperCase()}`);
+
+    const sessionId = `eb_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
+    const now = new Date();
+    const endsAt = new Date(now.getTime() + session.durationMin * 60 * 1000);
+
+    const participant = await db(this.prisma).examenBlancParticipant.create({
+      data: {
+        examenBlancId: dto.examenBlancId,
+        nom: dto.nom.trim(),
+        prenom: dto.prenom.trim(),
+        telephone: normalizePhone(dto.telephone.trim()),
+        ville: dto.ville,
+        lang,
+        sessionId,
+      },
+    });
+
+    const questions = await this.prisma.question.findMany({
+      where: { id: { in: questionIds }, isActive: true },
+      select: { id: true, text: true, choiceA: true, choiceB: true, choiceC: true, choiceD: true, choiceE: true, imageUrl: true, correctAnswer: true, subTheme: { select: { name: true, theme: { select: { name: true } } } } },
+    });
+
+    const ordered = questionIds.map((id: string) => questions.find((q: any) => q.id === id)).filter(Boolean);
+
+    return {
+      sessionId,
+      participantId: participant.id,
+      examenBlancId: session.id,
+      durationMin: session.durationMin,
+      totalQ: session.totalQ,
+      startsAt: now,
+      endsAt,
+      resultsAt: session.resultsAt,
+      startedAt: now,
+      target: session.target,
+      isRetry: true,
+      participant: { nom: participant.nom, prenom: participant.prenom, ville: participant.ville, telephone: participant.telephone },
+      questions: ordered.map((q: any, idx: number) => ({
+        index: idx, id: q.id, text: q.text,
+        choiceA: q.choiceA, choiceB: q.choiceB, choiceC: q.choiceC,
+        choiceD: q.choiceD, choiceE: q.choiceE,
+        imageUrl: q.imageUrl || null,
+        isMultiple: q.correctAnswer.split(',').length > 1,
+        subTheme: q.subTheme?.name || null, theme: q.subTheme?.theme?.name || null,
+      })),
+    };
+  }
+
   async recoverSession(telephone: string) {
     const participant = await db(this.prisma).examenBlancParticipant.findFirst({
       where: { telephone: telephone.trim() },

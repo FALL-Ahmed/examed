@@ -8,14 +8,15 @@ import { useLang } from '@/components/LanguageProvider';
 import { LanguageSwitcher } from '@/components/LanguageSwitcher';
 import { settingsApi } from '@/lib/api';
 import {
-  BookOpen, RefreshCw, Home, LogOut, Zap, Menu, X, TrendingUp, Sun, Moon, HeadphonesIcon, Heart, FileText,
+  BookOpen, RefreshCw, Home, LogOut, Zap, Menu, X, TrendingUp, Sun, Moon, HeadphonesIcon, Heart, FileText, ClipboardList,
 } from 'lucide-react';
 
 const NAV_ITEMS = [
   { href: '/dashboard',    icon: Home,           label_key: 'nav.dashboard',   color: '#818cf8' },
   { href: '/practice',     icon: BookOpen,       label_key: 'nav.practice',    color: '#0ea5e9' },
   { href: '/exam',         icon: Zap,            label_key: 'nav.exam',        color: '#a78bfa' },
-  { href: '/fiches-memo',  icon: FileText,       label_key: 'nav.fichesMemo',  color: '#10b981', badge: 'Nouveau' },
+  { href: '/fiches-memo',      icon: FileText,       label_key: 'nav.fichesMemo',       color: '#10b981', badge: 'Nouveau' },
+  { href: '/historique-eb',    icon: ClipboardList,  label_key: 'nav.historiqueEB',     color: '#f59e0b' },
   { href: '/review',       icon: RefreshCw,      label_key: 'nav.review',      color: '#fbbf24' },
   { href: '/favorites',    icon: Heart,          label_key: 'nav.favorites',   color: '#f43f5e' },
   { href: '/stats',        icon: TrendingUp,     label_key: 'nav.stats',       color: '#38bdf8' },
@@ -30,7 +31,7 @@ function NavItems({ onNav, fichesMemoEnabled }: { onNav?: () => void; fichesMemo
   const visibleItems = NAV_ITEMS.filter(item => item.href !== '/fiches-memo' || fichesMemoEnabled);
 
   return (
-    <nav className="flex-1 px-3 py-3 space-y-0.5 overflow-hidden">
+    <nav className="flex-1 px-3 py-3 space-y-0.5 overflow-y-auto">
       <p className="text-white/20 text-xs font-semibold uppercase tracking-wider px-3 mb-2">Menu</p>
       {visibleItems.map((item) => {
         const active = isPracticeResults

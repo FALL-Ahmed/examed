@@ -54,6 +54,16 @@ export class ExamenBlancController {
     return this.service.getLeaderboard(id);
   }
 
+  @Get('history')
+  getHistory(@Query('target') target: string, @Query('telephone') telephone?: string) {
+    return this.service.getHistory(target?.toUpperCase() || 'INFIRMIER', telephone);
+  }
+
+  @Post('register-past')
+  registerPast(@Body() body: { nom: string; prenom: string; telephone: string; ville: string; examenBlancId: string; lang: string }) {
+    return this.service.registerPast(body);
+  }
+
   @Post('recover')
   recover(@Body() body: { telephone: string }) {
     return this.service.recoverSession(body.telephone);

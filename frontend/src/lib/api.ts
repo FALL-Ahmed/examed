@@ -270,6 +270,10 @@ export const examenBlancApi = {
     axios.post(`${API_URL}/examen-blanc/fiche-download`, data).catch(() => {}),
   adminFicheDownloads: () => api.get('/examen-blanc/admin/fiche-downloads'),
   fichesPreview: (target: string, lang: string) => axios.get(`${API_URL}/examen-blanc/fiches-preview`, { params: { target, lang } }),
+  history: (target: string, telephone?: string) =>
+    axios.get(`${API_URL}/examen-blanc/history`, { params: telephone ? { target, telephone } : { target } }),
+  registerPast: (data: { nom: string; prenom: string; telephone: string; ville: string; examenBlancId: string; lang: string }) =>
+    axios.post(`${API_URL}/examen-blanc/register-past`, data),
 };
 
 export const pushApi = {

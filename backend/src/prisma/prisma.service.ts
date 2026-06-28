@@ -6,7 +6,7 @@ export class PrismaService extends PrismaClient implements OnModuleInit, OnModul
   constructor() {
     const base = process.env.DATABASE_URL ?? '';
     const sep = base.includes('?') ? '&' : '?';
-    super({ datasources: { db: { url: base + sep + 'connection_limit=20&pool_timeout=20&pgbouncer=true' } } });
+    super({ datasources: { db: { url: base + sep + 'connection_limit=10&pool_timeout=20&pgbouncer=true' } } });
   }
   async onModuleInit() {
     await this.$connect();
