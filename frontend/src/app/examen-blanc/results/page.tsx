@@ -86,7 +86,7 @@ function FichesMemo({ fichesData, isAr, onDownload, allFiches }: {
               {[...lockedFiches, ...lockedFiches].map((fiche, i) => (
                 <Link key={`${fiche.id}-${i}`} href="/register" className="flex-shrink-0 w-32 flex flex-col rounded-2xl overflow-hidden shadow-md border-2 border-violet-100 relative">
                   <div className="relative overflow-hidden" style={{ aspectRatio: '3/4' }}>
-                    <img src={fiche.fileUrl} alt="" className="w-full h-full object-cover object-top scale-105" style={{ filter: 'blur(1.5px) brightness(0.75)' }} />
+                    <img src={fiche.fileUrl} alt="" className="w-full h-full object-cover object-top scale-105" style={{ filter: 'blur(0.8px) brightness(0.85)' }} />
                     <div className="absolute inset-0 flex flex-col items-center justify-center gap-1.5"
                       style={{ background: 'linear-gradient(135deg,rgba(124,58,237,0.5),rgba(99,102,241,0.5))' }}>
                       <div className="w-9 h-9 rounded-full bg-white/20 backdrop-blur flex items-center justify-center">

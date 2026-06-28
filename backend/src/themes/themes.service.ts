@@ -69,7 +69,7 @@ export class ThemesService {
 
     if (profession === 'sage_femme') {
       return this.prisma.theme.findMany({
-        where: { target: 'SAGE_FEMME', ...(language ? { language } : {}) },
+        where: { target: 'SAGE_FEMME', isPublished: true, ...(language ? { language } : {}) },
         include: {
           subThemes: {
             select: { id: true, name: true, order: true, _count: { select: { questions: true } } },
