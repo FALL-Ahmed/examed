@@ -111,15 +111,29 @@ export default function FichesMemoPage() {
     return matchTarget && matchLang;
   });
 
+  const [dlFilterTarget, setDlFilterTarget] = useState('ALL_FILTER');
+
+  const dlFilteredByTarget = dlFilterTarget === 'ALL_FILTER'
+    ? downloads
+    : downloads.filter(d => d.target === dlFilterTarget);
+
   const dlFiltered = (() => {
     const q = dlSearch.toLowerCase();
-    return !q ? downloads : downloads.filter(d =>
+    const base = dlFilteredByTarget;
+    return !q ? base : base.filter(d =>
       [d.prenom, d.nom, d.telephone, d.ville, d.ficheTitle, d.target].some(v => v?.toLowerCase().includes(q))
     );
   })();
 
   const byFiche: Record<string, number> = {};
-  for (const d of downloads) byFiche[d.ficheTitle] = (byFiche[d.ficheTitle] || 0) + 1;
+  for (const d of dlFilteredByTarget) byFiche[d.ficheTitle] = (byFiche[d.ficheTitle] || 0) + 1;
+
+  const statsByTarget = {
+    INFIRMIER:  downloads.filter(d => d.target === 'INFIRMIER').length,
+    SAGE_FEMME: downloads.filter(d => d.target === 'SAGE_FEMME').length,
+    BIOLOGISTE: downloads.filter(d => d.target === 'BIOLOGISTE').length,
+    ALL:        downloads.filter(d => d.target === 'ALL' || !d.target).length,
+  };
 
   return (
     <div className="space-y-6">
@@ -301,7 +315,63 @@ export default function FichesMemoPage() {
       {/* Tab: Téléchargements */}
       {tab === 'downloads' && (
         <div className="space-y-4">
-          {/* Stats par fiche */}
+          {/* Cards stats globales */}
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+            <div className="bg-card border border-border rounded-xl p-4">
+              <p className="text-xs text-muted-foreground mb-1">Total</p>
+              <p className="text-2xl font-black">{downloads.length} <span className="text-xs font-normal text-muted-foreground">téléch.</span></p>
+            </div>
+            <div
+              onClick={() => setDlFilterTarget(dlFilterTarget === 'INFIRMIER' ? 'ALL_FILTER' : 'INFIRMIER')}
+              className={`bg-card border rounded-xl p-4 cursor-pointer transition ${dlFilterTarget === 'INFIRMIER' ? 'border-violet-500 ring-1 ring-violet-500' : 'border-border hover:border-violet-400'}`}
+            >
+              <p className="text-xs text-muted-foreground mb-1">Infirmier</p>
+              <p className="text-2xl font-black text-violet-500">{statsByTarget.INFIRMIER} <span className="text-xs font-normal text-muted-foreground">téléch.</span></p>
+            </div>
+            <div
+              onClick={() => setDlFilterTarget(dlFilterTarget === 'SAGE_FEMME' ? 'ALL_FILTER' : 'SAGE_FEMME')}
+              className={`bg-card border rounded-xl p-4 cursor-pointer transition ${dlFilterTarget === 'SAGE_FEMME' ? 'border-pink-500 ring-1 ring-pink-500' : 'border-border hover:border-pink-400'}`}
+            >
+              <p className="text-xs text-muted-foreground mb-1">Sage-femme</p>
+              <p className="text-2xl font-black text-pink-500">{statsByTarget.SAGE_FEMME} <span className="text-xs font-normal text-muted-foreground">téléch.</span></p>
+            </div>
+            <div
+              onClick={() => setDlFilterTarget(dlFilterTarget === 'BIOLOGISTE' ? 'ALL_FILTER' : 'BIOLOGISTE')}
+              className={`bg-card border rounded-xl p-4 cursor-pointer transition ${dlFilterTarget === 'BIOLOGISTE' ? 'border-emerald-500 ring-1 ring-emerald-500' : 'border-border hover:border-emerald-400'}`}
+            >
+              <p className="text-xs text-muted-foreground mb-1">Biologiste</p>
+              <p className="text-2xl font-black text-emerald-500">{statsByTarget.BIOLOGISTE} <span className="text-xs font-normal text-muted-foreground">téléch.</span></p>
+            </div>
+          </div>
+
+          {/* Filtres cible */}
+          <div className="flex flex-wrap gap-2 items-center">
+            <span className="text-xs text-muted-foreground font-semibold uppercase tracking-wide">Filtrer :</span>
+            {[
+              { value: 'ALL_FILTER', label: 'Tous' },
+              { value: 'INFIRMIER',  label: 'Infirmier' },
+              { value: 'SAGE_FEMME', label: 'Sage-femme' },
+              { value: 'BIOLOGISTE', label: 'Biologiste' },
+            ].map(t => (
+              <button
+                key={t.value}
+                onClick={() => setDlFilterTarget(t.value)}
+                className={`px-3 py-1 rounded-full text-xs font-semibold transition ${dlFilterTarget === t.value ? 'bg-primary text-primary-foreground' : 'bg-secondary text-muted-foreground hover:bg-secondary/70'}`}
+              >
+                {t.label}
+                {t.value !== 'ALL_FILTER' && (
+                  <span className="ml-1 opacity-70">
+                    ({t.value === 'INFIRMIER' ? statsByTarget.INFIRMIER : t.value === 'SAGE_FEMME' ? statsByTarget.SAGE_FEMME : statsByTarget.BIOLOGISTE})
+                  </span>
+                )}
+              </button>
+            ))}
+            {dlFilterTarget !== 'ALL_FILTER' && (
+              <span className="text-xs text-muted-foreground ml-1">{dlFilteredByTarget.length} résultat{dlFilteredByTarget.length !== 1 ? 's' : ''}</span>
+            )}
+          </div>
+
+          {/* Stats par fiche (filtrées) */}
           {Object.keys(byFiche).length > 0 && (
             <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
               {Object.entries(byFiche).sort((a, b) => b[1] - a[1]).map(([title, count]) => (
@@ -346,7 +416,7 @@ export default function FichesMemoPage() {
                       <td className="px-4 py-3 text-muted-foreground">{d.ville || '—'}</td>
                       <td className="px-4 py-3 text-xs font-semibold max-w-[180px] leading-snug">{d.ficheTitle}</td>
                       <td className="px-4 py-3">
-                        {d.target && <span className={`inline-flex px-2 py-0.5 rounded-full text-xs font-semibold ${d.target === 'BIOLOGISTE' ? 'bg-blue-100 text-blue-700' : d.target === 'SAGE_FEMME' ? 'bg-pink-100 text-pink-700' : 'bg-violet-100 text-violet-700'}`}>{d.target}</span>}
+                        {d.target && <span className={`inline-flex px-2 py-0.5 rounded-full text-xs font-semibold ${d.target === 'BIOLOGISTE' ? 'bg-emerald-100 text-emerald-700' : d.target === 'SAGE_FEMME' ? 'bg-pink-100 text-pink-700' : 'bg-violet-100 text-violet-700'}`}>{d.target}</span>}
                       </td>
                       <td className="px-4 py-3 text-muted-foreground whitespace-nowrap">
                         {new Date(d.downloadedAt).toLocaleString('fr-FR', { dateStyle: 'short', timeStyle: 'short' })}
