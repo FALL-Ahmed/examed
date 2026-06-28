@@ -26,7 +26,7 @@ function FichesMemo({ fichesData, isAr, onDownload, allFiches }: {
           🎁 {isAr ? 'هدية مجانية' : 'Cadeau gratuit'}
         </div>
         <p className="text-white font-black text-xl leading-tight">
-          {isAr ? 'حمّل مذكرتين من فيش ميمو' : '2 fiches mémo offertes'}
+          {isAr ? 'حمّل بطاقتين من بطاقات المراجعة' : '2 fiches mémo offertes'}
         </p>
         <p className="text-white/70 text-xs mt-1">
           {isAr ? 'من مذكرات المنصة — مجاناً' : 'Parmi les fiches de la plateforme — gratuitement'}
@@ -60,7 +60,7 @@ function FichesMemo({ fichesData, isAr, onDownload, allFiches }: {
           <div className="px-4 mb-3 flex items-center justify-between">
             <div>
               <p className="text-sm font-black text-gray-800">
-                🔒 {isAr ? `${lockedFiches.length} فيش ميمو أخرى` : `${lockedFiches.length} fiches mémo de plus`}
+                🔒 {isAr ? `${lockedFiches.length} بطاقة مراجعة أخرى` : `${lockedFiches.length} fiches mémo de plus`}
               </p>
               <p className="text-xs text-violet-500 font-semibold mt-0.5">
                 {isAr ? 'للمشتركين فقط — سجّل للوصول' : 'Réservées aux inscrits · Crée ton compte'}

@@ -554,7 +554,7 @@ export class ExamenBlancService {
     const results = [];
     for (const eb of ebs) {
       const participantCount = await db(this.prisma).examenBlancParticipant.count({
-        where: { examenBlancId: eb.id, isCompleted: true, isTest: false },
+        where: { examenBlancId: eb.id, isTest: false },
       });
 
       let myAttempts: any[] = [];
