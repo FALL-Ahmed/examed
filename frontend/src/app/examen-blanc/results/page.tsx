@@ -167,11 +167,14 @@ function ResultsContent() {
   }, []);
 
   useEffect(() => {
-    const target = results?.target || localState?.target || 'BIOLOGISTE';
+    const target = results?.target || localState?.target;
+    if (!target) return;
     const lang = results?.lang || localState?.lang || 'fr';
+    let cancelled = false;
     examenBlancApi.fichesPreview(target, lang.toUpperCase())
-      .then((r) => setAllFiches(r.data))
+      .then((r) => { if (!cancelled) setAllFiches(r.data); })
       .catch(() => {});
+    return () => { cancelled = true; };
   }, [results, localState]);
 
   function handlePrint() {
