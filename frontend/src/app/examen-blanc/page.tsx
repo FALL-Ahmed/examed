@@ -234,11 +234,9 @@ export function ExamenBlancPageContent({ target }: { target: Target }) {
             </span>
           </h1>
 
-          <p className={`${theme.textDim} text-lg sm:text-xl max-w-2xl mx-auto mb-8 leading-relaxed`}>
-            {isAr
-              ? 'اختبر مستواك الحقيقي قبل المسابقة الرسمية. ترتيب وطني. نتائج مفصّلة.'
-              : 'Teste ton vrai niveau avant le concours officiel. Analyse détaillée.'}
-          </p>
+          <div className="inline-flex items-center gap-2.5 px-6 py-3 rounded-2xl border-2 border-amber-400 bg-amber-500/25 text-amber-200 text-base font-black mb-8 shadow-lg shadow-amber-900/40 animate-pulse">
+            🔥 {isAr ? 'آخر امتحان تجريبي مجاني !' : 'Dernier examen blanc gratuit !'}
+          </div>
 
           {/* Stats live */}
           <div className="flex items-center justify-center gap-6 sm:gap-10 mb-10 flex-wrap">
