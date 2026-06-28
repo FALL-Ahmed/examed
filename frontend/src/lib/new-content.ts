@@ -2,6 +2,10 @@
 // À supprimer quand le badge "Nouveau" ne sera plus nécessaire
 
 export const NEW_THEME_IDS = new Set([
+  // Infirmier FR — importés le 2026-06-28
+  'cmqy8x3ep000010b9icue5oda', // LA GROSSESSE NORMALE
+  'cmqy8x6x9000910b9tcdvue3g', // Principales complications de la grossesse
+  'cmqy8x82v000c10b9vvyvot47', // GYNECOLOGIE
   // Infirmier FR — importés le 2026-06-27
   '57ca7cd9-acd0-428e-8eb3-cb2ea054297e', // SECOURISME
   '1c11b5af-ae8a-4cd1-a43d-8d084d1a259b', // COMMUNICATION ET ÉDUCATION POUR LA SANTÉ
@@ -16,6 +20,14 @@ export const NEW_THEME_IDS = new Set([
 ]);
 
 export const NEW_SUBTHEME_IDS = new Set([
+  // Infirmier FR — sous-thèmes importés le 2026-06-28
+  'cmqy8x46s000210b9p4mq6dkl', // Datation et Consultations
+  'cmqy8x4rt000410b9fvyz5bk5', // Modifications physiologiques de la grossesse et Signes cliniques
+  'cmqy8x5ca000610b9vy3x96j9', // Pathologies, Travail et Divers
+  'cmqy8x64o000810b97uh2tor6', // Suivi Biologique et Dépistages
+  'cmqy8x7hr000b10b9q4ej3kto', // Principales complications de la grossesse
+  'cmqy8x8ni000e10b94kgd50at', // PRÉVENTION DU CANCER DU COL DE L'UTÉRUS
+  'cmqy8x9nu000g10b9sce67a5g', // Les douleurs pelviennes
   // Infirmier FR — sous-thèmes importés le 2026-06-27
   'c14cbb93-c21e-4024-a094-e3c94a9a3b44', // RÉANIMATION INTRA-HOSPITALIÈRE
   '705f3cd2-a10e-48cd-9882-fc3d83ecf007', // ALGORITHME RCP AVANCÉE - ALS

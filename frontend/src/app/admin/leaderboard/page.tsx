@@ -11,6 +11,7 @@ type UserRow = {
   id: string;
   fullName: string;
   email: string;
+  phone?: string;
   role: string;
   totalAnswers: number;
   correctAnswers: number;
@@ -122,7 +123,9 @@ export default function LeaderboardPage() {
                   {initials(u.fullName)}
                 </div>
                 <p className="font-semibold text-sm text-foreground truncate">{u.fullName}</p>
-                <p className="text-muted-foreground text-xs truncate mb-3">{u.email}</p>
+                <p className="text-muted-foreground text-xs truncate">{u.email}</p>
+                {u.phone && <p className="text-muted-foreground text-xs truncate mb-1">{u.phone}</p>}
+                <div className="mb-3" />
                 <div className="grid grid-cols-2 gap-2">
                   <div className="bg-background/60 rounded-lg p-2">
                     <p className={`text-lg font-black ${medal.text}`}>{u.bayesianScore}%</p>
@@ -184,6 +187,7 @@ export default function LeaderboardPage() {
                           <div>
                             <p className="text-foreground font-medium">{u.fullName}</p>
                             <p className="text-muted-foreground text-xs">{u.email}</p>
+                            {u.phone && <p className="text-muted-foreground text-xs">{u.phone}</p>}
                           </div>
                         </div>
                       </td>

@@ -502,7 +502,7 @@ export class AdminService {
       }),
       this.prisma.user.findMany({
         where: userWhere,
-        select: { id: true, fullName: true, email: true, role: true, createdAt: true, profession: true },
+        select: { id: true, fullName: true, email: true, phone: true, role: true, createdAt: true, profession: true },
       }),
     ]);
 

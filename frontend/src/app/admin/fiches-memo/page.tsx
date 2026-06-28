@@ -319,7 +319,7 @@ export default function FichesMemoPage() {
           <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
             <div className="bg-card border border-border rounded-xl p-4">
               <p className="text-xs text-muted-foreground mb-1">Total</p>
-              <p className="text-2xl font-black">{downloads.length} <span className="text-xs font-normal text-muted-foreground">téléch.</span></p>
+              <p className="text-2xl font-black">{statsByTarget.INFIRMIER + statsByTarget.SAGE_FEMME + statsByTarget.BIOLOGISTE} <span className="text-xs font-normal text-muted-foreground">téléch.</span></p>
             </div>
             <div
               onClick={() => setDlFilterTarget(dlFilterTarget === 'INFIRMIER' ? 'ALL_FILTER' : 'INFIRMIER')}
