@@ -33,7 +33,7 @@ export class ThemesService {
   async findAll(language?: string, userId?: string, target?: string) {
     if (target) {
       return this.prisma.theme.findMany({
-        where: { target, ...(language ? { language } : {}) },
+        where: { target, isPublished: true, ...(language ? { language } : {}) },
         include: {
           subThemes: {
             select: { id: true, name: true, order: true, _count: { select: { questions: true } } },
@@ -83,7 +83,7 @@ export class ThemesService {
 
     if (profession === 'etudiant_infirmier_3eme') {
       const themes = await this.prisma.theme.findMany({
-        where: { target: 'INFIRMIER', ...(language ? { language } : {}) },
+        where: { target: 'INFIRMIER', isPublished: true, ...(language ? { language } : {}) },
         include: {
           subThemes: {
             select: { id: true, name: true, order: true, _count: { select: { questions: true } } },
@@ -100,7 +100,7 @@ export class ThemesService {
     }
 
     return this.prisma.theme.findMany({
-      where: { target: 'INFIRMIER', ...(language ? { language } : {}) },
+      where: { target: 'INFIRMIER', isPublished: true, ...(language ? { language } : {}) },
       include: {
         subThemes: {
           select: { id: true, name: true, order: true, _count: { select: { questions: true } } },

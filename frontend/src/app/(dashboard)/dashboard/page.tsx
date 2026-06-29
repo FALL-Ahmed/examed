@@ -137,6 +137,31 @@ export default function DashboardPage() {
       </div>
 
 
+      {/* ── Prépa Concours promo ── */}
+      <div className="rounded-2xl overflow-hidden" style={{ background: 'linear-gradient(135deg, #7c2d12 0%, #c2410c 50%, #f97316 100%)' }}>
+        <div className="px-6 py-5 flex flex-col sm:flex-row sm:items-center gap-4">
+          <div className="flex-1">
+            <div className="flex items-center gap-2 mb-1">
+              <span className="text-xs font-bold bg-white/20 text-white px-2 py-0.5 rounded-full uppercase tracking-wide">
+                {isAr ? 'جديد' : 'Nouveau'}
+              </span>
+            </div>
+            <h2 className="text-white font-bold text-lg md:text-xl leading-tight">
+              {isAr ? '🎯 برنامج التحضير — 4 أيام قبل المسابقة !' : '🎯 Programme Prépa Concours — J-4 !'}
+            </h2>
+            <p className="text-white/70 text-sm mt-1">
+              {isAr
+                ? 'خطة مدروسة : QCM + بطاقات المراجعة يوماً بيوم'
+                : 'Plan structuré : QCM + Fiches Mémo jour par jour'}
+            </p>
+          </div>
+          <Link href="/preparation-concours"
+            className="flex-shrink-0 flex items-center gap-2 bg-white text-orange-700 font-bold px-5 py-3 rounded-xl text-sm hover:bg-white/90 transition shadow-lg">
+            {isAr ? 'ابدأ التحضير' : 'Commencer'} <ArrowRight className="w-4 h-4" />
+          </Link>
+        </div>
+      </div>
+
       {/* ── Fiches Mémo promo ── */}
       <div className="rounded-2xl overflow-hidden" style={{ background: 'linear-gradient(135deg, #065f46 0%, #047857 50%, #059669 100%)' }}>
         <div className="px-6 py-5 flex flex-col sm:flex-row sm:items-center gap-4">

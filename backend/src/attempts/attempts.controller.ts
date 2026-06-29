@@ -11,8 +11,14 @@ class StartAttemptDto {
   @IsOptional() @IsString()
   themeId?: string;
 
+  @IsOptional() @IsArray()
+  themeIds?: string[];
+
   @IsOptional() @IsString()
   subThemeId?: string;
+
+  @IsOptional() @IsArray()
+  subThemeIds?: string[];
 
   @IsOptional() @IsNumber()
   count?: number;

@@ -33,7 +33,10 @@ export class AttemptsService {
   async startAttempt(userId: string, userRole: string, dto: {
     mode: 'PRACTICE' | 'EXAM' | 'REVIEW' | 'FAVORITES';
     themeId?: string;
+    themeIds?: string[];
+    excludeAnsweredToday?: boolean;
     subThemeId?: string;
+    subThemeIds?: string[];
     count?: number;
     durationMinutes?: number;
     questionIds?: string[];
@@ -84,9 +87,12 @@ export class AttemptsService {
       }
       questions = await this.questionsService.getForPractice(userId, 'ADMIN', {
         themeId: dto.themeId,
+        themeIds: dto.themeIds,
         subThemeId: dto.subThemeId,
+        subThemeIds: dto.subThemeIds,
         count: dto.count || 1,
         language: dto.language,
+        excludeAnsweredToday: dto.excludeAnsweredToday,
       });
     }
 

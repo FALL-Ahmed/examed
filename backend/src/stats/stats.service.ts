@@ -62,15 +62,44 @@ export class StatsService {
 
     const language = (lang || 'FR').toUpperCase() as 'FR' | 'AR';
 
-    // Total questions pour la profession et la langue
-    const totalQ = await this.prisma.question.count({
-      where: { subTheme: { theme: { target, isPublished: true, language } } },
+    // Thèmes publiés triés → on aplatit au niveau SOUS-THÈME pour une coupe fine
+    // (un seul gros thème peut contenir plusieurs centaines de questions, ce qui
+    // empêche une répartition équilibrée si on découpe au niveau thème entier).
+    const themes = await this.prisma.theme.findMany({
+      where: { target, isPublished: true, language },
+      select: {
+        subThemes: {
+          select: { _count: { select: { questions: true } } },
+          orderBy: [{ order: 'asc' }, { id: 'asc' }],
+        },
+      },
+      orderBy: [{ order: 'asc' }, { id: 'asc' }],
     });
+    const flatQs = themes.flatMap(t => t.subThemes.map(st => st._count.questions));
+    const cumQ = flatQs.reduce((acc, q) => { acc.push((acc[acc.length - 1] ?? 0) + q); return acc; }, [] as number[]);
+    const totalQ = cumQ[cumQ.length - 1] ?? 0;
+    // Trouver les points de coupe (au niveau sous-thème) pour équilibrer les questions par jour
+    let split1 = 1, minDiff1 = Infinity;
+    for (let i = 0; i < flatQs.length - 2; i++) {
+      const d = Math.abs(cumQ[i] - totalQ / 3);
+      if (d < minDiff1) { minDiff1 = d; split1 = i + 1; }
+    }
+    let split2 = split1 + 1, minDiff2 = Infinity;
+    for (let i = split1; i < flatQs.length - 1; i++) {
+      const d = Math.abs(cumQ[i] - (2 * totalQ) / 3);
+      if (d < minDiff2) { minDiff2 = d; split2 = i + 1; }
+    }
+    const qPerDayArr = [
+      flatQs.slice(0, split1).reduce((s, q) => s + q, 0),
+      flatQs.slice(split1, split2).reduce((s, q) => s + q, 0),
+      flatQs.slice(split2).reduce((s, q) => s + q, 0),
+    ];
 
     // Total fiches mémo pour la langue
     const totalFiches = await this.prisma.ficheMemo.count({
       where: { target, isVisible: true, lang: language },
     });
+    const fichesPerDay = Math.ceil(totalFiches / 3);
 
     // Questions répondues depuis le début de la journée courante
     const startOfToday = new Date();
@@ -79,10 +108,7 @@ export class StatsService {
       where: { userId, answeredAt: { gte: startOfToday } },
     });
 
-    const qPerDay = Math.ceil(totalQ / 3);
-    const fichesPerDay = Math.ceil(totalFiches / 3);
-
-    return { totalQ, qPerDay, totalFiches, fichesPerDay, questionsAnswered, target };
+    return { totalQ, qPerDay: qPerDayArr, totalFiches, fichesPerDay, questionsAnswered, target };
   }
 
   async getMyRank(userId: string) {

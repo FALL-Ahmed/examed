@@ -1,8 +1,17 @@
 'use client';
-import { useEffect, useRef, useState, useCallback } from 'react';
+import { useEffect, useRef, useState, useCallback, Suspense } from 'react';
+import { useSearchParams } from 'next/navigation';
+import Link from 'next/link';
 import { userApi, api } from '@/lib/api';
+import { translations } from '@/lib/i18n';
 import { useLang } from '@/components/LanguageProvider';
-import { FileText, X, ZoomIn, ZoomOut, Maximize2 } from 'lucide-react';
+import { FileText, X, ZoomIn, ZoomOut, Maximize2, Target, ArrowLeft } from 'lucide-react';
+
+const PREP_COLORS: Record<number, string> = {
+  1: 'linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%)',
+  2: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
+  3: 'linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%)',
+};
 
 function useFicheBlob(ficheId: string | null, thumb = false) {
   const [blobUrl, setBlobUrl] = useState<string | null>(null);
@@ -249,27 +258,57 @@ function FicheCard({ f, isAr, onOpen }: { f: any; isAr: boolean; onOpen: () => v
   );
 }
 
-export default function FichesMemoPage() {
+function FichesMemoInner() {
   const { lang } = useLang();
+  const searchParams = useSearchParams();
   const isAr = lang === 'ar';
+  const T = translations[lang as 'fr' | 'ar'] ?? translations.fr;
+  const t = (k: string) => (T as any)[k] ?? k;
   const [fiches, setFiches] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [selected, setSelected] = useState<any>(null);
+
+  const prepDay = searchParams.get('day') ? parseInt(searchParams.get('day')!) : null;
+  const prepColor = prepDay ? PREP_COLORS[prepDay] ?? PREP_COLORS[1] : null;
 
   useEffect(() => {
     userApi.fichesMemo(lang.toUpperCase()).then(r => setFiches(r.data)).catch(() => {}).finally(() => setLoading(false));
   }, [lang]);
 
+  // Diviser fiches en 3 groupes
+  const third = Math.ceil(fiches.length / 3);
+  const dayFiches = prepDay ? fiches.slice((prepDay - 1) * third, prepDay * third) : [];
+  const otherFiches = prepDay ? fiches.filter(f => !dayFiches.includes(f)) : fiches;
+
   return (
     <div className="max-w-5xl mx-auto space-y-6">
+
+      {/* Banner préparation */}
+      {prepDay && (
+        <div className="rounded-2xl p-5 text-white flex items-center justify-between gap-4" style={{ background: prepColor! }}>
+          <div className="flex items-center gap-3">
+            <Target size={20} className="text-white/80 flex-shrink-0" />
+            <div>
+              <div className="text-xs text-white/70 font-medium uppercase tracking-wide">{t('prep.prepBanner')}</div>
+              <div className="font-bold">{t('prep.dayN')} {prepDay} — {dayFiches.length} {t('prep.totalFiches')}</div>
+            </div>
+          </div>
+          <Link href="/preparation-concours" className="flex items-center gap-1.5 bg-white/20 hover:bg-white/30 text-white text-sm font-semibold px-3 py-1.5 rounded-lg transition flex-shrink-0">
+            <ArrowLeft size={15} /> {isAr ? 'رجوع' : 'Retour'}
+          </Link>
+        </div>
+      )}
+
       <div>
         <h1 className="text-2xl font-bold">
-          {isAr ? 'بطاقات المراجعة' : 'Fiches Mémo'}
+          {prepDay
+            ? (isAr ? `المراجعة — اليوم ${prepDay}` : `Révision Jour ${prepDay}`)
+            : (isAr ? 'بطاقات المراجعة' : 'Fiches Mémo')}
         </h1>
         <p className="text-sm text-muted-foreground mt-1">
-          {isAr
-            ? 'كل ما تحتاج لحفظه قبل يوم المسابقة'
-            : 'Tout ce que vous devez retenir avant le jour du concours'}
+          {prepDay
+            ? (isAr ? `بطاقات اليوم ${prepDay} من برنامج J-4` : `Fiches du Jour ${prepDay} — Programme J-4`)
+            : (isAr ? 'كل ما تحتاج لحفظه قبل يوم المسابقة' : 'Tout ce que vous devez retenir avant le jour du concours')}
         </p>
       </div>
 
@@ -290,16 +329,59 @@ export default function FichesMemoPage() {
           </p>
         </div>
       ) : (
-        <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
-          {fiches.map((f) => (
-            <FicheCard key={f.id} f={f} isAr={isAr} onOpen={() => setSelected(f)} />
-          ))}
-        </div>
+        <>
+          {/* Fiches du jour (mode prépa) */}
+          {prepDay && dayFiches.length > 0 && (
+            <div className="space-y-3">
+              <h2 className="font-bold text-sm uppercase tracking-wide text-muted-foreground">
+                {t('prep.reviseToday')} {prepDay}
+              </h2>
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
+                {dayFiches.map((f) => (
+                  <FicheCard key={f.id} f={f} isAr={isAr} onOpen={() => setSelected(f)} />
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Toutes les fiches (ou autres si mode prépa) */}
+          {prepDay && otherFiches.length > 0 && (
+            <div className="space-y-3">
+              <h2 className="font-bold text-sm uppercase tracking-wide text-muted-foreground">{t('prep.otherFiches')}</h2>
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 opacity-50">
+                {otherFiches.map((f) => (
+                  <FicheCard key={f.id} f={f} isAr={isAr} onOpen={() => setSelected(f)} />
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Mode normal : toutes les fiches */}
+          {!prepDay && (
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
+              {fiches.map((f) => (
+                <FicheCard key={f.id} f={f} isAr={isAr} onOpen={() => setSelected(f)} />
+              ))}
+            </div>
+          )}
+        </>
       )}
 
       {selected && (
         <FicheModal f={selected} onClose={() => setSelected(null)} />
       )}
     </div>
+  );
+}
+
+export default function FichesMemoPage() {
+  return (
+    <Suspense fallback={
+      <div className="flex justify-center py-12">
+        <div className="w-6 h-6 border-2 border-primary border-t-transparent rounded-full animate-spin" />
+      </div>
+    }>
+      <FichesMemoInner />
+    </Suspense>
   );
 }

@@ -1,23 +1,35 @@
 'use client';
-import { useState, useEffect, useRef } from 'react';
-import { useRouter } from 'next/navigation';
+import { useState, useEffect, useRef, Suspense } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { attemptsApi, themesApi } from '@/lib/api';
 import { NEW_THEME_IDS, NEW_SUBTHEME_IDS } from '@/lib/new-content';
 import { useAuthStore } from '@/lib/auth-store';
 import { QuestionCard } from '@/components/QuestionCard';
 import { useLang } from '@/components/LanguageProvider';
-import { BookOpen, Loader2, Play } from 'lucide-react';
+import { BookOpen, Loader2, Play, Target, ArrowLeft } from 'lucide-react';
 import { ThemeSearchInput } from '@/components/ThemeSearchInput';
 import { sentenceCase } from '@/lib/utils';
 import { BadgeSelect } from '@/components/BadgeSelect';
 
 const PRACTICE_KEY = 'practice_state';
 
-export default function PracticePage() {
+const PREP_COLORS: Record<number, { bg: string; gradient: string }> = {
+  1: { bg: '#0ea5e9', gradient: 'linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%)' },
+  2: { bg: '#10b981', gradient: 'linear-gradient(135deg, #10b981 0%, #059669 100%)' },
+  3: { bg: '#8b5cf6', gradient: 'linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%)' },
+};
+
+function PracticePageInner() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const { user } = useAuthStore();
   const { t, lang } = useLang();
+
+  const prepMode = searchParams.get('mode') === 'prep';
+  const prepDay = parseInt(searchParams.get('day') || '1');
+  const prepColor = PREP_COLORS[prepDay] ?? PREP_COLORS[1];
+  const [prepCount, setPrepCount] = useState(20);
   const [themes, setThemes] = useState<any[]>([]);
   const [config, setConfig] = useState({ themeId: '', subThemeId: '', count: 10 });
   const [session, setSession] = useState<any>(null);
@@ -37,7 +49,10 @@ export default function PracticePage() {
   }, [lang]);
 
   useEffect(() => {
-    // Restore saved practice session
+    if (prepMode) {
+      localStorage.removeItem(PRACTICE_KEY);
+      return;
+    }
     try {
       const saved = JSON.parse(localStorage.getItem(PRACTICE_KEY) || 'null');
       if (saved?.session) {
@@ -48,7 +63,7 @@ export default function PracticePage() {
         setConfigured(true);
       }
     } catch {}
-  }, []);
+  }, [prepMode]);
 
   // Persist practice session to localStorage
   useEffect(() => {
@@ -135,6 +150,144 @@ export default function PracticePage() {
   }
 
   if (!configured) {
+    // Mode préparation : afficher les thèmes du jour + bouton Lancer
+    if (prepMode) {
+      // Diviser au niveau SOUS-THÈME (pas thème entier) pour une coupe fine équilibrée :
+      // un seul thème peut contenir plusieurs centaines de questions et fausser la répartition.
+      const sorted = [...themes].sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
+      const flat = sorted.flatMap((th: any) => {
+        const subs = [...(th.subThemes ?? [])].sort((a: any, b: any) => (a.order ?? 0) - (b.order ?? 0));
+        return subs.map((st: any) => ({
+          themeId: th.id, themeName: th.name, subThemeId: st.id, q: st._count?.questions ?? 0,
+        }));
+      });
+      const cumQ = flat.reduce((acc: number[], item) => {
+        acc.push((acc[acc.length - 1] ?? 0) + item.q); return acc;
+      }, [] as number[]);
+      const totalQAll = cumQ[cumQ.length - 1] ?? 0;
+      let split1 = 1, minDiff1 = Infinity;
+      for (let i = 0; i < flat.length - 2; i++) {
+        const d = Math.abs(cumQ[i] - totalQAll / 3);
+        if (d < minDiff1) { minDiff1 = d; split1 = i + 1; }
+      }
+      let split2 = split1 + 1, minDiff2 = Infinity;
+      for (let i = split1; i < flat.length - 1; i++) {
+        const d = Math.abs(cumQ[i] - (2 * totalQAll) / 3);
+        if (d < minDiff2) { minDiff2 = d; split2 = i + 1; }
+      }
+      const splits = [0, split1, split2, flat.length];
+      const dayItems = flat.slice(splits[prepDay - 1], splits[prepDay]);
+      const daySubThemeIds = dayItems.map((it) => it.subThemeId);
+      const totalQDay = dayItems.reduce((s, it) => s + it.q, 0);
+
+      // Regrouper par thème pour l'affichage (un thème peut être partiellement couvert ce jour-là)
+      const dayThemesMap = new Map<string, { id: string; name: string; qCount: number }>();
+      for (const it of dayItems) {
+        const existing = dayThemesMap.get(it.themeId);
+        if (existing) existing.qCount += it.q;
+        else dayThemesMap.set(it.themeId, { id: it.themeId, name: it.themeName, qCount: it.q });
+      }
+      const dayThemes = Array.from(dayThemesMap.values());
+
+      async function startPrepSession() {
+        setLoading(true);
+        setError('');
+        try {
+          const { data } = await attemptsApi.start({
+            mode: 'PRACTICE',
+            subThemeIds: daySubThemeIds,
+            count: prepCount,
+            language: lang.toUpperCase(),
+            excludeAnsweredToday: true,
+          });
+          setSession(data);
+          setCurrentIndex(0);
+          setViewIndex(0);
+          setAnswers(Array(data.questions.length).fill(null));
+          setConfigured(true);
+        } catch (err: any) {
+          setError(err.response?.data?.message || 'Erreur lors du démarrage');
+        } finally {
+          setLoading(false);
+        }
+      }
+
+      return (
+        <div className="space-y-5 max-w-2xl mx-auto">
+          {/* Header */}
+          <div className="rounded-2xl p-6 text-white" style={{ background: prepColor.gradient }}>
+            <div className="flex items-center gap-4">
+              <div className="w-12 h-12 rounded-xl bg-white/20 border border-white/30 flex items-center justify-center flex-shrink-0">
+                <Target className="w-6 h-6 text-white" />
+              </div>
+              <div className="flex-1">
+                <div className="text-xs text-white/70 font-medium uppercase tracking-wide">{t('prep.prepBanner')}</div>
+                <h1 className="text-xl font-bold">{t('prep.dayN')} {prepDay} — {dayThemes.length} {t('prep.themesDay')}</h1>
+                <p className="text-white/70 text-sm mt-0.5">{totalQDay.toLocaleString()} {t('prep.questionsProgram')}</p>
+              </div>
+              <Link href="/preparation-concours" className="text-white/70 hover:text-white transition flex items-center gap-1 text-sm flex-shrink-0">
+                <ArrowLeft size={16} /> {lang === 'ar' ? 'رجوع' : 'Retour'}
+              </Link>
+            </div>
+          </div>
+
+          {/* Liste des thèmes */}
+          <div className="bg-card border border-border rounded-2xl p-5">
+            <h2 className="font-bold text-sm mb-3 text-muted-foreground uppercase tracking-wide">{t('prep.themesDay')} — {t('prep.dayN')} {prepDay}</h2>
+            {themes.length === 0 ? (
+              <div className="flex justify-center py-6"><Loader2 className="w-6 h-6 animate-spin text-primary" /></div>
+            ) : (
+              <div className="space-y-2">
+                {dayThemes.map((th) => (
+                  <div key={th.id} className="flex items-center justify-between px-3 py-2.5 rounded-xl bg-secondary/50">
+                    <span className="text-sm font-medium">{sentenceCase(th.name)}</span>
+                    <span className="text-xs text-muted-foreground font-semibold">{th.qCount} Q</span>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+
+          {/* Slider nombre de questions */}
+          <div className="bg-card border border-border rounded-2xl p-5 space-y-3">
+            <div className="flex items-center justify-between">
+              <span className="text-sm font-semibold">{t('prep.chooseCount')}</span>
+              <span className="text-2xl font-bold text-primary">{prepCount}</span>
+            </div>
+            <input
+              type="range" min={5} max={50} step={5} value={prepCount}
+              onChange={e => setPrepCount(parseInt(e.target.value))}
+              className="w-full h-2 rounded-full appearance-none cursor-pointer accent-primary bg-secondary"
+            />
+            <div className="flex gap-2">
+              {[10, 20, 30, 50].map(n => (
+                <button key={n} onClick={() => setPrepCount(n)}
+                  className={`flex-1 py-1.5 rounded-lg text-xs font-semibold border transition ${prepCount === n ? 'text-white border-transparent' : 'border-border text-muted-foreground hover:text-foreground'}`}
+                  style={prepCount === n ? { background: prepColor.bg } : {}}>
+                  {n}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {error && (
+            <div className="bg-destructive/10 border border-destructive/20 text-destructive px-4 py-3 rounded-xl text-sm">{error}</div>
+          )}
+
+          {/* Bouton lancer */}
+          <button
+            onClick={startPrepSession}
+            disabled={loading || dayThemes.length === 0}
+            className="w-full py-4 rounded-xl font-bold text-base text-white flex items-center justify-center gap-2 hover:opacity-90 transition disabled:opacity-60"
+            style={{ background: prepColor.gradient }}
+          >
+            {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : <Play className="w-5 h-5 fill-white" />}
+            {loading ? (lang === 'ar' ? 'جاري التحميل...' : 'Chargement...') : `${t('prep.launch')} — ${prepCount} ${t('prep.questionsProgram')}`}
+          </button>
+        </div>
+      );
+    }
+
     return (
       <div className="space-y-8">
         {/* Header banner */}
@@ -276,17 +429,42 @@ export default function PracticePage() {
   const isReviewing = answers[viewIndex] !== null && answers[viewIndex] !== undefined && viewIndex !== currentIndex;
 
   return (
-    <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
+    <div className="grid grid-cols-1 xl:grid-cols-3 gap-6" style={{ gridTemplateRows: prepMode ? 'auto 1fr' : undefined }}>
+      {prepMode && (
+        <div className="xl:col-span-3 rounded-2xl px-4 py-3 text-white flex items-center justify-between gap-4"
+          style={{ background: prepColor.gradient }}>
+          <div className="flex items-center gap-3 min-w-0">
+            <Target size={16} className="text-white/70 flex-shrink-0" />
+            <div className="min-w-0">
+              <div className="text-xs text-white/70 font-medium">{t('prep.prepBanner')} {prepDay} · {answered}/{session.questions.length}</div>
+              <div className="text-sm font-bold truncate">{currentQ.theme}</div>
+              {currentQ.subTheme && currentQ.subTheme !== currentQ.theme && (
+                <div className="text-xs text-white/70 truncate">{currentQ.subTheme}</div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* ── Main question area ── */}
       <div className="xl:col-span-2">
-        <div className="flex justify-end mb-3 xl:hidden">
-          <button
-            onClick={() => { if (saveRef.current) clearTimeout(saveRef.current); localStorage.removeItem(PRACTICE_KEY); setSession(null); setConfigured(false); setAnswers([]); setCurrentIndex(0); }}
-            className="text-xs text-muted-foreground border border-border rounded-lg px-3 py-1.5 hover:text-red-500 hover:border-red-300 transition"
-          >
-            {t('practice.stopSession')}
-          </button>
+        <div className="flex justify-end gap-2 mb-3 xl:hidden">
+          {prepMode ? (
+            <button
+              onClick={() => { if (saveRef.current) clearTimeout(saveRef.current); localStorage.removeItem(PRACTICE_KEY); attemptsApi.finish(session.attemptId).catch(() => {}); router.push('/preparation-concours'); }}
+              className="flex items-center gap-1.5 text-xs font-bold text-white rounded-lg px-3 py-1.5 hover:opacity-90 transition"
+              style={{ background: prepColor.gradient }}
+            >
+              <ArrowLeft size={12} /> Terminer
+            </button>
+          ) : (
+            <button
+              onClick={() => { if (saveRef.current) clearTimeout(saveRef.current); localStorage.removeItem(PRACTICE_KEY); setSession(null); setConfigured(false); setAnswers([]); setCurrentIndex(0); }}
+              className="text-xs text-muted-foreground border border-border rounded-lg px-3 py-1.5 hover:text-red-500 hover:border-red-300 transition"
+            >
+              {t('practice.stopSession')}
+            </button>
+          )}
         </div>
         {isReviewing && (
           <div className="flex items-center justify-between gap-3 bg-amber-50 border border-amber-200 rounded-xl px-4 py-2.5 mb-3 text-sm">
@@ -339,12 +517,22 @@ export default function PracticePage() {
         </div>
 
         {/* Abandon */}
-        <button
-          onClick={() => { if (saveRef.current) clearTimeout(saveRef.current); localStorage.removeItem(PRACTICE_KEY); setSession(null); setConfigured(false); setAnswers([]); setCurrentIndex(0); }}
-          className="w-full py-2.5 rounded-xl border border-border text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-secondary transition"
-        >
-          {t('practice.newSession')}
-        </button>
+        {prepMode ? (
+          <button
+            onClick={() => { if (saveRef.current) clearTimeout(saveRef.current); localStorage.removeItem(PRACTICE_KEY); attemptsApi.finish(session.attemptId).catch(() => {}); router.push('/preparation-concours'); }}
+            className="w-full py-2.5 rounded-xl text-sm font-bold text-white flex items-center justify-center gap-1.5 transition hover:opacity-90"
+            style={{ background: prepColor.gradient }}
+          >
+            <ArrowLeft size={14} /> Terminer
+          </button>
+        ) : (
+          <button
+            onClick={() => { if (saveRef.current) clearTimeout(saveRef.current); localStorage.removeItem(PRACTICE_KEY); setSession(null); setConfigured(false); setAnswers([]); setCurrentIndex(0); }}
+            className="w-full py-2.5 rounded-xl border border-border text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-secondary transition"
+          >
+            {t('practice.newSession')}
+          </button>
+        )}
 
         {/* Question dots grid */}
         <div className="bg-card border border-border rounded-2xl p-5">
@@ -375,5 +563,17 @@ export default function PracticePage() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function PracticePage() {
+  return (
+    <Suspense fallback={
+      <div className="flex items-center justify-center min-h-[60vh]">
+        <Loader2 className="w-8 h-8 animate-spin text-primary" />
+      </div>
+    }>
+      <PracticePageInner />
+    </Suspense>
   );
 }

@@ -13,9 +13,12 @@ export class QuestionsService {
 
   async getForPractice(userId: string, userRole: string, opts: {
     themeId?: string;
+    themeIds?: string[];
     subThemeId?: string;
+    subThemeIds?: string[];
     count?: number;
     language?: string;
+    excludeAnsweredToday?: boolean;
   }) {
     // Vérifier quota FREE
     if (userRole === 'FREE') {
@@ -40,16 +43,32 @@ export class QuestionsService {
     }
 
     const where: any = { isActive: true };
-    if (opts.subThemeId) {
+    if (opts.subThemeIds?.length) {
+      where.subThemeId = { in: opts.subThemeIds };
+    } else if (opts.subThemeId) {
       where.subThemeId = opts.subThemeId;
     } else {
       const subFilter: any = {};
-      if (opts.themeId) subFilter.themeId = opts.themeId;
-      const themeFilter: any = { target: userTarget };
+      if (opts.themeIds?.length) subFilter.themeId = { in: opts.themeIds };
+      else if (opts.themeId) subFilter.themeId = opts.themeId;
+      const themeFilter: any = { target: userTarget, isPublished: true };
       if (opts.language) themeFilter.language = opts.language;
-      if (!bioShowUnpublished) themeFilter.isPublished = true;
+      if (userTarget === 'BIOLOGISTE' && bioShowUnpublished) delete themeFilter.isPublished;
       subFilter.theme = themeFilter;
       where.subTheme = subFilter;
+    }
+
+    // Exclure les questions déjà répondues aujourd'hui (mode préparation)
+    if (opts.excludeAnsweredToday) {
+      const startOfToday = new Date();
+      startOfToday.setHours(0, 0, 0, 0);
+      const answered = await this.prisma.userAnswer.findMany({
+        where: { userId, answeredAt: { gte: startOfToday } },
+        select: { questionId: true },
+      });
+      if (answered.length > 0) {
+        where.id = { notIn: answered.map(a => a.questionId) };
+      }
     }
 
     const total = await this.prisma.question.count({ where });

@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { useAuthStore } from '@/lib/auth-store';
 import { api } from '@/lib/api';
 import { useLang } from '@/components/LanguageProvider';
+import { translations } from '@/lib/i18n';
 import { CheckCircle2, Clock, BookOpen, FileText, Trophy, Target, ChevronRight, Zap } from 'lucide-react';
 
 const COLORS = {
@@ -26,47 +27,48 @@ function ProgressBar({ value, max, color }: { value: number; max: number; color:
 }
 
 function DayCard({
-  day, label, colorKey, qTarget, fichesTarget, qDone, status,
+  day, label, colorKey, qTarget, fichesTarget, qDone, status, t, isAr,
 }: {
   day: number; label: string; colorKey: keyof typeof COLORS;
   qTarget: number; fichesTarget: number; qDone: number;
   status: 'done' | 'active' | 'locked';
+  t: (k: string) => string; isAr: boolean;
 }) {
   const c = COLORS[colorKey];
   const qPct = qTarget > 0 ? Math.min(Math.round((qDone / qTarget) * 100), 100) : 0;
   const remaining = Math.max(qTarget - qDone, 0);
   const isActive = status === 'active';
+  const dayLabel = isAr ? `ي${day}` : `J${day}`;
 
   if (isActive) {
     return (
       <div className={`rounded-2xl border-2 ${c.border} bg-white p-6 flex flex-col gap-4 relative overflow-hidden shadow-xl`}>
-        {/* Badge aujourd'hui */}
-        <div className={`absolute top-4 right-4 ${c.bg} text-white text-[10px] font-bold px-2 py-1 rounded-full`}>
-          Aujourd'hui
+        <div className={`absolute top-4 ${isAr ? 'left-4' : 'right-4'} ${c.bg} text-white text-[10px] font-bold px-2 py-1 rounded-full`}>
+          {t('prep.today')}
         </div>
 
         {/* Header */}
         <div className="flex items-center gap-4">
           <div className={`${c.bg} text-white rounded-2xl w-16 h-16 flex flex-col items-center justify-center flex-shrink-0`}>
-            <div className="text-xs font-medium opacity-80">J{day}</div>
-            <div className="text-xl font-extrabold leading-tight">{label.split(' ')[1]}</div>
+            <div className="text-xs font-medium opacity-80">{dayLabel}</div>
+            <div className="text-xl font-extrabold leading-tight">{day}</div>
           </div>
           <div>
-            <div className="text-xs text-gray-400 font-medium uppercase tracking-wide mb-0.5">Ton objectif du jour</div>
+            <div className="text-xs text-gray-400 font-medium uppercase tracking-wide mb-0.5">{t('prep.objective')}</div>
             <div className={`text-4xl font-extrabold ${c.text}`}>{qTarget.toLocaleString()}</div>
-            <div className="text-sm text-gray-500">QCM à pratiquer</div>
+            <div className="text-sm text-gray-500">{t('prep.qcmToPractice')}</div>
           </div>
         </div>
 
         {/* Progress */}
         <div>
           <div className="flex justify-between text-sm text-gray-600 mb-2">
-            <span className="flex items-center gap-1.5 font-medium"><BookOpen size={14} /> Progression</span>
+            <span className="flex items-center gap-1.5 font-medium"><BookOpen size={14} /> {t('prep.progression')}</span>
             <span className="font-bold">{Math.min(qDone, qTarget).toLocaleString()} / {qTarget.toLocaleString()}</span>
           </div>
           <ProgressBar value={Math.min(qDone, qTarget)} max={qTarget} color={c.bar} />
           <div className="flex justify-between mt-1.5">
-            <span className="text-xs text-gray-400">{remaining > 0 ? `Plus que ${remaining} QCM` : 'Objectif atteint !'}</span>
+            <span className="text-xs text-gray-400">{remaining > 0 ? `${t('prep.moreThan')} ${remaining} ${t('prep.qcmLeft')}` : t('prep.goalReached')}</span>
             <span className={`text-sm font-extrabold ${c.text}`}>{qPct}%</span>
           </div>
         </div>
@@ -75,18 +77,24 @@ function DayCard({
         <div className={`flex items-center gap-3 bg-gray-50 border ${c.border} rounded-xl px-4 py-2.5`}>
           <FileText size={16} className={c.text} />
           <div>
-            <span className="text-sm font-bold text-gray-800">{fichesTarget} fiches mémo</span>
-            <span className="text-xs text-gray-500 ml-1">à consulter aujourd'hui</span>
+            <span className="text-sm font-bold text-gray-800">{fichesTarget} {t('prep.totalFiches')}</span>
+            <span className="text-xs text-gray-500 ml-1">{t('prep.fichesToday')}</span>
           </div>
         </div>
 
-        {/* Bouton Commencer */}
-        <Link href="/practice"
-          className={`${c.bg} text-white rounded-xl py-3.5 text-center font-bold text-base flex items-center justify-center gap-2 hover:opacity-90 transition-opacity`}>
-          <Zap size={18} />
-          Commencer les QCM
-          <ChevronRight size={18} />
-        </Link>
+        {/* Boutons action */}
+        <div className="grid grid-cols-2 gap-3">
+          <Link href={`/practice?mode=prep&day=${day}`}
+            className={`${c.bg} text-white rounded-xl py-3.5 text-center font-bold text-sm flex items-center justify-center gap-2 hover:opacity-90 transition-opacity`}>
+            <Zap size={16} />
+            {t('prep.startQCM')}
+          </Link>
+          <Link href={`/fiches-memo?day=${day}`}
+            className={`bg-white border-2 ${c.border} ${c.text} rounded-xl py-3.5 text-center font-bold text-sm flex items-center justify-center gap-2 hover:opacity-80 transition-opacity`}>
+            <FileText size={16} />
+            {t('prep.seeFiches')}
+          </Link>
+        </div>
       </div>
     );
   }
@@ -100,26 +108,26 @@ function DayCard({
       )}
       {status === 'locked' && (
         <div className="absolute inset-0 bg-white/60 rounded-2xl flex items-center justify-center z-10">
-          <span className="text-gray-400 font-semibold text-sm">À venir</span>
+          <span className="text-gray-400 font-semibold text-sm">{t('prep.upcoming_card')}</span>
         </div>
       )}
 
       {/* Header */}
       <div className="flex items-center gap-3">
         <div className={`${c.bg} text-white rounded-xl px-3 py-2 text-center min-w-[52px]`}>
-          <div className="text-xs font-medium opacity-80">J{day}</div>
-          <div className="text-sm font-bold">{label}</div>
+          <div className="text-xs font-medium opacity-80">{dayLabel}</div>
+          <div className="text-sm font-bold">{day}</div>
         </div>
         <div className="flex-1">
           <div className={`text-2xl font-extrabold ${c.text}`}>{qTarget.toLocaleString()}</div>
-          <div className="text-xs text-gray-500 font-medium">QCM à réviser</div>
+          <div className="text-xs text-gray-500 font-medium">{t('prep.qcmToRevise')}</div>
         </div>
       </div>
 
       {/* QCM progress */}
       <div>
         <div className="flex justify-between text-xs text-gray-600 mb-1">
-          <span className="flex items-center gap-1"><BookOpen size={12} /> QCM faits</span>
+          <span className="flex items-center gap-1"><BookOpen size={12} /> {t('prep.qcmDone')}</span>
           <span className="font-bold">{Math.min(qDone, qTarget).toLocaleString()} / {qTarget.toLocaleString()}</span>
         </div>
         <ProgressBar value={Math.min(qDone, qTarget)} max={qTarget} color={c.bar} />
@@ -130,18 +138,51 @@ function DayCard({
       <div className={`flex items-center gap-2 ${c.light} border ${c.border} rounded-xl px-3 py-2`}>
         <FileText size={14} className={c.text} />
         <span className="text-sm font-semibold text-gray-700">{fichesTarget}</span>
-        <span className="text-xs text-gray-500">fiches mémo à réviser</span>
+        <span className="text-xs text-gray-500">{t('prep.fichesToRevise')}</span>
       </div>
+
+      {/* Boutons révision (jours terminés) */}
+      {status === 'done' && (
+        <div className="grid grid-cols-2 gap-2">
+          <Link href={`/practice?mode=prep&day=${day}`}
+            className={`border-2 ${c.border} ${c.text} rounded-xl py-2.5 text-center font-bold text-xs flex items-center justify-center gap-1.5 hover:opacity-80 transition-opacity bg-white`}>
+            <Zap size={13} /> {t('prep.reviseQCM')}
+          </Link>
+          <Link href={`/fiches-memo?day=${day}`}
+            className={`border-2 ${c.border} ${c.text} rounded-xl py-2.5 text-center font-bold text-xs flex items-center justify-center gap-1.5 hover:opacity-80 transition-opacity bg-white`}>
+            <FileText size={13} /> {t('prep.totalFiches')}
+          </Link>
+        </div>
+      )}
     </div>
   );
 }
 
+const PREP_START_KEY = 'prep_start_date';
+
 export default function PreparationConcoursPage() {
   const { user } = useAuthStore();
   const { lang } = useLang();
+  const T = translations[lang as 'fr' | 'ar'] ?? translations.fr;
+  const t = (k: string) => (T as any)[k] ?? k;
   const [stats, setStats] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
+  const [startDate, setStartDate] = useState<Date | null>(null);
+
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem(PREP_START_KEY);
+      if (saved) { setStartDate(new Date(saved)); }
+      else {
+        const today = new Date(); today.setHours(0, 0, 0, 0);
+        localStorage.setItem(PREP_START_KEY, today.toISOString());
+        setStartDate(today);
+      }
+    } catch {
+      const d = new Date(); d.setHours(0, 0, 0, 0); setStartDate(d);
+    }
+  }, []);
 
   useEffect(() => {
     const langParam = lang === 'ar' ? 'AR' : 'FR';
@@ -151,7 +192,7 @@ export default function PreparationConcoursPage() {
       .finally(() => setLoading(false));
   }, [lang]);
 
-  if (loading) {
+  if (loading || !startDate) {
     return (
       <div className="flex items-center justify-center min-h-[60vh]">
         <div className="animate-spin w-8 h-8 border-4 border-blue-500 border-t-transparent rounded-full" />
@@ -166,19 +207,19 @@ export default function PreparationConcoursPage() {
     </div>
   );
 
-  const { totalQ, qPerDay, totalFiches, fichesPerDay, questionsAnswered } = stats;
+  const { totalQ, qPerDay: qPerDayRaw, totalFiches, fichesPerDay, questionsAnswered } = stats;
+  const qPerDayArr: number[] = Array.isArray(qPerDayRaw) ? qPerDayRaw : [qPerDayRaw, qPerDayRaw, qPerDayRaw];
+  const [q1, q2, q3] = qPerDayArr;
 
-  // Calcul de la journée courante
-  const j1Done = Math.min(questionsAnswered, qPerDay);
-  const j2Done = Math.min(Math.max(questionsAnswered - qPerDay, 0), qPerDay);
-  const j3Done = Math.min(Math.max(questionsAnswered - 2 * qPerDay, 0), qPerDay);
+  // Jour courant basé sur la date calendaire (minuit = nouveau jour)
+  const todayMidnight = new Date(); todayMidnight.setHours(0, 0, 0, 0);
+  const daysElapsed = startDate ? Math.floor((todayMidnight.getTime() - startDate.getTime()) / 86400000) : 0;
+  const currentDay = Math.min(Math.max(daysElapsed + 1, 1), 4);
 
-  const currentDay = questionsAnswered >= totalQ ? 4
-    : questionsAnswered >= 2 * qPerDay ? 3
-    : questionsAnswered >= qPerDay ? 2
-    : 1;
-
-  const totalPct = Math.min(Math.round((questionsAnswered / totalQ) * 100), 100);
+  // La progression du jour actif = questions répondues aujourd'hui
+  const todayDone = questionsAnswered;
+  const activeTarget = [q1, q2, q3][currentDay - 1] ?? q1;
+  const totalPct = Math.min(Math.round((questionsAnswered / (totalQ || 1)) * 100), 100);
 
   const dayStatus = (day: number): 'done' | 'active' | 'locked' => {
     if (day < currentDay) return 'done';
@@ -186,101 +227,140 @@ export default function PreparationConcoursPage() {
     return 'locked';
   };
 
+  // Message motivant dynamique
+  const dayPct = activeTarget > 0 ? Math.round((todayDone / activeTarget) * 100) : 0;
+  const remaining = Math.max(activeTarget - todayDone, 0);
+  const fill = (key: string, vars: Record<string, any>) =>
+    t(key).replace(/{(\w+)}/g, (_: string, k: string) => String(vars[k] ?? ''));
+  const motivationMsg = (() => {
+    if (currentDay >= 4) return t('prep.msgComplete');
+    if (dayPct === 0) return fill('prep.msg0', { n: activeTarget });
+    if (dayPct < 25) return fill('prep.msg25', { n: remaining, d: currentDay });
+    if (dayPct < 50) return fill('prep.msg50', { p: dayPct, d: currentDay });
+    if (dayPct < 75) return fill('prep.msg75', { n: remaining, d: currentDay });
+    if (dayPct < 100) return fill('prep.msg95', { p: dayPct, d: currentDay, n: remaining });
+    return fill('prep.msg100', { d: currentDay, d2: currentDay + 1 });
+  })();
+
+  const isAr = lang === 'ar';
+  // Données pour la timeline
+  const TIMELINE = [
+    { day: 1, label: isAr ? 'ي1' : 'J1' },
+    { day: 2, label: isAr ? 'ي2' : 'J2' },
+    { day: 3, label: isAr ? 'ي3' : 'J3' },
+    { day: 4, label: isAr ? 'ي4' : 'J4' },
+  ];
+
   return (
-    <div className="max-w-2xl mx-auto px-4 py-6 space-y-6">
+    <div className="px-4 py-6 space-y-5">
 
-      {/* Header */}
-      <div className="text-center space-y-1">
-        <div className="inline-flex items-center gap-2 bg-blue-50 text-blue-700 text-xs font-semibold px-3 py-1 rounded-full mb-2">
-          <Target size={13} /> Concours de Santé de l'État
-        </div>
-        <h1 className="text-2xl font-extrabold text-gray-900">Programme J-4</h1>
-        <p className="text-sm text-gray-500">4 jours pour couvrir tout le programme</p>
-      </div>
-
-      {/* Progress global */}
-      <div className="bg-gradient-to-br from-gray-900 to-gray-800 rounded-2xl p-5 text-white">
-        <div className="flex items-center justify-between mb-3">
+      {/* Header + Timeline */}
+      <div className="bg-gradient-to-br from-gray-900 to-gray-800 rounded-2xl p-5 text-white space-y-4">
+        <div className="flex items-center justify-between">
           <div>
-            <div className="text-xs text-gray-400 font-medium">Progression totale</div>
-            <div className="text-3xl font-extrabold">{totalPct}%</div>
-            <div className="text-sm text-gray-300 mt-0.5">
-              {questionsAnswered.toLocaleString()} / {totalQ.toLocaleString()} QCM pratiqués
-            </div>
+            <div className="text-xs text-gray-400 font-medium uppercase tracking-wide">{t('prep.badge')}</div>
+            <div className="text-xl font-extrabold">{t('prep.title')}</div>
           </div>
-          <div className="text-right">
-            <div className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-bold ${
-              currentDay === 4 ? 'bg-orange-500' : 'bg-blue-500'
-            }`}>
-              {currentDay < 4 ? <Clock size={14} /> : <Trophy size={14} />}
-              {currentDay < 4 ? `Jour ${currentDay}` : 'J4 — Révision'}
-            </div>
+          <div className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold ${
+            currentDay === 4 ? 'bg-orange-500' : 'bg-blue-500'
+          }`}>
+            {currentDay < 4 ? <Clock size={12} /> : <Trophy size={12} />}
+            {currentDay < 4 ? `${t('prep.dayN')} ${currentDay}` : t('prep.j4Revision')}
           </div>
         </div>
-        <div className="w-full bg-white/10 rounded-full h-3">
-          <div
-            className="bg-gradient-to-r from-blue-400 to-green-400 h-3 rounded-full transition-all duration-700"
-            style={{ width: `${totalPct}%` }}
-          />
+
+        {/* Timeline J1→J4 */}
+        <div className="flex items-center gap-0">
+          {TIMELINE.map((tl, i) => {
+            const st = dayStatus(tl.day);
+            const isLast = i === TIMELINE.length - 1;
+            return (
+              <div key={tl.day} className="flex items-center" style={{ flex: isLast ? 'none' : 1 }}>
+                {/* Node */}
+                <div className="flex flex-col items-center gap-1">
+                  <div className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold border-2 transition-all ${
+                    st === 'done' ? 'bg-green-400 border-green-400 text-white' :
+                    st === 'active' ? 'bg-white border-white text-gray-900 shadow-lg shadow-white/20 ring-2 ring-white/40' :
+                    'bg-white/10 border-white/20 text-white/40'
+                  }`}>
+                    {st === 'done' ? <CheckCircle2 size={16} /> : tl.label}
+                  </div>
+                  <span className={`text-[10px] font-semibold ${st === 'locked' ? 'text-white/30' : st === 'active' ? 'text-white' : 'text-green-400'}`}>
+                    {st === 'done' ? t('prep.done') : st === 'active' ? t('prep.today') : t('prep.upcoming')}
+                  </span>
+                </div>
+                {/* Connector */}
+                {!isLast && (
+                  <div className="flex-1 h-0.5 mx-1 rounded-full" style={{
+                    background: st === 'done' ? '#4ade80' : 'rgba(255,255,255,0.15)'
+                  }} />
+                )}
+              </div>
+            );
+          })}
+        </div>
+
+        {/* Barre de progression globale */}
+        <div>
+          <div className="flex justify-between text-xs text-gray-400 mb-1.5">
+            <span>{t('prep.totalProgress')}</span>
+            <span className="font-bold text-white">{totalPct}%</span>
+          </div>
+          <div className="w-full bg-white/10 rounded-full h-2.5">
+            <div className="bg-gradient-to-r from-blue-400 to-green-400 h-2.5 rounded-full transition-all duration-700"
+              style={{ width: `${totalPct}%` }} />
+          </div>
+        </div>
+
+        {/* Message motivant */}
+        <div className="bg-white/10 rounded-xl px-4 py-2.5 text-sm font-medium text-white/90">
+          {motivationMsg}
         </div>
       </div>
 
       {/* Stats récap */}
       <div className="grid grid-cols-3 gap-3">
-        <div className="bg-white border border-gray-100 rounded-xl p-4 text-center shadow-sm">
-          <div className="text-2xl font-extrabold text-blue-600">{totalQ.toLocaleString()}</div>
-          <div className="text-xs text-gray-500 mt-1">QCM totaux</div>
-          <div className="text-xs text-gray-400">({qPerDay}/jour × 3)</div>
+        <div className="bg-white border border-gray-100 rounded-xl p-3 text-center shadow-sm">
+          <div className="text-xl font-extrabold text-blue-600">{totalQ.toLocaleString()}</div>
+          <div className="text-xs text-gray-500 mt-0.5">{t('prep.totalQCM')}</div>
+          <div className="text-[10px] text-gray-400">{q1}/{q2}/{q3}</div>
         </div>
-        <div className="bg-white border border-gray-100 rounded-xl p-4 text-center shadow-sm">
-          <div className="text-2xl font-extrabold text-green-600">{totalFiches}</div>
-          <div className="text-xs text-gray-500 mt-1">Fiches mémo</div>
-          <div className="text-xs text-gray-400">({fichesPerDay}/jour)</div>
+        <div className="bg-white border border-gray-100 rounded-xl p-3 text-center shadow-sm">
+          <div className="text-xl font-extrabold text-green-600">{totalFiches}</div>
+          <div className="text-xs text-gray-500 mt-0.5">{t('prep.totalFiches')}</div>
+          <div className="text-[10px] text-gray-400">{fichesPerDay}/{isAr ? 'يوم' : 'jour'}</div>
         </div>
-        <div className="bg-white border border-gray-100 rounded-xl p-4 text-center shadow-sm">
-          <div className="text-2xl font-extrabold text-purple-600">100%</div>
-          <div className="text-xs text-gray-500 mt-1">Programme</div>
-          <div className="text-xs text-gray-400">couvert en 4j</div>
+        <div className="bg-white border border-gray-100 rounded-xl p-3 text-center shadow-sm">
+          <div className="text-xl font-extrabold text-purple-600">100%</div>
+          <div className="text-xs text-gray-500 mt-0.5 leading-tight">{t('prep.covered')}</div>
         </div>
       </div>
 
-      {/* CTA */}
-      <div className="grid grid-cols-2 gap-3">
-        <Link href="/practice"
-          className="flex items-center justify-between bg-blue-600 text-white rounded-xl px-4 py-3 font-semibold text-sm hover:bg-blue-700 transition-colors">
-          <span>Pratiquer QCM</span>
-          <ChevronRight size={18} />
-        </Link>
-        <Link href="/fiches-memo"
-          className="flex items-center justify-between bg-white border-2 border-gray-200 text-gray-800 rounded-xl px-4 py-3 font-semibold text-sm hover:border-blue-300 transition-colors">
-          <span>Fiches mémo</span>
-          <ChevronRight size={18} />
-        </Link>
-      </div>
-
-      {/* J1 → J3 */}
-      <div className="grid grid-cols-1 gap-4">
-        <DayCard day={1} label="Jour 1" colorKey="j1"
-          qTarget={qPerDay} fichesTarget={fichesPerDay}
-          qDone={j1Done} status={dayStatus(1)} />
-        <DayCard day={2} label="Jour 2" colorKey="j2"
-          qTarget={qPerDay} fichesTarget={fichesPerDay}
-          qDone={j2Done} status={dayStatus(2)} />
-        <DayCard day={3} label="Jour 3" colorKey="j3"
-          qTarget={qPerDay} fichesTarget={fichesPerDay}
-          qDone={j3Done} status={dayStatus(3)} />
+      {/* J1 → J3 : 3 colonnes sur desktop */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+        {[1, 2, 3].map((day, i) => {
+          const qTarget = qPerDayArr[i] ?? q1;
+          const st = dayStatus(day);
+          const qDone = st === 'active' ? Math.min(todayDone, qTarget) : st === 'done' ? qTarget : 0;
+          return (
+            <DayCard key={day} day={day} label={`${t('prep.dayN')} ${day}`}
+              colorKey={(['j1','j2','j3'] as const)[i]}
+              qTarget={qTarget} fichesTarget={fichesPerDay}
+              qDone={qDone} status={st} t={t} isAr={isAr} />
+          );
+        })}
       </div>
 
       {/* J4 */}
       <div className={`rounded-2xl border-2 border-orange-200 bg-orange-50 p-5 space-y-3 ${currentDay < 4 ? 'opacity-60' : ''}`}>
         <div className="flex items-center gap-3">
           <div className="bg-orange-500 text-white rounded-xl px-3 py-2 text-center min-w-[52px]">
-            <div className="text-xs font-medium opacity-80">J4</div>
-            <div className="text-sm font-bold">Jour 4</div>
+            <div className="text-xs font-medium opacity-80">{isAr ? 'ي4' : 'J4'}</div>
+            <div className="text-sm font-bold">{t('prep.dayN')} 4</div>
           </div>
           <div>
-            <div className="font-bold text-gray-800">Révision finale</div>
-            <div className="text-xs text-gray-500">Consolidation et examens blancs</div>
+            <div className="font-bold text-gray-800">{t('prep.finalRevision')}</div>
+            <div className="text-xs text-gray-500">{t('prep.finalRevisionSub')}</div>
           </div>
           {currentDay >= 4 && <CheckCircle2 className="text-orange-500 ml-auto" size={22} />}
         </div>
@@ -288,15 +368,15 @@ export default function PreparationConcoursPage() {
           <div className="bg-white rounded-xl p-3 border border-orange-100 flex items-center gap-2">
             <Zap size={16} className="text-orange-500" />
             <div>
-              <div className="text-xs text-gray-500">Révision erreurs</div>
-              <div className="text-sm font-bold text-gray-800">Points faibles</div>
+              <div className="text-xs text-gray-500">{t('prep.weakPointsSub')}</div>
+              <div className="text-sm font-bold text-gray-800">{t('prep.weakPoints')}</div>
             </div>
           </div>
           <div className="bg-white rounded-xl p-3 border border-orange-100 flex items-center gap-2">
             <Trophy size={16} className="text-orange-500" />
             <div>
-              <div className="text-xs text-gray-500">Examen blanc</div>
-              <div className="text-sm font-bold text-gray-800">1 à 2 sessions</div>
+              <div className="text-xs text-gray-500">{t('prep.mockExam')}</div>
+              <div className="text-sm font-bold text-gray-800">{t('prep.mockExamSub')}</div>
             </div>
           </div>
         </div>
