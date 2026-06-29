@@ -20,4 +20,10 @@ export class StatsController {
   getMyRank(@Req() req: any) {
     return this.statsService.getMyRank(req.user.sub);
   }
+
+  @UseGuards(JwtAuthGuard)
+  @Get('preparation')
+  getPreparation(@Req() req: any, @Query('lang') lang?: string) {
+    return this.statsService.getPreparationStats(req.user.sub, lang);
+  }
 }

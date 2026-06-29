@@ -53,6 +53,38 @@ export class StatsService {
     return { avg, percentile, total, estimated: !hasRealData, distribution };
   }
 
+  async getPreparationStats(userId: string, lang?: string) {
+    const user = await this.prisma.user.findUnique({ where: { id: userId }, select: { profession: true } });
+    const prof = user?.profession || '';
+    const target = prof.includes('sage_femme') ? 'SAGE_FEMME'
+      : prof.includes('biologiste') ? 'BIOLOGISTE'
+      : 'INFIRMIER';
+
+    const language = (lang || 'FR').toUpperCase() as 'FR' | 'AR';
+
+    // Total questions pour la profession et la langue
+    const totalQ = await this.prisma.question.count({
+      where: { subTheme: { theme: { target, isPublished: true, language } } },
+    });
+
+    // Total fiches mémo pour la langue
+    const totalFiches = await this.prisma.ficheMemo.count({
+      where: { target, isVisible: true, lang: language },
+    });
+
+    // Questions répondues depuis le début de la journée courante
+    const startOfToday = new Date();
+    startOfToday.setHours(0, 0, 0, 0);
+    const questionsAnswered = await this.prisma.userAnswer.count({
+      where: { userId, answeredAt: { gte: startOfToday } },
+    });
+
+    const qPerDay = Math.ceil(totalQ / 3);
+    const fichesPerDay = Math.ceil(totalFiches / 3);
+
+    return { totalQ, qPerDay, totalFiches, fichesPerDay, questionsAnswered, target };
+  }
+
   async getMyRank(userId: string) {
     const C = 5; // même constante que le leaderboard admin
 
