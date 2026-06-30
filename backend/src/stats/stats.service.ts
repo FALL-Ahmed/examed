@@ -69,13 +69,14 @@ export class StatsService {
       where: { target, isPublished: true, language },
       select: {
         subThemes: {
-          select: { _count: { select: { questions: true } } },
+          select: { id: true, _count: { select: { questions: true } } },
           orderBy: [{ order: 'asc' }, { id: 'asc' }],
         },
       },
       orderBy: [{ order: 'asc' }, { id: 'asc' }],
     });
-    const flatQs = themes.flatMap(t => t.subThemes.map(st => st._count.questions));
+    const flatSubs = themes.flatMap(t => t.subThemes.map(st => ({ id: st.id, q: st._count.questions })));
+    const flatQs = flatSubs.map(s => s.q);
     const cumQ = flatQs.reduce((acc, q) => { acc.push((acc[acc.length - 1] ?? 0) + q); return acc; }, [] as number[]);
     const totalQ = cumQ[cumQ.length - 1] ?? 0;
     // Trouver les points de coupe (au niveau sous-thème) pour équilibrer les questions par jour
@@ -95,6 +96,18 @@ export class StatsService {
       flatQs.slice(split2).reduce((s, q) => s + q, 0),
     ];
 
+    // Pool de sous-thèmes par jour → compte réel des questions répondues (sans filtre de date)
+    const daySubThemeIds = [
+      flatSubs.slice(0, split1).map(s => s.id),
+      flatSubs.slice(split1, split2).map(s => s.id),
+      flatSubs.slice(split2).map(s => s.id),
+    ];
+    const answersByDay = await Promise.all(daySubThemeIds.map(ids =>
+      this.prisma.userAnswer.count({
+        where: { userId, question: { subThemeId: { in: ids } } },
+      })
+    ));
+
     // Total fiches mémo pour la langue
     const totalFiches = await this.prisma.ficheMemo.count({
       where: { target, isVisible: true, lang: language },
@@ -108,7 +121,7 @@ export class StatsService {
       where: { userId, answeredAt: { gte: startOfToday } },
     });
 
-    return { totalQ, qPerDay: qPerDayArr, totalFiches, fichesPerDay, questionsAnswered, target };
+    return { totalQ, qPerDay: qPerDayArr, totalFiches, fichesPerDay, questionsAnswered, answersByDay, target };
   }
 
   async getMyRank(userId: string) {

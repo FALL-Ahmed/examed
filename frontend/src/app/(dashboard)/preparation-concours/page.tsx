@@ -207,7 +207,8 @@ export default function PreparationConcoursPage() {
     </div>
   );
 
-  const { totalQ, qPerDay: qPerDayRaw, totalFiches, fichesPerDay, questionsAnswered } = stats;
+  const { totalQ, qPerDay: qPerDayRaw, totalFiches, fichesPerDay, questionsAnswered, answersByDay } = stats;
+  const answersByDayArr: number[] = Array.isArray(answersByDay) ? answersByDay : [0, 0, 0];
   const qPerDayArr: number[] = Array.isArray(qPerDayRaw) ? qPerDayRaw : [qPerDayRaw, qPerDayRaw, qPerDayRaw];
   const [q1, q2, q3] = qPerDayArr;
 
@@ -219,7 +220,10 @@ export default function PreparationConcoursPage() {
   // La progression du jour actif = questions répondues aujourd'hui
   const todayDone = questionsAnswered;
   const activeTarget = [q1, q2, q3][currentDay - 1] ?? q1;
-  const totalPct = Math.min(Math.round((questionsAnswered / (totalQ || 1)) * 100), 100);
+  // Progression cumulée : vrais comptes des jours passés + jour actif
+  const completedQs = answersByDayArr.slice(0, currentDay - 1).reduce((s: number, q: number) => s + q, 0);
+  const totalDoneQs = completedQs + Math.min(todayDone, activeTarget);
+  const totalPct = Math.min(Math.round((totalDoneQs / (totalQ || 1)) * 100), 100);
 
   const dayStatus = (day: number): 'done' | 'active' | 'locked' => {
     if (day < currentDay) return 'done';
@@ -341,7 +345,9 @@ export default function PreparationConcoursPage() {
         {[1, 2, 3].map((day, i) => {
           const qTarget = qPerDayArr[i] ?? q1;
           const st = dayStatus(day);
-          const qDone = st === 'active' ? Math.min(todayDone, qTarget) : st === 'done' ? qTarget : 0;
+          const qDone = st === 'active' ? Math.min(todayDone, qTarget)
+            : st === 'done' ? (answersByDayArr[i] ?? 0)
+            : 0;
           return (
             <DayCard key={day} day={day} label={`${t('prep.dayN')} ${day}`}
               colorKey={(['j1','j2','j3'] as const)[i]}
