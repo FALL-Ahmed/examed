@@ -388,16 +388,14 @@ function RegisterContent() {
                   </div>
                   {/* Titre */}
                   <p className="text-white font-extrabold text-sm mb-3">
-                    {isBiologiste && bioPromo?.active
-                      ? (isAr ? '🔬 عرض إطلاق البيولوجيا' : '🔬 Offre lancement Biologiste')
-                      : (isAr ? '🎉 عرض خاص محدود' : '🎉 Offre spéciale limitée')}
+                    {isAr ? '🎉 عرض خاص محدود' : '🎉 Offre spéciale limitée'}
                   </p>
                   {/* Date — grande et bien visible */}
                   {promoEndDate ? (
                     <div className="bg-white/20 border-2 border-white/40 rounded-xl px-4 py-3">
                       <p className="text-white/80 text-[10px] uppercase tracking-widest font-bold mb-1">⏰ {isAr ? 'ينتهي في' : 'Expire le'}</p>
                       <p className="text-white font-black text-2xl leading-tight">
-                        {new Date(promoEndDate).toLocaleDateString(isAr ? 'ar-EG' : 'fr-FR', { day: 'numeric', month: 'long', year: 'numeric' })}
+                        {new Date(promoEndDate).toLocaleDateString(isAr ? 'ar-EG' : 'fr-FR', { weekday: 'long', day: 'numeric', month: 'long' })}
                       </p>
                     </div>
                   ) : (
