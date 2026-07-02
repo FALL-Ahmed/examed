@@ -5,7 +5,17 @@ import Link from 'next/link';
 import { userApi, api } from '@/lib/api';
 import { translations } from '@/lib/i18n';
 import { useLang } from '@/components/LanguageProvider';
-import { FileText, X, ZoomIn, ZoomOut, Maximize2, Target, ArrowLeft } from 'lucide-react';
+import { FileText, X, ZoomIn, ZoomOut, Maximize2, Target, ArrowLeft, Download } from 'lucide-react';
+
+function downloadFiche(blobUrl: string, title: string) {
+  const a = document.createElement('a');
+  a.href = blobUrl;
+  a.download = `${title.replace(/[^\w\s-]/g, '').trim() || 'fiche-memo'}.jpg`;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  userApi.trackPdf(title, 'app').catch(() => {});
+}
 
 const PREP_COLORS: Record<number, string> = {
   1: 'linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%)',
@@ -34,7 +44,7 @@ function useFicheBlob(ficheId: string | null, thumb = false) {
   return blobUrl;
 }
 
-function FicheModal({ f, onClose }: { f: any; onClose: () => void }) {
+function FicheModal({ f, onClose, isAr }: { f: any; onClose: () => void; isAr: boolean }) {
   const blobUrl = useFicheBlob(f.id);
   const [scale, setScale] = useState(1);
   const [pos, setPos] = useState({ x: 0, y: 0 });
@@ -165,6 +175,15 @@ function FicheModal({ f, onClose }: { f: any; onClose: () => void }) {
               </button>
             )}
             <span className="text-white/30 text-xs w-9 text-center">{Math.round(scale * 100)}%</span>
+            {blobUrl && (
+              <button
+                onClick={() => downloadFiche(blobUrl, f.title)}
+                className="text-white/60 hover:text-white p-1.5 rounded-lg hover:bg-white/10 transition ml-1"
+                title={isAr ? 'تحميل' : 'Télécharger'}
+              >
+                <Download className="w-4 h-4" />
+              </button>
+            )}
             <button onClick={onClose} className="text-white/60 hover:text-white p-1.5 rounded-lg hover:bg-white/10 transition ml-1">
               <X className="w-5 h-5" />
             </button>
@@ -368,7 +387,7 @@ function FichesMemoInner() {
       )}
 
       {selected && (
-        <FicheModal f={selected} onClose={() => setSelected(null)} />
+        <FicheModal f={selected} onClose={() => setSelected(null)} isAr={isAr} />
       )}
     </div>
   );
