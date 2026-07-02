@@ -269,6 +269,9 @@ export const examenBlancApi = {
   logFicheDownload: (data: { ficheTitle: string; participantId?: string; prenom?: string; nom?: string; telephone?: string; ville?: string; target?: string; lang?: string; sessionTitle?: string }) =>
     axios.post(`${API_URL}/examen-blanc/fiche-download`, data).catch(() => {}),
   adminFicheDownloads: () => api.get('/examen-blanc/admin/fiche-downloads'),
+  adminWhatsappBotLeads: () => api.get('/examen-blanc/admin/whatsapp-bot-leads'),
+  adminMarkWhatsappBotLeadSent: (telephone: string, sent: boolean) =>
+    api.patch(`/examen-blanc/admin/whatsapp-bot-leads/${telephone}/sent`, { sent }),
   fichesPreview: (target: string, lang: string) => axios.get(`${API_URL}/examen-blanc/fiches-preview`, { params: { target, lang } }),
   history: (target: string, telephone?: string) =>
     axios.get(`${API_URL}/examen-blanc/history`, { params: telephone ? { target, telephone } : { target } }),

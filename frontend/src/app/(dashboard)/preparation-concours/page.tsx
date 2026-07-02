@@ -158,8 +158,6 @@ function DayCard({
   );
 }
 
-const PREP_START_KEY = 'prep_start_date';
-
 export default function PreparationConcoursPage() {
   const { user } = useAuthStore();
   const { lang } = useLang();
@@ -168,21 +166,6 @@ export default function PreparationConcoursPage() {
   const [stats, setStats] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
-  const [startDate, setStartDate] = useState<Date | null>(null);
-
-  useEffect(() => {
-    try {
-      const saved = localStorage.getItem(PREP_START_KEY);
-      if (saved) { setStartDate(new Date(saved)); }
-      else {
-        const today = new Date(); today.setHours(0, 0, 0, 0);
-        localStorage.setItem(PREP_START_KEY, today.toISOString());
-        setStartDate(today);
-      }
-    } catch {
-      const d = new Date(); d.setHours(0, 0, 0, 0); setStartDate(d);
-    }
-  }, []);
 
   useEffect(() => {
     const langParam = lang === 'ar' ? 'AR' : 'FR';
@@ -192,7 +175,7 @@ export default function PreparationConcoursPage() {
       .finally(() => setLoading(false));
   }, [lang]);
 
-  if (loading || !startDate) {
+  if (loading) {
     return (
       <div className="flex items-center justify-center min-h-[60vh]">
         <div className="animate-spin w-8 h-8 border-4 border-blue-500 border-t-transparent rounded-full" />
@@ -200,12 +183,16 @@ export default function PreparationConcoursPage() {
     );
   }
 
-  if (error || !stats) return (
+  if (error || !stats || !stats.prepStartDate) return (
     <div className="flex flex-col items-center justify-center min-h-[60vh] gap-3 text-gray-500">
       <Target size={40} className="opacity-30" />
       <p className="text-sm">Impossible de charger les données. Réessaie.</p>
     </div>
   );
+
+  // Date de début persistée côté serveur (User.prepStartDate) — plus fiable que le localStorage,
+  // qui se réinitialisait si le cache/appareil changeait et faisait croire à une remise à zéro.
+  const startDate = new Date(stats.prepStartDate);
 
   const { totalQ, qPerDay: qPerDayRaw, totalFiches, fichesPerDay, questionsAnswered, answersByDay } = stats;
   const answersByDayArr: number[] = Array.isArray(answersByDay) ? answersByDay : [0, 0, 0];

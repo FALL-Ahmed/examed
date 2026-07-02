@@ -35,3 +35,9 @@ backend/uploads/
 
 # TypeScript
 *.tsbuildinfo
+
+# Outils locaux ponctuels (contiennent des données perso/sensibles, pas destinés au repo)
+bot/
+whatsapp_chrome_profile/
+fiches_memo_downloaded/
+*.stackdump

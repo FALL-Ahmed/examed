@@ -54,8 +54,18 @@ export class StatsService {
   }
 
   async getPreparationStats(userId: string, lang?: string) {
-    const user = await this.prisma.user.findUnique({ where: { id: userId }, select: { profession: true } });
+    const user = await this.prisma.user.findUnique({ where: { id: userId }, select: { profession: true, prepStartDate: true } });
     const prof = user?.profession || '';
+
+    // Date de début de la prépa J1→J4, persistée côté serveur (ne dépend plus du localStorage,
+    // donc ne se réinitialise plus si le cache navigateur/appareil change).
+    let prepStartDate = user?.prepStartDate;
+    if (!prepStartDate) {
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      prepStartDate = today;
+      await this.prisma.user.update({ where: { id: userId }, data: { prepStartDate: today } });
+    }
     const target = prof.includes('sage_femme') ? 'SAGE_FEMME'
       : prof.includes('biologiste') ? 'BIOLOGISTE'
       : 'INFIRMIER';
@@ -121,7 +131,7 @@ export class StatsService {
       where: { userId, answeredAt: { gte: startOfToday } },
     });
 
-    return { totalQ, qPerDay: qPerDayArr, totalFiches, fichesPerDay, questionsAnswered, answersByDay, target };
+    return { totalQ, qPerDay: qPerDayArr, totalFiches, fichesPerDay, questionsAnswered, answersByDay, target, prepStartDate };
   }
 
   async getMyRank(userId: string) {

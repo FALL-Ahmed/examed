@@ -171,4 +171,18 @@ export class ExamenBlancController {
   adminFicheDownloads() {
     return this.service.getFicheDownloads();
   }
+
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('ADMIN')
+  @Get('admin/whatsapp-bot-leads')
+  adminGetWhatsappBotLeads() {
+    return this.service.getWhatsappBotLeads();
+  }
+
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('ADMIN')
+  @Patch('admin/whatsapp-bot-leads/:telephone/sent')
+  adminMarkWhatsappBotLeadSent(@Param('telephone') telephone: string, @Body() body: { sent: boolean }) {
+    return this.service.markWhatsappBotLeadSent(telephone, body.sent);
+  }
 }

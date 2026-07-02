@@ -1780,4 +1780,23 @@ export class ExamenBlancService {
       return a.classement - b.classement;
     });
   }
+
+  // ── Liste "Bot WhatsApp" (envoi manuel séquentiel, remplace l'automatisation) ──
+
+  async getWhatsappBotLeads() {
+    const setting = await db(this.prisma).setting.findUnique({ where: { key: 'whatsapp_bot_leads' } });
+    if (!setting) return { leads: [] };
+    return JSON.parse(setting.value);
+  }
+
+  async markWhatsappBotLeadSent(telephone: string, sent: boolean) {
+    const setting = await db(this.prisma).setting.findUnique({ where: { key: 'whatsapp_bot_leads' } });
+    if (!setting) throw new NotFoundException('Liste introuvable');
+    const data = JSON.parse(setting.value);
+    const lead = data.leads.find((l: any) => l.telephone === telephone);
+    if (!lead) throw new NotFoundException('Lead introuvable');
+    lead.sent = sent;
+    await db(this.prisma).setting.update({ where: { key: 'whatsapp_bot_leads' }, data: { value: JSON.stringify(data) } });
+    return { ok: true };
+  }
 }

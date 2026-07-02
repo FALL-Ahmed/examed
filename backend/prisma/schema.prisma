@@ -82,6 +82,7 @@ model User {
   pdfDownloads    PdfDownload[]
   dailyQuestionCount Int       @default(0)
   lastQuestionDate   DateTime?
+  prepStartDate      DateTime?
   source          String?
   utmSource       String?
   createdAt       DateTime     @default(now())
