@@ -1,11 +1,14 @@
 'use client';
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { useAuthStore } from '@/lib/auth-store';
-import { api } from '@/lib/api';
+import { api, examenBlancApi } from '@/lib/api';
 import { useLang } from '@/components/LanguageProvider';
 import { translations } from '@/lib/i18n';
-import { CheckCircle2, Clock, BookOpen, FileText, Trophy, Target, ChevronRight, Zap } from 'lucide-react';
+import { CheckCircle2, Clock, BookOpen, FileText, Trophy, Target, ChevronRight, Zap, Loader2, Play, AlertCircle } from 'lucide-react';
+
+const WILAYAS = ['Nouakchott','Nouadhibou','Rosso','Kaédi','Zouerate','Kiffa','Tidjikja','Atar','Aleg','Sélibaby','Aioun','Néma','Akjoujt','Boutilimit','Autre'];
 
 const COLORS = {
   j1: { bg: 'bg-blue-600', light: 'bg-blue-50', text: 'text-blue-600', border: 'border-blue-200', bar: 'bg-blue-500' },
@@ -64,9 +67,9 @@ function DayCard({
         <div>
           <div className="flex justify-between text-sm text-gray-600 mb-2">
             <span className="flex items-center gap-1.5 font-medium"><BookOpen size={14} /> {t('prep.progression')}</span>
-            <span className="font-bold">{Math.min(qDone, qTarget).toLocaleString()} / {qTarget.toLocaleString()}</span>
+            <span className="font-bold">{qDone.toLocaleString()} / {qTarget.toLocaleString()}</span>
           </div>
-          <ProgressBar value={Math.min(qDone, qTarget)} max={qTarget} color={c.bar} />
+          <ProgressBar value={qDone} max={qTarget} color={c.bar} />
           <div className="flex justify-between mt-1.5">
             <span className="text-xs text-gray-400">{remaining > 0 ? `${t('prep.moreThan')} ${remaining} ${t('prep.qcmLeft')}` : t('prep.goalReached')}</span>
             <span className={`text-sm font-extrabold ${c.text}`}>{qPct}%</span>
@@ -128,9 +131,9 @@ function DayCard({
       <div>
         <div className="flex justify-between text-xs text-gray-600 mb-1">
           <span className="flex items-center gap-1"><BookOpen size={12} /> {t('prep.qcmDone')}</span>
-          <span className="font-bold">{Math.min(qDone, qTarget).toLocaleString()} / {qTarget.toLocaleString()}</span>
+          <span className="font-bold">{qDone.toLocaleString()} / {qTarget.toLocaleString()}</span>
         </div>
-        <ProgressBar value={Math.min(qDone, qTarget)} max={qTarget} color={c.bar} />
+        <ProgressBar value={qDone} max={qTarget} color={c.bar} />
         <div className={`text-right text-xs font-bold mt-1 ${c.text}`}>{qPct}%</div>
       </div>
 
@@ -159,6 +162,7 @@ function DayCard({
 }
 
 export default function PreparationConcoursPage() {
+  const router = useRouter();
   const { user } = useAuthStore();
   const { lang } = useLang();
   const T = translations[lang as 'fr' | 'ar'] ?? translations.fr;
@@ -166,6 +170,12 @@ export default function PreparationConcoursPage() {
   const [stats, setStats] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
+  const [lastExams, setLastExams] = useState<any[]>([]);
+  const [modal, setModal] = useState<any>(null);
+  const [form, setForm] = useState({ nom: '', prenom: '', telephone: '', ville: '', lang: 'fr' });
+  const [starting, setStarting] = useState(false);
+  const [formError, setFormError] = useState('');
+  const isAr = lang === 'ar';
 
   useEffect(() => {
     const langParam = lang === 'ar' ? 'AR' : 'FR';
@@ -174,6 +184,54 @@ export default function PreparationConcoursPage() {
       .catch(() => setError(true))
       .finally(() => setLoading(false));
   }, [lang]);
+
+  useEffect(() => {
+    if (!stats?.target) return;
+    examenBlancApi.history(stats.target)
+      .then(r => setLastExams((r.data || []).slice(0, 3)))
+      .catch(() => {});
+  }, [stats?.target]);
+
+  const openStartModal = (eb: any) => {
+    const parts = (user?.fullName || '').trim().split(' ');
+    setForm({
+      prenom: parts[0] || '',
+      nom: parts.slice(1).join(' ') || '',
+      telephone: user?.phone || '',
+      ville: (user as any)?.wilaya || '',
+      lang,
+    });
+    setFormError('');
+    setModal(eb);
+  };
+
+  const handleStart = async () => {
+    if (!form.nom.trim() || !form.prenom.trim() || !form.telephone.trim() || !form.ville) {
+      setFormError(isAr ? 'يرجى ملء جميع الحقول' : 'Merci de remplir tous les champs');
+      return;
+    }
+    setFormError('');
+    setStarting(true);
+    try {
+      const { data } = await examenBlancApi.registerPast({
+        nom: form.nom, prenom: form.prenom, telephone: form.telephone,
+        ville: form.ville, examenBlancId: modal.id, lang: form.lang,
+      });
+      const state = {
+        sessionId: data.sessionId, participantId: data.participantId,
+        examenBlancId: data.examenBlancId, durationMin: data.durationMin,
+        totalQ: data.totalQ, startsAt: data.startsAt, endsAt: data.endsAt,
+        resultsAt: data.resultsAt, startedAt: data.startedAt,
+        isCompleted: false, isRetry: true, target: data.target,
+        lang: form.lang, participant: data.participant, questions: data.questions, answers: {},
+      };
+      localStorage.setItem('examen_blanc_state', JSON.stringify(state));
+      router.push(`/examen-blanc/exam?target=${data.target.toLowerCase().replace('_', '-')}`);
+    } catch (e: any) {
+      setFormError(e?.response?.data?.message || (isAr ? 'خطأ أثناء البدء' : 'Erreur lors du démarrage'));
+      setStarting(false);
+    }
+  };
 
   if (loading) {
     return (
@@ -233,7 +291,6 @@ export default function PreparationConcoursPage() {
     return fill('prep.msg100', { d: currentDay, d2: currentDay + 1 });
   })();
 
-  const isAr = lang === 'ar';
   // Données pour la timeline
   const TIMELINE = [
     { day: 1, label: isAr ? 'ي1' : 'J1' },
@@ -332,7 +389,7 @@ export default function PreparationConcoursPage() {
         {[1, 2, 3].map((day, i) => {
           const qTarget = qPerDayArr[i] ?? q1;
           const st = dayStatus(day);
-          const qDone = st === 'active' ? Math.min(todayDone, qTarget)
+          const qDone = st === 'active' ? todayDone
             : st === 'done' ? (answersByDayArr[i] ?? 0)
             : 0;
           return (
@@ -357,23 +414,88 @@ export default function PreparationConcoursPage() {
           </div>
           {currentDay >= 4 && <CheckCircle2 className="text-orange-500 ml-auto" size={22} />}
         </div>
-        <div className="grid grid-cols-2 gap-3">
-          <div className="bg-white rounded-xl p-3 border border-orange-100 flex items-center gap-2">
-            <Zap size={16} className="text-orange-500" />
-            <div>
-              <div className="text-xs text-gray-500">{t('prep.weakPointsSub')}</div>
-              <div className="text-sm font-bold text-gray-800">{t('prep.weakPoints')}</div>
-            </div>
+        <div className="bg-white rounded-xl p-3 border border-orange-100 flex items-center gap-2">
+          <Zap size={16} className="text-orange-500 flex-shrink-0" />
+          <div>
+            <div className="text-xs text-gray-500">{t('prep.weakPointsSub')}</div>
+            <div className="text-sm font-bold text-gray-800">{t('prep.weakPoints')}</div>
           </div>
-          <div className="bg-white rounded-xl p-3 border border-orange-100 flex items-center gap-2">
-            <Trophy size={16} className="text-orange-500" />
-            <div>
-              <div className="text-xs text-gray-500">{t('prep.mockExam')}</div>
-              <div className="text-sm font-bold text-gray-800">{t('prep.mockExamSub')}</div>
+        </div>
+
+        {lastExams.length > 0 && (
+          <div className="space-y-2">
+            <div className="flex items-center gap-1.5 text-xs font-semibold text-gray-500 uppercase tracking-wide">
+              <Trophy size={13} className="text-orange-500" /> {t('prep.mockExam')}
+            </div>
+            {lastExams.map((eb) => (
+              <button
+                key={eb.id}
+                onClick={() => openStartModal(eb)}
+                className="w-full flex items-center justify-between gap-3 bg-white rounded-xl p-3 border border-orange-100 hover:border-orange-300 hover:bg-orange-50/50 transition text-left"
+              >
+                <div className="min-w-0">
+                  <div className="text-sm font-bold text-gray-800 truncate">{eb.title}</div>
+                  <div className="text-xs text-gray-500">
+                    {eb.myBestScore != null
+                      ? `${isAr ? 'أفضل نتيجة' : 'Meilleur score'} : ${eb.myBestScore.toFixed(1)}%`
+                      : (isAr ? 'لم تشارك بعد' : 'Pas encore fait')}
+                  </div>
+                </div>
+                <ChevronRight size={18} className={`text-orange-400 flex-shrink-0 ${isAr ? 'rotate-180' : ''}`} />
+              </button>
+            ))}
+          </div>
+        )}
+      </div>
+
+      {/* Modal démarrage examen (nom/prénom/téléphone/ville — identique à historique-eb) */}
+      {modal && (
+        <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/60 backdrop-blur-sm p-4" onClick={() => setModal(null)}>
+          <div className="bg-white border border-gray-200 rounded-2xl w-full max-w-sm shadow-2xl overflow-hidden" onClick={e => e.stopPropagation()}>
+            <div className="px-5 py-4 border-b border-gray-100 bg-orange-50">
+              <div className="flex items-center gap-2">
+                <Play className="w-4 h-4 text-orange-500" />
+                <p className="font-bold text-sm text-gray-800">{isAr ? 'بدء الامتحان التجريبي' : 'Démarrer l\'examen blanc'}</p>
+              </div>
+              <p className="text-xs text-gray-500 mt-0.5 pl-6">{modal.title}</p>
+            </div>
+
+            <div className="p-5 space-y-3">
+              <div className="grid grid-cols-2 gap-2">
+                <input type="text" placeholder={isAr ? 'الاسم الأول' : 'Prénom'} value={form.prenom} onChange={e => setForm(f => ({ ...f, prenom: e.target.value }))}
+                  className="border border-gray-200 rounded-xl px-3 py-2.5 text-sm bg-gray-50 focus:outline-none focus:ring-2 focus:ring-orange-400" />
+                <input type="text" placeholder={isAr ? 'اللقب' : 'Nom'} value={form.nom} onChange={e => setForm(f => ({ ...f, nom: e.target.value }))}
+                  className="border border-gray-200 rounded-xl px-3 py-2.5 text-sm bg-gray-50 focus:outline-none focus:ring-2 focus:ring-orange-400" />
+              </div>
+              <input type="tel" placeholder={isAr ? 'الهاتف' : 'Téléphone'} value={form.telephone} onChange={e => setForm(f => ({ ...f, telephone: e.target.value }))}
+                className="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm bg-gray-50 focus:outline-none focus:ring-2 focus:ring-orange-400" />
+              <select value={form.ville} onChange={e => setForm(f => ({ ...f, ville: e.target.value }))}
+                className="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm bg-gray-50 focus:outline-none focus:ring-2 focus:ring-orange-400">
+                <option value="">{isAr ? 'اختر الولاية' : 'Choisir une wilaya'}</option>
+                {WILAYAS.map(w => <option key={w} value={w}>{w}</option>)}
+              </select>
+
+              {formError && (
+                <div className="flex items-center gap-2 text-sm text-red-500 bg-red-500/10 rounded-xl px-3 py-2">
+                  <AlertCircle className="w-4 h-4 flex-shrink-0" />
+                  {formError}
+                </div>
+              )}
+
+              <div className="flex gap-2 pt-1">
+                <button onClick={() => setModal(null)} className="flex-1 py-2.5 rounded-xl text-sm font-medium border border-gray-200 hover:bg-gray-50 transition">
+                  {isAr ? 'إلغاء' : 'Annuler'}
+                </button>
+                <button onClick={handleStart} disabled={starting}
+                  className="flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm font-semibold text-white bg-orange-500 disabled:opacity-50 transition-opacity hover:opacity-90">
+                  {starting ? <Loader2 className="w-4 h-4 animate-spin" /> : <Play className="w-4 h-4" />}
+                  {isAr ? 'ابدأ' : 'Lancer'}
+                </button>
+              </div>
             </div>
           </div>
         </div>
-      </div>
+      )}
 
     </div>
   );

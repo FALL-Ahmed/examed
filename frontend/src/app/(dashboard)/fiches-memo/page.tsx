@@ -7,13 +7,32 @@ import { translations } from '@/lib/i18n';
 import { useLang } from '@/components/LanguageProvider';
 import { FileText, X, ZoomIn, ZoomOut, Maximize2, Target, ArrowLeft, Download } from 'lucide-react';
 
-function downloadFiche(blobUrl: string, title: string) {
+async function downloadFiche(blob: Blob, title: string) {
+  const filename = `${title.replace(/[^\w\s-]/g, '').trim() || 'fiche-memo'}.jpg`;
+  const nav = navigator as any;
+
+  // Mobile : ouvre le menu de partage natif ("Enregistrer l'image" -> galerie/Photos)
+  try {
+    const file = new File([blob], filename, { type: blob.type || 'image/jpeg' });
+    if (nav.share && nav.canShare?.({ files: [file] })) {
+      await nav.share({ files: [file], title });
+      userApi.trackPdf(title, 'app').catch(() => {});
+      return;
+    }
+  } catch {
+    // Partage annulé par l'utilisateur ou indisponible -> ne pas relancer de téléchargement
+    return;
+  }
+
+  // Desktop (ou navigateur sans Web Share API) : téléchargement classique
+  const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
-  a.href = blobUrl;
-  a.download = `${title.replace(/[^\w\s-]/g, '').trim() || 'fiche-memo'}.jpg`;
+  a.href = url;
+  a.download = filename;
   document.body.appendChild(a);
   a.click();
   a.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
   userApi.trackPdf(title, 'app').catch(() => {});
 }
 
@@ -240,9 +259,7 @@ function FicheCard({ f, isAr, onOpen }: { f: any; isAr: boolean; onOpen: () => v
     setDownloading(true);
     try {
       const r = await api.get(`/users/fiches-memo/${f.id}/view`, { responseType: 'blob' });
-      const url = URL.createObjectURL(r.data);
-      downloadFiche(url, f.title);
-      URL.revokeObjectURL(url);
+      await downloadFiche(r.data, f.title);
     } catch {} finally {
       setDownloading(false);
     }
