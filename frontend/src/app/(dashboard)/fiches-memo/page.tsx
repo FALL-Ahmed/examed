@@ -44,7 +44,7 @@ function useFicheBlob(ficheId: string | null, thumb = false) {
   return blobUrl;
 }
 
-function FicheModal({ f, onClose, isAr }: { f: any; onClose: () => void; isAr: boolean }) {
+function FicheModal({ f, onClose }: { f: any; onClose: () => void }) {
   const blobUrl = useFicheBlob(f.id);
   const [scale, setScale] = useState(1);
   const [pos, setPos] = useState({ x: 0, y: 0 });
@@ -175,15 +175,6 @@ function FicheModal({ f, onClose, isAr }: { f: any; onClose: () => void; isAr: b
               </button>
             )}
             <span className="text-white/30 text-xs w-9 text-center">{Math.round(scale * 100)}%</span>
-            {blobUrl && (
-              <button
-                onClick={() => downloadFiche(blobUrl, f.title)}
-                className="text-white/60 hover:text-white p-1.5 rounded-lg hover:bg-white/10 transition ml-1"
-                title={isAr ? 'تحميل' : 'Télécharger'}
-              >
-                <Download className="w-4 h-4" />
-              </button>
-            )}
             <button onClick={onClose} className="text-white/60 hover:text-white p-1.5 rounded-lg hover:bg-white/10 transition ml-1">
               <X className="w-5 h-5" />
             </button>
@@ -231,6 +222,7 @@ function FicheCard({ f, isAr, onOpen }: { f: any; isAr: boolean; onOpen: () => v
   const cardRef = useRef<HTMLDivElement>(null);
   const [visible, setVisible] = useState(false);
   const blobUrl = useFicheBlob(visible ? f.id : null, true);
+  const [downloading, setDownloading] = useState(false);
 
   useEffect(() => {
     const el = cardRef.current;
@@ -241,6 +233,20 @@ function FicheCard({ f, isAr, onOpen }: { f: any; isAr: boolean; onOpen: () => v
     obs.observe(el);
     return () => obs.disconnect();
   }, []);
+
+  const handleDownload = async (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (downloading) return;
+    setDownloading(true);
+    try {
+      const r = await api.get(`/users/fiches-memo/${f.id}/view`, { responseType: 'blob' });
+      const url = URL.createObjectURL(r.data);
+      downloadFiche(url, f.title);
+      URL.revokeObjectURL(url);
+    } catch {} finally {
+      setDownloading(false);
+    }
+  };
 
   return (
     <div ref={cardRef} className="bg-card border border-border rounded-2xl overflow-hidden flex flex-col hover:shadow-md hover:border-emerald-400/40 transition-all duration-200">
@@ -264,14 +270,27 @@ function FicheCard({ f, isAr, onOpen }: { f: any; isAr: boolean; onOpen: () => v
         </div>
       </button>
 
-      <div className="p-3 flex items-center justify-between gap-2">
-        <p className="font-semibold text-sm leading-snug line-clamp-2 flex-1">{f.title}</p>
-        <button
-          onClick={onOpen}
-          className="flex-shrink-0 bg-emerald-500 hover:bg-emerald-600 text-white text-xs font-semibold px-3 py-1.5 rounded-lg transition"
-        >
-          {isAr ? 'عرض' : 'Voir'}
-        </button>
+      <div className="p-3 flex flex-col gap-2">
+        <p className="font-semibold text-sm leading-snug line-clamp-2">{f.title}</p>
+        <div className="flex items-center gap-2">
+          <button
+            onClick={onOpen}
+            className="flex-1 flex items-center justify-center gap-1.5 bg-emerald-500 hover:bg-emerald-600 text-white text-xs font-semibold px-3 py-1.5 rounded-lg transition"
+          >
+            <ZoomIn className="w-3.5 h-3.5" />
+            {isAr ? 'عرض' : 'Voir'}
+          </button>
+          <button
+            onClick={handleDownload}
+            disabled={downloading}
+            className="flex-1 flex items-center justify-center gap-1.5 bg-secondary hover:bg-muted border border-border text-foreground text-xs font-semibold px-3 py-1.5 rounded-lg transition disabled:opacity-60"
+          >
+            {downloading
+              ? <div className="w-3.5 h-3.5 border-2 border-current border-t-transparent rounded-full animate-spin" />
+              : <Download className="w-3.5 h-3.5" />}
+            {isAr ? 'تحميل' : 'Télécharger'}
+          </button>
+        </div>
       </div>
     </div>
   );
@@ -387,7 +406,7 @@ function FichesMemoInner() {
       )}
 
       {selected && (
-        <FicheModal f={selected} onClose={() => setSelected(null)} isAr={isAr} />
+        <FicheModal f={selected} onClose={() => setSelected(null)} />
       )}
     </div>
   );
