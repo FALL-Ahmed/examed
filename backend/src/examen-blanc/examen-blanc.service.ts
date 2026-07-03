@@ -13,7 +13,7 @@ function computePartialScore(userAnswer: string, question: {
   const w = wrong.length;
   const correctSelected = selected.filter(o => correct.includes(o)).length;
   const wrongSelected = selected.filter(o => wrong.includes(o)).length;
-  const raw = (c > 0 ? correctSelected / c : 0) - (w > 0 ? wrongSelected / w : 0);
+  const raw = Math.max(0, (c > 0 ? correctSelected / c : 0) - (w > 0 ? wrongSelected / w : 0));
   return Math.round(raw * 1000) / 1000;
 }
 
