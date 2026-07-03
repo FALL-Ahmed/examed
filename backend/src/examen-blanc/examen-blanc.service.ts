@@ -379,6 +379,20 @@ export class ExamenBlancService {
 
     const session = participant.examenBlanc;
     const lang = participant.lang || 'fr';
+
+    // Si c'est le dernier examen blanc de cette profession, le TOTAL affiché ("rang X / total")
+    // devient la somme des inscrits du dernier + de l'avant-dernier (même target) — un examen tout
+    // juste ouvert a peu de participants, donc "5e sur 25" serait peu représentatif seul.
+    // Le rang lui-même reste calculé uniquement parmi les participants de cet examen.
+    const recentExams = await db(this.prisma).examenBlanc.findMany({
+      where: { target: session.target },
+      orderBy: { startsAt: 'desc' },
+      take: 2,
+      select: { id: true },
+    });
+    const isLatestExam = recentExams[0]?.id === session.id;
+    const totalExamIds = isLatestExam ? recentExams.map((e: any) => e.id) : [session.id];
+
     const [allCompleted, totalRegistered] = await Promise.all([
       db(this.prisma).examenBlancParticipant.findMany({
         where: { examenBlancId: participant.examenBlancId, isCompleted: true, isTest: false },
@@ -386,7 +400,7 @@ export class ExamenBlancService {
         select: { id: true, score: true },
       }),
       db(this.prisma).examenBlancParticipant.count({
-        where: { examenBlancId: participant.examenBlancId, isTest: false },
+        where: { examenBlancId: { in: totalExamIds }, isTest: false },
       }),
     ]);
 
