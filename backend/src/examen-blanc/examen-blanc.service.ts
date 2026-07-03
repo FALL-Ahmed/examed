@@ -811,47 +811,90 @@ export class ExamenBlancService {
 
     const available = allSubThemes.filter((st: any) => st.questions.length > 0);
 
-    // Pour SAGE_FEMME : quotas fixes par sous-thème (nouvelle distribution)
+    // Pour SAGE_FEMME : nouvelle distribution détaillée par sous-thème (juillet 2026)
     if (target === 'SAGE_FEMME') {
-      const pick = (matcher: (subName: string, themeName: string) => boolean, n: number): string[] => {
-        const pool: string[] = [];
-        for (const st of available) {
-          const s = st.name.toLowerCase();
-          const t = (st.theme?.name ?? '').toLowerCase();
-          if (matcher(s, t)) pool.push(...st.questions.map((q: any) => q.id));
-        }
-        pool.sort(byFreshness);
-        return pool.slice(0, n);
+      const bySubThemeId = (id: string, n: number): string[] => {
+        const st = available.find((s: any) => s.id === id);
+        if (!st) return [];
+        return st.questions.map((q: any) => q.id).sort(byFreshness).slice(0, n);
       };
 
-      const sfSelected = [
-        // CAS CLINIQUE (حالة سريرية) — 29 Q
-        ...pick((_s, t) => t.includes('cas clinique') || t.includes('حالة سريرية'), 29),
-        // IST (الأمراض المنقولة جنسياً) — 4 Q
-        ...pick((s) => /infections? sexuellement|IST\b|الأمراض المنقولة جنسياً/i.test(s), 4),
-        // Leucorrhées (الإفرازات المهبلية) — 3 Q
-        ...pick((s) => /leucorrh|الإفرازات المهبلية/i.test(s), 3),
-        // Soins néonataux (رعاية حديثي الولادة) — 3 Q
-        ...pick((_s, t) => /soins.n[ée]onataux|n[ée]onataux|رعاية حديثي الولادة/i.test(t + ' ' + _s), 3),
-        // Grossesse gémellaire (الحمل المتعدد) — 3 Q
-        ...pick((s) => /grossesse g[ée]mellaire|الحمل المتعدد/i.test(s), 3),
-        // Placenta (المشيمة) — 2 Q
-        ...pick((s) => /placenta|المشيمة/i.test(s), 2),
-        // Liquide amniotique (السائل الأمنيوسي) — 2 Q
-        ...pick((s) => /liquide amniotique|السائل الأمنيوسي/i.test(s), 2),
-        // Hémorragie grossesse (النزيف والحمل) — 2 Q
-        ...pick((s) => /h[ée]morragie.*grossesse|النزيف والحمل/i.test(s), 2),
-        // Fièvre grossesse (الحمى أثناء الحمل) — 2 Q
-        ...pick((s) => /fi[èe]vre.*grossesse|الحمى أثناء الحمل/i.test(s), 2),
-        // Hypertension (ارتفاع ضغط الدم) — 2 Q
-        ...pick((s) => /hypertension.*grossesse|ارتفاع ضغط الدم والحمل/i.test(s), 2),
-        // RPM (تمزق الأغشية) — 2 Q
-        ...pick((s) => /rupture pr[ée]matur[ée]|RPM|تمزق الأغشية/i.test(s), 2),
-        // Accouchement (فصل الولادة) — 2 Q
-        ...pick((s) => /l.?accouchement|فصل الولادة/i.test(s), 2),
-        // Dystocie (عسر الولادة) — 2 Q
-        ...pick((s) => /dystocie|عسر الولادة/i.test(s), 2),
-      ];
+      let sfSelected: string[];
+
+      if (lang === 'AR') {
+        // 3 catégories sans contenu arabe (infection néonatale, PTME, AELB) →
+        // 5 slots redistribués sur Hémorragie/Accouchement/Hypertension (catégories à forte réserve)
+        const FIXED_IDS_AR = [
+          'cmplyag0r00bdil5agrbj7yhp', // fer — indications de supplémentation
+          'cmplyaefi00anil5acw5x8l0m', // acide folique (vitamine B9)
+          'cmplyafaa00b1il5a1osuzfqx', // vitamine D
+          'cmqbp9rk2006wa9wihnbzv1a7', // corticothérapie anténatale — protocoles/molécules
+          'cmqbp9oy7005oa9wig60p2vms', // épreuve utérine — signes rupture "violente"
+          'cmqbp9ops005ka9wifkkn0hjb', // épreuve utérine — mesures de surveillance
+          'cmqbp9o8l005ca9wiqrgfqf35', // épreuve utérine — indications césarienne itérative
+          'cmqbp9inz002qa9wi63ucj0fx', // grossesse gémellaire — MCMA
+          'cmqbp9jht0034a9wieeev4pl3', // grossesse gémellaire — délai d'expectative J1/J2
+          'cmqbp9jdm0032a9wiwdk7mv4k', // grossesse gémellaire — accouchement J1
+        ];
+        sfSelected = [
+          ...FIXED_IDS_AR,
+          ...bySubThemeId('cmqc5t2zq0002dd0tczmgx3rv', 2),  // soins néonataux et réanimation
+          ...bySubThemeId('cmply9obr0002il5a021cgng9', 3),  // datation et consultations
+          ...bySubThemeId('cmply9r570014il5ag8t13atm', 1),  // modifications physiologiques
+          ...bySubThemeId('cmply9sau001kil5abd764qtb', 1),  // suivi biologique et dépistages
+          ...bySubThemeId('cmplyaoio00f5il5axxybok7h', 8),  // hémorragie et grossesse (6+2 redistribué)
+          ...bySubThemeId('cmplyat7y00h7il5a6o3vvdwp', 5),  // hypertension et grossesse (4+1 redistribué)
+          ...bySubThemeId('cmpx4ab3m0001135ipgd7mcki', 9),  // accouchement (7+2 redistribué)
+          ...bySubThemeId('cmqbp9cxt000ca9wivl2nbsag', 2),  // stagnation du travail
+          ...bySubThemeId('cmqbp9da7000ia9wimql2lius', 2),  // tocolyse et MAP
+          ...bySubThemeId('cmqbp9cga0004a9wil47vwklt', 1),  // cordon ombilical
+          ...bySubThemeId('cmqbp9con0008a9widd0k98d6', 2),  // déclenchement du travail
+          ...bySubThemeId('cmqbp9drt000qa9widhq2dv9y', 1),  // liquide amniotique
+          ...bySubThemeId('cmqbp9dvx000sa9wiours0z6d', 1),  // placenta
+          ...bySubThemeId('cmplyb15e00kjil5acrm48p2z', 1),  // rythme cardiaque fœtal (RCF)
+          ...bySubThemeId('cmplyabbr009gil5a4be91fpl', 2),  // leucorrhées
+          ...bySubThemeId('cmplya8y3008gil5asnnbxrz1', 2),  // IST
+          ...bySubThemeId('cmply9z04004ail5amz5qhpbd', 4),  // contraception
+          ...bySubThemeId('cmqbp9e4a000wa9wiqd7kczwb', 3),  // prévention cancer du col
+        ];
+      } else {
+        const FIXED_IDS_FR = [
+          'cmplye0ml00xtil5a4d292n3g', // fer — indications de supplémentation
+          'cmplydz1g00x3il5at0ntkm6u', // acide folique (vitamine B9)
+          'cmplydzw900xhil5arer30nkw', // vitamine D
+          'cmqcdpaoc0003pf18mmxlz4rm', // corticothérapie anténatale — protocoles/molécules
+          'cmqcdlt71000d101e90e9dw5u', // épreuve utérine — signes rupture "violente"
+          'cmqcdlt2i0009101ee1ngpqe1', // épreuve utérine — mesures de surveillance
+          'cmqcdlsp40001101eridf312l', // épreuve utérine — indications césarienne itérative
+          'cmqbmrzhz002kufl4g4d8q4j4', // grossesse gémellaire — MCMA
+          'cmqbms0ba002yufl4ygteycqk', // grossesse gémellaire — délai d'expectative J1/J2
+          'cmqbms074002wufl47njot4dq', // grossesse gémellaire — accouchement J1
+        ];
+        sfSelected = [
+          ...FIXED_IDS_FR,
+          ...bySubThemeId('cmqx6bdmh0002jrthlstec7ex', 2),  // infections néonatales bactériennes
+          ...bySubThemeId('cmqc5okxz000211ggmnk9ery9', 2),  // soins néonataux et réanimation
+          ...bySubThemeId('cmqxn7i0x0001ib97v0ha9uyt', 2),  // PTME du VIH et hépatite B
+          ...bySubThemeId('cmqx6cgqd0002lym8j9efdoed', 1),  // accidents d'exposition aux liquides biologiques (AELB)
+          ...bySubThemeId('cmpmsh80h000111lkg6u8gqfy', 3),  // datation et consultations
+          ...bySubThemeId('cmpmsh8he000l11lku3cnrzqz', 1),  // modifications physiologiques
+          ...bySubThemeId('cmpmsh8v3000u11lkmlk4v0c6', 1),  // suivi biologique et dépistages
+          ...bySubThemeId('cmplye9ez011nil5azift9rib', 6),  // hémorragie et grossesse
+          ...bySubThemeId('cmplyeecx013til5az0h3igpa', 4),  // hypertension et grossesse
+          ...bySubThemeId('cmplye12400y1il5ajyk9lvu4', 7),  // accouchement
+          ...bySubThemeId('cmqbmrunu000cufl44zr46axv', 2),  // stagnation du travail
+          ...bySubThemeId('cmqbmruwe000gufl4ugx7b08l', 2),  // tocolyse et MAP
+          ...bySubThemeId('cmqbmru790004ufl4hfbs7h9d', 1),  // cordon ombilical
+          ...bySubThemeId('cmqbmrufk0008ufl4r7olgnw1', 2),  // déclenchement du travail
+          ...bySubThemeId('cmqbmrv4m000kufl42t28xvll', 1),  // liquide amniotique
+          ...bySubThemeId('cmqbmrv8r000mufl4ihbldj4e', 1),  // placenta
+          ...bySubThemeId('cmplyema60175il5axe7lysue', 1),  // rythme cardiaque fœtal (RCF)
+          ...bySubThemeId('cmplydvzx00vwil5az3ujwtrk', 2),  // leucorrhées
+          ...bySubThemeId('cmplydtmc00uwil5a6tjpbkzh', 2),  // IST
+          ...bySubThemeId('cmplydjop00qqil5azuh6jgmi', 4),  // contraception
+          ...bySubThemeId('cmqbmrvh3000qufl4calhoz0z', 3),  // prévention cancer du col
+        ];
+      }
 
       // Dédoublonner
       const seen = new Set<string>();
@@ -930,7 +973,7 @@ export class ExamenBlancService {
         return pool.slice(0, n);
       };
 
-      const infSelected = lang === 'AR' ? [
+      const infSelectedOld = lang === 'AR' ? [
         // CAS CLINIQUE AR (حالة سريرية) — 26 Q
         ...pick((_s, t) => t.includes('حالة سريرية'), 26),
         // Diphtérie AR (الدفتيريا) — 2 Q
@@ -994,6 +1037,144 @@ export class ExamenBlancService {
         ...pick((s) => /oxygenoth/i.test(s), 2),
         // Infection des parties molles FR — 2 Q
         ...pick((s) => /parties molles/i.test(s), 2),
+      ];
+
+      void infSelectedOld; // conservé pour référence, plus utilisé (remplacé par la distribution détaillée ci-dessous)
+
+      const bySubThemeId = (id: string, n: number, exclude: Set<string>): string[] => {
+        const st = available.find((s: any) => s.id === id);
+        if (!st) return [];
+        const ids = (st as any).questions.map((q: any) => q.id).filter((qId: string) => !exclude.has(qId));
+        return ids.sort(byFreshness).slice(0, n);
+      };
+
+      if (lang === 'AR') {
+        // AR — nouvelle distribution détaillée (juillet 2026), équivalents arabes trouvés un par un.
+        // Seule "HTA — médicament couramment utilisé" reste sans équivalent arabe → redistribué sur
+        // injection IM / transfusion. Le pool "sondes urinaires AR" manque d'explications (1 seule
+        // question utilisable sur 20) → quota réduit à 1 et compensé ailleurs.
+        const FIXED_IDS_INF_AR = [
+          'b86d2178-a7d8-42da-93f2-2b9538f92298', // SCA — définition (mal classée sous PTME dans la base)
+          '5d9df726-9a7e-4e45-a7b3-c4feb123f676', // SCA — signes cliniques (idem)
+          '8ad94f35-930d-4260-b338-c7bbaca14618', // SCA — biomarqueurs (idem)
+          'cmplya3ip0064il5a98605prf', // gynécologie — douleur pelvienne (réutilisé depuis SAGE_FEMME)
+          'cmply9qyl0010il5a74rr4nm0', // grossesse normale — examen pour confirmer (réutilisé depuis SAGE_FEMME)
+          'cmplya9fi008kil5aqltzsht4', // IST — diagnostic et traitement syphilis (réutilisé depuis SAGE_FEMME)
+          'cmozyzz1h006p7acupbmvm1jh', // anatomie digestif — douleur fosse iliaque
+          'cmozyzyx8006l7acug2h6z018', // anatomie digestif — parties du côlon
+          'cmozz00fj007z7acu09852f0s', // anatomie cardiovasculaire — aorte
+          'cmozz01yd009f7acudgqok5cd', // anatomie urinaire — vessie réservoir musculeux
+          'cmozz02sb00a57acuba3lrw6u', // anatomie SNC — moelle épinière
+          'cmozz04od00bw7acuogq0gfb0', // HTA — définition/critères
+          'cmozz04wt00c47acuoloyg61p', // insuffisance cardiaque — signes fonctionnels
+          'cmozz05yy00d37acuoux19vha', // diabète — mesures hygiéno-diététiques
+          'cmozz05sl00cx7acul7boj6zk', // diabète — critère diagnostique
+          'cmozyzttf00207acue510m31n', // diphtérie — signes cliniques
+          'cmozyztr9001y7acu8lfloq43', // diphtérie — voies de transmission
+          'cmozyzu1v00287acu7gifep1e', // diphtérie — traitement obligatoire
+          'cmozyzxg100587acus0oc9o7p', // fièvre hémorragique — précautions contact
+          'cmozyzxds00567acubvza0t00', // fièvre hémorragique — signes vallée du Rift
+          'cmozyzwyy004s7acub31stxhy', // rage — animal mordeur
+          'cmozyztiq001q7acupazvd27z', // toxoplasmose
+          'cmozyzrvr000c7acuranzi0fs', // tuberculose — prélèvements respiratoires
+          'cmozyzrta000a7acugruih304', // tuberculose — signes généraux
+          'cmozyzrk300047acud6gmkorg', // tuberculose — localisation la plus fréquente
+          'cmozyzsk2000u7acukyg3tz0o', // diarrhée aiguë — signes alarmants
+          'cmozyzteh001m7acul1r4auih', // méningites — signes nourrisson
+          'cmozyzt3e001c7acuj44cjs39', // méningites — première démarche suspicion
+          'cmozyzt5i001e7acuycjvlyel', // méningites — posologie Ceftriaxone
+          'cmozyzvfl003g7acuw5rw83jg', // vaccination — voie d'administration
+          'cmozyzvdh003e7acujyg4uns2', // vaccination — contre-indications
+          'cmozyzv7200387acue37hfo5l', // vaccination — étudiant infirmier
+          'cmozyzx38004w7acup1ha3kbf', // schistosomiase
+          'cmozyzw5900427acufjd9qp32', // paludisme — diagnostic
+          'cmozyzwgi004c7acukzo5hmui', // paludisme — prophylaxie
+          'cmozyzwe8004a7acuzikfmmiv', // paludisme — traitement palu grave
+          'cmozyzw7f00447acuyzpac4cb', // paludisme — signes indiquant palu grave
+          'cmozyzw9q00467acu6xy1xrm6', // paludisme — signes de gravité
+          'cmozyzumf002q7acuczzoo1pb', // tétanos — mesures en cas de blessure
+          'cmozz0bc400hw7acu7nuy29bn', // infection parties molles — germe le plus fréquent
+          'cmozz0b5p00hq7acu8qqydzfy', // infection parties molles — définition panaris
+          'cmozz0bmu00i67acud8959864', // brûlures — aspect 2e degré
+          'cmozz0bkq00i47acuob7ns1wr', // brûlures — règle estimation surface
+        ];
+        const fixedSetInfAr = new Set(FIXED_IDS_INF_AR);
+
+        const infSelectedAr = [
+          ...FIXED_IDS_INF_AR,
+          ...bySubThemeId('cmozyzy9n005z7acu5tx3lj45', 1, fixedSetInfAr), // anatomie digestif — complément
+          ...bySubThemeId('cmozyzx5b004y7acu98rooaxj', 1, fixedSetInfAr), // fièvre hémorragique — complément
+          ...bySubThemeId('cmozz0r0y00w97acuagvl804u', 1, fixedSetInfAr), // sondes urinaires (pool utilisable trop faible : 1 au lieu de 2)
+          ...bySubThemeId('cmozz0i6600o57acubt1hoz2u', 3, fixedSetInfAr), // injection intramusculaire (2+1 redistribué)
+          ...bySubThemeId('cmozz0lri00rf7acu522qt0rw', 2, fixedSetInfAr), // ponction lombaire
+          ...bySubThemeId('cmozz0x14011v7acu3qrrtoxg', 3, fixedSetInfAr), // transfusion (2+1 redistribué : HTA-médicament sans équivalent AR)
+          ...bySubThemeId('cmozz08fy00fa7acuof7h3kgy', 4, fixedSetInfAr), // hépatite aiguë (gastrologie) — complète à 60
+          ...bySubThemeId('cmozyzxoh005g7acuzku5mclr', 2, fixedSetInfAr), // hépatites virales (maladies infectieuses) — pool gastrologie AR insuffisant (4 max)
+        ];
+
+        const seenAr = new Set<string>();
+        const dedupedAr = infSelectedAr.filter(id => { if (seenAr.has(id)) return false; seenAr.add(id); return true; });
+        return dedupedAr.sort(() => Math.random() - 0.5).slice(0, totalQ);
+      }
+
+      // FR — nouvelle distribution détaillée (juillet 2026) : questions précises + quotas par sous-thème
+      const FIXED_IDS_INF = [
+        'cmosu1mjv00dp111c0x41cazp',
+        'cmosu1mik00dl111cwbdym02b',
+        'cmosu1m7500cu111cev67xfug',
+        'cmosu1mvl00em111ciau47b0p',
+        'cmosu1ku5009g111cfruk3si0',
+        '1e3cd41d-9660-444b-b8e3-38f66e3f9d28',
+        'bf2b87aa-fe69-4a0a-b2bd-0ab43e20b244',
+        'd60bddde-28f6-4374-866a-1e25fdef940e',
+        'cmorfswzv018kg2gvtwt1do1y',
+        'cmorfsx1w018qg2gvrnbklhke',
+        'cmorfswx3018eg2gv2534bhb6',
+        'cmorfsxhi019tg2gvtbxfbosu',
+        'cmorfsxfe019ng2gvyhv6gv8c',
+        'cmqy9197f003ptff2w0hlk4qs',
+        'cmqy90k5r000xtff2pcg2vnhl',
+        'cmorfsw270166g2gvwjmz6rdw',
+        'cmorfsw1j0164g2gvv4rtqbij',
+        'cmorfsw4v016eg2gv7rl6dof4',
+        'cmorfswag016sg2gv39tcmrlx',
+        'cmorfsw9s016qg2gv8bede5sp',
+        'cmorfsvam0146g2gv3qpksu6o',
+        'cmosu1pjw00lp111c8ntnw1xr',
+        'cmorfswtw0187g2gvhsbocgnc',
+        'cmorfswt80185g2gvsuhniz2i',
+        'cmorfswr9017zg2gv07vuylfw',
+        'cmorfswnc017qg2gv47n2s734',
+        'cmorfswil017eg2gvllvo2tzh',
+        'cmorfsvsf015ig2gv4aine4b2',
+        'cmorfsvp60158g2gv2cjemsbw',
+        'cmorfsvpt015ag2gvuqexzoaa',
+        'cmosu1nei00g3111cjjmoqv89',
+        'cmosu1nd600fz111cl7o4xnc2',
+        'cmosu1nir00gf111cvhf17407',
+        'cmosu1pfu00lh111c0ske6a5o',
+        'cmorfsvgc014kg2gv3g4oo9o9',
+        'cmorfsvjq014ug2gv76h7tjbb',
+        'cmorfsvj1014sg2gv98syzmjw',
+        'cmorfsvho014og2gv87et4e8w',
+        'cmorfsvh1014mg2gvb5rsovzf',
+        'cmorfsvyq015yg2gvz7afn6rt',
+        'cmosu1o6f00i8111cp651f6qn',
+        'cmosu1o3t00i0111co06jqchj',
+        'cmosu1nun00hc111cdtfwkyb1',
+        'cmosu1ntw00ha111c60k0bryb',
+      ];
+      const fixedSetInf = new Set(FIXED_IDS_INF);
+
+      const infSelected = [
+        ...FIXED_IDS_INF,
+        ...bySubThemeId('cmosu1m9400cz111c9dyl5z9t', 1, fixedSetInf),
+        ...bySubThemeId('cmorfsw5v016ig2gvhs6kwt41', 1, fixedSetInf),
+        ...bySubThemeId('cmosu1k2w007j111cvukmwqnu', 2, fixedSetInf),
+        ...bySubThemeId('cmorfszm601eyg2gvhi5h3b8e', 2, fixedSetInf),
+        ...bySubThemeId('cmosu1kiz008q111c1au8ykie', 2, fixedSetInf),
+        ...bySubThemeId('cmorft0ff01h2g2gvg8qbf8fs', 2, fixedSetInf),
+        ...bySubThemeId('cmosu1ory00jt111cn4m4g8yw', 6, fixedSetInf), // hépatites virales (gastrologie) — complète à 60
       ];
 
       const seen = new Set<string>();
