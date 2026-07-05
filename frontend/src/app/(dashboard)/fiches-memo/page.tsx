@@ -5,36 +5,7 @@ import Link from 'next/link';
 import { userApi, api } from '@/lib/api';
 import { translations } from '@/lib/i18n';
 import { useLang } from '@/components/LanguageProvider';
-import { FileText, X, ZoomIn, ZoomOut, Maximize2, Target, ArrowLeft, Download } from 'lucide-react';
-
-async function downloadFiche(blob: Blob, title: string) {
-  const filename = `${title.replace(/[^\w\s-]/g, '').trim() || 'fiche-memo'}.jpg`;
-  const nav = navigator as any;
-
-  // Mobile : ouvre le menu de partage natif ("Enregistrer l'image" -> galerie/Photos)
-  try {
-    const file = new File([blob], filename, { type: blob.type || 'image/jpeg' });
-    if (nav.share && nav.canShare?.({ files: [file] })) {
-      await nav.share({ files: [file], title });
-      userApi.trackPdf(title, 'app').catch(() => {});
-      return;
-    }
-  } catch {
-    // Partage annulé par l'utilisateur ou indisponible -> ne pas relancer de téléchargement
-    return;
-  }
-
-  // Desktop (ou navigateur sans Web Share API) : téléchargement classique
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = filename;
-  document.body.appendChild(a);
-  a.click();
-  a.remove();
-  setTimeout(() => URL.revokeObjectURL(url), 1000);
-  userApi.trackPdf(title, 'app').catch(() => {});
-}
+import { FileText, X, ZoomIn, ZoomOut, Maximize2, Target, ArrowLeft } from 'lucide-react';
 
 const PREP_COLORS: Record<number, string> = {
   1: 'linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%)',
@@ -241,7 +212,6 @@ function FicheCard({ f, isAr, onOpen }: { f: any; isAr: boolean; onOpen: () => v
   const cardRef = useRef<HTMLDivElement>(null);
   const [visible, setVisible] = useState(false);
   const blobUrl = useFicheBlob(visible ? f.id : null, true);
-  const [downloading, setDownloading] = useState(false);
 
   useEffect(() => {
     const el = cardRef.current;
@@ -252,18 +222,6 @@ function FicheCard({ f, isAr, onOpen }: { f: any; isAr: boolean; onOpen: () => v
     obs.observe(el);
     return () => obs.disconnect();
   }, []);
-
-  const handleDownload = async (e: React.MouseEvent) => {
-    e.stopPropagation();
-    if (downloading) return;
-    setDownloading(true);
-    try {
-      const r = await api.get(`/users/fiches-memo/${f.id}/view`, { responseType: 'blob' });
-      await downloadFiche(r.data, f.title);
-    } catch {} finally {
-      setDownloading(false);
-    }
-  };
 
   return (
     <div ref={cardRef} className="bg-card border border-border rounded-2xl overflow-hidden flex flex-col hover:shadow-md hover:border-emerald-400/40 transition-all duration-200">
@@ -287,27 +245,14 @@ function FicheCard({ f, isAr, onOpen }: { f: any; isAr: boolean; onOpen: () => v
         </div>
       </button>
 
-      <div className="p-3 flex flex-col gap-2">
-        <p className="font-semibold text-sm leading-snug line-clamp-2">{f.title}</p>
-        <div className="flex items-center gap-2">
-          <button
-            onClick={onOpen}
-            className="flex-1 flex items-center justify-center gap-1.5 bg-emerald-500 hover:bg-emerald-600 text-white text-xs font-semibold px-3 py-1.5 rounded-lg transition"
-          >
-            <ZoomIn className="w-3.5 h-3.5" />
-            {isAr ? 'عرض' : 'Voir'}
-          </button>
-          <button
-            onClick={handleDownload}
-            disabled={downloading}
-            className="flex-1 flex items-center justify-center gap-1.5 bg-secondary hover:bg-muted border border-border text-foreground text-xs font-semibold px-3 py-1.5 rounded-lg transition disabled:opacity-60"
-          >
-            {downloading
-              ? <div className="w-3.5 h-3.5 border-2 border-current border-t-transparent rounded-full animate-spin" />
-              : <Download className="w-3.5 h-3.5" />}
-            {isAr ? 'تحميل' : 'Télécharger'}
-          </button>
-        </div>
+      <div className="p-3 flex items-center justify-between gap-2">
+        <p className="font-semibold text-sm leading-snug line-clamp-2 flex-1">{f.title}</p>
+        <button
+          onClick={onOpen}
+          className="flex-shrink-0 bg-emerald-500 hover:bg-emerald-600 text-white text-xs font-semibold px-3 py-1.5 rounded-lg transition"
+        >
+          {isAr ? 'عرض' : 'Voir'}
+        </button>
       </div>
     </div>
   );
