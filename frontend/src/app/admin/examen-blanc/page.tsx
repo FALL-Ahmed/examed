@@ -1217,7 +1217,7 @@ export default function AdminExamenBlancPage() {
                       <td className="px-2 py-2.5 font-mono text-foreground text-xs whitespace-nowrap">{l.telephone}</td>
                       <td className="px-2 py-2.5 text-muted-foreground text-xs overflow-hidden text-ellipsis whitespace-nowrap">{l.ville}</td>
                       <td className="px-2 py-2.5 text-xs font-semibold whitespace-nowrap">{l.lang === 'ar' ? '🇲🇷' : '🇫🇷'}</td>
-                      <td className="px-2 py-2.5 font-bold text-violet-600 whitespace-nowrap">{l.score != null ? `${l.score.toFixed(1)}%` : '—'}</td>
+                      <td className="px-2 py-2.5 font-bold text-violet-600 whitespace-nowrap">{l.score != null ? `${(l.score / 5).toFixed(1)}/20` : '—'}</td>
                       <td className="px-2 py-2.5 text-xs text-muted-foreground whitespace-nowrap">{l.classement ? `${l.classement}/${l.totalParticipants}` : '—'}</td>
                       <td className="px-2 py-2.5 whitespace-nowrap">
                         {l.resultsViewedAt

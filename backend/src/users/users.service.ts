@@ -1,5 +1,19 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
+import * as fs from 'fs';
+import * as path from 'path';
+
+const FICHE_CACHE_DIR = path.join(process.env.UPLOAD_PATH || './uploads', 'fiches-cache');
+if (!fs.existsSync(FICHE_CACHE_DIR)) fs.mkdirSync(FICHE_CACHE_DIR, { recursive: true });
+
+async function readOrFetch(cachePath: string, fileUrl: string): Promise<Buffer | null> {
+  if (fs.existsSync(cachePath)) return fs.readFileSync(cachePath);
+  const response = await fetch(fileUrl);
+  if (!response.ok) return null;
+  const buffer = Buffer.from(await response.arrayBuffer());
+  fs.writeFileSync(cachePath, buffer);
+  return buffer;
+}
 
 @Injectable()
 export class UsersService {
@@ -158,9 +172,7 @@ export class UsersService {
     });
     if (!fiche) return null;
 
-    const response = await fetch(fiche.fileUrl);
-    if (!response.ok) return null;
-    return Buffer.from(await response.arrayBuffer());
+    return readOrFetch(path.join(FICHE_CACHE_DIR, `${ficheId}-original`), fiche.fileUrl);
   }
 
   async getFicheThumbnail(userId: string, ficheId: string): Promise<{ buffer: Buffer; contentType: string } | null> {
@@ -182,9 +194,13 @@ export class UsersService {
     });
     if (!fiche) return null;
 
-    const response = await fetch(fiche.fileUrl);
-    if (!response.ok) return null;
-    const original = Buffer.from(await response.arrayBuffer());
+    const thumbCachePath = path.join(FICHE_CACHE_DIR, `${ficheId}-thumb.webp`);
+    if (fs.existsSync(thumbCachePath)) {
+      return { buffer: fs.readFileSync(thumbCachePath), contentType: 'image/webp' };
+    }
+
+    const original = await readOrFetch(path.join(FICHE_CACHE_DIR, `${ficheId}-original`), fiche.fileUrl);
+    if (!original) return null;
 
     try {
       // eslint-disable-next-line @typescript-eslint/no-var-requires
@@ -193,6 +209,7 @@ export class UsersService {
         .resize({ width: 600, withoutEnlargement: true })
         .webp({ quality: 70 })
         .toBuffer();
+      fs.writeFileSync(thumbCachePath, compressed);
       return { buffer: compressed, contentType: 'image/webp' };
     } catch {
       return { buffer: original, contentType: 'image/jpeg' };
