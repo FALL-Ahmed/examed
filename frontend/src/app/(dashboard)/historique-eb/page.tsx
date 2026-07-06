@@ -123,7 +123,8 @@ export default function HistoriqueEBPage() {
     }
   }
 
-  const participated = ebs.filter(e => e.myAttempts.length > 0).length;
+  const visibleEbs = ebs.slice(0, 2);
+  const participated = visibleEbs.filter(e => e.myAttempts.length > 0).length;
 
   if (loading) {
     return (
@@ -150,7 +151,7 @@ export default function HistoriqueEBPage() {
               <span className="text-xs font-semibold uppercase tracking-widest" style={{ color: accentColor }}>{t('eb.title')}</span>
             </div>
             <h1 className="text-2xl font-bold">{TARGET_LABEL[target]?.[isRTL ? 'ar' : 'fr'] || target}</h1>
-            <p className="text-sm text-muted-foreground mt-1">{ebs.length} {ebs.length !== 1 ? t('eb.sessions_pl') : t('eb.sessions')}</p>
+            <p className="text-sm text-muted-foreground mt-1">{visibleEbs.length} {visibleEbs.length !== 1 ? t('eb.sessions_pl') : t('eb.sessions')}</p>
           </div>
           <div className="flex gap-3">
             <div className="text-center">
@@ -159,7 +160,7 @@ export default function HistoriqueEBPage() {
             </div>
             <div className="w-px bg-border" />
             <div className="text-center">
-              <p className="text-2xl font-bold">{ebs.length - participated}</p>
+              <p className="text-2xl font-bold">{visibleEbs.length - participated}</p>
               <p className="text-xs text-muted-foreground">{t('eb.remaining')}</p>
             </div>
           </div>
@@ -168,14 +169,14 @@ export default function HistoriqueEBPage() {
 
 
       {/* Liste */}
-      {ebs.length === 0 ? (
+      {visibleEbs.length === 0 ? (
         <div className="text-center py-16 text-muted-foreground">
           <ClipboardList className="w-10 h-10 mx-auto mb-3 opacity-30" />
           <p className="text-sm">{t('eb.empty')}</p>
         </div>
       ) : (
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
-          {ebs.map((eb, idx) => {
+          {visibleEbs.map((eb, idx) => {
             const isExpanded = expanded === eb.id;
             const hasDone = eb.myAttempts.length > 0;
             const now = new Date();
