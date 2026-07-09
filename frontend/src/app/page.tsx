@@ -6,7 +6,7 @@ import { useAuthStore } from '@/lib/auth-store';
 import { useLang } from '@/components/LanguageProvider';
 import {
   BookOpen, Zap, TrendingUp, CheckCircle2,
-  GraduationCap, ArrowRight, Target, Users, Clock,
+  GraduationCap, ArrowRight, Target, Users, Clock, FileText, ClipboardList,
 } from 'lucide-react';
 import { settingsApi } from '@/lib/api';
 import { LanguageSwitcherLight } from '@/components/LanguageSwitcher';
@@ -27,9 +27,11 @@ export default function LandingPage() {
     : null;
 
   const FEATURES = [
-    { icon: BookOpen,   title: t('landing.feat1.title'), subtitle: t('landing.feat1.subtitle'), desc: t('landing.feat1.desc'), color: '#818cf8' },
-    { icon: Zap,        title: t('landing.feat2.title'), subtitle: t('landing.feat2.subtitle'), desc: t('landing.feat2.desc'), color: '#fbbf24' },
-    { icon: TrendingUp, title: t('landing.feat3.title'), subtitle: t('landing.feat3.subtitle'), desc: t('landing.feat3.desc'), color: '#34d399' },
+    { icon: BookOpen,       title: t('landing.feat1.title'), subtitle: t('landing.feat1.subtitle'), desc: t('landing.feat1.desc'), color: '#818cf8' },
+    { icon: Zap,            title: t('landing.feat2.title'), subtitle: t('landing.feat2.subtitle'), desc: t('landing.feat2.desc'), color: '#fbbf24' },
+    { icon: FileText,       title: t('landing.feat4.title'), subtitle: t('landing.feat4.subtitle'), desc: t('landing.feat4.desc'), color: '#10b981' },
+    { icon: ClipboardList,  title: t('landing.feat5.title'), subtitle: t('landing.feat5.subtitle'), desc: t('landing.feat5.desc'), color: '#ec4899' },
+    { icon: TrendingUp,     title: t('landing.feat3.title'), subtitle: t('landing.feat3.subtitle'), desc: t('landing.feat3.desc'), color: '#34d399' },
   ];
 
 
@@ -40,6 +42,16 @@ export default function LandingPage() {
     { name: 'مريم',     role: 'ممرضة متخرجة، نواكشوط',            img: '/images/ar-com-1.jpeg' },
     { name: 'سيدي',     role: 'طالب في العلوم التمريضية',           img: '/images/ar-com-2.jpeg' },
   ];
+
+  const MARQUEE_ITEMS = [
+    { type: 'chat', src: '/images/testimonials-chat/t1.jpeg' },
+    { type: 'chat', src: '/images/testimonials-chat/t2.jpeg' },
+    { type: 'chat', src: '/images/testimonials-chat/t3.jpeg' },
+    ...TESTIMONIALS.map((testi) => ({ type: 'photo' as const, ...testi })),
+    { type: 'chat', src: '/images/testimonials-chat/t4.jpeg' },
+    { type: 'chat', src: '/images/testimonials-chat/t5.jpeg' },
+    { type: 'chat', src: '/images/testimonials-chat/t6.jpeg' },
+  ] as const;
 
   const FREE_CHAPTERS = [
     { key: 'Paludisme',  name: lang === 'ar' ? 'الملاريا' : 'Paludisme' },
@@ -63,7 +75,7 @@ export default function LandingPage() {
   const isNursesDay = today.getMonth() === 4 && (today.getDate() === 12 || today.getDate() === 13); // 12 et 13 mai
 
   return (
-    <div className="min-h-screen bg-white text-gray-900 overflow-x-hidden" dir={lang === 'ar' ? 'rtl' : 'ltr'}>
+    <div className="min-h-screen bg-white text-gray-900" dir={lang === 'ar' ? 'rtl' : 'ltr'}>
 
       {/* ── Navbar ── */}
       <nav className="sticky top-0 z-50 bg-white/95 backdrop-blur-md border-b border-gray-100/80 shadow-sm">
@@ -137,7 +149,7 @@ export default function LandingPage() {
             {/* Stats bar */}
             <div className="flex flex-wrap gap-8 mt-12 pt-10 border-t border-white/10">
               <div>
-                <p className="text-2xl font-extrabold text-white">600+</p>
+                <p className="text-2xl font-extrabold text-white">4500+</p>
                 <p className="text-xs text-white/40 mt-0.5">{t('landing.stat.q')}</p>
               </div>
               <div>
@@ -153,6 +165,47 @@ export default function LandingPage() {
                 <p className="text-xs text-white/40 mt-0.5">{t('landing.stat.available')}</p>
               </div>
             </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ── Testimonials ── */}
+      <section className="py-20 px-6 lg:px-10 bg-slate-50">
+        <div className="max-w-6xl mx-auto">
+          <div className="mb-10">
+            <p className="text-violet-600 text-xs font-bold uppercase tracking-widest mb-3">{t('landing.testi.badge')}</p>
+            <h2 className="text-3xl md:text-5xl font-extrabold text-gray-900 max-w-lg">{t('landing.testi.h2')}</h2>
+          </div>
+          <div className="mb-12 flex items-center gap-5 rounded-2xl px-6 py-5 bg-emerald-600 shadow-lg shadow-emerald-900/20">
+            <div className="hidden sm:flex w-14 h-14 rounded-xl bg-white/15 items-center justify-center flex-shrink-0">
+              <GraduationCap className="w-7 h-7 text-white" />
+            </div>
+            <div>
+              <p className="text-xl md:text-2xl font-black text-white mb-1">
+                🎉 {lang === 'ar' ? 'لقد نجحوا.' : "Ils l'ont fait."}
+              </p>
+              <p className="text-sm text-emerald-50 leading-relaxed">
+                {lang === 'ar'
+                  ? 'بفضل الله أولًا، ثم بفضل اجتهادهم. ونفخر بأن منصة البُرور كانت جزءًا من قصة نجاحهم.'
+                  : "Grâce à Allah puis grâce à leur travail. Et nous sommes fiers d'avoir participé à leur réussite."}
+              </p>
+            </div>
+          </div>
+        </div>
+        <div className="overflow-hidden">
+          <div className="flex w-max gap-8 animate-marquee items-start">
+            {[...MARQUEE_ITEMS, ...MARQUEE_ITEMS].map((item, i) =>
+              item.type === 'chat' ? (
+                <img key={`${item.src}-${i}`} src={item.src} alt="Témoignage"
+                  className="w-80 h-auto rounded-xl flex-shrink-0 transition-transform duration-300 hover:scale-105" />
+              ) : (
+                <div key={`${item.name}-${i}`} className="flex flex-col items-center text-center group cursor-pointer flex-shrink-0">
+                  <img src={item.img} alt={item.name} className="w-80 h-auto rounded-xl mb-4 transition-transform duration-300 group-hover:scale-105" />
+                  <p className="font-bold text-base text-gray-900 group-hover:text-violet-600 transition">{item.name}</p>
+                  <p className="text-xs text-gray-400 mt-0.5">{item.role}</p>
+                </div>
+              )
+            )}
           </div>
         </div>
       </section>
@@ -216,27 +269,6 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* ── Testimonials ── */}
-      <section className="py-20 px-6 lg:px-10 bg-slate-50">
-        <div className="max-w-6xl mx-auto">
-          <div className="mb-12">
-            <p className="text-violet-600 text-xs font-bold uppercase tracking-widest mb-3">{t('landing.testi.badge')}</p>
-            <h2 className="text-3xl md:text-5xl font-extrabold text-gray-900 max-w-lg">{t('landing.testi.h2')}</h2>
-          </div>
-          <div className="grid grid-cols-2 sm:grid-cols-5 gap-8">
-            {TESTIMONIALS.map((testi) => (
-              <div key={testi.name} className="flex flex-col items-center text-center group cursor-pointer">
-                <div className="relative mb-4 overflow-hidden rounded-xl shadow-lg transition-all duration-300 group-hover:shadow-2xl group-hover:scale-105">
-                  <img src={testi.img} alt={testi.name} className="w-80 h-auto object-contain" />
-                </div>
-                <p className="font-bold text-base text-gray-900 group-hover:text-violet-600 transition">{testi.name}</p>
-                <p className="text-xs text-gray-400 mt-0.5">{testi.role}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
       {/* ── Chiffres clés ── */}
       <section className="py-20 px-6 lg:px-10 bg-white">
         <div className="max-w-6xl mx-auto">
@@ -249,12 +281,12 @@ export default function LandingPage() {
             </h2>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            {/* 600+ QCM */}
+            {/* 4500+ QCM */}
             <div className="p-6 rounded-2xl border border-gray-100 bg-gray-50 flex flex-col gap-3">
               <div className="w-10 h-10 rounded-xl bg-violet-100 flex items-center justify-center">
                 <BookOpen className="w-5 h-5 text-violet-600" />
               </div>
-              <p className="text-3xl font-black text-gray-900">600+</p>
+              <p className="text-3xl font-black text-gray-900">4500+</p>
               <div>
                 <p className="font-bold text-gray-800 text-sm">
                   {lang === 'ar' ? 'سؤال لا غنى عنه' : 'QCM Incontournables'}

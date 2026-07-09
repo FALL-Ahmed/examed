@@ -4,6 +4,10 @@
 
 @import url('https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,300..800;1,14..32,300..800&display=swap');
 
+html, body {
+  overflow-x: clip;
+}
+
 @layer base {
   :root {
     --background: 0 0% 98%;
@@ -139,6 +143,18 @@
 @keyframes fadeIn {
   from { opacity: 0; }
   to   { opacity: 1; }
+}
+
+/* ── Infinite marquee ── */
+@keyframes marquee {
+  from { transform: translateX(0); }
+  to   { transform: translateX(-50%); }
+}
+.animate-marquee {
+  animation: marquee 40s linear infinite;
+}
+.animate-marquee:hover {
+  animation-play-state: paused;
 }
 
 /* ── Auth page animated blobs ── */
