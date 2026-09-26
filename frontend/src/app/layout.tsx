@@ -1,25 +1,10 @@
 import type { Metadata } from 'next'
-import { Plus_Jakarta_Sans, Tajawal } from 'next/font/google'
 import Script from 'next/script'
 import './globals.css'
 import 'flag-icons/css/flag-icons.min.css'
 import { ThemeProvider } from '@/components/ThemeProvider'
 import { LanguageProvider } from '@/components/LanguageProvider'
 import { UTMTracker } from '@/components/UTMTracker'
-
-const jakarta = Plus_Jakarta_Sans({
-  subsets: ['latin'],
-  weight: ['400', '500', '600', '700', '800'],
-  variable: '--font-jakarta',
-  display: 'swap',
-})
-
-const tajawal = Tajawal({
-  subsets: ['arabic', 'latin'],
-  weight: ['400', '500', '700'],
-  variable: '--font-cairo',
-  display: 'swap',
-})
 
 export const viewport = {
   width: 'device-width',
@@ -51,10 +36,13 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="fr" dir="ltr" suppressHydrationWarning translate="no"
-      className={`${jakarta.variable} ${tajawal.variable} notranslate`}>
+      className="notranslate">
       <head>
         <meta name="theme-color" content="#3b82f6" />
         <meta name="mobile-web-app-capable" content="yes" />
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+        <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Tajawal:wght@400;500;700&display=swap" rel="stylesheet" />
         <link rel="icon" href="/favicon.png" type="image/png" />
         <link rel="shortcut icon" href="/favicon.png" type="image/png" />
         <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
