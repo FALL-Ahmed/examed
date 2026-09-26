@@ -56,6 +56,7 @@ export default function UserDetailPage() {
   const router = useRouter();
   const [user, setUser] = useState<any>(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [processing, setProcessing] = useState(false);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [tab, setTab] = useState<'profil' | 'activite' | 'paiements' | 'appareils'>('profil');
@@ -72,9 +73,23 @@ export default function UserDetailPage() {
   useEffect(() => { load(); }, [id]);
 
   async function load() {
-    const { data } = await adminApi.getUser(id);
-    setUser(data);
-    setLoading(false);
+    if (!id) {
+      setUser(null);
+      setError('Utilisateur introuvable');
+      setLoading(false);
+      return;
+    }
+
+    try {
+      const { data } = await adminApi.getUser(id);
+      setUser(data || null);
+      setError(null);
+    } catch {
+      setUser(null);
+      setError('Impossible de charger ce profil utilisateur.');
+    } finally {
+      setLoading(false);
+    }
   }
 
   async function toggle() {
@@ -159,7 +174,11 @@ export default function UserDetailPage() {
       <div className="w-8 h-8 border-4 border-blue-500 border-t-transparent rounded-full animate-spin" />
     </div>
   );
-  if (!user) return <div className="text-center py-32 text-slate-400">Utilisateur introuvable</div>;
+  if (!user) return (
+    <div className="text-center py-32 text-slate-400">
+      {error ?? 'Utilisateur introuvable'}
+    </div>
+  );
 
   const subEnd = user.subscriptionEnd ? new Date(user.subscriptionEnd) : null;
   const daysLeft = subEnd ? Math.ceil((subEnd.getTime() - Date.now()) / 86400000) : null;

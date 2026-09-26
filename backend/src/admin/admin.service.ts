@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import * as bcrypt from 'bcryptjs';
 import axios from 'axios';
 import { PrismaService } from '../prisma/prisma.service';
@@ -170,11 +170,20 @@ export class AdminService {
   }
 
   async getUserById(userId: string) {
+    const user = await this.prisma.user.findUnique({
+      where: { id: userId },
+      select: { id: true },
+    });
+
+    if (!user) {
+      throw new NotFoundException('Utilisateur introuvable');
+    }
+
     const now = new Date();
     const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate());
     const startOfYesterday = new Date(startOfToday.getTime() - 86400000);
 
-    const [user, totalAnswers, correctAnswers, favorites, lastAttempt, attemptsByTheme, questionsToday, questionsYesterday] = await Promise.all([
+    const [userDetails, totalAnswers, correctAnswers, favorites, lastAttempt, attemptsByTheme, questionsToday, questionsYesterday] = await Promise.all([
       this.prisma.user.findUnique({
         where: { id: userId },
         select: {
@@ -225,9 +234,9 @@ export class AdminService {
     // Enrichir les sous-thèmes et thèmes (pour les attempts et le top)
     const allSubThemeIds = [
       ...attemptsByTheme.map((a) => a.subThemeId),
-      ...(user?.attempts ?? []).map((a: any) => a.subThemeId),
+      ...(userDetails?.attempts ?? []).map((a: any) => a.subThemeId),
     ].filter(Boolean) as string[];
-    const allThemeIds = (user?.attempts ?? []).map((a: any) => a.themeId).filter(Boolean) as string[];
+    const allThemeIds = (userDetails?.attempts ?? []).map((a: any) => a.themeId).filter(Boolean) as string[];
 
     const [subThemes, themes] = await Promise.all([
       allSubThemeIds.length
@@ -246,17 +255,17 @@ export class AdminService {
     const subThemeMap = Object.fromEntries(subThemes.map((s) => [s.id, s]));
     const themeMap = Object.fromEntries(themes.map((t) => [t.id, t]));
 
-    const avgScore = (user?.attempts ?? []).filter((a: any) => a.isCompleted && a.totalQ > 0)
+    const avgScore = (userDetails?.attempts ?? []).filter((a: any) => a.isCompleted && a.totalQ > 0)
       .reduce((acc: any, a: any, _: any, arr: any) => acc + a.score / arr.length, 0) ?? 0;
 
-    const attempts = (user?.attempts ?? []).map((a: any) => ({
+    const attempts = (userDetails?.attempts ?? []).map((a: any) => ({
       ...a,
       subTheme: subThemeMap[a.subThemeId] ?? null,
       theme: a.subThemeId ? (subThemeMap[a.subThemeId]?.theme ?? null) : (themeMap[a.themeId] ?? null),
     }));
 
     return {
-      ...user,
+      ...userDetails,
       attempts,
       activity: {
         totalAnswers,
