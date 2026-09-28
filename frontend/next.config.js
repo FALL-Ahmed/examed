@@ -18,8 +18,20 @@ const nextConfig = {
   env: {
     NEXT_PUBLIC_API_URL: process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001',
   },
-  // Désactivé localement pour éviter EPERM .next/trace sur Windows, mais requis sur Netlify
-  outputFileTracing: process.env.NETLIFY ? true : false,
+  // Désactivé localement pour éviter EPERM .next/trace sur Windows, mais requis sur Netlify et Vercel
+  outputFileTracing: Boolean(process.env.NETLIFY || process.env.VERCEL),
+  // Remplace les règles de cache de netlify.toml, que Vercel ne lit pas
+  async headers() {
+    return [
+      {
+        // Images, vidéos et polices de public/ (hors _next, déjà géré par Next) — cache 7 jours
+        source: '/:file((?!_next/).*\\.(?:png|jpe?g|webp|svg|ico|mp4|woff2))',
+        headers: [
+          { key: 'Cache-Control', value: 'public, max-age=604800, stale-while-revalidate=86400' },
+        ],
+      },
+    ];
+  },
 };
 
 module.exports = withPWA(nextConfig);

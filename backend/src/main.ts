@@ -41,6 +41,8 @@ async function bootstrap() {
       }
     },
     credentials: true,
+    // Met en cache la réponse au preflight OPTIONS (évite un aller-retour vers l'API à chaque appel)
+    maxAge: 86400,
   });
 
   app.set('trust proxy', 1);

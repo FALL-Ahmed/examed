@@ -1,5 +1,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
+import { StorageService } from '../storage/storage.service';
 import * as fs from 'fs';
 import * as path from 'path';
 
@@ -17,7 +18,7 @@ async function readOrFetch(cachePath: string, fileUrl: string): Promise<Buffer |
 
 @Injectable()
 export class UsersService {
-  constructor(private prisma: PrismaService) {}
+  constructor(private prisma: PrismaService, private storage: StorageService) {}
 
   async findById(id: string) {
     let user = await this.prisma.user.findUnique({
@@ -199,6 +200,12 @@ export class UsersService {
       return { buffer: fs.readFileSync(thumbCachePath), contentType: 'image/webp' };
     }
 
+    const stored = await this.storage.getFicheThumb(ficheId);
+    if (stored) {
+      fs.writeFileSync(thumbCachePath, stored);
+      return { buffer: stored, contentType: 'image/webp' };
+    }
+
     const original = await readOrFetch(path.join(FICHE_CACHE_DIR, `${ficheId}-original`), fiche.fileUrl);
     if (!original) return null;
 
@@ -210,6 +217,7 @@ export class UsersService {
         .webp({ quality: 70 })
         .toBuffer();
       fs.writeFileSync(thumbCachePath, compressed);
+      this.storage.saveFicheThumb(ficheId, compressed).catch(() => {});
       return { buffer: compressed, contentType: 'image/webp' };
     } catch {
       return { buffer: original, contentType: 'image/jpeg' };

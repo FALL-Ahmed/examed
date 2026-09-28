@@ -42,6 +42,22 @@ export class StorageService {
     return data.publicUrl;
   }
 
+  // Vignettes persistées dans Supabase : le disque Render Free est effacé à chaque mise en veille
+  async getFicheThumb(ficheId: string): Promise<Buffer | null> {
+    const { data, error } = await this.supabase.storage
+      .from('fiches-memo')
+      .download(`thumbs/${ficheId}.webp`);
+    if (error || !data) return null;
+    return Buffer.from(await data.arrayBuffer());
+  }
+
+  async saveFicheThumb(ficheId: string, buffer: Buffer): Promise<void> {
+    const { error } = await this.supabase.storage
+      .from('fiches-memo')
+      .upload(`thumbs/${ficheId}.webp`, buffer, { contentType: 'image/webp', upsert: true });
+    if (error) console.error('Supabase Storage thumb upload error:', error.message);
+  }
+
   async uploadReceipt(file: Express.Multer.File): Promise<string | undefined> {
     const ext = file.originalname.split('.').pop() || 'jpg';
     const filename = `${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;
