@@ -3,13 +3,16 @@ import Link from 'next/link';
 import { Crown, Lock, X, Check } from 'lucide-react';
 import { useLang } from '@/components/LanguageProvider';
 
+const UPSELL_EXTRA_QUESTIONS = 600;
+
 // Fenêtre affichée quand un compte freemium clique sur un contenu verrouillé
 export function PremiumUpsellModal({ open, onClose, lockedCount }: { open: boolean; onClose: () => void; lockedCount?: number }) {
   const { lang } = useLang();
   const isAr = lang === 'ar';
   if (!open) return null;
 
-  const extra = lockedCount && lockedCount > 0 ? lockedCount.toLocaleString(isAr ? 'ar-EG' : 'fr-FR') : null;
+  // Chiffre commercial identique pour toutes les filières (choix produit), et non le compte exact
+  const extra = lockedCount && lockedCount > 0 ? UPSELL_EXTRA_QUESTIONS.toLocaleString(isAr ? 'ar-EG' : 'fr-FR') : null;
   const perks = isAr
     ? ['كل المواضيع والمواضيع الفرعية', 'وضع الامتحان على كل الأسئلة', 'وصول حتى يوم المسابقة']
     : ['Tous les thèmes et sous-thèmes', 'Mode examen sur toutes les questions', "Accès jusqu'au jour du concours"];

@@ -12,8 +12,6 @@ const LANGS = [
   { value: 'FR', label: '🇫🇷 Français' },
   { value: 'AR', label: '🇸🇦 Arabe' },
 ];
-// Volume indicatif de questions ouvertes en freemium
-const TARGET_OPEN_QUESTIONS = 400;
 
 const PROFESSION_LABEL: Record<string, string> = {
   etudiant_infirmier: 'Infirmier', etudiant_infirmier_3eme: 'Infirmier 3e', infirmier_diplome: 'Infirmier',
@@ -107,7 +105,9 @@ export default function AdminFreemiumPage() {
     return <div className="flex justify-center py-16"><Loader2 className="w-6 h-6 animate-spin text-primary" /></div>;
   }
 
-  const pct = Math.min(100, Math.round((totals.openQ / TARGET_OPEN_QUESTIONS) * 100));
+  const pct = totals.allQ ? Math.round((totals.openQ / totals.allQ) * 100) : 0;
+  // Thèmes sans aucun sous-thème ouvert : le compte freemium ne pourrait rien y faire
+  const closedThemes = visible.filter((t) => t.subThemes.length && !t.subThemes.some((s) => s.isFreemium));
 
   return (
     <div className="space-y-6">
@@ -182,7 +182,7 @@ export default function AdminFreemiumPage() {
             <div className="flex items-start justify-between gap-4 flex-wrap">
               <div>
                 <p className="font-semibold text-sm">Contenu ouvert en freemium</p>
-                <p className="text-xs text-muted-foreground mt-0.5">Cochez les sous-thèmes accessibles. Les autres s’affichent avec un cadenas 🔒. Chaque modification est enregistrée immédiatement.</p>
+                <p className="text-xs text-muted-foreground mt-0.5">Le compte freemium voit tous les thèmes. Cochez les sous-thèmes ouverts : les autres s’affichent grisés et proposent de passer Premium. Chaque modification est enregistrée immédiatement.</p>
               </div>
               <div className="flex gap-2">
                 <select value={target} onChange={(e) => setTarget(e.target.value)}
@@ -203,12 +203,25 @@ export default function AdminFreemiumPage() {
                   <span className="text-2xl font-extrabold tabular-nums">{totals.openQ.toLocaleString('fr-FR')}</span>
                   <span className="text-muted-foreground"> questions ouvertes sur {totals.allQ.toLocaleString('fr-FR')}</span>
                 </p>
-                <p className="text-xs text-muted-foreground">Objectif ≈ {TARGET_OPEN_QUESTIONS}</p>
+                <p className="text-xs text-muted-foreground">
+                  {(totals.allQ - totals.openQ).toLocaleString('fr-FR')} verrouillées (grisées) · {pct} % ouvert
+                </p>
               </div>
               <div className="h-2 bg-secondary rounded-full mt-3 overflow-hidden">
-                <div className={`h-2 rounded-full transition-all ${totals.openQ > TARGET_OPEN_QUESTIONS * 1.15 ? 'bg-amber-500' : 'bg-emerald-500'}`}
-                  style={{ width: `${pct}%` }} />
+                <div className="h-2 rounded-full transition-all bg-emerald-500" style={{ width: `${pct}%` }} />
               </div>
+              {closedThemes.length > 0 && (
+                <div className="flex items-center justify-between gap-3 flex-wrap mt-3 pt-3 border-t border-border">
+                  <p className="text-xs text-muted-foreground">
+                    {closedThemes.length} thème{closedThemes.length > 1 ? 's' : ''} sans aucun sous-thème ouvert : l’élève les voit, mais tous leurs sous-thèmes sont grisés.
+                  </p>
+                  <button onClick={() => setSubs(closedThemes.map((t) => t.subThemes[0].id), true, 'open-first')}
+                    disabled={busy.has('open-first')}
+                    className="text-xs font-semibold px-3 py-1.5 rounded-lg border border-border hover:bg-secondary transition disabled:opacity-50">
+                    Ouvrir le 1er sous-thème de chacun
+                  </button>
+                </div>
+              )}
             </div>
 
             {/* Thèmes */}

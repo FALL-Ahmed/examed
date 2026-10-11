@@ -57,9 +57,31 @@ function NavItems({ onNav, fichesMemoEnabled }: { onNav?: () => void; fichesMemo
 }
 
 // Encart permanent pour les comptes en essai gratuit
-function FreemiumCard({ endDate, onNav }: { endDate?: string; onNav?: () => void }) {
+function FreemiumCard({ endDate, onNav, compact }: { endDate?: string; onNav?: () => void; compact?: boolean }) {
   const { lang } = useLang();
   const isAr = lang === 'ar';
+  // PC : une seule ligne pour que la barre latérale tienne sans défilement
+  if (compact) {
+    return (
+      <Link href="/payment"
+        className="mx-3 mb-2 flex items-center gap-2 rounded-xl px-3 py-2 border border-amber-400/30 hover:border-amber-400/60 transition"
+        style={{ background: 'linear-gradient(135deg,rgba(245,158,11,.18),rgba(217,119,6,.08))' }}>
+        <Gift className="w-4 h-4 text-amber-400 flex-shrink-0" />
+        <span className="flex-1 min-w-0">
+          <span className="block text-white text-xs font-bold truncate">{isAr ? 'تجربة مجانية' : 'Essai gratuit'}</span>
+          {endDate && (
+            <span className="block text-white/50 text-[10px] truncate">
+              {isAr ? 'حتى ' : "jusqu'au "}{new Date(endDate).toLocaleDateString(isAr ? 'ar-EG' : 'fr-FR', { day: 'numeric', month: 'short' })}
+            </span>
+          )}
+        </span>
+        <span className="flex items-center gap-1 text-[11px] font-bold text-white px-2 py-1 rounded-lg flex-shrink-0"
+          style={{ background: 'linear-gradient(135deg,#f59e0b,#d97706)' }}>
+          <Crown className="w-3 h-3" /> Premium
+        </span>
+      </Link>
+    );
+  }
   return (
     <div className="mx-3 mb-3 rounded-2xl p-4 border border-amber-400/30" style={{ background: 'linear-gradient(135deg,rgba(245,158,11,.18),rgba(217,119,6,.08))' }}>
       <div className="flex items-center gap-2 mb-1.5">
@@ -158,7 +180,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         <NavItems onNav={onNav} fichesMemoEnabled={fichesMemoEnabled} />
       </Suspense>
 
-      {user.role === 'FREEMIUM' && <FreemiumCard endDate={user.subscriptionEnd} onNav={onNav} />}
+      {user.role === 'FREEMIUM' && <FreemiumCard endDate={user.subscriptionEnd} onNav={onNav} compact={!onNav} />}
 
       {/* Bottom actions */}
       <div className="px-3 pb-4 border-t border-white/10 pt-3 space-y-1">

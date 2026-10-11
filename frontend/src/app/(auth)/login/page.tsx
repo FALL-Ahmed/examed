@@ -6,7 +6,7 @@ import Cookies from 'js-cookie';
 import { useAuthStore } from '@/lib/auth-store';
 import { useLang } from '@/components/LanguageProvider';
 import { BookOpen, Eye, EyeOff, Loader2, Stethoscope, Activity, Shield, Users, Smartphone, UserCheck } from 'lucide-react';
-import { authApi } from '@/lib/api';
+import { authApi, freemiumApi } from '@/lib/api';
 import { LanguageSwitcherLight } from '@/components/LanguageSwitcher';
 import PWAInstallBanner from '@/components/PWAInstallBanner';
 
@@ -21,6 +21,10 @@ export default function LoginPage() {
   const router = useRouter();
   const { login } = useAuthStore();
   const { t, lang, setLang } = useLang();
+  const isAr = lang === 'ar';
+  // Campagne d'essai gratuit ouverte → bouton mis en avant sous le formulaire
+  const [freemiumOpen, setFreemiumOpen] = useState(false);
+  useEffect(() => { freemiumApi.status().then((r) => setFreemiumOpen(!!r.data.open)).catch(() => {}); }, []);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPwd, setShowPwd] = useState(false);
@@ -470,6 +474,13 @@ export default function LoginPage() {
                   {loading ? t('common.loading') : t('auth.login.submit')}
                 </button>
               </form>
+              {freemiumOpen && (
+                <Link href="/register?plan=FREEMIUM"
+                  className="mt-4 w-full flex items-center justify-center gap-2 py-3.5 rounded-xl font-bold text-sm text-white hover:opacity-90 transition shadow-lg shadow-emerald-500/25"
+                  style={{ background: 'linear-gradient(135deg,#059669,#10b981)' }}>
+                  🎁 {isAr ? 'ليس لديك حساب؟ جرّب مجاناً' : 'Pas de compte ? Essai gratuit, sans paiement'}
+                </Link>
+              )}
               <div className="flex items-center justify-between text-sm text-muted-foreground mt-6">
                 <Link href="/forgot-password" className="text-primary font-semibold hover:underline">
                   {t('auth.login.forgot')}

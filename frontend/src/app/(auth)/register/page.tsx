@@ -80,7 +80,7 @@ function RegisterContent() {
   const [waPhone, setWaPhone] = useState<string | null>(null);
   // Essai gratuit : proposé uniquement pendant une campagne ouverte (réglée dans l'admin)
   const [freemium, setFreemium] = useState<{ open: boolean; endDate: string | null }>({ open: false, endDate: null });
-  const [accessMode, setAccessMode] = useState<'PAID' | 'FREEMIUM'>(planParam === 'FREEMIUM' ? 'FREEMIUM' : 'PAID');
+  const [accessMode, setAccessMode] = useState<'PAID' | 'FREEMIUM'>(planParam && planParam !== 'FREEMIUM' ? 'PAID' : 'FREEMIUM');
   const isFreemium = freemium.open && accessMode === 'FREEMIUM';
 
   useEffect(() => {
@@ -282,9 +282,11 @@ function RegisterContent() {
               {isAr ? 'أنشئ حسابك' : 'Créez votre compte'}
             </h2>
             <p className="text-white/45 text-sm mt-3 leading-relaxed max-w-xs">
-              {isAr
-                ? 'أدخل معلوماتك وأرسل إيصال الدفع لتفعيل وصولك الكامل فوراً.'
-                : 'Renseignez vos informations et envoyez votre reçu pour activer votre accès immédiatement.'}
+              {isFreemium
+                ? (isAr ? 'أنشئ حسابك وابدأ التدرب مجاناً، بدون دفع.' : 'Créez votre compte et commencez à vous entraîner gratuitement, sans paiement.')
+                : isAr
+                  ? 'أدخل معلوماتك وأرسل إيصال الدفع لتفعيل وصولك الكامل فوراً.'
+                  : 'Renseignez vos informations et envoyez votre reçu pour activer votre accès immédiatement.'}
             </p>
           </div>
 
@@ -331,12 +333,63 @@ function RegisterContent() {
             {isAr ? 'إنشاء حساب' : 'Créer un compte'}
           </h2>
           <p className="text-gray-400 text-sm mb-6">
-            {isAr ? 'أكمل النموذج أدناه لتفعيل اشتراكك.' : 'Complétez le formulaire pour activer votre abonnement.'}
+            {isFreemium
+              ? (isAr ? 'بضع معلومات وتبدأ التدرب فوراً.' : 'Quelques informations et vous commencez tout de suite.')
+              : (isAr ? 'أكمل النموذج أدناه لتفعيل اشتراكك.' : 'Complétez le formulaire pour activer votre abonnement.')}
           </p>
 
           {formError && (
             <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-xl mb-5 text-sm font-medium">{formError}</div>
           )}
+
+          {/* ── Essai gratuit mis en avant (campagne ouverte) ── */}
+          {isFreemium && (
+            <div className="relative overflow-hidden rounded-3xl p-6 mb-5 text-white shadow-xl shadow-emerald-200"
+              style={{ background: 'linear-gradient(135deg,#059669 0%,#10b981 55%,#34d399 100%)' }}>
+              <div className="absolute inset-0 opacity-10" style={{ backgroundImage: 'radial-gradient(circle at 1px 1px, white 1px, transparent 0)', backgroundSize: '16px 16px' }} />
+              <div className="relative">
+                <span className="inline-flex items-center gap-1.5 bg-white text-emerald-700 text-xs font-black px-3 py-1 rounded-full">
+                  <Gift className="w-3.5 h-3.5" /> {isAr ? 'تجربة مجانية' : 'ESSAI GRATUIT'}
+                </span>
+                <h3 className="text-2xl font-black mt-3 leading-tight">
+                  {isAr ? 'ابدأ مجاناً، بدون دفع' : 'Commencez gratuitement, sans paiement'}
+                </h3>
+                <ul className="mt-4 space-y-2 text-sm text-white/95">
+                  {(isAr
+                    ? ['مئات الأسئلة المصححة لتتدرب فوراً', 'وضع الامتحان، المراجعة والإحصائيات', 'وصول فوري، بدون إيصال دفع']
+                    : ['Des centaines de questions corrigées dès maintenant', 'Mode examen, révision et statistiques inclus', 'Accès immédiat, aucun reçu à envoyer']
+                  ).map((item) => (
+                    <li key={item} className="flex items-center gap-2.5">
+                      <span className="w-5 h-5 rounded-full bg-white/25 flex items-center justify-center flex-shrink-0">{checkIcon}</span>
+                      {item}
+                    </li>
+                  ))}
+                </ul>
+                {freemium.endDate && (
+                  <p className="mt-4 text-xs font-semibold bg-white/20 rounded-xl px-3 py-2 inline-block">
+                    ⏰ {isAr ? 'العرض متاح حتى ' : "Offre valable jusqu'au "}
+                    {new Date(freemium.endDate).toLocaleDateString(isAr ? 'ar-EG' : 'fr-FR', { day: 'numeric', month: 'long' })}
+                  </p>
+                )}
+              </div>
+            </div>
+          )}
+
+          {/* Retour à l'essai gratuit quand l'utilisateur a choisi de payer */}
+          {freemium.open && !isFreemium && (
+            <button type="button" onClick={() => { setAccessMode('FREEMIUM'); gtrack('register_access_selected', { access: 'FREEMIUM' }); }}
+              className="w-full flex items-center justify-between gap-3 rounded-2xl border-2 border-emerald-400 bg-emerald-50 px-5 py-4 mb-5 text-start hover:bg-emerald-100 transition">
+              <span className="flex items-center gap-3">
+                <Gift className="w-5 h-5 text-emerald-600 flex-shrink-0" />
+                <span>
+                  <span className="block font-bold text-emerald-800 text-sm">{isAr ? 'جرّب مجاناً أولاً' : "Essayez d'abord gratuitement"}</span>
+                  <span className="block text-xs text-emerald-700">{isAr ? 'بدون دفع، يمكنك الترقية لاحقاً' : 'Sans paiement, passez Premium quand vous voulez'}</span>
+                </span>
+              </span>
+              <span className="text-emerald-700 font-bold text-sm flex-shrink-0">{isAr ? '←' : '→'}</span>
+            </button>
+          )}
+
 
           {/* ── Section 1 : Profil ── */}
           <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6 mb-4">
@@ -407,46 +460,13 @@ function RegisterContent() {
             </div>
           </div>
 
-          {/* ── Choix d'accès : essai gratuit ou Premium (seulement pendant une campagne freemium) ── */}
-          {freemium.open && (
-            <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6 mb-4">
-              <p className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-4">
-                {isAr ? '🎯 نوع الوصول' : "🎯 Type d'accès"}
-              </p>
-              <div className="grid grid-cols-2 gap-3">
-                {([
-                  {
-                    id: 'FREEMIUM' as const, icon: Gift, active: 'border-emerald-500 bg-emerald-50', dot: 'bg-emerald-500', iconCls: 'text-emerald-600',
-                    title: isAr ? 'تجربة مجانية' : 'Essai gratuit',
-                    desc: isAr ? 'جزء من الأسئلة، بدون دفع' : 'Une partie des questions, sans paiement',
-                  },
-                  {
-                    id: 'PAID' as const, icon: Crown, active: 'border-violet-500 bg-violet-50', dot: 'bg-violet-500', iconCls: 'text-violet-600',
-                    title: 'Premium',
-                    desc: isAr ? 'كل الأسئلة حتى المسابقة' : "Toutes les questions jusqu'au concours",
-                  },
-                ]).map((opt) => (
-                  <button key={opt.id} type="button"
-                    onClick={() => { setAccessMode(opt.id); gtrack('register_access_selected', { access: opt.id }); }}
-                    className={`relative flex flex-col items-start gap-1.5 p-4 rounded-2xl border-2 text-start transition
-                      ${accessMode === opt.id ? opt.active : 'border-gray-200 bg-white hover:border-gray-300'}`}>
-                    <opt.icon className={`w-5 h-5 ${opt.iconCls}`} />
-                    <span className="font-bold text-gray-900 text-sm">{opt.title}</span>
-                    <span className="text-xs text-gray-500 leading-snug">{opt.desc}</span>
-                    {accessMode === opt.id && (
-                      <div className={`absolute top-3 ${isAr ? 'left-3' : 'right-3'} w-4 h-4 rounded-full flex items-center justify-center ${opt.dot}`}>{checkIcon}</div>
-                    )}
-                  </button>
-                ))}
-              </div>
-              {isFreemium && freemium.endDate && (
-                <p className="text-xs text-emerald-700 bg-emerald-50 border border-emerald-200 rounded-xl px-3 py-2 mt-4">
-                  {isAr ? 'التجربة المجانية متاحة حتى ' : "Essai gratuit valable jusqu'au "}
-                  <strong>{new Date(freemium.endDate).toLocaleDateString(isAr ? 'ar-EG' : 'fr-FR', { day: 'numeric', month: 'long', year: 'numeric' })}</strong>.
-                  {isAr ? ' يمكنك الترقية إلى Premium في أي وقت.' : ' Vous pourrez passer Premium à tout moment.'}
-                </p>
-              )}
-            </div>
+          {/* Option secondaire : payer Premium tout de suite */}
+          {isFreemium && (
+            <button type="button" onClick={() => { setAccessMode('PAID'); gtrack('register_access_selected', { access: 'PAID' }); }}
+              className="w-full flex items-center justify-center gap-2 text-sm text-gray-500 hover:text-violet-700 mb-5 transition">
+              <Crown className="w-4 h-4" />
+              {isAr ? 'أفضّل الدفع والحصول على Premium مباشرة' : 'Je préfère payer Premium tout de suite'}
+            </button>
           )}
 
           {/* ── Section 2 : Abonnement & Paiement ── */}
@@ -666,8 +686,8 @@ function RegisterContent() {
 
           {/* Submit */}
           <button type="button" onClick={handleSubmit} disabled={loading}
-            className="w-full py-4 rounded-2xl font-bold text-base text-white flex items-center justify-center gap-2 hover:opacity-90 transition disabled:opacity-60 shadow-lg shadow-violet-200"
-            style={{ background: 'linear-gradient(135deg,#7c3aed,#6366f1)' }}>
+            className={`w-full py-4 rounded-2xl font-bold text-base text-white flex items-center justify-center gap-2 hover:opacity-90 transition disabled:opacity-60 shadow-lg ${isFreemium ? 'shadow-emerald-200' : 'shadow-violet-200'}`}
+            style={{ background: isFreemium ? 'linear-gradient(135deg,#059669,#10b981)' : 'linear-gradient(135deg,#7c3aed,#6366f1)' }}>
             {loading
               ? <><Loader2 className="w-5 h-5 animate-spin" /> {isAr ? 'جارٍ الإرسال…' : 'Envoi en cours…'}</>
               : isFreemium

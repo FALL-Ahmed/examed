@@ -4,9 +4,9 @@ import { useRouter } from 'next/navigation';
 import { attemptsApi, themesApi } from '@/lib/api';
 import { NEW_THEME_IDS } from '@/lib/new-content';
 import { useAuthStore } from '@/lib/auth-store';
-import { Zap, Loader2, Timer, Play, PlayCircle, Trash2, Lock } from 'lucide-react';
+import { Zap, Loader2, Timer, Play, PlayCircle, Trash2 } from 'lucide-react';
 import { PremiumUpsellModal } from '@/components/PremiumUpsellModal';
-import { isFreemiumUser, isThemeLocked, lockedQuestionCount, openQuestionCount } from '@/lib/freemium';
+import { isThemeLocked, lockedQuestionCount } from '@/lib/freemium';
 import { ThemeSearchInput } from '@/components/ThemeSearchInput';
 import { useLang } from '@/components/LanguageProvider';
 import { sentenceCase } from '@/lib/utils';
@@ -42,6 +42,8 @@ export default function ExamConfigPage() {
   }, []);
 
   async function startExam() {
+    // Thème dont aucun sous-thème n'est ouvert : rien d'accessible en freemium
+    if (isThemeLocked(user, themes.find((t) => t.id === config.themeId))) return setUpsell(true);
     setLoading(true); setError('');
     try {
       const { data } = await attemptsApi.start({
@@ -129,32 +131,12 @@ export default function ExamConfigPage() {
               themes={themes}
               themeId={config.themeId}
               allLabel={t('practice.allThemes')}
-              onSelect={(themeId) => {
-                if (isThemeLocked(user, themes.find((th) => th.id === themeId))) return setUpsell(true);
-                setConfig({ ...config, themeId });
-              }}
+              onSelect={(themeId) => setConfig({ ...config, themeId })}
             />
           </div>
         </div>
       </div>
 
-        {isFreemiumUser(user) && (
-          <div className="flex items-center justify-between gap-4 flex-wrap rounded-2xl border border-amber-500/30 bg-amber-500/10 px-5 py-4">
-            <div className="flex items-center gap-3">
-              <Lock className="w-5 h-5 text-amber-500 flex-shrink-0" />
-              <p className="text-sm">
-                {lang === 'ar'
-                  ? <>تجربة مجانية: <strong>{openQuestionCount(themes)}</strong> سؤال مفتوح. المواضيع ذات القفل 🔒 مخصصة لـ Premium.</>
-                  : <>Essai gratuit : <strong>{openQuestionCount(themes)}</strong> questions ouvertes. Les thèmes 🔒 sont réservés Premium.</>}
-              </p>
-            </div>
-            <button onClick={() => setUpsell(true)}
-              className="text-xs font-bold text-white px-4 py-2 rounded-lg hover:opacity-90 transition flex-shrink-0"
-              style={{ background: 'linear-gradient(135deg,#f59e0b,#d97706)' }}>
-              {lang === 'ar' ? 'الانتقال إلى Premium' : 'Passer Premium'}
-            </button>
-          </div>
-        )}
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Config */}
@@ -165,15 +147,12 @@ export default function ExamConfigPage() {
             <label className="block text-sm font-semibold mb-2">{t('practice.selectTheme')}</label>
             <BadgeSelect
               value={config.themeId}
-              onChange={(v) => {
-                if (isThemeLocked(user, themes.find((th) => th.id === v))) return setUpsell(true);
-                setConfig({ ...config, themeId: v });
-              }}
+              onChange={(v) => setConfig({ ...config, themeId: v })}
               placeholder={t('practice.allThemes')}
               newBadgeLabel={lang === 'ar' ? 'جديد' : 'Nouveau'}
               options={[
                 { value: '', label: t('practice.allThemes') },
-                ...themes.map((th) => ({ value: th.id, label: isThemeLocked(user, th) ? `🔒 ${sentenceCase(th.name)}` : sentenceCase(th.name), isNew: NEW_THEME_IDS.has(th.id) })),
+                ...themes.map((th) => ({ value: th.id, label: sentenceCase(th.name), isNew: NEW_THEME_IDS.has(th.id) })),
               ]}
             />
           </div>

@@ -1,12 +1,13 @@
 'use client';
 import { useState, useRef, useEffect } from 'react';
-import { ChevronDown, Check } from 'lucide-react';
+import { ChevronDown, Check, Lock } from 'lucide-react';
 
 export interface BadgeSelectOption {
   value: string;
   label: string;
   isNew?: boolean;
   count?: number;
+  locked?: boolean; // contenu Premium pour un compte freemium : grisé, le clic ouvre l'offre Premium
 }
 
 interface Props {
@@ -69,6 +70,7 @@ export function BadgeSelect({ options, value, onChange, placeholder = '', newBad
                   className={`w-full text-left px-4 py-2.5 text-sm hover:bg-secondary transition flex items-center justify-between gap-2
                     ${opt.value === value ? 'bg-primary/10 text-primary font-semibold' : ''}
                     ${opt.value === '' ? 'text-muted-foreground italic' : ''}
+                    ${opt.locked ? 'text-muted-foreground/60' : ''}
                   `}
                 >
                   <span className="flex items-center gap-2 min-w-0">
@@ -81,6 +83,7 @@ export function BadgeSelect({ options, value, onChange, placeholder = '', newBad
                     {opt.count !== undefined && (
                       <span className="text-xs text-muted-foreground">{opt.count} q.</span>
                     )}
+                    {opt.locked && <Lock className="w-3.5 h-3.5 text-amber-500" aria-label="Premium" />}
                     {opt.value === value && opt.value !== '' && <Check className="w-3.5 h-3.5" />}
                   </span>
                 </button>
