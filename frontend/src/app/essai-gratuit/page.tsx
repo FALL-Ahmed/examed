@@ -143,7 +143,7 @@ export default function EssaiGratuitPage() {
 
   const included = [
     { icon: ListChecks, fr: 'Questions et cas cliniques corrigés', ar: 'أسئلة وحالات سريرية مصححة', dfr: 'Chaque question est accompagnée de sa correction expliquée.', dar: 'كل سؤال مرفق بتصحيح مشروح.' },
-    { icon: Timer, fr: 'Mode examen chronométré', ar: 'وضع الامتحان المؤقت', dfr: 'Entraînez-vous dans les conditions du concours.', dar: 'تدرّب في ظروف المسابقة الحقيقية.' },
+    { icon: Timer, fr: 'Mode examen chronométré', ar: 'وضع الامتحان المؤقت', dfr: 'Entraînez-vous en conditions réelles d’examen.', dar: 'تدرّب في ظروف امتحان حقيقية.' },
     { icon: RefreshCw, fr: 'Révision de vos erreurs', ar: 'مراجعة أخطائك', dfr: 'Revenez sur les questions ratées jusqu’à les maîtriser.', dar: 'عُد إلى الأسئلة الخاطئة حتى تتقنها.' },
     { icon: BarChart3, fr: 'Statistiques et classement', ar: 'الإحصائيات والترتيب', dfr: 'Repérez votre point faible et suivez vos progrès.', dar: 'اكتشف نقطة ضعفك وتابع تقدمك.' },
   ];
@@ -257,9 +257,9 @@ export default function EssaiGratuitPage() {
           style={{ background: 'linear-gradient(145deg,#0f0a2e 0%,#1a1040 50%,#0d1b3e 100%)' }}>
           <div className="absolute inset-0 opacity-[0.05]" style={{ backgroundImage: 'radial-gradient(circle at 1px 1px,white 1px,transparent 0)', backgroundSize: '20px 20px' }} />
           <div className="relative">
-            <h2 className="text-2xl sm:text-3xl font-extrabold">{isAr ? 'المسابقة تقترب. ابدأ اليوم.' : 'Le concours approche. Commencez aujourd’hui.'}</h2>
+            <h2 className="text-2xl sm:text-3xl font-extrabold">{isAr ? 'ابدأ مراجعتك اليوم.' : 'Commencez à réviser dès aujourd’hui.'}</h2>
             <p className="text-white/60 mt-3">
-              {isAr ? 'وعندما تكون جاهزاً، افتح أكثر من 4500 سؤال مع Premium.' : 'Et quand vous êtes prêt, débloquez plus de 4 500 questions avec Premium.'}
+              {isAr ? 'وعندما تكون جاهزاً، افتح أكثر من 1000 سؤال مع Premium.' : 'Et quand vous êtes prêt, débloquez plus de 1 000 questions avec Premium.'}
             </p>
             <div className="mt-8"><Cta big /></div>
           </div>
