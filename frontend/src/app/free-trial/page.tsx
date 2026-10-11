@@ -4,6 +4,7 @@ import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { BookOpen, ArrowRight, CheckCircle2, XCircle, ChevronRight, Star, Zap, Users, BookOpenCheck, BarChart3, RotateCcw } from 'lucide-react';
 import { publicApi, settingsApi } from '@/lib/api';
+import { computePrices, type PromoSettings } from '@/lib/promo';
 
 const pad = (n: number) => String(n).padStart(2, '0');
 
@@ -89,7 +90,7 @@ function FreeTrialContent() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [pricing, setPricing] = useState<any>(null);
-  const [promoSettings, setPromoSettings] = useState<{ active: boolean; discount: number; endDate?: string | null; includesGroup?: boolean } | null>(null);
+  const [promoSettings, setPromoSettings] = useState<PromoSettings | null>(null);
   const [showMobilePromo, setShowMobilePromo] = useState(false);
   const [promoPopupDismissed, setPromoPopupDismissed] = useState(false);
   const [showWaCapture, setShowWaCapture] = useState(false);
@@ -104,10 +105,8 @@ function FreeTrialContent() {
 
   const isAr = lang === 'ar';
   const promoActive = promoSettings?.active ?? false;
-  const promoDiscount = promoSettings?.discount ?? 30;
   const promoEndDate = promoSettings?.endDate ?? null;
   const promoIncludesGroup = promoSettings?.includesGroup ?? false;
-  const promo = (p: number) => Math.round(p * (1 - promoDiscount / 100) / 100) * 100;
   const formattedEndDate = promoEndDate
     ? new Date(promoEndDate).toLocaleDateString(isAr ? 'ar-TN' : 'fr-FR', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })
     : null;
@@ -179,12 +178,16 @@ function FreeTrialContent() {
   const solo1m   = pricing?.solo1m?.price ?? 500;
   const groupMin = pricing?.groupMin ?? 3;
   const groupPerP = pricing?.groupPerP?.price ?? 400;
+  // Prix promo : fixes si saisis dans l'admin, sinon pourcentage (calcul partagé)
+  const prices = computePrices({ soloBase: solo1m, perPerson: groupPerP, groupSize: groupMin, promo: promoSettings });
+  // Réduction réellement affichée (prix fixes ou pourcentage)
+  const promoDiscount = prices.maxPct || (promoSettings?.discount ?? 30);
 
   const plans = [
     {
       label: isAr ? 'فردي — حتى المسابقة' : 'Solo — jusqu\'au concours',
       href: '/register?plan=SOLO_1M',
-      price: promoActive ? promo(solo1m) : solo1m,
+      price: prices.solo,
       oldPrice: promoActive ? solo1m : null,
       badge: isAr ? '⭐ الأكثر طلباً' : '⭐ Populaire',
       sub: isAr ? 'وصول كامل حتى يوم المسابقة' : 'Accès jusqu\'au concours',
@@ -192,8 +195,8 @@ function FreeTrialContent() {
     {
       label: isAr ? `باك الأصدقاء · حتى المسابقة` : `Pack Amis · jusqu'au concours`,
       href: '/register?plan=GROUP',
-      price: promoActive && promoIncludesGroup ? promo(groupPerP * groupMin) : groupPerP * groupMin,
-      oldPrice: promoActive && promoIncludesGroup ? groupPerP * groupMin : null,
+      price: prices.group,
+      oldPrice: prices.onGroup ? groupPerP * groupMin : null,
       badge: isAr ? '🎁 ادفع لـ 2، وتعالوا 3' : '🎁 Payez pour 2, venez à 3',
       sub: `${groupPerP} MRU / ${isAr ? 'شخص' : 'personne'}`,
     },

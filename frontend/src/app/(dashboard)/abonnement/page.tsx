@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { paymentsApi, settingsApi } from '@/lib/api';
 import { useAuthStore } from '@/lib/auth-store';
 import { useLang } from '@/components/LanguageProvider';
+import { computePrices } from '@/lib/promo';
 import {
   ArrowLeft, Check, CheckCheck, CheckCircle2, Clock, Copy, Crown, Loader2, MessageCircle, Minus, Plus, Upload, Users, X,
 } from 'lucide-react';
@@ -52,17 +53,17 @@ export default function AbonnementPage() {
     paymentsApi.myPayments().then((r) => setPending(r.data.some((p: any) => p.status === 'PENDING'))).catch(() => {});
   }, []);
 
-  // Promo biologiste prioritaire si active, sinon promo générale (même règle que l'inscription)
-  const bio = user?.profession === 'biologiste' && promo?.bio?.active ? promo.bio : null;
-  const promoActive = bio ? true : !!promo?.active;
-  const discount = bio ? bio.discount : promo?.discount ?? 0;
-  const promoOnGroup = promoActive && !!(bio ? bio.includesGroup : promo?.includesGroup);
-  const promoEnd: string | null = bio ? bio.endDate ?? null : promo?.endDate ?? null;
-  const applyPromo = (p: number) => Math.round((p * (1 - discount / 100)) / 100) * 100;
-
-  const soloPrice = promoActive ? applyPromo(pricing.solo) : pricing.solo;
-  const groupBase = pricing.perPerson * groupSize;
-  const groupPrice = promoOnGroup ? applyPromo(groupBase) : groupBase;
+  // Même calcul que l'inscription (prix promo fixes ou pourcentage)
+  const prices = computePrices({
+    soloBase: pricing.solo, perPerson: pricing.perPerson, groupSize, promo, isBiologiste: user?.profession === 'biologiste',
+  });
+  const bio = prices.isBioPromo;
+  const promoActive = prices.active;
+  const promoOnGroup = prices.onGroup;
+  const promoEnd = prices.endDate;
+  const soloPrice = prices.solo;
+  const groupBase = prices.groupBase;
+  const groupPrice = prices.group;
   const amount = plan === 'SOLO_1M' ? soloPrice : groupPrice;
   const emailList = emails.split('\n').map((e) => e.trim()).filter(Boolean);
 
@@ -181,7 +182,8 @@ export default function AbonnementPage() {
             <div className="absolute inset-0 opacity-10" style={{ backgroundImage: 'radial-gradient(circle at 1px 1px, white 1px, transparent 0)', backgroundSize: '16px 16px' }} />
             <div className="relative">
               <div className="inline-block bg-white rounded-2xl px-5 py-2 shadow-lg">
-                <p className={`font-black text-4xl leading-none ${bio ? 'text-emerald-600' : 'text-red-600'}`}>-{discount}%</p>
+                {prices.upTo && <p className={`text-[11px] font-bold uppercase ${bio ? 'text-emerald-600' : 'text-red-600'}`}>{t("jusqu'à", 'حتى')}</p>}
+                <p className={`font-black text-4xl leading-none ${bio ? 'text-emerald-600' : 'text-red-600'}`}>-{prices.maxPct}%</p>
               </div>
               <p className="font-extrabold text-sm mt-3">🎉 {t('Offre spéciale limitée', 'عرض خاص محدود')}</p>
               {promoOnGroup && <p className="text-xs text-white/90 mt-1">{t('Valable aussi sur le Pack Amis', 'صالح أيضاً على باك الأصدقاء')}</p>}
@@ -205,7 +207,7 @@ export default function AbonnementPage() {
               {promoActive && <span className="text-sm text-muted-foreground line-through me-2">{fmt(pricing.solo)}</span>}
               <span className="text-3xl font-black tabular-nums">{fmt(soloPrice)}</span> <span className="text-sm font-semibold">MRU</span>
             </p>
-            {promoActive && <span className="inline-block mt-1 text-xs font-bold bg-red-100 text-red-600 px-2 py-0.5 rounded-full">-{discount}%</span>}
+            {promoActive && prices.soloPct > 0 && <span className="inline-block mt-1 text-xs font-bold bg-red-100 text-red-600 px-2 py-0.5 rounded-full">-{prices.soloPct}%</span>}
             {plan === 'SOLO_1M' && <span className="absolute top-4 end-4 w-5 h-5 rounded-full bg-primary flex items-center justify-center"><Check className="w-3 h-3 text-white" /></span>}
           </button>
 
@@ -218,7 +220,7 @@ export default function AbonnementPage() {
               {promoOnGroup && <span className="text-sm text-muted-foreground line-through me-2">{fmt(groupBase)}</span>}
               <span className="text-3xl font-black tabular-nums">{fmt(groupPrice)}</span> <span className="text-sm font-semibold">MRU</span>
             </p>
-            {promoOnGroup && <span className="inline-block mt-1 text-xs font-bold bg-red-100 text-red-600 px-2 py-0.5 rounded-full">-{discount}%</span>}
+            {promoOnGroup && prices.groupPct > 0 && <span className="inline-block mt-1 text-xs font-bold bg-red-100 text-red-600 px-2 py-0.5 rounded-full">-{prices.groupPct}%</span>}
             <p className="text-xs text-muted-foreground mt-1">{t(`soit ${fmt(Math.round(groupPrice / groupSize))} MRU par personne`, `أي ${fmt(Math.round(groupPrice / groupSize))} أوقية للشخص`)}</p>
             {plan === 'GROUP' && (
               <div className="flex items-center gap-3 mt-4" onClick={(e) => e.stopPropagation()}>

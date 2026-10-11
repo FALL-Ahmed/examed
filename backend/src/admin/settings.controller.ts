@@ -65,7 +65,7 @@ export class SettingsController {
 
   @Get('promo')
   async getPromo() {
-    const [active, discount, endDate, includesGroup, bioActive, bioDiscount, bioEndDate, bioIncludesGroup] = await Promise.all([
+    const [active, discount, endDate, includesGroup, bioActive, bioDiscount, bioEndDate, bioIncludesGroup, soloPrice, groupPerPerson] = await Promise.all([
       this.adminService.getSetting('PROMO_ACTIVE'),
       this.adminService.getSetting('PROMO_DISCOUNT'),
       this.adminService.getSetting('PROMO_END_DATE'),
@@ -74,12 +74,18 @@ export class SettingsController {
       this.adminService.getSetting('PROMO_BIO_DISCOUNT'),
       this.adminService.getSetting('PROMO_BIO_END_DATE'),
       this.adminService.getSetting('PROMO_BIO_INCLUDES_GROUP'),
+      this.adminService.getSetting('PROMO_PRICE_SOLO'),
+      this.adminService.getSetting('PROMO_PRICE_GROUP_PP'),
     ]);
+    // Prix promo fixes (facultatifs) : s'ils sont renseignés, ils remplacent le pourcentage
+    const fixed = (v: string | null) => (v && parseInt(v) > 0 ? parseInt(v) : null);
     return {
       active: active === 'true',
       discount: discount ? parseInt(discount) : 30,
       endDate: endDate ?? null,
       includesGroup: includesGroup === 'true',
+      soloPrice: fixed(soloPrice),
+      groupPerPerson: fixed(groupPerPerson),
       bio: {
         active: bioActive === 'true',
         discount: bioDiscount ? parseInt(bioDiscount) : 30,

@@ -9,6 +9,7 @@ import {
   GraduationCap, ArrowRight, Target, Users, Clock, FileText, ClipboardList,
 } from 'lucide-react';
 import { settingsApi } from '@/lib/api';
+import { computePrices, type PromoSettings } from '@/lib/promo';
 import { LanguageSwitcherLight } from '@/components/LanguageSwitcher';
 
 export default function LandingPage() {
@@ -16,12 +17,16 @@ export default function LandingPage() {
   const { loadUser } = useAuthStore();
   const { t, lang } = useLang();
   const [pricing, setPricing] = useState<any>(null);
-  const [promoSettings, setPromoSettings] = useState<{ active: boolean; discount: number; endDate?: string | null; includesGroup?: boolean } | null>(null);
+  const [promoSettings, setPromoSettings] = useState<PromoSettings | null>(null);
   const promoActive = promoSettings?.active ?? false;
   const promoDiscount = promoSettings?.discount ?? 30;
   const promoEndDate = promoSettings?.endDate ?? null;
   const promoIncludesGroup = promoSettings?.includesGroup ?? false;
-  const promo = (p: number) => Math.round(p * (1 - promoDiscount / 100) / 100) * 100;
+  // Prix promo : fixes si saisis dans l'admin, sinon pourcentage (calcul partagé)
+  const prices = computePrices({
+    soloBase: pricing?.solo1m?.price ?? 500, perPerson: pricing?.groupPerP?.price ?? 400,
+    groupSize: pricing?.groupMin ?? 3, promo: promoSettings,
+  });
   const formattedEndDate = promoEndDate
     ? new Date(promoEndDate).toLocaleDateString(lang === 'ar' ? 'ar-TN' : 'fr-FR', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })
     : null;
@@ -396,7 +401,11 @@ export default function LandingPage() {
               {promoActive && (
                 <>
                   <p className="text-3xl md:text-4xl font-black mb-2 tracking-tight">
-                    {lang === 'ar' ? `-${promoDiscount}% على جميع الخطط !` : `-${promoDiscount}% sur tous les plans !`}
+                    {prices.upTo
+                      ? (lang === 'ar' ? `خصم حتى ${prices.maxPct}% !` : `Jusqu'à -${prices.maxPct}% !`)
+                      : prices.onGroup
+                        ? (lang === 'ar' ? `-${prices.maxPct}% على جميع الخطط !` : `-${prices.maxPct}% sur tous les plans !`)
+                        : (lang === 'ar' ? `-${prices.soloPct}% على الخطة الفردية !` : `-${prices.soloPct}% sur l'offre Solo !`)}
                   </p>
                   {formattedEndDate && (
                     <p className="text-white/80 text-base mb-4">
@@ -438,10 +447,10 @@ export default function LandingPage() {
               <div className="mb-6">
                 {promoActive && <p className="text-2xl font-black text-red-400 line-through">{pricing?.solo1m?.price ?? 500} MRU</p>}
                 <p className="text-4xl font-black text-gray-900">
-                  {promoActive ? promo(pricing?.solo1m?.price ?? 500) : (pricing?.solo1m?.price ?? 500)}
+                  {prices.solo}
                   <span className="text-lg font-semibold text-gray-400 ml-1">MRU</span>
                 </p>
-                {promoActive && <span className="inline-flex items-center gap-1 mt-2 bg-red-500 text-white text-sm font-black px-3 py-1.5 rounded-full">-{promoDiscount}%</span>}
+                {promoActive && prices.soloPct > 0 && <span className="inline-flex items-center gap-1 mt-2 bg-red-500 text-white text-sm font-black px-3 py-1.5 rounded-full">-{prices.soloPct}%</span>}
               </div>
               <Link href="/register?plan=SOLO_1M"
                 className="block w-full text-center py-3 rounded-2xl font-bold text-sm text-white transition hover:opacity-90 shadow-md shadow-violet-200"
@@ -470,19 +479,17 @@ export default function LandingPage() {
                   </p>
                 )}
                 <p className="text-4xl font-black text-gray-900">
-                  {promoActive && promoIncludesGroup
-                    ? promo((pricing?.groupPerP?.price ?? 400) * (pricing?.groupMin ?? 3))
-                    : (pricing?.groupPerP?.price ?? 400) * (pricing?.groupMin ?? 3)}
+                  {prices.group}
                   <span className="text-lg font-semibold text-gray-400 ml-1">MRU</span>
                 </p>
                 {promoActive && promoIncludesGroup && (
-                  <span className="inline-flex items-center gap-1 mt-2 bg-red-500 text-white text-sm font-black px-3 py-1.5 rounded-full">-{promoDiscount}%</span>
+                  <span className="inline-flex items-center gap-1 mt-2 bg-red-500 text-white text-sm font-black px-3 py-1.5 rounded-full">-{prices.groupPct}%</span>
                 )}
               </div>
               <p className="text-sm text-emerald-600 font-semibold mb-6">
                 {lang === 'ar'
-                  ? `بطاقة بـ ${promoActive && promoIncludesGroup ? promo(pricing?.groupPerP?.price ?? 400) : (pricing?.groupPerP?.price ?? 400)} MRU للشخص وأنتم مسجلون!`
-                  : `Un billet de ${promoActive && promoIncludesGroup ? promo(pricing?.groupPerP?.price ?? 400) : (pricing?.groupPerP?.price ?? 400)} MRU chacun et vous êtes inscrits !`}
+                  ? `بطاقة بـ ${prices.groupPerPerson} MRU للشخص وأنتم مسجلون!`
+                  : `Un billet de ${prices.groupPerPerson} MRU chacun et vous êtes inscrits !`}
               </p>
               <Link href="/register?plan=GROUP"
                 className="block w-full text-center py-3 rounded-2xl font-bold text-sm text-white transition hover:opacity-90 shadow-md shadow-emerald-200"

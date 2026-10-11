@@ -4,6 +4,7 @@ import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { authApi, settingsApi, freemiumApi } from '@/lib/api';
 import { useLang } from '@/components/LanguageProvider';
+import { computePrices } from '@/lib/promo';
 import { BookOpen, Loader2, Eye, EyeOff, Copy, CheckCheck, Upload, X, MessageCircle, Gift, Crown } from 'lucide-react';
 import { LanguageSwitcherLight } from '@/components/LanguageSwitcher';
 
@@ -80,7 +81,7 @@ function RegisterContent() {
   const [waPhone, setWaPhone] = useState<string | null>(null);
   // Essai gratuit : proposé uniquement pendant une campagne ouverte (réglée dans l'admin)
   const [freemium, setFreemium] = useState<{ open: boolean; endDate: string | null }>({ open: false, endDate: null });
-  const [accessMode, setAccessMode] = useState<'PAID' | 'FREEMIUM'>(planParam && planParam !== 'FREEMIUM' ? 'PAID' : 'FREEMIUM');
+  const [accessMode, setAccessMode] = useState<'PAID' | 'FREEMIUM'>(planParam === 'FREEMIUM' ? 'FREEMIUM' : 'PAID');
   const isFreemium = freemium.open && accessMode === 'FREEMIUM';
 
   useEffect(() => {
@@ -100,21 +101,16 @@ function RegisterContent() {
 
   const isBiologiste = form.profession === 'biologiste';
   const bioPromo = promoSettings?.bio;
-  const effectivePromoActive   = isBiologiste && bioPromo?.active ? bioPromo.active : (promoSettings?.active ?? false);
-  const effectivePromoDiscount = isBiologiste && bioPromo?.active ? bioPromo.discount : (promoSettings?.discount ?? 30);
-  const effectivePromoEndDate  = isBiologiste && bioPromo?.active ? bioPromo.endDate : (promoSettings?.endDate ?? null);
-  const promoActive = effectivePromoActive;
-  const promoDiscount = effectivePromoDiscount;
-  const promoEndDate = effectivePromoEndDate;
-  const promoIncludesGroup = isBiologiste && bioPromo?.active ? (bioPromo?.includesGroup ?? false) : (promoSettings?.includesGroup ?? false);
-  const promo = (p: number) => Math.round(p * (1 - promoDiscount / 100) / 100) * 100;
-
   const solo1mBase = pricing.solo1m?.price ?? 500;
   const groupPerP  = pricing.groupPerP?.price ?? 400;
-  const groupBase  = groupPerP * groupSize;
-
-  const solo1mPrice = promoActive ? promo(solo1mBase) : solo1mBase;
-  const groupPrice  = promoActive && promoIncludesGroup ? promo(groupBase) : groupBase;
+  // Prix promo : fixes si saisis dans l'admin, sinon pourcentage (calcul partagé avec /abonnement)
+  const prices = computePrices({ soloBase: solo1mBase, perPerson: groupPerP, groupSize, promo: promoSettings, isBiologiste });
+  const promoActive = prices.active;
+  const promoEndDate = prices.endDate;
+  const promoIncludesGroup = prices.onGroup;
+  const groupBase  = prices.groupBase;
+  const solo1mPrice = prices.solo;
+  const groupPrice  = prices.group;
 
   const computedAmount   = selectedPlan === 'SOLO_1M' ? solo1mPrice : groupPrice;
   const computedDuration = 30;
@@ -342,7 +338,39 @@ function RegisterContent() {
             <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-xl mb-5 text-sm font-medium">{formError}</div>
           )}
 
-          {/* ── Essai gratuit mis en avant (campagne ouverte) ── */}
+          {/* ── Choix : Premium (par défaut) ou Essai gratuit, pendant une campagne ── */}
+          {freemium.open && (
+            <div className="grid grid-cols-2 gap-3 mb-5">
+              {([
+                {
+                  id: 'PAID' as const, icon: Crown, title: 'Premium',
+                  desc: isAr ? 'كل الأسئلة وكل المواضيع' : 'Toutes les questions et tous les thèmes',
+                  price: isAr ? `ابتداءً من ${Math.min(solo1mPrice, Math.round(groupPrice / Math.max(1, groupSize)))} أوقية` : `Dès ${Math.min(solo1mPrice, Math.round(groupPrice / Math.max(1, groupSize)))} MRU`,
+                  on: 'border-violet-500 bg-violet-50 ring-2 ring-violet-200', dot: 'bg-violet-500', iconCls: 'text-violet-600',
+                },
+                {
+                  id: 'FREEMIUM' as const, icon: Gift, title: isAr ? 'تجربة مجانية' : 'Essai gratuit',
+                  desc: isAr ? 'جزء من الأسئلة، بدون دفع' : 'Une partie des questions, sans paiement',
+                  price: isAr ? '0 أوقية' : '0 MRU',
+                  on: 'border-emerald-500 bg-emerald-50 ring-2 ring-emerald-200', dot: 'bg-emerald-500', iconCls: 'text-emerald-600',
+                },
+              ]).map((opt) => (
+                <button key={opt.id} type="button"
+                  onClick={() => { setAccessMode(opt.id); gtrack('register_access_selected', { access: opt.id }); }}
+                  className={`relative flex flex-col items-start gap-1 p-4 rounded-2xl border-2 text-start transition
+                    ${accessMode === opt.id ? opt.on : 'border-gray-200 bg-white hover:border-gray-300'}`}>
+                  <opt.icon className={`w-5 h-5 ${opt.iconCls}`} />
+                  <span className="font-extrabold text-gray-900 text-base mt-1">{opt.title}</span>
+                  <span className="text-xs text-gray-500 leading-snug">{opt.desc}</span>
+                  <span className={`text-sm font-black mt-2 ${opt.iconCls}`}>{opt.price}</span>
+                  {accessMode === opt.id && (
+                    <span className={`absolute top-3 ${isAr ? 'left-3' : 'right-3'} w-5 h-5 rounded-full flex items-center justify-center ${opt.dot}`}>{checkIcon}</span>
+                  )}
+                </button>
+              ))}
+            </div>
+          )}
+
           {isFreemium && (
             <div className="relative overflow-hidden rounded-3xl p-6 mb-5 text-white shadow-xl shadow-emerald-200"
               style={{ background: 'linear-gradient(135deg,#059669 0%,#10b981 55%,#34d399 100%)' }}>
@@ -374,22 +402,6 @@ function RegisterContent() {
               </div>
             </div>
           )}
-
-          {/* Retour à l'essai gratuit quand l'utilisateur a choisi de payer */}
-          {freemium.open && !isFreemium && (
-            <button type="button" onClick={() => { setAccessMode('FREEMIUM'); gtrack('register_access_selected', { access: 'FREEMIUM' }); }}
-              className="w-full flex items-center justify-between gap-3 rounded-2xl border-2 border-emerald-400 bg-emerald-50 px-5 py-4 mb-5 text-start hover:bg-emerald-100 transition">
-              <span className="flex items-center gap-3">
-                <Gift className="w-5 h-5 text-emerald-600 flex-shrink-0" />
-                <span>
-                  <span className="block font-bold text-emerald-800 text-sm">{isAr ? 'جرّب مجاناً أولاً' : "Essayez d'abord gratuitement"}</span>
-                  <span className="block text-xs text-emerald-700">{isAr ? 'بدون دفع، يمكنك الترقية لاحقاً' : 'Sans paiement, passez Premium quand vous voulez'}</span>
-                </span>
-              </span>
-              <span className="text-emerald-700 font-bold text-sm flex-shrink-0">{isAr ? '←' : '→'}</span>
-            </button>
-          )}
-
 
           {/* ── Section 1 : Profil ── */}
           <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6 mb-4">
@@ -460,15 +472,6 @@ function RegisterContent() {
             </div>
           </div>
 
-          {/* Option secondaire : payer Premium tout de suite */}
-          {isFreemium && (
-            <button type="button" onClick={() => { setAccessMode('PAID'); gtrack('register_access_selected', { access: 'PAID' }); }}
-              className="w-full flex items-center justify-center gap-2 text-sm text-gray-500 hover:text-violet-700 mb-5 transition">
-              <Crown className="w-4 h-4" />
-              {isAr ? 'أفضّل الدفع والحصول على Premium مباشرة' : 'Je préfère payer Premium tout de suite'}
-            </button>
-          )}
-
           {/* ── Section 2 : Abonnement & Paiement ── */}
           {!isFreemium && (
           <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6 mb-5">
@@ -483,7 +486,8 @@ function RegisterContent() {
                   {/* Badge discount centré et grand */}
                   <div className="flex items-center justify-center gap-3 mb-3">
                     <div className="bg-white rounded-2xl px-5 py-2 shadow-lg">
-                      <p className={`font-black text-4xl leading-none ${isBiologiste && bioPromo?.active ? 'text-emerald-600' : 'text-red-600'}`}>-{promoDiscount}%</p>
+                      {prices.upTo && <p className={`text-[11px] font-bold uppercase ${isBiologiste && bioPromo?.active ? 'text-emerald-600' : 'text-red-600'}`}>{isAr ? 'حتى' : "jusqu'à"}</p>}
+                      <p className={`font-black text-4xl leading-none ${isBiologiste && bioPromo?.active ? 'text-emerald-600' : 'text-red-600'}`}>-{prices.maxPct}%</p>
                     </div>
                   </div>
                   {/* Titre */}
@@ -518,7 +522,7 @@ function RegisterContent() {
                 <div className="text-right flex-shrink-0 ml-4">
                   {promoActive && <p className="text-xs text-gray-400 line-through">{solo1mBase} MRU</p>}
                   <p className="font-extrabold text-violet-700 text-lg">{solo1mPrice} <span className="text-sm font-semibold">MRU</span></p>
-                  {promoActive && <span className="text-xs font-bold bg-red-100 text-red-600 px-1.5 py-0.5 rounded-full">-{promoDiscount}%</span>}
+                  {promoActive && prices.soloPct > 0 && <span className="text-xs font-bold bg-red-100 text-red-600 px-1.5 py-0.5 rounded-full">-{prices.soloPct}%</span>}
                 </div>
                 {selectedPlan === 'SOLO_1M' && (
                   <div className="absolute top-3 right-3 w-4 h-4 rounded-full bg-violet-500 flex items-center justify-center">{checkIcon}</div>
@@ -540,7 +544,7 @@ function RegisterContent() {
                     {promoActive && promoIncludesGroup && <p className="text-xs text-gray-400 line-through">{groupBase} MRU</p>}
                     <p className="font-extrabold text-violet-700 text-lg">{groupPrice} <span className="text-sm font-semibold">MRU</span></p>
                     {promoActive && promoIncludesGroup && (
-                      <span className={`text-xs font-bold px-1.5 py-0.5 rounded-full ${isBiologiste && bioPromo?.active ? 'bg-emerald-100 text-emerald-700' : 'bg-red-100 text-red-600'}`}>-{promoDiscount}%</span>
+                      <span className={`text-xs font-bold px-1.5 py-0.5 rounded-full ${isBiologiste && bioPromo?.active ? 'bg-emerald-100 text-emerald-700' : 'bg-red-100 text-red-600'}`}>-{prices.groupPct}%</span>
                     )}
                   </div>
                   {selectedPlan === 'GROUP' && (

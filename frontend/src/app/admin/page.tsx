@@ -59,6 +59,9 @@ export default function AdminDashboard() {
   const [promoDiscount, setPromoDiscount] = useState('30');
   const [promoEndDate, setPromoEndDate] = useState('');
   const [promoIncludesGroup, setPromoIncludesGroup] = useState(false);
+  // Prix promo fixes (facultatifs) : remplacent le pourcentage s'ils sont renseignés
+  const [promoSoloPrice, setPromoSoloPrice] = useState('');
+  const [promoGroupPP, setPromoGroupPP] = useState('');
   const [savingPromo, setSavingPromo] = useState(false);
   const [savedPromo, setSavedPromo] = useState(false);
   const [bioNewContentVisible, setBioNewContentVisible] = useState(false);
@@ -87,6 +90,8 @@ export default function AdminDashboard() {
       setPromoDiscount(r.data.PROMO_DISCOUNT ?? '30');
       setPromoEndDate(r.data.PROMO_END_DATE ?? '');
       setPromoIncludesGroup(r.data.PROMO_INCLUDES_GROUP === 'true');
+      setPromoSoloPrice(r.data.PROMO_PRICE_SOLO ?? '');
+      setPromoGroupPP(r.data.PROMO_PRICE_GROUP_PP ?? '');
       setBioNewContentVisible(r.data.BIO_NEW_CONTENT_VISIBLE === 'true');
       setPromoBioEnabled(r.data.PROMO_BIO_ACTIVE === 'true');
       setPromoBioDiscount(r.data.PROMO_BIO_DISCOUNT ?? '30');
@@ -188,6 +193,8 @@ export default function AdminDashboard() {
     await Promise.all([
       adminApi.setSetting('PROMO_DISCOUNT', promoDiscount),
       adminApi.setSetting('PROMO_END_DATE', promoEndDate),
+      adminApi.setSetting('PROMO_PRICE_SOLO', promoSoloPrice.trim()),
+      adminApi.setSetting('PROMO_PRICE_GROUP_PP', promoGroupPP.trim()),
     ]).catch(() => {});
     setSavedPromo(true); setTimeout(() => setSavedPromo(false), 3000);
     setSavingPromo(false);
@@ -387,8 +394,13 @@ export default function AdminDashboard() {
         <div className="border-t border-border pt-4 mt-2">
           <div className="flex items-center justify-between mb-3">
             <div>
-              <p className="text-sm font-semibold flex items-center gap-1.5">🏷️ Promotion Free Trial</p>
-              <p className="text-xs text-muted-foreground mt-0.5">{promoEnabled ? `Promo active — ${promoDiscount}% de réduction` : 'Aucune promo affichée.'}</p>
+              <p className="text-sm font-semibold flex items-center gap-1.5">🏷️ Promotion</p>
+              <p className="text-xs text-muted-foreground mt-0.5">
+                {!promoEnabled ? 'Aucune promo affichée.'
+                  : promoSoloPrice || promoGroupPP
+                    ? `Promo active — ${promoSoloPrice ? `Solo ${promoSoloPrice} MRU` : `Solo -${promoDiscount}%`}${promoIncludesGroup ? ` · groupe ${promoGroupPP ? `${promoGroupPP} MRU/pers.` : `-${promoDiscount}%`}` : ''}`
+                    : `Promo active — ${promoDiscount}% de réduction`}
+              </p>
             </div>
             <button type="button" onClick={togglePromo} className={`relative w-11 h-6 rounded-full transition-colors flex-shrink-0 ${promoEnabled ? 'bg-orange-500' : 'bg-border'}`}>
               <span className={`absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full shadow transition-transform ${promoEnabled ? 'translate-x-5' : 'translate-x-0'}`} />
@@ -418,6 +430,20 @@ export default function AdminDashboard() {
           </div>
           <input type="date" value={promoEndDate} onChange={(e) => setPromoEndDate(e.target.value)}
             className="w-full px-3 py-2 bg-background border border-border rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 text-muted-foreground" />
+          <p className="text-xs text-muted-foreground mt-3 mb-1.5">Prix promo fixes (facultatif — remplacent le % ; laisser vide pour utiliser le %)</p>
+          <div className="grid grid-cols-2 gap-2">
+            <label className="flex items-center border border-border rounded-xl overflow-hidden bg-background">
+              <input type="number" min={0} value={promoSoloPrice} onChange={(e) => setPromoSoloPrice(e.target.value)}
+                className="w-full min-w-0 px-3 py-2 bg-transparent text-sm focus:outline-none" placeholder="Solo" aria-label="Prix promo Solo" />
+              <span className="px-2 py-2 text-xs text-muted-foreground bg-secondary whitespace-nowrap">MRU</span>
+            </label>
+            <label className="flex items-center border border-border rounded-xl overflow-hidden bg-background">
+              <input type="number" min={0} value={promoGroupPP} onChange={(e) => setPromoGroupPP(e.target.value)}
+                className="w-full min-w-0 px-3 py-2 bg-transparent text-sm focus:outline-none" placeholder="Groupe" aria-label="Prix promo groupe par personne" />
+              <span className="px-2 py-2 text-xs text-muted-foreground bg-secondary whitespace-nowrap">MRU/pers.</span>
+            </label>
+          </div>
+          <p className="text-[11px] text-muted-foreground mt-1.5">Le bouton « Sauv. » ci-dessus enregistre aussi ces prix et la date.</p>
         </div>
         <div className="border-t border-border pt-4 mt-2">
           <div className="flex items-center justify-between mb-4 p-3 bg-emerald-50 rounded-xl border border-emerald-200">
