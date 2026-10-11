@@ -1,6 +1,7 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { StorageService } from '../storage/storage.service';
+import { effectiveRole } from '../common/utils/role.utils';
 import * as fs from 'fs';
 import * as path from 'path';
 
@@ -36,6 +37,11 @@ export class UsersService {
     if (user.role === 'PREMIUM' && user.subscriptionEnd && user.subscriptionEnd < new Date()) {
       await this.prisma.user.update({ where: { id }, data: { role: 'FREE' } });
       user = { ...user, role: 'FREE' };
+    }
+
+    // Essai freemium terminé : traité comme « en attente de paiement » (le rôle reste FREEMIUM en base)
+    if (user.role === 'FREEMIUM' && effectiveRole(user) === 'FREE') {
+      return { ...user, role: 'FREE' as const, freemiumEnded: true };
     }
 
     return user;

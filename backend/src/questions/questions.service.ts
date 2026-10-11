@@ -1,6 +1,7 @@
 import { Injectable, ForbiddenException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { UsersService } from '../users/users.service';
+import { FREEMIUM_QUESTION_FILTER } from '../common/utils/role.utils';
 
 const FREE_DAILY_LIMIT = 3;
 
@@ -19,6 +20,7 @@ export class QuestionsService {
     count?: number;
     language?: string;
     excludeAnsweredToday?: boolean;
+    freemiumOnly?: boolean;
   }) {
     // Vérifier quota FREE
     if (userRole === 'FREE') {
@@ -57,6 +59,8 @@ export class QuestionsService {
       subFilter.theme = themeFilter;
       where.subTheme = subFilter;
     }
+
+    if (opts.freemiumOnly) where.AND = [FREEMIUM_QUESTION_FILTER];
 
     // Exclure les questions déjà répondues aujourd'hui (mode préparation)
     if (opts.excludeAnsweredToday) {
@@ -111,6 +115,7 @@ export class QuestionsService {
     if (!bioExamShowUnpublished) themeFilterExam.isPublished = true;
     subFilter.theme = themeFilterExam;
     where.subTheme = subFilter;
+    if (userRole === 'FREEMIUM') where.AND = [FREEMIUM_QUESTION_FILTER];
 
     // Mélanger aléatoirement
     const questions = await this.prisma.question.findMany({
@@ -247,9 +252,9 @@ export class QuestionsService {
     return wrongAnswers.map((a) => a.question);
   }
 
-  async findOne(id: string) {
-    return this.prisma.question.findUnique({
-      where: { id },
+  async findOne(id: string, userRole?: string) {
+    return this.prisma.question.findFirst({
+      where: { id, ...(userRole === 'FREEMIUM' ? FREEMIUM_QUESTION_FILTER : {}) },
       include: { subTheme: { include: { theme: true } } },
     });
   }

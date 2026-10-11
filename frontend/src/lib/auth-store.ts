@@ -6,8 +6,9 @@ interface User {
   id: string;
   email: string;
   fullName: string;
-  role: 'FREE' | 'PREMIUM' | 'ADMIN';
+  role: 'FREE' | 'FREEMIUM' | 'PREMIUM' | 'ADMIN';
   subscriptionEnd?: string;
+  freemiumEnded?: boolean;
   profession?: string;
   phone?: string;
 }

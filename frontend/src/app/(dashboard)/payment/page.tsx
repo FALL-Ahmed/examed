@@ -29,10 +29,11 @@ const OPERATOR_BASE = [
 ];
 
 const FEATURES: { label: string; free: string | boolean; premium: string | boolean }[] = [
-  { label: 'Questions par jour',       free: '3 / jour',   premium: 'Illimité'   },
-  { label: 'Mode série chronométré',   free: false,        premium: true         },
-  { label: 'Révision des erreurs',     free: false,        premium: true         },
-  { label: 'Statistiques avancées',    free: false,        premium: true         },
+  { label: 'Thèmes et questions',      free: 'Sélection',  premium: 'Tous'       },
+  { label: 'Mode série chronométré',   free: 'Sélection',  premium: true         },
+  { label: 'Révision des erreurs',     free: true,         premium: true         },
+  { label: 'Statistiques et classement', free: true,       premium: true         },
+  { label: "Durée d'accès",            free: "Durée de l'essai", premium: "Jusqu'au concours" },
   { label: 'Support prioritaire',      free: false,        premium: true         },
   { label: 'Accès hors ligne',         free: false,        premium: true         },
 ];
@@ -394,9 +395,9 @@ export default function PaymentPage() {
 
           {/* Free header */}
           <div className="px-4 py-5 border-b border-l border-border text-center">
-            <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-1">Gratuit</p>
+            <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-1">Essai gratuit</p>
             <p className="text-xl font-black">0</p>
-            <p className="text-xs text-muted-foreground">MRU / mois</p>
+            <p className="text-xs text-muted-foreground">MRU</p>
           </div>
 
           {/* Premium header */}
@@ -439,7 +440,7 @@ export default function PaymentPage() {
                   ? <Check className="w-4 h-4 text-emerald-500" />
                   : <X className="w-4 h-4 text-muted-foreground/40" />
               ) : (
-                <span className="text-sm text-muted-foreground font-medium">{f.free}</span>
+                <span className="text-sm text-muted-foreground font-medium text-center">{f.free}</span>
               )}
             </div>
 

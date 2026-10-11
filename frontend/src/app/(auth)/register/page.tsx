@@ -2,9 +2,9 @@
 import { Suspense, useState, useEffect, memo } from 'react';
 import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
-import { authApi, settingsApi } from '@/lib/api';
+import { authApi, settingsApi, freemiumApi } from '@/lib/api';
 import { useLang } from '@/components/LanguageProvider';
-import { BookOpen, Loader2, Eye, EyeOff, Copy, CheckCheck, Upload, X, MessageCircle } from 'lucide-react';
+import { BookOpen, Loader2, Eye, EyeOff, Copy, CheckCheck, Upload, X, MessageCircle, Gift, Crown } from 'lucide-react';
 import { LanguageSwitcherLight } from '@/components/LanguageSwitcher';
 
 declare function gtag(...args: any[]): void;
@@ -78,8 +78,13 @@ function RegisterContent() {
   const [loading, setLoading] = useState(false);
   const [started, setStarted] = useState(false);
   const [waPhone, setWaPhone] = useState<string | null>(null);
+  // Essai gratuit : proposé uniquement pendant une campagne ouverte (réglée dans l'admin)
+  const [freemium, setFreemium] = useState<{ open: boolean; endDate: string | null }>({ open: false, endDate: null });
+  const [accessMode, setAccessMode] = useState<'PAID' | 'FREEMIUM'>(planParam === 'FREEMIUM' ? 'FREEMIUM' : 'PAID');
+  const isFreemium = freemium.open && accessMode === 'FREEMIUM';
 
   useEffect(() => {
+    freemiumApi.status().then((r) => setFreemium(r.data)).catch(() => {});
     settingsApi.whatsapp().then((r) => setWaPhone(r.data.phone)).catch(() => {});
     settingsApi.operators().then((r) => {
       const map: Record<string, string> = {};
@@ -143,6 +148,7 @@ function RegisterContent() {
       return fail(isAr ? 'يرجى تحديد مهنتك' : 'Veuillez sélectionner votre profession', 'field-profession', 'missing_profession');
     if (!form.password || form.password.length < 8)
       return fail(isAr ? 'كلمة المرور 8 أحرف على الأقل' : 'Mot de passe minimum 8 caractères', 'field-password', 'weak_password');
+    if (isFreemium) return submitFreemium();
     if (!selectedOp)
       return fail(isAr ? 'اختر مشغل الدفع' : 'Choisissez un opérateur de paiement', 'field-operator', 'missing_operator');
     if (!receipt)
@@ -195,6 +201,37 @@ function RegisterContent() {
 
       gtrack('register_success', { plan: selectedPlan, operator: selectedOp, lang });
       window.location.href = '/pending';
+    } catch (err: any) {
+      const msg = err.response?.data?.message || 'server_error';
+      setFormError(msg || (isAr ? 'حدث خطأ' : 'Une erreur est survenue'));
+      gtrack('register_error', { reason: 'server_error', message: msg });
+      setLoading(false);
+    }
+  }
+
+  async function submitFreemium() {
+    setLoading(true);
+    try {
+      const fd = new FormData();
+      fd.append('fullName', `${form.firstName.trim()} ${form.lastName.trim()}`);
+      fd.append('email', form.email.trim());
+      fd.append('password', form.password);
+      fd.append('profession', form.profession);
+      fd.append('phone', form.phone.trim());
+      fd.append('planType', 'FREEMIUM');
+      const fpSource = typeof window !== 'undefined' ? localStorage.getItem('albourour_source') : null;
+      if (fpSource) fd.append('source', fpSource);
+      const utmSource = typeof window !== 'undefined' ? localStorage.getItem('albourour_utm_source') : null;
+      if (utmSource) fd.append('utmSource', utmSource);
+
+      await authApi.register(fd);
+      const { data: ld } = await authApi.login({ email: form.email.trim(), password: form.password });
+      const { default: Cookies } = await import('js-cookie');
+      Cookies.set('access_token', ld.accessToken, { expires: 1 });
+      Cookies.set('refresh_token', ld.refreshToken, { expires: 7 });
+
+      gtrack('register_success', { plan: 'FREEMIUM', lang });
+      window.location.href = '/dashboard';
     } catch (err: any) {
       const msg = err.response?.data?.message || 'server_error';
       setFormError(msg || (isAr ? 'حدث خطأ' : 'Une erreur est survenue'));
@@ -370,7 +407,50 @@ function RegisterContent() {
             </div>
           </div>
 
+          {/* ── Choix d'accès : essai gratuit ou Premium (seulement pendant une campagne freemium) ── */}
+          {freemium.open && (
+            <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6 mb-4">
+              <p className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-4">
+                {isAr ? '🎯 نوع الوصول' : "🎯 Type d'accès"}
+              </p>
+              <div className="grid grid-cols-2 gap-3">
+                {([
+                  {
+                    id: 'FREEMIUM' as const, icon: Gift, active: 'border-emerald-500 bg-emerald-50', dot: 'bg-emerald-500', iconCls: 'text-emerald-600',
+                    title: isAr ? 'تجربة مجانية' : 'Essai gratuit',
+                    desc: isAr ? 'جزء من الأسئلة، بدون دفع' : 'Une partie des questions, sans paiement',
+                  },
+                  {
+                    id: 'PAID' as const, icon: Crown, active: 'border-violet-500 bg-violet-50', dot: 'bg-violet-500', iconCls: 'text-violet-600',
+                    title: 'Premium',
+                    desc: isAr ? 'كل الأسئلة حتى المسابقة' : "Toutes les questions jusqu'au concours",
+                  },
+                ]).map((opt) => (
+                  <button key={opt.id} type="button"
+                    onClick={() => { setAccessMode(opt.id); gtrack('register_access_selected', { access: opt.id }); }}
+                    className={`relative flex flex-col items-start gap-1.5 p-4 rounded-2xl border-2 text-start transition
+                      ${accessMode === opt.id ? opt.active : 'border-gray-200 bg-white hover:border-gray-300'}`}>
+                    <opt.icon className={`w-5 h-5 ${opt.iconCls}`} />
+                    <span className="font-bold text-gray-900 text-sm">{opt.title}</span>
+                    <span className="text-xs text-gray-500 leading-snug">{opt.desc}</span>
+                    {accessMode === opt.id && (
+                      <div className={`absolute top-3 ${isAr ? 'left-3' : 'right-3'} w-4 h-4 rounded-full flex items-center justify-center ${opt.dot}`}>{checkIcon}</div>
+                    )}
+                  </button>
+                ))}
+              </div>
+              {isFreemium && freemium.endDate && (
+                <p className="text-xs text-emerald-700 bg-emerald-50 border border-emerald-200 rounded-xl px-3 py-2 mt-4">
+                  {isAr ? 'التجربة المجانية متاحة حتى ' : "Essai gratuit valable jusqu'au "}
+                  <strong>{new Date(freemium.endDate).toLocaleDateString(isAr ? 'ar-EG' : 'fr-FR', { day: 'numeric', month: 'long', year: 'numeric' })}</strong>.
+                  {isAr ? ' يمكنك الترقية إلى Premium في أي وقت.' : ' Vous pourrez passer Premium à tout moment.'}
+                </p>
+              )}
+            </div>
+          )}
+
           {/* ── Section 2 : Abonnement & Paiement ── */}
+          {!isFreemium && (
           <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6 mb-5">
             <p className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-5">
               {isAr ? '💳 اشتراكك ودفعك' : '💳 Votre abonnement & paiement'}
@@ -582,6 +662,7 @@ function RegisterContent() {
               </a>
             )}
           </div>
+          )}
 
           {/* Submit */}
           <button type="button" onClick={handleSubmit} disabled={loading}
@@ -589,13 +670,17 @@ function RegisterContent() {
             style={{ background: 'linear-gradient(135deg,#7c3aed,#6366f1)' }}>
             {loading
               ? <><Loader2 className="w-5 h-5 animate-spin" /> {isAr ? 'جارٍ الإرسال…' : 'Envoi en cours…'}</>
-              : (isAr ? 'إنشاء حسابي الآن ←' : 'Créer mon compte maintenant →')}
+              : isFreemium
+                ? (isAr ? 'ابدأ تجربتي المجانية ←' : 'Commencer mon essai gratuit →')
+                : (isAr ? 'إنشاء حسابي الآن ←' : 'Créer mon compte maintenant →')}
           </button>
 
           <p className="text-center text-xs text-gray-400 mt-3">
-            {isAr
-              ? 'سيتم تفعيل وصولك فور التحقق من الدفع.'
-              : 'Votre accès sera activé dès validation de votre paiement.'}
+            {isFreemium
+              ? (isAr ? 'وصول فوري، بدون دفع.' : 'Accès immédiat, sans paiement.')
+              : isAr
+                ? 'سيتم تفعيل وصولك فور التحقق من الدفع.'
+                : 'Votre accès sera activé dès validation de votre paiement.'}
           </p>
 
           {/* Logos paiement mobile */}

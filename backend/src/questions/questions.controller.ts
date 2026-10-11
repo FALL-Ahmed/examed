@@ -21,6 +21,7 @@ export class QuestionsController {
       themeId,
       subThemeId,
       count: count ? parseInt(count) : 1,
+      freemiumOnly: req.user.role === 'FREEMIUM',
     });
   }
 
@@ -45,7 +46,7 @@ export class QuestionsController {
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.questionsService.findOne(id);
+  findOne(@Req() req: any, @Param('id') id: string) {
+    return this.questionsService.findOne(id, req.user.role);
   }
 }

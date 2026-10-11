@@ -16,6 +16,7 @@ import { StatsModule } from './stats/stats.module';
 import { KeepaliveService } from './common/keepalive.service';
 import { PushModule } from './push/push.module';
 import { ExamenBlancModule } from './examen-blanc/examen-blanc.module';
+import { FreemiumModule } from './freemium/freemium.module';
 
 @Module({
   imports: [
@@ -38,6 +39,7 @@ import { ExamenBlancModule } from './examen-blanc/examen-blanc.module';
     DownloadModule,
     StatsModule,
     ExamenBlancModule,
+    FreemiumModule,
   ],
   providers: [KeepaliveService],
 })

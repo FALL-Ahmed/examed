@@ -8,7 +8,7 @@ import { useLang } from '@/components/LanguageProvider';
 import { LanguageSwitcher } from '@/components/LanguageSwitcher';
 import { settingsApi } from '@/lib/api';
 import {
-  BookOpen, RefreshCw, Home, LogOut, Zap, Menu, X, TrendingUp, Sun, Moon, HeadphonesIcon, Heart, FileText,
+  BookOpen, RefreshCw, Home, LogOut, Zap, Menu, X, TrendingUp, Sun, Moon, HeadphonesIcon, Heart, FileText, Crown, Gift,
 } from 'lucide-react';
 
 const NAV_ITEMS = [
@@ -56,8 +56,37 @@ function NavItems({ onNav, fichesMemoEnabled }: { onNav?: () => void; fichesMemo
   );
 }
 
+// Encart permanent pour les comptes en essai gratuit
+function FreemiumCard({ endDate, onNav }: { endDate?: string; onNav?: () => void }) {
+  const { lang } = useLang();
+  const isAr = lang === 'ar';
+  return (
+    <div className="mx-3 mb-3 rounded-2xl p-4 border border-amber-400/30" style={{ background: 'linear-gradient(135deg,rgba(245,158,11,.18),rgba(217,119,6,.08))' }}>
+      <div className="flex items-center gap-2 mb-1.5">
+        <Gift className="w-4 h-4 text-amber-400" />
+        <p className="text-white text-xs font-bold">{isAr ? 'تجربة مجانية' : 'Essai gratuit'}</p>
+      </div>
+      {endDate && (
+        <p className="text-white/50 text-[11px] mb-3">
+          {isAr ? 'حتى ' : "Jusqu'au "}
+          {new Date(endDate).toLocaleDateString(isAr ? 'ar-EG' : 'fr-FR', { day: 'numeric', month: 'long' })}
+        </p>
+      )}
+      <p className="text-white/70 text-xs leading-relaxed mb-3">
+        {isAr ? 'افتح كل المواضيع وأكثر من 1000 سؤال.' : 'Débloquez tous les thèmes et plus de 1000 questions.'}
+      </p>
+      <Link href="/payment" onClick={onNav}
+        className="flex items-center justify-center gap-1.5 w-full py-2 rounded-xl text-xs font-bold text-white hover:opacity-90 transition"
+        style={{ background: 'linear-gradient(135deg,#f59e0b,#d97706)' }}>
+        <Crown className="w-3.5 h-3.5" /> {isAr ? 'الانتقال إلى Premium' : 'Passer Premium'}
+      </Link>
+    </div>
+  );
+}
+
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   const router = useRouter();
+  const pathname = usePathname();
   const { user, loadUser, logout } = useAuthStore();
   const { theme, toggle } = useTheme();
   const { t, isRTL } = useLang();
@@ -70,11 +99,16 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
       const u = useAuthStore.getState().user;
       if (!u) router.push('/login');
       else if (u.role === 'ADMIN') router.push('/admin');
-      else if (u.role === 'FREE') router.push('/pending');
+      else if (u.role === 'FREE' && !(u.freemiumEnded && pathname === '/payment')) router.push('/pending');
       else setReady(true);
     });
     settingsApi.features().then(r => setFichesMemoEnabled(r.data.fichesMemoEnabled)).catch(() => {});
   }, []);
+
+  // Un compte en attente qui a ouvert /payment ne peut pas naviguer ailleurs dans l'app
+  useEffect(() => {
+    if (ready && user?.role === 'FREE' && pathname !== '/payment') router.push('/pending');
+  }, [pathname, ready]);
 
   if (!ready || !user) return (
     <div className="min-h-screen flex items-center justify-center bg-background">
@@ -112,7 +146,9 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           </div>
           <div className="flex-1 min-w-0">
             <p className="text-white text-xs font-semibold truncate">{user.fullName}</p>
-            <p className="text-white/40 text-xs">{t('common.member')}</p>
+            <p className="text-white/40 text-xs">
+              {user.role === 'FREEMIUM' ? (isRTL ? 'تجربة مجانية' : 'Essai gratuit') : t('common.member')}
+            </p>
           </div>
         </div>
       </div>
@@ -121,6 +157,8 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
       <Suspense fallback={<div className="flex-1" />}>
         <NavItems onNav={onNav} fichesMemoEnabled={fichesMemoEnabled} />
       </Suspense>
+
+      {user.role === 'FREEMIUM' && <FreemiumCard endDate={user.subscriptionEnd} onNav={onNav} />}
 
       {/* Bottom actions */}
       <div className="px-3 pb-4 border-t border-white/10 pt-3 space-y-1">

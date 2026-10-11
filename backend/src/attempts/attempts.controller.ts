@@ -55,7 +55,7 @@ export class AttemptsController {
 
   @Post(':id/answer')
   answer(@Req() req: any, @Param('id') id: string, @Body() dto: SubmitAnswerDto) {
-    return this.attemptsService.submitAnswer(req.user.sub, id, dto);
+    return this.attemptsService.submitAnswer(req.user.sub, id, dto, req.user.role);
   }
 
   @Post(':id/finish')

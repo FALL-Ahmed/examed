@@ -3,17 +3,20 @@ import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { settingsApi, userApi } from '@/lib/api';
 import { useLang } from '@/components/LanguageProvider';
-import { BookOpen, Clock, CheckCircle2, MessageCircle, RefreshCw } from 'lucide-react';
+import { BookOpen, Clock, CheckCircle2, MessageCircle, RefreshCw, Crown } from 'lucide-react';
 
 export default function PendingPage() {
-  const { t } = useLang();
+  const { t, lang } = useLang();
+  const isAr = lang === 'ar';
   const [waPhone, setWaPhone] = useState<string | null>(null);
   const [isRenewal, setIsRenewal] = useState(false);
+  const [freemiumEnded, setFreemiumEnded] = useState(false);
 
   useEffect(() => {
     settingsApi.whatsapp().then((r) => setWaPhone(r.data.phone)).catch(() => {});
     userApi.me().then((r) => {
-      if (r.data.subscriptionEnd) setIsRenewal(true);
+      if (r.data.freemiumEnded) setFreemiumEnded(true);
+      else if (r.data.subscriptionEnd) setIsRenewal(true);
     }).catch(() => {});
   }, []);
 
@@ -37,11 +40,28 @@ export default function PendingPage() {
 
         <div className="bg-white/5 border border-white/10 rounded-3xl p-10 backdrop-blur-sm">
           <div className="w-16 h-16 rounded-2xl mx-auto mb-6 flex items-center justify-center"
-            style={{ background: isRenewal ? 'linear-gradient(135deg,#f59e0b,#d97706)' : 'linear-gradient(135deg,#7c3aed,#6366f1)' }}>
-            {isRenewal ? <RefreshCw className="w-8 h-8 text-white" /> : <Clock className="w-8 h-8 text-white" />}
+            style={{ background: isRenewal || freemiumEnded ? 'linear-gradient(135deg,#f59e0b,#d97706)' : 'linear-gradient(135deg,#7c3aed,#6366f1)' }}>
+            {freemiumEnded ? <Crown className="w-8 h-8 text-white" />
+              : isRenewal ? <RefreshCw className="w-8 h-8 text-white" /> : <Clock className="w-8 h-8 text-white" />}
           </div>
 
-          {isRenewal ? (
+          {freemiumEnded ? (
+            <>
+              <h1 className="text-2xl font-extrabold text-white mb-3">
+                {isAr ? 'انتهت تجربتك المجانية' : 'Votre essai gratuit est terminé'}
+              </h1>
+              <p className="text-white/55 text-sm leading-relaxed mb-6">
+                {isAr
+                  ? 'انتقل إلى Premium لاستعادة الوصول ومواصلة التحضير على كل الأسئلة.'
+                  : 'Passez Premium pour retrouver votre accès et continuer à réviser sur toutes les questions.'}
+              </p>
+              <Link href="/payment"
+                className="flex items-center justify-center gap-2 w-full py-3.5 rounded-2xl font-bold text-sm text-white hover:opacity-90 transition mb-6 shadow-lg"
+                style={{ background: 'linear-gradient(135deg,#f59e0b,#d97706)' }}>
+                <Crown className="w-4 h-4" /> {isAr ? 'الانتقال إلى Premium' : 'Passer Premium'}
+              </Link>
+            </>
+          ) : isRenewal ? (
             <>
               <h1 className="text-2xl font-extrabold text-white mb-3">{t('auth.pending.title')}</h1>
               <p className="text-white/55 text-sm leading-relaxed mb-8">{t('auth.pending.desc')}</p>

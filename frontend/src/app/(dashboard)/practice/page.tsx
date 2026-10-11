@@ -7,7 +7,9 @@ import { NEW_THEME_IDS, NEW_SUBTHEME_IDS } from '@/lib/new-content';
 import { useAuthStore } from '@/lib/auth-store';
 import { QuestionCard } from '@/components/QuestionCard';
 import { useLang } from '@/components/LanguageProvider';
-import { BookOpen, Loader2, Play, Target, ArrowLeft } from 'lucide-react';
+import { BookOpen, Loader2, Play, Target, ArrowLeft, Lock } from 'lucide-react';
+import { PremiumUpsellModal } from '@/components/PremiumUpsellModal';
+import { isFreemiumUser, isSubLocked, isThemeLocked, lockedQuestionCount, openQuestionCount } from '@/lib/freemium';
 import { ThemeSearchInput } from '@/components/ThemeSearchInput';
 import { sentenceCase } from '@/lib/utils';
 import { BadgeSelect } from '@/components/BadgeSelect';
@@ -40,6 +42,8 @@ function PracticePageInner() {
   const [answers, setAnswers] = useState<Array<{ correct: boolean; userAnswer: string; result: any } | null>>([]);
   const [viewIndex, setViewIndex] = useState(0);
   const saveRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const [upsell, setUpsell] = useState(false);
+  const lock = (label: string, locked: boolean) => (locked ? `🔒 ${label}` : label);
 
   useEffect(() => {
     themesApi.all(lang).then((r) => {
@@ -85,7 +89,8 @@ function PracticePageInner() {
     }
     if (config.themeId) {
       const theme = themes.find((t) => t.id === config.themeId);
-      return theme?.subThemes?.reduce((sum: number, s: any) => sum + (s._count?.questions ?? 0), 0) ?? 50;
+      return theme?.subThemes?.filter((s: any) => !isSubLocked(user, s))
+        .reduce((sum: number, s: any) => sum + (s._count?.questions ?? 0), 0) ?? 50;
     }
     return 50;
   })();
@@ -310,11 +315,34 @@ function PracticePageInner() {
                 subThemeId={config.subThemeId}
                 withSubThemes
                 allLabel={t('practice.allThemes')}
-                onSelect={(themeId, subThemeId) => setConfig({ ...config, themeId, subThemeId: subThemeId ?? '' })}
+                onSelect={(themeId, subThemeId) => {
+                  const th = themes.find((x) => x.id === themeId);
+                  const sub = th?.subThemes?.find((s: any) => s.id === subThemeId);
+                  if (isThemeLocked(user, th) || isSubLocked(user, sub)) return setUpsell(true);
+                  setConfig({ ...config, themeId, subThemeId: subThemeId ?? '' });
+                }}
               />
             </div>
           </div>
         </div>
+
+        {isFreemiumUser(user) && (
+          <div className="flex items-center justify-between gap-4 flex-wrap rounded-2xl border border-amber-500/30 bg-amber-500/10 px-5 py-4">
+            <div className="flex items-center gap-3">
+              <Lock className="w-5 h-5 text-amber-500 flex-shrink-0" />
+              <p className="text-sm">
+                {lang === 'ar'
+                  ? <>تجربة مجانية: <strong>{openQuestionCount(themes)}</strong> سؤال مفتوح. المواضيع ذات القفل 🔒 مخصصة لـ Premium.</>
+                  : <>Essai gratuit : <strong>{openQuestionCount(themes)}</strong> questions ouvertes. Les thèmes 🔒 sont réservés Premium.</>}
+              </p>
+            </div>
+            <button onClick={() => setUpsell(true)}
+              className="text-xs font-bold text-white px-4 py-2 rounded-lg hover:opacity-90 transition flex-shrink-0"
+              style={{ background: 'linear-gradient(135deg,#f59e0b,#d97706)' }}>
+              {lang === 'ar' ? 'الانتقال إلى Premium' : 'Passer Premium'}
+            </button>
+          </div>
+        )}
 
         {/* Config grid */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -326,12 +354,15 @@ function PracticePageInner() {
               <label className="block text-sm font-semibold mb-2">{t('practice.selectTheme')}</label>
               <BadgeSelect
                 value={config.themeId}
-                onChange={(v) => setConfig({ ...config, themeId: v, subThemeId: '' })}
+                onChange={(v) => {
+                  if (isThemeLocked(user, themes.find((th) => th.id === v))) return setUpsell(true);
+                  setConfig({ ...config, themeId: v, subThemeId: '' });
+                }}
                 placeholder={t('practice.allThemes')}
                 newBadgeLabel={lang === 'ar' ? 'جديد' : 'Nouveau'}
                 options={[
                   { value: '', label: t('practice.allThemes') },
-                  ...themes.map((th) => ({ value: th.id, label: sentenceCase(th.name), isNew: NEW_THEME_IDS.has(th.id) })),
+                  ...themes.map((th) => ({ value: th.id, label: lock(sentenceCase(th.name), isThemeLocked(user, th)), isNew: NEW_THEME_IDS.has(th.id) })),
                 ]}
               />
             </div>
@@ -345,12 +376,15 @@ function PracticePageInner() {
                   <label className="block text-sm font-semibold mb-2">{t('upload.subthemes')}</label>
                   <BadgeSelect
                     value={config.subThemeId}
-                    onChange={(v) => setConfig({ ...config, subThemeId: v })}
+                    onChange={(v) => {
+                      if (isSubLocked(user, subThemes.find((s: any) => s.id === v))) return setUpsell(true);
+                      setConfig({ ...config, subThemeId: v });
+                    }}
                     placeholder={t('practice.allThemes')}
                     newBadgeLabel={lang === 'ar' ? 'جديد' : 'Nouveau'}
                     options={[
                       { value: '', label: t('practice.allThemes') },
-                      ...subThemes.map((s: any) => ({ value: s.id, label: sentenceCase(s.name), count: s._count.questions, isNew: NEW_SUBTHEME_IDS.has(s.id) })),
+                      ...subThemes.map((s: any) => ({ value: s.id, label: lock(sentenceCase(s.name), isSubLocked(user, s)), count: s._count.questions, isNew: NEW_SUBTHEME_IDS.has(s.id) })),
                     ]}
                   />
                 </div>
@@ -419,6 +453,8 @@ function PracticePageInner() {
 
           </div>
         </div>
+
+        <PremiumUpsellModal open={upsell} onClose={() => setUpsell(false)} lockedCount={lockedQuestionCount(themes)} />
       </div>
     );
   }

@@ -29,6 +29,7 @@ model SubTheme {
   order     Int        @default(0)
   themeId   String
   theme     Theme      @relation(fields: [themeId], references: [id], onDelete: Cascade)
+  isFreemium Boolean   @default(false) // Ouvert aux comptes freemium (essai gratuit)
   questions Question[]
   createdAt DateTime   @default(now())
   updatedAt DateTime   @updatedAt
@@ -102,6 +103,7 @@ model Favorite {
 
 enum Role {
   FREE
+  FREEMIUM
   PREMIUM
   ADMIN
 }

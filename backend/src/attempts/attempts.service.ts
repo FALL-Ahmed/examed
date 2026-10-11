@@ -2,6 +2,7 @@ import { Injectable, NotFoundException, BadRequestException, ForbiddenException 
 import { PrismaService } from '../prisma/prisma.service';
 import { QuestionsService } from '../questions/questions.service';
 import { UsersService } from '../users/users.service';
+import { FREEMIUM_QUESTION_FILTER } from '../common/utils/role.utils';
 
 // +1/c par bonne réponse cochée, -1/w par mauvaise cochée, score par question peut être négatif (conforme barème officiel)
 function computePartialScore(userAnswer: string, question: {
@@ -43,11 +44,14 @@ export class AttemptsService {
     language?: string;
   }) {
     let questions: any[] = [];
+    // Compte freemium : uniquement les questions des sous-thèmes ouverts
+    const freemiumOnly = userRole === 'FREEMIUM';
+    const freemiumWhere = freemiumOnly ? FREEMIUM_QUESTION_FILTER : {};
 
     if (dto.mode === 'FAVORITES') {
       if (!dto.questionIds?.length) throw new BadRequestException('Aucun favori');
       questions = await this.prisma.question.findMany({
-        where: { id: { in: dto.questionIds }, isActive: true },
+        where: { id: { in: dto.questionIds }, isActive: true, ...freemiumWhere },
         include: { subTheme: { include: { theme: true } } },
       });
     } else if (dto.mode === 'EXAM') {
@@ -59,11 +63,12 @@ export class AttemptsService {
     } else if (dto.mode === 'REVIEW') {
       if (dto.questionIds?.length) {
         questions = await this.prisma.question.findMany({
-          where: { id: { in: dto.questionIds }, isActive: true },
+          where: { id: { in: dto.questionIds }, isActive: true, ...freemiumWhere },
           include: { subTheme: { include: { theme: true } } },
         });
       } else {
         questions = await this.questionsService.getMistakes(userId);
+        if (freemiumOnly) questions = questions.filter((q) => q.subTheme?.isFreemium);
         if (!questions.length) throw new BadRequestException('Aucune erreur à réviser');
         questions = questions.slice(0, dto.count || 20);
       }
@@ -93,6 +98,7 @@ export class AttemptsService {
         count: dto.count || 1,
         language: dto.language,
         excludeAnsweredToday: dto.excludeAnsweredToday,
+        freemiumOnly,
       });
     }
 
@@ -133,13 +139,16 @@ export class AttemptsService {
   async submitAnswer(userId: string, attemptId: string, dto: {
     questionId: string;
     answer: string;
-  }) {
+  }, userRole?: string) {
     const attempt = await this.prisma.attempt.findFirst({
       where: { id: attemptId, userId, isCompleted: false },
     });
     if (!attempt) throw new NotFoundException('Tentative introuvable ou déjà terminée');
 
-    const question = await this.prisma.question.findUnique({ where: { id: dto.questionId } });
+    // Un compte freemium ne peut pas obtenir la correction d'une question verrouillée
+    const question = await this.prisma.question.findFirst({
+      where: { id: dto.questionId, ...(userRole === 'FREEMIUM' ? FREEMIUM_QUESTION_FILTER : {}) },
+    });
     if (!question) throw new NotFoundException('Question introuvable');
 
     const normalize = (s: string) => s.toUpperCase().split(',').map(x => x.trim()).filter(Boolean).sort().join(',');

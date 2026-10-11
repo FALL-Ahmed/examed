@@ -12,6 +12,7 @@ import { PrismaService } from '../prisma/prisma.service';
 import { EmailService } from '../common/services/email.service';
 import { StorageService } from '../storage/storage.service';
 import { PushService } from '../push/push.service';
+import { FreemiumService } from '../freemium/freemium.service';
 import { generateDeviceFingerprint, generateVerificationCode, generateDeviceName, DeviceInfo } from '../common/utils/device.utils';
 
 const MAX_ACTIVE_SESSIONS = 2;
@@ -29,6 +30,7 @@ export class AuthService {
     private email: EmailService,
     private storage: StorageService,
     private push: PushService,
+    private freemium: FreemiumService,
   ) {}
 
   async register(
@@ -56,7 +58,18 @@ export class AuthService {
       include: { payment: { select: { durationDays: true } } },
     });
 
-    if (!invite && !receipt) {
+    // Essai gratuit : pas de reçu, accès limité jusqu'à la fin de la campagne
+    let freemiumEnd: Date | null = null;
+    if (!invite && dto.planType === 'FREEMIUM') {
+      const config = await this.freemium.getConfig();
+      if (!this.freemium.isOpen(config)) {
+        throw new BadRequestException("L'essai gratuit n'est pas disponible actuellement.");
+      }
+      if (!dto.phone?.trim()) throw new BadRequestException('Le numéro de téléphone est obligatoire.');
+      freemiumEnd = this.freemium.endOf(config);
+    }
+
+    if (!invite && !freemiumEnd && !receipt) {
       throw new BadRequestException('Le reçu de paiement est obligatoire.');
     }
 
@@ -85,6 +98,9 @@ export class AuthService {
       subscriptionEnd.setDate(subscriptionEnd.getDate() + (invite.payment?.durationDays ?? 30));
       userData.role = 'PREMIUM';
       userData.subscriptionEnd = subscriptionEnd;
+    } else if (freemiumEnd) {
+      userData.role = 'FREEMIUM';
+      userData.subscriptionEnd = freemiumEnd;
     }
 
     // Atomic: create user + payment in one transaction
@@ -92,7 +108,7 @@ export class AuthService {
       const u = await tx.user.create({ data: userData });
       if (invite) {
         await (tx as any).groupInvite.update({ where: { id: invite.id }, data: { isUsed: true, usedAt: new Date() } });
-      } else {
+      } else if (!freemiumEnd) {
         const payment = await tx.payment.create({
           data: {
             userId: u.id,
@@ -116,11 +132,11 @@ export class AuthService {
       return u;
     });
 
-    if (!invite) {
+    if (!invite && !freemiumEnd) {
       this.push.notifyAdmins('💳 Nouveau paiement', `Paiement de ${dto.amount ?? 0} MRU en attente de validation.`).catch(() => {});
     }
 
-    return { message: 'Compte créé avec succès', userId: user.id, groupActivated: !!invite };
+    return { message: 'Compte créé avec succès', userId: user.id, groupActivated: !!invite, freemium: !!freemiumEnd };
   }
 
   async login(

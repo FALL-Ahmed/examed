@@ -1,3 +1,4 @@
+import { FreemiumModule } from '../freemium/freemium.module';
 import { Module } from '@nestjs/common';
 import { JwtModule } from '@nestjs/jwt';
 import { PassportModule } from '@nestjs/passport';
@@ -19,6 +20,7 @@ import { PushModule } from '../push/push.module';
     UsersModule,
     StorageModule,
     PushModule,
+    FreemiumModule,
   ],
   providers: [AuthService, JwtStrategy, EmailService],
   controllers: [AuthController],

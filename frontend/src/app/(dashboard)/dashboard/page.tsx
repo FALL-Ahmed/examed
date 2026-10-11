@@ -7,7 +7,7 @@ import { attemptsApi, userApi, statsApi } from '@/lib/api';
 import { useLang } from '@/components/LanguageProvider';
 import {
   BookOpen, Zap, RefreshCw, TrendingUp,
-  Clock, ArrowRight, Target, Award, Flame, ChevronRight, AlertTriangle, CalendarCheck,
+  Clock, ArrowRight, Target, Award, Flame, ChevronRight, AlertTriangle, CalendarCheck, Gift,
 } from 'lucide-react';
 import { ProfileCompletionModal } from '@/components/ProfileCompletionModal';
 
@@ -148,7 +148,24 @@ export default function DashboardPage() {
         </div>
       )}
 
-      {subEnd && daysLeft !== null && daysLeft > 0 && (
+      {profile?.role === 'FREEMIUM' && subEnd && daysLeft !== null && daysLeft > 0 && (
+        <div className="flex items-center justify-between gap-3 flex-wrap bg-amber-500/10 border border-amber-500/30 rounded-2xl px-5 py-3">
+          <div className="flex items-center gap-3">
+            <Gift className="w-4 h-4 text-amber-500 flex-shrink-0" />
+            <p className="text-sm">
+              {isAr
+                ? <>تجربة مجانية · متبقي <strong>{daysLeft}</strong> يوم</>
+                : <>Essai gratuit · encore <strong>{daysLeft}</strong> jour{daysLeft > 1 ? 's' : ''}</>}
+            </p>
+          </div>
+          <Link href="/payment" className="text-xs font-bold text-white px-4 py-2 rounded-lg hover:opacity-90 transition"
+            style={{ background: 'linear-gradient(135deg,#f59e0b,#d97706)' }}>
+            {isAr ? 'الانتقال إلى Premium' : 'Passer Premium'}
+          </Link>
+        </div>
+      )}
+
+      {profile?.role !== 'FREEMIUM' && subEnd && daysLeft !== null && daysLeft > 0 && (
         <div className="flex items-center gap-3 bg-emerald-500/10 border border-emerald-500/20 rounded-2xl px-5 py-3">
           <CalendarCheck className="w-4 h-4 text-emerald-400 flex-shrink-0" />
           <p className="text-sm text-emerald-400">

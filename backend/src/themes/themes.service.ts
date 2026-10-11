@@ -36,7 +36,7 @@ export class ThemesService {
         where: { target, isPublished: true, ...(language ? { language } : {}) },
         include: {
           subThemes: {
-            select: { id: true, name: true, order: true, _count: { select: { questions: true } } },
+            select: { id: true, name: true, order: true, isFreemium: true, _count: { select: { questions: true } } },
             orderBy: [{ order: 'asc' }, { name: 'asc' }],
           },
           _count: { select: { subThemes: true } },
@@ -58,7 +58,7 @@ export class ThemesService {
         where: { target: 'BIOLOGISTE', ...(language ? { language } : {}), ...(showUnpublished ? {} : { isPublished: true }) },
         include: {
           subThemes: {
-            select: { id: true, name: true, order: true, _count: { select: { questions: true } } },
+            select: { id: true, name: true, order: true, isFreemium: true, _count: { select: { questions: true } } },
             orderBy: [{ order: 'asc' }, { name: 'asc' }],
           },
           _count: { select: { subThemes: true } },
@@ -72,7 +72,7 @@ export class ThemesService {
         where: { target: 'SAGE_FEMME', isPublished: true, ...(language ? { language } : {}) },
         include: {
           subThemes: {
-            select: { id: true, name: true, order: true, _count: { select: { questions: true } } },
+            select: { id: true, name: true, order: true, isFreemium: true, _count: { select: { questions: true } } },
             orderBy: [{ order: 'asc' }, { name: 'asc' }],
           },
           _count: { select: { subThemes: true } },
@@ -86,7 +86,7 @@ export class ThemesService {
         where: { target: 'INFIRMIER', isPublished: true, ...(language ? { language } : {}) },
         include: {
           subThemes: {
-            select: { id: true, name: true, order: true, _count: { select: { questions: true } } },
+            select: { id: true, name: true, order: true, isFreemium: true, _count: { select: { questions: true } } },
             orderBy: [{ order: 'asc' }, { name: 'asc' }],
           },
           _count: { select: { subThemes: true } },
@@ -103,7 +103,7 @@ export class ThemesService {
       where: { target: 'INFIRMIER', isPublished: true, ...(language ? { language } : {}) },
       include: {
         subThemes: {
-          select: { id: true, name: true, order: true, _count: { select: { questions: true } } },
+          select: { id: true, name: true, order: true, isFreemium: true, _count: { select: { questions: true } } },
           orderBy: [{ order: 'asc' }, { name: 'asc' }],
         },
         _count: { select: { subThemes: true } },

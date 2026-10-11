@@ -4,7 +4,7 @@ import { useRouter, usePathname } from 'next/navigation';
 import Link from 'next/link';
 import { useAuthStore } from '@/lib/auth-store';
 import { adminApi } from '@/lib/api';
-import { Users, FileText, CreditCard, Upload, BarChart2, LogOut, Shield, PieChart, Sun, Moon, Menu, X, Trophy, Globe, FlaskConical, Download, UserSearch } from 'lucide-react';
+import { Users, FileText, CreditCard, Upload, BarChart2, LogOut, Shield, PieChart, Sun, Moon, Menu, X, Trophy, Globe, FlaskConical, Download, UserSearch, Gift } from 'lucide-react';
 import { useTheme } from '@/components/ThemeProvider';
 import { useLang } from '@/components/LanguageProvider';
 import { LanguageSwitcherLight } from '@/components/LanguageSwitcher';
@@ -27,6 +27,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     { href: '/admin/payments',    icon: CreditCard, label: t('admin.nav.payments'),    badge: true  },
     { href: '/admin/leaderboard', icon: Trophy,     label: 'Classement',               badge: false },
     { href: '/admin/securite',    icon: Globe,         label: 'Sécurité IP',    badge: false },
+    { href: '/admin/freemium',      icon: Gift,          label: 'Freemium',             badge: false },
     { href: '/admin/free-trial',    icon: FlaskConical,  label: 'Essais gratuits',      badge: false },
     { href: '/admin/pdf-downloads', icon: Download,      label: 'Téléch. PDF',          badge: false },
     { href: '/admin/examen-blanc',  icon: Trophy,        label: 'Examen Blanc',         badge: false },

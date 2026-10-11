@@ -145,6 +145,7 @@ export default function AdminUsersPage() {
   const roleLabel = (role: string) => {
     if (role === 'ADMIN') return { label: 'Admin', cls: 'bg-blue-100 text-blue-700' };
     if (role === 'PREMIUM') return { label: 'Premium', cls: 'bg-emerald-100 text-emerald-700' };
+    if (role === 'FREEMIUM') return { label: 'Freemium', cls: 'bg-orange-100 text-orange-700' };
     return { label: 'En attente', cls: 'bg-amber-100 text-amber-700' };
   };
 

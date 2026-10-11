@@ -186,8 +186,8 @@ export default function UserDetailPage() {
 
   const subEnd = user.subscriptionEnd ? new Date(user.subscriptionEnd) : null;
   const daysLeft = subEnd ? Math.ceil((subEnd.getTime() - Date.now()) / 86400000) : null;
-  const roleLabel = user.role === 'PREMIUM' ? 'Premium' : user.role === 'ADMIN' ? 'Admin' : 'En attente';
-  const roleCls = user.role === 'PREMIUM' ? 'bg-emerald-100 text-emerald-700' : user.role === 'ADMIN' ? 'bg-blue-100 text-blue-700' : 'bg-amber-100 text-amber-700';
+  const roleLabel = user.role === 'PREMIUM' ? 'Premium' : user.role === 'ADMIN' ? 'Admin' : user.role === 'FREEMIUM' ? 'Freemium' : 'En attente';
+  const roleCls = user.role === 'PREMIUM' ? 'bg-emerald-100 text-emerald-700' : user.role === 'ADMIN' ? 'bg-blue-100 text-blue-700' : user.role === 'FREEMIUM' ? 'bg-orange-100 text-orange-700' : 'bg-amber-100 text-amber-700';
   const act = user.activity;
 
   const TABS = [
@@ -207,7 +207,7 @@ export default function UserDetailPage() {
           <ArrowLeft className="w-4 h-4" /> Retour
         </button>
         <div className="flex items-center gap-2">
-          {(user.role === 'FREE' || user.role === 'PREMIUM') && (
+          {(user.role === 'FREE' || user.role === 'FREEMIUM' || user.role === 'PREMIUM') && (
             <button onClick={() => { setCustomDays(''); setRenewModal(true); }} disabled={processing}
               className="flex items-center gap-1.5 px-3 py-2 rounded-xl text-sm font-semibold border border-emerald-200 text-emerald-600 hover:bg-emerald-50 transition disabled:opacity-50">
               <CheckCircle className="w-3.5 h-3.5" /> {user.role === 'PREMIUM' ? 'Renouveler' : 'Activer Premium'}
