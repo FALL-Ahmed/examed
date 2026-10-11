@@ -5,6 +5,7 @@ import { useLang } from '@/components/LanguageProvider';
 
 // Concours de la Rentrée — éléments partagés par les pages publiques
 export const CONCOURS_STATE_KEY = 'concours_state';
+export const CONCOURS_TEST_KEY = 'concours_test_state'; // test admin : ignore les dates, hors classement
 export const WINNERS_COUNT = 10;
 
 export const concoursHome = (target: string) => (target === 'SAGE_FEMME' ? '/concours/sage-femme' : '/concours');
@@ -63,8 +64,8 @@ export const fmtTime = (d: string | Date, isAr: boolean) =>
 // Score en % (0-100) → note sur 20
 export const toNote20 = (score?: number | null) => Math.round(((score ?? 0) / 5) * 10) / 10;
 
-export function readConcoursState(): any | null {
-  try { return JSON.parse(localStorage.getItem(CONCOURS_STATE_KEY) || 'null'); } catch { return null; }
+export function readConcoursState(test = false): any | null {
+  try { return JSON.parse(localStorage.getItem(test ? CONCOURS_TEST_KEY : CONCOURS_STATE_KEY) || 'null'); } catch { return null; }
 }
 
 export function Spinner({ target }: { target?: string }) {

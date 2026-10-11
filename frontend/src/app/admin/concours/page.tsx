@@ -1,7 +1,7 @@
 'use client';
 import { useEffect, useState } from 'react';
-import { concoursApi } from '@/lib/api';
-import { Trophy, Loader2, Plus, MessageCircle, AlertTriangle, ExternalLink, RefreshCw } from 'lucide-react';
+import { concoursApi, examenBlancApi } from '@/lib/api';
+import { Trophy, Loader2, Plus, MessageCircle, AlertTriangle, ExternalLink, RefreshCw, FlaskConical } from 'lucide-react';
 
 const WINNERS_COUNT = 10;
 const TARGET_LABEL: Record<string, string> = { INFIRMIER: 'Infirmier', SAGE_FEMME: 'Sage-femme' };
@@ -17,6 +17,40 @@ const waNumber = (phone: string) => {
 };
 // datetime-local (heure locale du navigateur) → ISO
 const toIso = (v: string) => (v ? new Date(v).toISOString() : '');
+
+// Lance une épreuve de test (ignore les dates, hors classement) dans un nouvel onglet
+function TestButton({ session }: { session: any }) {
+  const [loading, setLoading] = useState<'fr' | 'ar' | null>(null);
+  async function start(lang: 'fr' | 'ar') {
+    setLoading(lang);
+    try {
+      const { data } = await examenBlancApi.adminTestSession(session.id, lang);
+      localStorage.setItem('concours_test_state', JSON.stringify({
+        sessionId: data.sessionId, examenBlancId: data.examenBlancId, isTest: true,
+        durationMin: data.durationMin, totalQ: data.totalQ, startedAt: data.startedAt,
+        endsAt: data.endsAt, resultsAt: data.resultsAt, participant: data.participant,
+        questions: data.questions, target: session.target, answers: {},
+      }));
+      window.open(`/concours/exam?mode=test&target=${session.target}`, '_blank');
+    } catch (err: any) {
+      alert(err.response?.data?.message || 'Erreur lors du démarrage du test');
+    } finally {
+      setLoading(null);
+    }
+  }
+  return (
+    <div className="flex items-center gap-1">
+      <FlaskConical className="w-3.5 h-3.5 text-muted-foreground" />
+      <span className="text-xs font-semibold text-muted-foreground">Tester</span>
+      {(['fr', 'ar'] as const).map((l) => (
+        <button key={l} onClick={() => start(l)} disabled={!!loading}
+          className="text-xs font-semibold px-2 py-0.5 rounded-md border border-border hover:bg-secondary transition disabled:opacity-50">
+          {loading === l ? <Loader2 className="w-3 h-3 animate-spin" /> : l.toUpperCase()}
+        </button>
+      ))}
+    </div>
+  );
+}
 
 function sessionStatus(s: any) {
   const now = Date.now();
@@ -208,6 +242,7 @@ export default function AdminConcoursPage() {
                     className="flex items-center gap-1 text-xs font-semibold text-primary hover:underline">
                     <ExternalLink className="w-3.5 h-3.5" /> Page publique
                   </a>
+                  <TestButton session={s} />
                   <button onClick={() => toggleActive(s)} className="text-xs font-semibold text-muted-foreground hover:text-foreground ms-auto">
                     {s.isActive ? 'Désactiver' : 'Réactiver'}
                   </button>

@@ -1,6 +1,6 @@
 'use client';
-import { useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useEffect, useState, Suspense } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { examenBlancApi } from '@/lib/api';
 import { useLang } from '@/components/LanguageProvider';
@@ -9,8 +9,9 @@ import {
   ConcoursShell, Spinner, WINNERS_COUNT, concoursTheme, fmtDate, fmtTime, readConcoursState, toNote20,
 } from '../_shared';
 
-export default function ConcoursResultsPage() {
+function ResultsContent() {
   const router = useRouter();
+  const isTest = useSearchParams().get('mode') === 'test';
   const { lang } = useLang();
   const isAr = lang === 'ar';
   const [state, setState] = useState<any>(null);
@@ -18,13 +19,13 @@ export default function ConcoursResultsPage() {
   const [error, setError] = useState('');
 
   useEffect(() => {
-    const s = readConcoursState();
+    const s = readConcoursState(isTest);
     if (!s?.sessionId) { router.replace('/concours'); return; }
     setState(s);
     examenBlancApi.results(s.sessionId)
       .then((r) => setRes(r.data))
       .catch((e) => setError(e.response?.data?.message || 'Erreur'));
-  }, [router]);
+  }, [router, isTest]);
 
   if (!state || (!res && !error)) return <Spinner target={state?.target} />;
   const target = state.target ?? 'INFIRMIER';
@@ -35,6 +36,9 @@ export default function ConcoursResultsPage() {
   return (
     <ConcoursShell target={target}>
       <div className="max-w-md mx-auto px-4 pt-4 pb-16 space-y-5">
+        {isTest && (
+          <p className="text-center text-xs font-black tracking-wide bg-amber-400 text-gray-900 rounded-full py-1">🧪 MODE TEST ADMIN — hors classement</p>
+        )}
         {error ? (
           <div className={card}>
             <p className="text-white font-semibold">{error}</p>
@@ -106,5 +110,13 @@ export default function ConcoursResultsPage() {
         </Link>
       </div>
     </ConcoursShell>
+  );
+}
+
+export default function ConcoursResultsPage() {
+  return (
+    <Suspense fallback={<Spinner />}>
+      <ResultsContent />
+    </Suspense>
   );
 }
