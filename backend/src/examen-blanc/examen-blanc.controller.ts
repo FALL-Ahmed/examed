@@ -11,8 +11,8 @@ export class ExamenBlancController {
   constructor(private service: ExamenBlancService) {}
 
   @Get('current')
-  getCurrentSession(@Query('target') target?: string) {
-    return this.service.getCurrentSession(target?.toUpperCase() || 'INFIRMIER');
+  getCurrentSession(@Query('target') target?: string, @Query('kind') kind?: string) {
+    return this.service.getCurrentSession(target?.toUpperCase() || 'INFIRMIER', kind === 'CONCOURS' ? 'CONCOURS' : 'EXAMEN_BLANC');
   }
 
   @Post('register')
@@ -88,8 +88,29 @@ export class ExamenBlancController {
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles('ADMIN')
   @Get('admin/sessions')
-  adminGetSessions() {
-    return this.service.getSessions();
+  adminGetSessions(@Query('kind') kind?: string) {
+    return this.service.getSessions(kind === 'CONCOURS' ? 'CONCOURS' : 'EXAMEN_BLANC');
+  }
+
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('ADMIN')
+  @Post('admin/concours')
+  adminCreateConcours(@Body() body: any) {
+    return this.service.createConcours(body);
+  }
+
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('ADMIN')
+  @Get('admin/concours/:id/ranking')
+  adminConcoursRanking(@Param('id') id: string) {
+    return this.service.getConcoursRanking(id);
+  }
+
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('ADMIN')
+  @Patch('admin/participants/:id/prize')
+  adminSetPrize(@Param('id') id: string, @Body() body: { prizeGranted: boolean }) {
+    return this.service.setPrizeGranted(id, body.prizeGranted);
   }
 
   @UseGuards(JwtAuthGuard, RolesGuard)

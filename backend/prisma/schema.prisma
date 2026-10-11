@@ -348,6 +348,7 @@ model ExamenBlanc {
   isActive          Boolean  @default(true)
   requiresAccount   Boolean  @default(false)
   target            String   @default("INFIRMIER")
+  kind              String   @default("EXAMEN_BLANC") // EXAMEN_BLANC | CONCOURS
   createdAt         DateTime @default(now())
   participants      ExamenBlancParticipant[]
 }
@@ -371,6 +372,7 @@ model ExamenBlancParticipant {
   tricherie     Boolean   @default(false)
   tabSwitches   Int       @default(0)
   contacted     Boolean   @default(false)
+  prizeGranted  Boolean   @default(false) // Concours : Premium offert au gagnant
   submittedAt      DateTime?
   resultsViewedAt  DateTime?
   createdAt        DateTime  @default(now())

@@ -288,6 +288,20 @@ export const examenBlancApi = {
     axios.post(`${API_URL}/examen-blanc/register-past`, data),
 };
 
+// Concours de la Rentrée : même moteur que l'examen blanc (sessions kind=CONCOURS)
+export const concoursApi = {
+  current: (target: string) => axios.get(`${API_URL}/examen-blanc/current`, { params: { target, kind: 'CONCOURS' } }),
+  adminSessions: () => api.get('/examen-blanc/admin/sessions', { params: { kind: 'CONCOURS' } }),
+  adminCreate: (data: {
+    title?: string; startsAt: string; endsAt: string; resultsAt?: string;
+    durationMin?: number; infirmierQ?: number; sageFemmeQ?: number;
+  }) => api.post('/examen-blanc/admin/concours', data),
+  adminRanking: (id: string) => api.get(`/examen-blanc/admin/concours/${id}/ranking`),
+  adminUpdate: (id: string, data: any) => api.put(`/examen-blanc/admin/sessions/${id}`, data),
+  setPrize: (id: string, prizeGranted: boolean) => api.patch(`/examen-blanc/admin/participants/${id}/prize`, { prizeGranted }),
+  setContacted: (id: string, contacted: boolean) => api.patch(`/examen-blanc/admin/participants/${id}/contacted`, { contacted }),
+};
+
 export const pushApi = {
   vapidKey: () => api.get('/push/vapid-public-key'),
   subscribe: (sub: { endpoint: string; p256dh: string; auth: string }) => api.post('/push/subscribe', sub),

@@ -40,9 +40,9 @@ function normalizePhone(phone: string): string {
 export class ExamenBlancService {
   constructor(private prisma: PrismaService) {}
 
-  async getCurrentSession(target = 'INFIRMIER') {
+  async getCurrentSession(target = 'INFIRMIER', kind = 'EXAMEN_BLANC') {
     const session = await db(this.prisma).examenBlanc.findFirst({
-      where: { isActive: true, target },
+      where: { isActive: true, target, kind },
       orderBy: { createdAt: 'desc' },
     });
 
@@ -50,7 +50,7 @@ export class ExamenBlancService {
     const stats = {
       participants: 0,
       completed: 0,
-      totalAllTime: await db(this.prisma).examenBlancParticipant.count({ where: { isCompleted: true, isTest: false } }),
+      totalAllTime: await db(this.prisma).examenBlancParticipant.count({ where: { isCompleted: true, isTest: false, examenBlanc: { kind } } }),
     };
 
     if (session) {
@@ -161,6 +161,20 @@ export class ExamenBlancService {
     const questionIds = allIds.slice(0, session.totalQ);
 
     if (!questionIds?.length) throw new BadRequestException(`Aucune question disponible en ${lang.toUpperCase()}`);
+
+    // Concours : une seule participation par numéro (reprise possible si non terminée)
+    if (session.kind === 'CONCOURS') {
+      const phone = normalizePhone(dto.telephone);
+      if (phone.length !== 8) throw new BadRequestException('Numéro de téléphone invalide (8 chiffres)');
+      const existing = await db(this.prisma).examenBlancParticipant.findFirst({
+        where: { examenBlancId: session.id, isTest: false, telephone: phone },
+      });
+      if (existing?.isCompleted) {
+        throw new BadRequestException('Ce numéro a déjà participé au concours. Une seule participation par numéro.');
+      }
+      if (existing) return { ...(await this.getSession(existing.sessionId)), resumed: true };
+      dto.telephone = phone;
+    }
 
     const sessionId = `eb_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
 
@@ -385,13 +399,13 @@ export class ExamenBlancService {
     // juste ouvert a peu de participants, donc "5e sur 25" serait peu représentatif seul.
     // Le rang lui-même reste calculé uniquement parmi les participants de cet examen.
     const recentExams = await db(this.prisma).examenBlanc.findMany({
-      where: { target: session.target },
+      where: { target: session.target, kind: session.kind },
       orderBy: { startsAt: 'desc' },
       take: 2,
       select: { id: true },
     });
     const isLatestExam = recentExams[0]?.id === session.id;
-    const totalExamIds = isLatestExam ? recentExams.map((e: any) => e.id) : [session.id];
+    const totalExamIds = isLatestExam && session.kind !== 'CONCOURS' ? recentExams.map((e: any) => e.id) : [session.id];
 
     const [allCompleted, totalRegistered] = await Promise.all([
       db(this.prisma).examenBlancParticipant.findMany({
@@ -470,14 +484,14 @@ export class ExamenBlancService {
     let sessionId = examenBlancId;
     if (!sessionId) {
       const last = await db(this.prisma).examenBlanc.findFirst({
-        where: { isActive: false },
+        where: { isActive: false, kind: 'EXAMEN_BLANC' },
         orderBy: { createdAt: 'desc' },
         select: { id: true },
       });
       sessionId = last?.id;
     }
     if (!sessionId) {
-      const active = await db(this.prisma).examenBlanc.findFirst({ orderBy: { createdAt: 'desc' }, select: { id: true, resultsAt: true, title: true } });
+      const active = await db(this.prisma).examenBlanc.findFirst({ where: { kind: 'EXAMEN_BLANC' }, orderBy: { createdAt: 'desc' }, select: { id: true, resultsAt: true, title: true } });
       if (!active) return { participants: [], total: 0 };
       sessionId = active.id;
     }
@@ -525,7 +539,7 @@ export class ExamenBlancService {
     if (!me) return [];
 
     const all = await db(this.prisma).examenBlancParticipant.findMany({
-      where: { telephone: me.telephone, isCompleted: true, isTest: false },
+      where: { telephone: me.telephone, isCompleted: true, isTest: false, examenBlanc: { kind: 'EXAMEN_BLANC' } },
       include: { examenBlanc: { select: { id: true, title: true, target: true, endsAt: true } } },
       orderBy: { createdAt: 'desc' },
     });
@@ -561,7 +575,7 @@ export class ExamenBlancService {
 
   async getHistory(target: string, telephone?: string) {
     const ebs = await db(this.prisma).examenBlanc.findMany({
-      where: { target: target.toUpperCase() },
+      where: { target: target.toUpperCase(), kind: 'EXAMEN_BLANC' },
       orderBy: { startsAt: 'desc' },
     });
 
@@ -618,6 +632,7 @@ export class ExamenBlancService {
   async registerPast(dto: { nom: string; prenom: string; telephone: string; ville: string; examenBlancId: string; lang: string }) {
     const session = await db(this.prisma).examenBlanc.findUnique({ where: { id: dto.examenBlancId } });
     if (!session) throw new NotFoundException('Session introuvable');
+    if (session.kind === 'CONCOURS') throw new BadRequestException('Un concours ne peut pas être repassé');
 
     const lang = dto.lang === 'ar' ? 'ar' : 'fr';
     const allIds: string[] = lang === 'ar' ? session.questionIdsAr : session.questionIdsFr;
@@ -673,7 +688,7 @@ export class ExamenBlancService {
 
   async recoverSession(telephone: string) {
     const participant = await db(this.prisma).examenBlancParticipant.findFirst({
-      where: { telephone: telephone.trim() },
+      where: { telephone: telephone.trim(), examenBlanc: { kind: 'EXAMEN_BLANC' } },
       orderBy: [{ isCompleted: 'desc' }, { createdAt: 'desc' }],
       include: { examenBlanc: true },
     });
@@ -792,7 +807,7 @@ export class ExamenBlancService {
   async generateQuestions(totalQ = 80, lang: 'FR' | 'AR' = 'FR', target = 'INFIRMIER'): Promise<string[]> {
     // Sessions précédentes du plus ancien au plus récent (même target)
     const previousSessions = await db(this.prisma).examenBlanc.findMany({
-      where: { target },
+      where: { target, kind: 'EXAMEN_BLANC' },
       orderBy: { createdAt: 'asc' },
       select: { questionIdsFr: true, questionIdsAr: true },
     });
@@ -1217,7 +1232,7 @@ export class ExamenBlancService {
   async generateInfirmierQuotaQuestions(totalQ = 60, lang: 'FR' | 'AR' = 'FR'): Promise<string[]> {
     const target = 'INFIRMIER';
     const previousSessions = await db(this.prisma).examenBlanc.findMany({
-      where: { target },
+      where: { target, kind: 'EXAMEN_BLANC' },
       orderBy: { createdAt: 'asc' },
       select: { questionIdsFr: true, questionIdsAr: true },
     });
@@ -1288,7 +1303,7 @@ export class ExamenBlancService {
   async generateComplementQuestions(totalQ = 60, lang: 'FR' | 'AR' = 'FR'): Promise<string[]> {
     const target = 'SAGE_FEMME';
     const previousSessions = await db(this.prisma).examenBlanc.findMany({
-      where: { target },
+      where: { target, kind: 'EXAMEN_BLANC' },
       orderBy: { createdAt: 'asc' },
       select: { questionIdsFr: true, questionIdsAr: true },
     });
@@ -1370,7 +1385,7 @@ export class ExamenBlancService {
     // Build score map from last N sessions
     const scoreMap = new Map<string, number>();
     const lastSessions = await db(this.prisma).examenBlanc.findMany({
-      where: { target },
+      where: { target, kind: 'EXAMEN_BLANC' },
       orderBy: { createdAt: 'desc' },
       take: fromLastN,
       select: { id: true },
@@ -1500,7 +1515,7 @@ export class ExamenBlancService {
 
   async getSmartPreview(target: string, totalQ: number, criteria: 'best' | 'worst', fromLastN: number) {
     const lastSessions = await db(this.prisma).examenBlanc.findMany({
-      where: { target },
+      where: { target, kind: 'EXAMEN_BLANC' },
       orderBy: { createdAt: 'desc' },
       take: fromLastN,
       select: { id: true, title: true, createdAt: true },
@@ -1554,7 +1569,8 @@ export class ExamenBlancService {
     title?: string; descriptionFr?: string; descriptionAr?: string;
     startsAt: string; endsAt: string; resultsAt?: string;
     totalQ?: number; durationMin?: number; target?: string;
-    selectionMode?: 'auto' | 'smart' | 'complement' | 'infirmier-quota';
+    kind?: 'EXAMEN_BLANC' | 'CONCOURS';
+    selectionMode?: 'auto' | 'smart' | 'complement' | 'infirmier-quota' | 'cas-clinique';
     smartCriteria?: 'best' | 'worst';
     smartFromLastN?: number;
   }) {
@@ -1567,7 +1583,12 @@ export class ExamenBlancService {
     let questionIdsFr: string[];
     let questionIdsAr: string[];
 
-    if (selectionMode === 'infirmier-quota') {
+    if (selectionMode === 'cas-clinique') {
+      [questionIdsFr, questionIdsAr] = await Promise.all([
+        this.generateCasCliniqueQuestions(totalQ, 'FR', target),
+        this.generateCasCliniqueQuestions(totalQ, 'AR', target),
+      ]);
+    } else if (selectionMode === 'infirmier-quota') {
       // 45 Cas Clinique + 5 Sémiologie + 2 Transfusion + 3 Anatomie + 5 Pharmacologie = 60 QCM
       [questionIdsFr, questionIdsAr] = await Promise.all([
         this.generateInfirmierQuotaQuestions(totalQ, 'FR'),
@@ -1610,13 +1631,104 @@ export class ExamenBlancService {
         totalQ,
         durationMin: dto.durationMin ?? 120,
         target,
+        kind: dto.kind === 'CONCOURS' ? 'CONCOURS' : 'EXAMEN_BLANC',
         isActive: true,
       },
     });
   }
 
-  async getSessions() {
+  // N cas cliniques tirés au hasard (même liste pour tous les participants de la session)
+  async generateCasCliniqueQuestions(totalQ: number, lang: 'FR' | 'AR', target: string): Promise<string[]> {
+    const themeName = lang === 'AR' ? 'سريرية' : 'clinique';
+    const rows = await this.prisma.question.findMany({
+      where: {
+        isActive: true,
+        subTheme: { theme: { target, language: lang, name: { contains: themeName, mode: 'insensitive' } } },
+      },
+      select: { id: true },
+    });
+    if (rows.length < totalQ) {
+      throw new BadRequestException(
+        `Pas assez de cas cliniques ${target} en ${lang} : ${rows.length} disponibles pour ${totalQ} demandés`,
+      );
+    }
+    const ids = rows.map((r) => r.id);
+    for (let i = ids.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [ids[i], ids[j]] = [ids[j], ids[i]];
+    }
+    return ids.slice(0, totalQ);
+  }
+
+  // Concours de la Rentrée : une session par profession, mêmes dates
+  async createConcours(dto: {
+    title?: string; descriptionFr?: string; descriptionAr?: string;
+    startsAt: string; endsAt: string; resultsAt?: string; durationMin?: number;
+    infirmierQ?: number; sageFemmeQ?: number;
+  }) {
+    if (!dto.startsAt || !dto.endsAt) throw new BadRequestException('Dates de début et de fin requises');
+    if (new Date(dto.endsAt) <= new Date(dto.startsAt)) throw new BadRequestException('La fin doit être après le début');
+    const base = {
+      title: dto.title || 'Concours de la Rentrée',
+      descriptionFr: dto.descriptionFr, descriptionAr: dto.descriptionAr,
+      startsAt: dto.startsAt, endsAt: dto.endsAt, resultsAt: dto.resultsAt,
+      durationMin: dto.durationMin ?? 60,
+      kind: 'CONCOURS' as const, selectionMode: 'cas-clinique' as const,
+    };
+    // Vérifie les deux tirages avant de créer quoi que ce soit
+    const infirmierQ = dto.infirmierQ ?? 60;
+    const sageFemmeQ = dto.sageFemmeQ ?? 40;
+    await Promise.all([
+      this.generateCasCliniqueQuestions(infirmierQ, 'FR', 'INFIRMIER'),
+      this.generateCasCliniqueQuestions(infirmierQ, 'AR', 'INFIRMIER'),
+      this.generateCasCliniqueQuestions(sageFemmeQ, 'FR', 'SAGE_FEMME'),
+      this.generateCasCliniqueQuestions(sageFemmeQ, 'AR', 'SAGE_FEMME'),
+    ]);
+    const infirmier = await this.createSession({ ...base, target: 'INFIRMIER', totalQ: infirmierQ });
+    const sageFemme = await this.createSession({ ...base, target: 'SAGE_FEMME', totalQ: sageFemmeQ });
+    return { infirmier, sageFemme };
+  }
+
+  // Classement complet d'un concours (admin) : score décroissant puis temps croissant
+  async getConcoursRanking(id: string) {
+    const session = await db(this.prisma).examenBlanc.findUnique({ where: { id } });
+    if (!session) throw new NotFoundException('Session introuvable');
+    const [ranked, inProgress] = await Promise.all([
+      db(this.prisma).examenBlancParticipant.findMany({
+        where: { examenBlancId: id, isCompleted: true, isTest: false },
+        orderBy: [{ score: 'desc' }, { timeTaken: 'asc' }],
+        select: {
+          id: true, prenom: true, nom: true, telephone: true, ville: true, lang: true,
+          score: true, timeTaken: true, tricherie: true, tabSwitches: true,
+          contacted: true, prizeGranted: true, submittedAt: true,
+          _count: { select: { reponses: { where: { isCorrect: true } } } },
+        },
+      }),
+      db(this.prisma).examenBlancParticipant.count({ where: { examenBlancId: id, isCompleted: false, isTest: false } }),
+    ]);
+    return {
+      session: {
+        id: session.id, title: session.title, target: session.target, totalQ: session.totalQ,
+        startsAt: session.startsAt, endsAt: session.endsAt, resultsAt: session.resultsAt, isActive: session.isActive,
+      },
+      inProgress,
+      participants: ranked.map((p: any, i: number) => ({
+        rank: i + 1, ...p, correctQ: p._count.reponses, _count: undefined,
+      })),
+    };
+  }
+
+  async setPrizeGranted(id: string, prizeGranted: boolean) {
+    return db(this.prisma).examenBlancParticipant.update({
+      where: { id },
+      data: { prizeGranted },
+      select: { id: true, prizeGranted: true },
+    });
+  }
+
+  async getSessions(kind = 'EXAMEN_BLANC') {
     const sessions = await db(this.prisma).examenBlanc.findMany({
+      where: { kind },
       orderBy: { createdAt: 'desc' },
       include: { _count: { select: { participants: { where: { isTest: false } } } } },
     });
