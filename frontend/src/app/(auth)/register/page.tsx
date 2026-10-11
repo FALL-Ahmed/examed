@@ -345,24 +345,24 @@ function RegisterContent() {
                 {
                   id: 'PAID' as const, icon: Crown, title: 'Premium',
                   desc: isAr ? 'كل الأسئلة وكل المواضيع' : 'Toutes les questions et tous les thèmes',
-                  price: isAr ? `ابتداءً من ${Math.min(solo1mPrice, Math.round(groupPrice / Math.max(1, groupSize)))} أوقية` : `Dès ${Math.min(solo1mPrice, Math.round(groupPrice / Math.max(1, groupSize)))} MRU`,
-                  on: 'border-violet-500 bg-violet-50 ring-2 ring-violet-200', dot: 'bg-violet-500', iconCls: 'text-violet-600',
+                  on: 'border-violet-500 bg-violet-50 ring-2 ring-violet-200', off: 'border-gray-200 bg-white hover:border-gray-300',
+                  dot: 'bg-violet-500', iconCls: 'text-violet-600',
                 },
                 {
                   id: 'FREEMIUM' as const, icon: Gift, title: isAr ? 'تجربة مجانية' : 'Essai gratuit',
                   desc: isAr ? 'جزء من الأسئلة، بدون دفع' : 'Une partie des questions, sans paiement',
-                  price: isAr ? '0 أوقية' : '0 MRU',
-                  on: 'border-emerald-500 bg-emerald-50 ring-2 ring-emerald-200', dot: 'bg-emerald-500', iconCls: 'text-emerald-600',
+                  // Toujours en vert pour attirer l'œil, même non sélectionné
+                  on: 'border-emerald-500 bg-emerald-50 ring-2 ring-emerald-200', off: 'border-emerald-300 bg-emerald-50/60 hover:border-emerald-400',
+                  dot: 'bg-emerald-500', iconCls: 'text-emerald-600',
                 },
               ]).map((opt) => (
                 <button key={opt.id} type="button"
                   onClick={() => { setAccessMode(opt.id); gtrack('register_access_selected', { access: opt.id }); }}
                   className={`relative flex flex-col items-start gap-1 p-4 rounded-2xl border-2 text-start transition
-                    ${accessMode === opt.id ? opt.on : 'border-gray-200 bg-white hover:border-gray-300'}`}>
+                    ${accessMode === opt.id ? opt.on : opt.off}`}>
                   <opt.icon className={`w-5 h-5 ${opt.iconCls}`} />
                   <span className="font-extrabold text-gray-900 text-base mt-1">{opt.title}</span>
                   <span className="text-xs text-gray-500 leading-snug">{opt.desc}</span>
-                  <span className={`text-sm font-black mt-2 ${opt.iconCls}`}>{opt.price}</span>
                   {accessMode === opt.id && (
                     <span className={`absolute top-3 ${isAr ? 'left-3' : 'right-3'} w-5 h-5 rounded-full flex items-center justify-center ${opt.dot}`}>{checkIcon}</span>
                   )}
