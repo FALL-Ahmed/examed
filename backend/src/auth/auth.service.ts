@@ -101,6 +101,7 @@ export class AuthService {
     } else if (freemiumEnd) {
       userData.role = 'FREEMIUM';
       userData.subscriptionEnd = freemiumEnd;
+      userData.freemiumAt = new Date();
     }
 
     // Atomic: create user + payment in one transaction

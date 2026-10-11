@@ -15,7 +15,7 @@ const NAV_ITEMS = [
   { href: '/dashboard',    icon: Home,           label_key: 'nav.dashboard',   color: '#818cf8' },
   { href: '/practice',     icon: BookOpen,       label_key: 'nav.practice',    color: '#0ea5e9' },
   { href: '/exam',         icon: Zap,            label_key: 'nav.exam',        color: '#a78bfa' },
-  { href: '/fiches-memo',      icon: FileText,       label_key: 'nav.fichesMemo',       color: '#10b981', badge: 'Nouveau' },
+  { href: '/fiches-memo',      icon: FileText,       label_key: 'nav.fichesMemo',       color: '#10b981' },
   { href: '/review',       icon: RefreshCw,      label_key: 'nav.review',      color: '#fbbf24' },
   { href: '/favorites',    icon: Heart,          label_key: 'nav.favorites',   color: '#f43f5e' },
   { href: '/stats',        icon: TrendingUp,     label_key: 'nav.stats',       color: '#38bdf8' },
@@ -56,6 +56,9 @@ function NavItems({ onNav, fichesMemoEnabled }: { onNav?: () => void; fichesMemo
   );
 }
 
+// Pages accessibles à un compte dont l'essai est terminé, pour qu'il puisse payer
+const PAYMENT_PATHS = ['/payment', '/abonnement'];
+
 // Encart permanent pour les comptes en essai gratuit
 function FreemiumCard({ endDate, onNav, compact }: { endDate?: string; onNav?: () => void; compact?: boolean }) {
   const { lang } = useLang();
@@ -63,7 +66,7 @@ function FreemiumCard({ endDate, onNav, compact }: { endDate?: string; onNav?: (
   // PC : une seule ligne pour que la barre latérale tienne sans défilement
   if (compact) {
     return (
-      <Link href="/payment"
+      <Link href="/abonnement"
         className="mx-3 mb-2 flex items-center gap-2 rounded-xl px-3 py-2 border border-amber-400/30 hover:border-amber-400/60 transition"
         style={{ background: 'linear-gradient(135deg,rgba(245,158,11,.18),rgba(217,119,6,.08))' }}>
         <Gift className="w-4 h-4 text-amber-400 flex-shrink-0" />
@@ -97,7 +100,7 @@ function FreemiumCard({ endDate, onNav, compact }: { endDate?: string; onNav?: (
       <p className="text-white/70 text-xs leading-relaxed mb-3">
         {isAr ? 'افتح كل المواضيع وأكثر من 1000 سؤال.' : 'Débloquez tous les thèmes et plus de 1000 questions.'}
       </p>
-      <Link href="/payment" onClick={onNav}
+      <Link href="/abonnement" onClick={onNav}
         className="flex items-center justify-center gap-1.5 w-full py-2 rounded-xl text-xs font-bold text-white hover:opacity-90 transition"
         style={{ background: 'linear-gradient(135deg,#f59e0b,#d97706)' }}>
         <Crown className="w-3.5 h-3.5" /> {isAr ? 'الانتقال إلى Premium' : 'Passer Premium'}
@@ -121,7 +124,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
       const u = useAuthStore.getState().user;
       if (!u) router.push('/login');
       else if (u.role === 'ADMIN') router.push('/admin');
-      else if (u.role === 'FREE' && !(u.freemiumEnded && pathname === '/payment')) router.push('/pending');
+      else if (u.role === 'FREE' && !(u.freemiumEnded && PAYMENT_PATHS.includes(pathname))) router.push('/pending');
       else setReady(true);
     });
     settingsApi.features().then(r => setFichesMemoEnabled(r.data.fichesMemoEnabled)).catch(() => {});
@@ -129,7 +132,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
   // Un compte en attente qui a ouvert /payment ne peut pas naviguer ailleurs dans l'app
   useEffect(() => {
-    if (ready && user?.role === 'FREE' && pathname !== '/payment') router.push('/pending');
+    if (ready && user?.role === 'FREE' && !PAYMENT_PATHS.includes(pathname)) router.push('/pending');
   }, [pathname, ready]);
 
   if (!ready || !user) return (

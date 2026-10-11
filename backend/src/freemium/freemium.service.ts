@@ -1,5 +1,7 @@
 import { Injectable, BadRequestException } from '@nestjs/common';
+import { Prisma } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
+import { effectiveRole } from '../common/utils/role.utils';
 
 export interface FreemiumConfig {
   enabled: boolean;
@@ -96,6 +98,105 @@ export class FreemiumService {
       data: { isFreemium: !!isFreemium },
     });
     return { updated: count };
+  }
+
+  // Statistiques de l'essai gratuit : conversion Premium + activité (questions répondues)
+  async getStats(days = 30) {
+    const users = await this.prisma.user.findMany({
+      where: { freemiumAt: { not: null } },
+      select: {
+        id: true, fullName: true, email: true, phone: true, profession: true,
+        role: true, subscriptionEnd: true, freemiumAt: true,
+        payments: { select: { status: true, createdAt: true, validatedAt: true }, orderBy: { createdAt: 'asc' } },
+      },
+      orderBy: { freemiumAt: 'desc' },
+    });
+    const ids = users.map((u) => u.id);
+    const startOfToday = new Date();
+    startOfToday.setUTCHours(0, 0, 0, 0);
+    const since = new Date(startOfToday.getTime() - (days - 1) * 86400000);
+    const weekAgo = new Date(Date.now() - 7 * 86400000);
+
+    const [totals, corrects, today, daily] = ids.length
+      ? await Promise.all([
+          this.prisma.userAnswer.groupBy({ by: ['userId'], where: { userId: { in: ids } }, _count: { _all: true }, _max: { answeredAt: true } }),
+          this.prisma.userAnswer.groupBy({ by: ['userId'], where: { userId: { in: ids }, isCorrect: true }, _count: { _all: true } }),
+          this.prisma.userAnswer.groupBy({ by: ['userId'], where: { userId: { in: ids }, answeredAt: { gte: startOfToday } }, _count: { _all: true } }),
+          this.prisma.$queryRaw<{ day: Date; answers: bigint; users: bigint }[]>`
+            SELECT date_trunc('day', "answeredAt") AS day, COUNT(*) AS answers, COUNT(DISTINCT "userId") AS users
+            FROM "UserAnswer"
+            WHERE "userId" IN (${Prisma.join(ids)}) AND "answeredAt" >= ${since}
+            GROUP BY 1 ORDER BY 1`,
+        ])
+      : [[], [], [], []];
+
+    const totalBy = new Map(totals.map((t) => [t.userId, t]));
+    const correctBy = new Map(corrects.map((c) => [c.userId, c._count._all]));
+    const todayBy = new Map(today.map((t) => [t.userId, t._count._all]));
+
+    const rows = users.map((u) => {
+      const t = totalBy.get(u.id);
+      const answered = t?._count._all ?? 0;
+      const converted = u.role === 'PREMIUM';
+      // Conversion = premier paiement validé après l'inscription à l'essai (sinon activation manuelle)
+      const paid = u.payments.find((p) => p.status === 'VALIDATED' && p.validatedAt && p.validatedAt >= u.freemiumAt!);
+      const pending = u.payments.some((p) => p.status === 'PENDING');
+      const status = converted ? 'CONVERTED'
+        : pending ? 'PAYMENT_PENDING'
+        : u.role === 'FREEMIUM' && effectiveRole(u) === 'FREEMIUM' ? 'ACTIVE'
+        : 'EXPIRED';
+      return {
+        id: u.id, fullName: u.fullName, email: u.email, phone: u.phone, profession: u.profession,
+        freemiumAt: u.freemiumAt, status,
+        convertedAt: converted ? paid?.validatedAt ?? null : null,
+        answered,
+        correct: correctBy.get(u.id) ?? 0,
+        today: todayBy.get(u.id) ?? 0,
+        lastActivity: t?._max.answeredAt ?? null,
+      };
+    });
+
+    // Série quotidienne complète (jours sans activité = 0)
+    const byDay = new Map(daily.map((d) => [new Date(d.day).toISOString().slice(0, 10), d]));
+    const signupsByDay = new Map<string, number>();
+    const conversionsByDay = new Map<string, number>();
+    for (const r of rows) {
+      const k = r.freemiumAt!.toISOString().slice(0, 10);
+      signupsByDay.set(k, (signupsByDay.get(k) ?? 0) + 1);
+      if (r.convertedAt) {
+        const c = r.convertedAt.toISOString().slice(0, 10);
+        conversionsByDay.set(c, (conversionsByDay.get(c) ?? 0) + 1);
+      }
+    }
+    const series = Array.from({ length: days }, (_, i) => {
+      const date = new Date(since.getTime() + i * 86400000).toISOString().slice(0, 10);
+      const d = byDay.get(date);
+      return {
+        date,
+        answers: Number(d?.answers ?? 0),
+        activeUsers: Number(d?.users ?? 0),
+        signups: signupsByDay.get(date) ?? 0,
+        conversions: conversionsByDay.get(date) ?? 0,
+      };
+    });
+
+    const converted = rows.filter((r) => r.status === 'CONVERTED').length;
+    const totalAnswers = rows.reduce((n, r) => n + r.answered, 0);
+    return {
+      kpis: {
+        signups: rows.length,
+        converted,
+        conversionRate: rows.length ? Math.round((converted / rows.length) * 1000) / 10 : 0,
+        paymentPending: rows.filter((r) => r.status === 'PAYMENT_PENDING').length,
+        active7d: rows.filter((r) => r.lastActivity && r.lastActivity >= weekAgo).length,
+        neverAnswered: rows.filter((r) => r.answered === 0).length,
+        totalAnswers,
+        answersToday: rows.reduce((n, r) => n + r.today, 0),
+        avgAnswers: rows.length ? Math.round(totalAnswers / rows.length) : 0,
+      },
+      series,
+      users: rows,
+    };
   }
 
   async getUsers() {

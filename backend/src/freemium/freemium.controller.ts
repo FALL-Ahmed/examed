@@ -1,4 +1,4 @@
-import { Controller, Get, Put, Body, UseGuards } from '@nestjs/common';
+import { Controller, Get, Put, Body, Query, UseGuards } from '@nestjs/common';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
 import { Roles } from '../common/decorators/roles.decorator';
@@ -40,5 +40,11 @@ export class FreemiumAdminController {
   @Get('users')
   users() {
     return this.freemium.getUsers();
+  }
+
+  @Get('stats')
+  stats(@Query('days') days?: string) {
+    const n = Math.min(90, Math.max(7, parseInt(days ?? '30', 10) || 30));
+    return this.freemium.getStats(n);
   }
 }

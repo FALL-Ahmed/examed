@@ -3,12 +3,12 @@ import { useState, useEffect, useRef, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { attemptsApi, themesApi } from '@/lib/api';
-import { NEW_THEME_IDS, NEW_SUBTHEME_IDS } from '@/lib/new-content';
 import { useAuthStore } from '@/lib/auth-store';
 import { QuestionCard } from '@/components/QuestionCard';
 import { useLang } from '@/components/LanguageProvider';
 import { BookOpen, Loader2, Play, Target, ArrowLeft } from 'lucide-react';
 import { PremiumUpsellModal } from '@/components/PremiumUpsellModal';
+import { useFreemiumMilestone } from '@/lib/use-freemium-milestone';
 import { isSubLocked, isThemeLocked, lockedQuestionCount } from '@/lib/freemium';
 import { ThemeSearchInput } from '@/components/ThemeSearchInput';
 import { sentenceCase } from '@/lib/utils';
@@ -43,6 +43,7 @@ function PracticePageInner() {
   const [viewIndex, setViewIndex] = useState(0);
   const saveRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [upsell, setUpsell] = useState(false);
+  const freemiumMilestone = useFreemiumMilestone(user?.id);
 
   useEffect(() => {
     themesApi.all(lang).then((r) => {
@@ -122,6 +123,7 @@ function PracticePageInner() {
   async function handleAnswer(answer: string) {
     const q = session.questions[viewIndex];
     const { data } = await attemptsApi.answer(session.attemptId, { questionId: q.id, answer });
+    freemiumMilestone.check(data.answeredTotal, data.correctTotal);
     setAnswers((prev) => {
       const next = [...prev];
       next[viewIndex] = { correct: data.isCorrect, userAnswer: answer, result: data };
@@ -343,7 +345,7 @@ function PracticePageInner() {
                 newBadgeLabel={lang === 'ar' ? 'جديد' : 'Nouveau'}
                 options={[
                   { value: '', label: t('practice.allThemes') },
-                  ...themes.map((th) => ({ value: th.id, label: sentenceCase(th.name), isNew: NEW_THEME_IDS.has(th.id) })),
+                  ...themes.map((th) => ({ value: th.id, label: sentenceCase(th.name) })),
                 ]}
               />
             </div>
@@ -365,7 +367,7 @@ function PracticePageInner() {
                     newBadgeLabel={lang === 'ar' ? 'جديد' : 'Nouveau'}
                     options={[
                       { value: '', label: t('practice.allThemes') },
-                      ...subThemes.map((s: any) => ({ value: s.id, label: sentenceCase(s.name), count: s._count.questions, isNew: NEW_SUBTHEME_IDS.has(s.id), locked: isSubLocked(user, s) })),
+                      ...subThemes.map((s: any) => ({ value: s.id, label: sentenceCase(s.name), count: s._count.questions, locked: isSubLocked(user, s) })),
                     ]}
                   />
                 </div>
@@ -442,11 +444,15 @@ function PracticePageInner() {
 
   const currentQ = session.questions[viewIndex];
   const answered = answers.filter(Boolean).length;
+  const milestoneModal = (
+    <PremiumUpsellModal open={!!freemiumMilestone.milestone} milestone={freemiumMilestone.milestone ?? undefined} successRate={freemiumMilestone.successRate} onClose={freemiumMilestone.close} />
+  );
   const correctCount = answers.filter((a) => a?.correct).length;
   const isReviewing = answers[viewIndex] !== null && answers[viewIndex] !== undefined && viewIndex !== currentIndex;
 
   return (
     <div className="grid grid-cols-1 xl:grid-cols-3 gap-6" style={{ gridTemplateRows: prepMode ? 'auto 1fr' : undefined }}>
+      {milestoneModal}
       {prepMode && (
         <div className="xl:col-span-3 rounded-2xl px-4 py-3 text-white flex items-center justify-between gap-4"
           style={{ background: prepColor.gradient }}>

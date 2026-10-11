@@ -181,12 +181,22 @@ export class AttemptsService {
       }
     }
 
+    // Compte freemium : total de réponses, pour proposer Premium à chaque palier côté app
+    const [answeredTotal, correctTotal] = userRole === 'FREEMIUM'
+      ? await Promise.all([
+          this.prisma.userAnswer.count({ where: { userId } }),
+          this.prisma.userAnswer.count({ where: { userId, isCorrect: true } }),
+        ])
+      : [undefined, undefined];
+
     return {
       isCorrect,
       partialScore,
       correctAnswer: question.correctAnswer,
       explanation: question.explanation,
       imageUrl: question.imageUrl,
+      answeredTotal,
+      correctTotal,
     };
   }
 

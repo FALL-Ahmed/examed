@@ -180,6 +180,7 @@ export const adminApi = {
   freemiumUpdateConfig: (data: { enabled: boolean; startDate: string; endDate: string }) => api.put('/admin/freemium/config', data),
   freemiumSetSubThemes: (subThemeIds: string[], isFreemium: boolean) => api.put('/admin/freemium/subthemes', { subThemeIds, isFreemium }),
   freemiumUsers: () => api.get('/admin/freemium/users'),
+  freemiumStats: (days = 30) => api.get('/admin/freemium/stats', { params: { days } }),
   registrationsPerDay: (days?: number, profession?: string) => api.get('/admin/registrations-per-day', { params: { days, ...(profession && profession !== 'all' ? { profession } : {}) } }),
   users: (params?: any) => api.get('/admin/users', { params }),
   toggleUser: (id: string) => api.put(`/admin/users/${id}/toggle`),

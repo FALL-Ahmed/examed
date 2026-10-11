@@ -1,7 +1,8 @@
 'use client';
 import { useEffect, useMemo, useState } from 'react';
 import { adminApi } from '@/lib/api';
-import { Gift, Loader2, ChevronDown, ChevronRight, Users, Save, MessageCircle } from 'lucide-react';
+import { FreemiumStats } from './_stats';
+import { Gift, Loader2, ChevronDown, ChevronRight, BarChart3, Save } from 'lucide-react';
 
 const TARGETS = [
   { value: 'INFIRMIER', label: 'Infirmier' },
@@ -31,7 +32,7 @@ const fmtDate = (d?: string | null) =>
   d ? new Date(d).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' }) : '—';
 
 export default function AdminFreemiumPage() {
-  const [tab, setTab] = useState<'config' | 'users'>('config');
+  const [tab, setTab] = useState<'config' | 'stats'>('config');
   const [loading, setLoading] = useState(true);
   const [themes, setThemes] = useState<Theme[]>([]);
   const [open, setOpen] = useState(false);
@@ -42,7 +43,6 @@ export default function AdminFreemiumPage() {
   const [lang, setLang] = useState('FR');
   const [expanded, setExpanded] = useState<Set<string>>(new Set());
   const [busy, setBusy] = useState<Set<string>>(new Set());
-  const [users, setUsers] = useState<any[] | null>(null);
 
   function load() {
     return adminApi.freemium().then(({ data }) => {
@@ -57,9 +57,6 @@ export default function AdminFreemiumPage() {
   }
 
   useEffect(() => { load().finally(() => setLoading(false)); }, []);
-  useEffect(() => {
-    if (tab === 'users' && users === null) adminApi.freemiumUsers().then((r) => setUsers(r.data)).catch(() => setUsers([]));
-  }, [tab]);
 
   const visible = useMemo(() => themes.filter((t) => t.target === target && t.language === lang), [themes, target, lang]);
   const totals = useMemo(() => {
@@ -128,11 +125,10 @@ export default function AdminFreemiumPage() {
 
       {/* Tabs */}
       <div className="flex gap-1 bg-secondary/50 border border-border rounded-xl p-1 w-fit">
-        {([['config', 'Campagne & contenu', Gift], ['users', 'Inscrits freemium', Users]] as const).map(([id, label, Icon]) => (
+        {([['config', 'Campagne & contenu', Gift], ['stats', 'Statistiques & élèves', BarChart3]] as const).map(([id, label, Icon]) => (
           <button key={id} onClick={() => setTab(id)}
             className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold transition ${tab === id ? 'bg-background shadow text-foreground' : 'text-muted-foreground hover:text-foreground'}`}>
             <Icon className="w-4 h-4" /> {label}
-            {id === 'users' && users && <span className="ms-1 text-xs bg-secondary px-1.5 py-0.5 rounded-full">{users.length}</span>}
           </button>
         ))}
       </div>
@@ -274,48 +270,7 @@ export default function AdminFreemiumPage() {
           </div>
         </>
       ) : (
-        <div className="bg-card border border-border rounded-2xl overflow-hidden">
-          {users === null ? (
-            <div className="flex justify-center py-12"><Loader2 className="w-5 h-5 animate-spin text-primary" /></div>
-          ) : users.length === 0 ? (
-            <p className="text-sm text-muted-foreground text-center py-12">Aucun inscrit freemium pour l’instant.</p>
-          ) : (
-            <div className="overflow-x-auto">
-              <table className="w-full text-sm">
-                <thead className="bg-secondary/50 text-xs text-muted-foreground uppercase tracking-wide">
-                  <tr>
-                    <th className="text-start px-4 py-3 font-semibold">Nom</th>
-                    <th className="text-start px-4 py-3 font-semibold">Téléphone</th>
-                    <th className="text-start px-4 py-3 font-semibold">Profession</th>
-                    <th className="text-start px-4 py-3 font-semibold">Inscrit le</th>
-                    <th className="text-end px-4 py-3 font-semibold">Réponses</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-border">
-                  {users.map((u) => (
-                    <tr key={u.id} className="hover:bg-secondary/30">
-                      <td className="px-4 py-3">
-                        <a href={`/admin/users/${u.id}`} className="font-medium hover:underline">{u.fullName}</a>
-                        <p className="text-xs text-muted-foreground">{u.email}</p>
-                      </td>
-                      <td className="px-4 py-3" dir="ltr">
-                        {u.phone ? (
-                          <a href={`https://wa.me/${waNumber(u.phone)}`} target="_blank" rel="noopener noreferrer"
-                            className="inline-flex items-center gap-1.5 text-emerald-600 hover:underline">
-                            <MessageCircle className="w-3.5 h-3.5" /> {u.phone}
-                          </a>
-                        ) : '—'}
-                      </td>
-                      <td className="px-4 py-3">{PROFESSION_LABEL[u.profession] ?? u.profession ?? '—'}</td>
-                      <td className="px-4 py-3 text-muted-foreground">{fmtDate(u.createdAt)}</td>
-                      <td className="px-4 py-3 text-end tabular-nums font-semibold">{u.answered}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          )}
-        </div>
+        <FreemiumStats />
       )}
     </div>
   );

@@ -158,7 +158,7 @@ export default function DashboardPage() {
                 : <>Essai gratuit · encore <strong>{daysLeft}</strong> jour{daysLeft > 1 ? 's' : ''}</>}
             </p>
           </div>
-          <Link href="/payment" className="text-xs font-bold text-white px-4 py-2 rounded-lg hover:opacity-90 transition"
+          <Link href="/abonnement" className="text-xs font-bold text-white px-4 py-2 rounded-lg hover:opacity-90 transition"
             style={{ background: 'linear-gradient(135deg,#f59e0b,#d97706)' }}>
             {isAr ? 'الانتقال إلى Premium' : 'Passer Premium'}
           </Link>

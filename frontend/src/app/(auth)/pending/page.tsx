@@ -55,7 +55,7 @@ export default function PendingPage() {
                   ? 'انتقل إلى Premium لاستعادة الوصول ومواصلة التحضير على كل الأسئلة.'
                   : 'Passez Premium pour retrouver votre accès et continuer à réviser sur toutes les questions.'}
               </p>
-              <Link href="/payment"
+              <Link href="/abonnement"
                 className="flex items-center justify-center gap-2 w-full py-3.5 rounded-2xl font-bold text-sm text-white hover:opacity-90 transition mb-6 shadow-lg"
                 style={{ background: 'linear-gradient(135deg,#f59e0b,#d97706)' }}>
                 <Crown className="w-4 h-4" /> {isAr ? 'الانتقال إلى Premium' : 'Passer Premium'}
