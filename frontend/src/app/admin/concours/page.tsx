@@ -1,6 +1,7 @@
 'use client';
 import { useEffect, useState } from 'react';
 import { concoursApi, examenBlancApi } from '@/lib/api';
+import { SessionStatsPanel } from './_stats-panel';
 import { Trophy, Loader2, Plus, MessageCircle, AlertTriangle, ExternalLink, RefreshCw, FlaskConical } from 'lucide-react';
 
 const WINNERS_COUNT = 10;
@@ -64,13 +65,15 @@ function sessionStatus(s: any) {
 export default function AdminConcoursPage() {
   const [sessions, setSessions] = useState<any[] | null>(null);
   const [selectedId, setSelectedId] = useState<string | null>(null);
+  const [view, setView] = useState<'stats' | 'ranking'>('stats');
+  const [rankLang, setRankLang] = useState<'all' | 'fr' | 'ar'>('all');
   const [ranking, setRanking] = useState<any>(null);
   const [rankingLoading, setRankingLoading] = useState(false);
   const [showForm, setShowForm] = useState(false);
   const [creating, setCreating] = useState(false);
   const [message, setMessage] = useState<{ ok: boolean; text: string } | null>(null);
   const [form, setForm] = useState({
-    title: 'Concours de la Rentrée', startsAt: '', endsAt: '', resultsAt: '',
+    title: 'Test de la Rentrée', startsAt: '', endsAt: '', resultsAt: '',
     durationMin: 60, infirmierQ: 60, sageFemmeQ: 40,
   });
 
@@ -253,8 +256,22 @@ export default function AdminConcoursPage() {
         </div>
       )}
 
-      {/* Classement */}
+      {/* Session sélectionnée : statistiques (comme l'examen blanc) ou classement & gagnants */}
       {selectedId && (
+        <div className="flex gap-1 bg-secondary/50 border border-border rounded-xl p-1 w-fit">
+          {([['stats', '📊 Statistiques'], ['ranking', '🏆 Classement & gagnants']] as const).map(([id, label]) => (
+            <button key={id} onClick={() => setView(id)}
+              className={`px-4 py-2 rounded-lg text-sm font-semibold transition ${view === id ? 'bg-background shadow text-foreground' : 'text-muted-foreground hover:text-foreground'}`}>
+              {label}
+            </button>
+          ))}
+        </div>
+      )}
+
+      {selectedId && view === 'stats' && <SessionStatsPanel key={selectedId} sessionId={selectedId} />}
+
+      {/* Classement */}
+      {selectedId && view === 'ranking' && (
         <div className="bg-card border border-border rounded-2xl overflow-hidden">
           <div className="flex items-center justify-between gap-3 px-5 py-4 border-b border-border">
             <div>
@@ -266,6 +283,16 @@ export default function AdminConcoursPage() {
                   {ranking.participants.length} terminés · {ranking.inProgress} en cours · score puis temps
                 </p>
               )}
+            </div>
+            <div className="flex items-center gap-2 ms-auto">
+              <div className="flex gap-1 bg-secondary/50 border border-border rounded-lg p-0.5">
+                {([['all', 'Tous'], ['fr', '🇫🇷 FR'], ['ar', '🇲🇷 AR']] as const).map(([id, label]) => (
+                  <button key={id} onClick={() => setRankLang(id)}
+                    className={`px-2.5 py-1 rounded-md text-xs font-semibold transition ${rankLang === id ? 'bg-background shadow text-foreground' : 'text-muted-foreground hover:text-foreground'}`}>
+                    {label}
+                  </button>
+                ))}
+              </div>
             </div>
             <button onClick={() => loadRanking(selectedId)} aria-label="Actualiser"
               className="p-2 rounded-lg text-muted-foreground hover:text-foreground hover:bg-secondary transition">
@@ -294,7 +321,7 @@ export default function AdminConcoursPage() {
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-border">
-                    {ranking.participants.map((p: any) => {
+                    {ranking.participants.filter((p: any) => rankLang === 'all' || p.lang === rankLang).map((p: any) => {
                       const winner = p.rank <= WINNERS_COUNT;
                       return (
                         <tr key={p.id} className={winner ? 'bg-amber-500/5' : ''}>

@@ -62,7 +62,36 @@ export class AdminService {
     return result;
   }
 
-  async getDashboardStats() {
+  // Chiffres d'une période (dates AAAA-MM-JJ, bornes incluses, en UTC = heure de Nouakchott)
+  private async getPeriodStats(from: string, to: string) {
+    const gte = new Date(`${from}T00:00:00.000Z`);
+    const lt = new Date(new Date(`${to}T00:00:00.000Z`).getTime() + 86400000);
+    if (isNaN(gte.getTime()) || isNaN(lt.getTime()) || lt <= gte) return null;
+    const [revenue, payments, newAccounts, attempts, completedAttempts, answers, correct, activeUsers, avgScore] = await Promise.all([
+      this.prisma.payment.aggregate({ where: { status: 'VALIDATED', amount: { gt: 0 }, validatedAt: { gte, lt } }, _sum: { amount: true } }),
+      this.prisma.payment.count({ where: { status: 'VALIDATED', amount: { gt: 0 }, validatedAt: { gte, lt } } }),
+      this.prisma.user.count({ where: { role: { not: 'ADMIN' }, createdAt: { gte, lt } } }),
+      this.prisma.attempt.count({ where: { startedAt: { gte, lt } } }),
+      this.prisma.attempt.count({ where: { startedAt: { gte, lt }, isCompleted: true } }),
+      this.prisma.userAnswer.count({ where: { answeredAt: { gte, lt } } }),
+      this.prisma.userAnswer.count({ where: { answeredAt: { gte, lt }, isCorrect: true } }),
+      this.prisma.attempt.findMany({ where: { startedAt: { gte, lt } }, distinct: ['userId'], select: { userId: true } }).then((r) => r.length),
+      this.prisma.attempt.aggregate({ where: { startedAt: { gte, lt }, isCompleted: true, totalQ: { gt: 0 } }, _avg: { score: true } }),
+    ]);
+    return {
+      from, to,
+      revenue: revenue._sum.amount ?? 0,
+      payments, newAccounts, attempts, completedAttempts,
+      completionRate: attempts > 0 ? Math.round((completedAttempts / attempts) * 100) : 0,
+      answers, correct,
+      accuracyRate: answers > 0 ? Math.round((correct / answers) * 100) : 0,
+      activeUsers,
+      avgScore: Math.round((avgScore._avg.score ?? 0) * 10) / 10,
+    };
+  }
+
+  async getDashboardStats(from?: string, to?: string) {
+    const period = from && to ? await this.getPeriodStats(from, to) : null;
     const now = new Date();
     const startOfDay   = new Date(now); startOfDay.setHours(0, 0, 0, 0);
     const startOfWeek  = new Date(now); startOfWeek.setDate(now.getDate() - 7);
@@ -113,6 +142,7 @@ export class AdminService {
       avgScore: Math.round(((avgScore._avg.score ?? 0)) * 10) / 10,
       conversionRate: totalUsers > 0 ? Math.round((premiumUsers / totalUsers) * 100) : 0,
       activeUsersWeek,
+      period,
     };
   }
 

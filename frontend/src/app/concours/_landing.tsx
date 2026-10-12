@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { concoursApi } from '@/lib/api';
 import { useLang } from '@/components/LanguageProvider';
 import { ChevronRight, Clock, FileText, Users, Trophy, Smartphone, EyeOff, Timer } from 'lucide-react';
+import { ResultsLookup } from './_results-lookup';
 import {
   ConcoursShell, Spinner, PROFESSION, WINNERS_COUNT, concoursTheme, fmtDate, fmtTime, readConcoursState,
 } from './_shared';
@@ -69,7 +70,7 @@ export function ConcoursLanding({ target }: { target: 'INFIRMIER' | 'SAGE_FEMME'
     <ConcoursShell target={target}>
       <section className="max-w-3xl mx-auto px-4 sm:px-6 pt-6 pb-16 text-center">
         <p className={`${th.accentText} text-sm font-bold uppercase tracking-widest mb-3`}>
-          🎓 {isAr ? 'مسابقة الدخول المدرسي' : 'Concours de la Rentrée'} · {isAr ? (target === 'SAGE_FEMME' ? 'قابلة' : 'ممرض') : prof.fr}
+          🎓 {isAr ? 'اختبار الدخول المدرسي' : 'Test de la Rentrée'} · {isAr ? (target === 'SAGE_FEMME' ? 'قابلة' : 'ممرض') : prof.fr}
         </p>
         <h1 className="text-3xl sm:text-5xl font-black text-white leading-tight">
           {isAr
@@ -106,7 +107,7 @@ export function ConcoursLanding({ target }: { target: 'INFIRMIER' | 'SAGE_FEMME'
         <div className={`rounded-3xl border p-6 sm:p-8 ${th.card}`}>
           {!session ? (
             <>
-              <p className="text-white font-bold text-lg">{isAr ? 'المسابقة ستفتح قريباً' : 'Le concours ouvre bientôt'}</p>
+              <p className="text-white font-bold text-lg">{isAr ? 'الاختبار سيفتح قريباً' : 'Le test ouvre bientôt'}</p>
               <p className={`${th.textMuted} text-sm mt-1`}>{isAr ? 'تابعنا لمعرفة الموعد.' : 'Restez connecté pour connaître la date.'}</p>
             </>
           ) : mine?.isCompleted ? (
@@ -137,21 +138,22 @@ export function ConcoursLanding({ target }: { target: 'INFIRMIER' | 'SAGE_FEMME'
           ) : !session.isClosed ? (
             <>
               <p className={`${th.textDim} text-sm mb-4`}>
-                {isAr ? 'تفتح المسابقة ' : 'Ouverture le '}<strong className="text-white">{fmtDate(session.startsAt, isAr)} · {fmtTime(session.startsAt, isAr)}</strong>
+                {isAr ? 'يفتح الاختبار ' : 'Ouverture le '}<strong className="text-white">{fmtDate(session.startsAt, isAr)} · {fmtTime(session.startsAt, isAr)}</strong>
               </p>
               <Countdown to={session.startsAt} isAr={isAr} cardCls={th.card} />
             </>
           ) : session.isResultsReady ? (
             <>
               <p className="text-4xl mb-2">🏆</p>
-              <p className="text-white font-bold text-lg">{isAr ? 'النتائج متاحة!' : 'Les résultats sont disponibles !'}</p>
-              <Link href={`/concours/classement?target=${target}`} className={btn} style={{ background: th.accent }}>
-                {isAr ? 'الترتيب' : 'Voir le classement'} <ChevronRight className="w-4 h-4 rtl:rotate-180" />
+              <p className="text-white font-bold text-lg mb-5">{isAr ? 'النتائج متاحة!' : 'Les résultats sont disponibles !'}</p>
+              <ResultsLookup target={target} />
+              <Link href={`/concours/classement?target=${target}`} className={`block mt-4 text-sm ${th.textDim} hover:text-white`}>
+                {isAr ? 'الترتيب العام' : 'Voir le classement'}
               </Link>
             </>
           ) : (
             <>
-              <p className="text-white font-bold text-lg">{isAr ? 'انتهت المسابقة' : 'Le concours est terminé'}</p>
+              <p className="text-white font-bold text-lg">{isAr ? 'انتهى الاختبار' : 'Le test est terminé'}</p>
               <p className={`${th.textDim} text-sm mt-1`}>
                 {isAr ? 'النتائج يوم ' : 'Résultats le '}{fmtDate(session.resultsAt, isAr)} · {fmtTime(session.resultsAt, isAr)}
               </p>

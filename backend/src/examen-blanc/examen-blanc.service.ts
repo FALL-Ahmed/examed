@@ -1669,7 +1669,7 @@ export class ExamenBlancService {
     if (!dto.startsAt || !dto.endsAt) throw new BadRequestException('Dates de début et de fin requises');
     if (new Date(dto.endsAt) <= new Date(dto.startsAt)) throw new BadRequestException('La fin doit être après le début');
     const base = {
-      title: dto.title || 'Concours de la Rentrée',
+      title: dto.title || 'Test de la Rentrée',
       descriptionFr: dto.descriptionFr, descriptionAr: dto.descriptionAr,
       startsAt: dto.startsAt, endsAt: dto.endsAt, resultsAt: dto.resultsAt,
       durationMin: dto.durationMin ?? 60,
@@ -1716,6 +1716,27 @@ export class ExamenBlancService {
         rank: i + 1, ...p, correctQ: p._count.reponses, _count: undefined,
       })),
     };
+  }
+
+  // Retrouver sa participation au test avec son numéro (comme « Voir mes résultats » de l'examen blanc),
+  // sans jamais remettre le chronomètre à zéro
+  async findConcoursParticipation(target: string, telephone: string) {
+    const session = await db(this.prisma).examenBlanc.findFirst({
+      where: { isActive: true, target: target === 'SAGE_FEMME' ? 'SAGE_FEMME' : 'INFIRMIER', kind: 'CONCOURS' },
+      orderBy: { createdAt: 'desc' },
+    });
+    if (!session) throw new NotFoundException('Aucun test en cours');
+    const phone = normalizePhone(telephone);
+    if (phone.length !== 8) throw new BadRequestException('Numéro de téléphone invalide (8 chiffres)');
+    const participant = await db(this.prisma).examenBlancParticipant.findFirst({
+      where: { examenBlancId: session.id, isTest: false, telephone: phone },
+    });
+    if (!participant) throw new NotFoundException('Aucune participation trouvée avec ce numéro');
+    if (participant.isCompleted) {
+      return { isCompleted: true, sessionId: participant.sessionId, examenBlancId: session.id, target: session.target };
+    }
+    // Participation commencée : on la reprend là où elle en était
+    return { ...(await this.getSession(participant.sessionId)), isCompleted: false, target: session.target };
   }
 
   async setPrizeGranted(id: string, prizeGranted: boolean) {

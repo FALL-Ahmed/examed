@@ -27,8 +27,36 @@ function KpiCard({ icon: Icon, label, value, sub, color, href }: any) {
   return href ? <Link href={href} className="block h-full">{content}</Link> : content;
 }
 
+// Période du tableau de bord : raccourcis ou dates libres (AAAA-MM-JJ, bornes incluses)
+type RangePreset = 'all' | 'today' | '7d' | '30d' | 'month' | 'lastMonth' | 'custom';
+const RANGE_PRESETS: { id: RangePreset; label: string }[] = [
+  { id: 'all', label: 'Tout' }, { id: 'today', label: "Aujourd'hui" }, { id: '7d', label: '7 jours' },
+  { id: '30d', label: '30 jours' }, { id: 'month', label: 'Ce mois' }, { id: 'lastMonth', label: 'Mois dernier' },
+  { id: 'custom', label: 'Dates…' },
+];
+const isoDay = (d: Date) => d.toISOString().slice(0, 10);
+function presetRange(id: RangePreset): { from: string; to: string } | null {
+  const today = new Date();
+  const daysAgo = (n: number) => isoDay(new Date(today.getTime() - n * 86400000));
+  if (id === 'today') return { from: isoDay(today), to: isoDay(today) };
+  if (id === '7d') return { from: daysAgo(6), to: isoDay(today) };
+  if (id === '30d') return { from: daysAgo(29), to: isoDay(today) };
+  if (id === 'month') return { from: isoDay(new Date(Date.UTC(today.getUTCFullYear(), today.getUTCMonth(), 1))), to: isoDay(today) };
+  if (id === 'lastMonth') {
+    const start = new Date(Date.UTC(today.getUTCFullYear(), today.getUTCMonth() - 1, 1));
+    const end = new Date(Date.UTC(today.getUTCFullYear(), today.getUTCMonth(), 0));
+    return { from: isoDay(start), to: isoDay(end) };
+  }
+  return null;
+}
+const fmtDay = (d: string) => new Date(`${d}T00:00:00Z`).toLocaleDateString('fr-FR', { day: 'numeric', month: 'short', year: 'numeric', timeZone: 'UTC' });
+
 export default function AdminDashboard() {
   const [stats, setStats] = useState<any>(null);
+  const [preset, setPreset] = useState<RangePreset>('all');
+  const [custom, setCustom] = useState({ from: isoDay(new Date(Date.now() - 6 * 86400000)), to: isoDay(new Date()) });
+  const range = preset === 'custom' ? (custom.from && custom.to && custom.from <= custom.to ? custom : null) : presetRange(preset);
+  const rangeKey = range ? `${range.from}_${range.to}` : 'all';
   const [regData, setRegData] = useState<any[]>([]);
   const [regDays, setRegDays] = useState(30);
   const [regProfession, setRegProfession] = useState<'all' | 'infirmier' | 'sage_femme' | 'biologiste'>('all');
@@ -173,6 +201,12 @@ export default function AdminDashboard() {
     setPushLoading(false);
   }
 
+  // Recharge les chiffres quand la période change (le premier chargement reste dans l'effet initial)
+  useEffect(() => {
+    if (rangeKey === 'all' && !stats?.period) return;
+    adminApi.stats(range ?? undefined).then((r) => setStats(r.data)).catch(() => {});
+  }, [rangeKey]);
+
   async function toggleDeviceVerif() {
     const next = !deviceVerif;
     setDeviceVerif(next);
@@ -230,6 +264,7 @@ export default function AdminDashboard() {
 
   const { t } = useLang();
   const s = stats;
+  const p = stats?.period ?? null; // chiffres de la période choisie (null = depuis le début)
 
   return (
     <div className="space-y-8">
@@ -305,29 +340,77 @@ export default function AdminDashboard() {
         </div>
       </section>
 
+      {/* Filtre de période (revenus + activité) */}
+      <section className="bg-card border border-border rounded-2xl p-4 flex flex-col gap-3">
+        <div className="flex items-center justify-between gap-3 flex-wrap">
+          <p className="text-sm font-semibold">
+            Période : <span className="text-primary">{p ? (p.from === p.to ? fmtDay(p.from) : `du ${fmtDay(p.from)} au ${fmtDay(p.to)}`) : 'depuis le début'}</span>
+          </p>
+          <div className="flex gap-1 flex-wrap bg-secondary/50 border border-border rounded-xl p-1">
+            {RANGE_PRESETS.map((r) => (
+              <button key={r.id} onClick={() => setPreset(r.id)}
+                className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition ${preset === r.id ? 'bg-background shadow text-foreground' : 'text-muted-foreground hover:text-foreground'}`}>
+                {r.label}
+              </button>
+            ))}
+          </div>
+        </div>
+        {preset === 'custom' && (
+          <div className="flex items-center gap-2 flex-wrap text-sm">
+            <label className="flex items-center gap-2">Du
+              <input type="date" value={custom.from} max={custom.to} onChange={(e) => setCustom({ ...custom, from: e.target.value })}
+                className="px-3 py-1.5 bg-background border border-border rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary/30" />
+            </label>
+            <label className="flex items-center gap-2">au
+              <input type="date" value={custom.to} min={custom.from} onChange={(e) => setCustom({ ...custom, to: e.target.value })}
+                className="px-3 py-1.5 bg-background border border-border rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary/30" />
+            </label>
+          </div>
+        )}
+      </section>
+
       {/* Revenus */}
       <section>
         <p className="text-xs font-bold uppercase tracking-widest text-muted-foreground mb-3">Revenus</p>
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-          <KpiCard icon={DollarSign}   label="Revenus totaux"       value={s ? `${s.revenueTotal.toLocaleString()} MRU` : '—'} color="bg-emerald-600" />
-          <KpiCard icon={ArrowUpRight} label="Revenus ce mois"      value={s ? `${s.revenueMonth.toLocaleString()} MRU` : '—'} color="bg-teal-500" />
-          <KpiCard icon={Zap}          label="Revenus aujourd'hui"  value={s ? `${(s.revenueToday ?? 0).toLocaleString()} MRU` : '—'} color="bg-orange-500" />
-          <KpiCard icon={CreditCard}   label="Paiements en attente" value={s?.pendingPayments}
-            color={s?.pendingPayments > 0 ? 'bg-red-500' : 'bg-slate-400'} href="/admin/payments" />
-        </div>
+        {p ? (
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+            <KpiCard icon={DollarSign}   label="Revenus sur la période"   value={`${p.revenue.toLocaleString()} MRU`} color="bg-emerald-600" />
+            <KpiCard icon={CheckCircle}  label="Paiements validés"        value={p.payments.toLocaleString()} color="bg-teal-500" />
+            <KpiCard icon={ArrowUpRight} label="Nouveaux comptes"         value={p.newAccounts.toLocaleString()} color="bg-orange-500" sub="Inscriptions sur la période" />
+            <KpiCard icon={CreditCard}   label="Paiements en attente"     value={s?.pendingPayments}
+              color={s?.pendingPayments > 0 ? 'bg-red-500' : 'bg-slate-400'} href="/admin/payments" sub="À ce jour" />
+          </div>
+        ) : (
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+            <KpiCard icon={DollarSign}   label="Revenus totaux"       value={s ? `${s.revenueTotal.toLocaleString()} MRU` : '—'} color="bg-emerald-600" />
+            <KpiCard icon={ArrowUpRight} label="Revenus ce mois"      value={s ? `${s.revenueMonth.toLocaleString()} MRU` : '—'} color="bg-teal-500" />
+            <KpiCard icon={Zap}          label="Revenus aujourd'hui"  value={s ? `${(s.revenueToday ?? 0).toLocaleString()} MRU` : '—'} color="bg-orange-500" />
+            <KpiCard icon={CreditCard}   label="Paiements en attente" value={s?.pendingPayments}
+              color={s?.pendingPayments > 0 ? 'bg-red-500' : 'bg-slate-400'} href="/admin/payments" />
+          </div>
+        )}
       </section>
 
       {/* Pédagogie */}
       <section>
         <p className="text-xs font-bold uppercase tracking-widest text-muted-foreground mb-3">Activité pédagogique</p>
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-          <KpiCard icon={FileText}  label="Questions (base)"    value={s?.totalQuestions}                  color="bg-indigo-500" href="/admin/questions" />
-          <KpiCard icon={Zap}       label="Tentatives totales"  value={s?.totalAttempts?.toLocaleString()} color="bg-purple-500"
-            sub={s ? `${s.completionRate}% complétées` : undefined} />
-          <KpiCard icon={BarChart2} label="Réponses données"    value={s?.totalAnswers?.toLocaleString()}  color="bg-pink-500"
-            sub={s ? `${s.accuracyRate}% correctes` : undefined} />
-          <KpiCard icon={Star}      label="Score moyen global"  value={s ? `${s.avgScore}%` : '—'}        color="bg-amber-500" sub="Sessions terminées" />
-        </div>
+        {p ? (
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+            <KpiCard icon={Users}     label="Élèves actifs"      value={p.activeUsers.toLocaleString()} color="bg-indigo-500" sub="Au moins une session" />
+            <KpiCard icon={Zap}       label="Tentatives"         value={p.attempts.toLocaleString()} color="bg-purple-500" sub={`${p.completionRate}% complétées`} />
+            <KpiCard icon={BarChart2} label="Réponses données"   value={p.answers.toLocaleString()} color="bg-pink-500" sub={`${p.accuracyRate}% correctes`} />
+            <KpiCard icon={Star}      label="Score moyen"        value={`${p.avgScore}%`} color="bg-amber-500" sub="Sessions terminées" />
+          </div>
+        ) : (
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+            <KpiCard icon={FileText}  label="Questions (base)"    value={s?.totalQuestions}                  color="bg-indigo-500" href="/admin/questions" />
+            <KpiCard icon={Zap}       label="Tentatives totales"  value={s?.totalAttempts?.toLocaleString()} color="bg-purple-500"
+              sub={s ? `${s.completionRate}% complétées` : undefined} />
+            <KpiCard icon={BarChart2} label="Réponses données"    value={s?.totalAnswers?.toLocaleString()}  color="bg-pink-500"
+              sub={s ? `${s.accuracyRate}% correctes` : undefined} />
+            <KpiCard icon={Star}      label="Score moyen global"  value={s ? `${s.avgScore}%` : '—'}        color="bg-amber-500" sub="Sessions terminées" />
+          </div>
+        )}
       </section>
 
       {/* Paramètres */}

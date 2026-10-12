@@ -85,7 +85,7 @@ function RegisterContent() {
     <ConcoursShell target={target}>
       <div className="max-w-md mx-auto px-4 pt-4 pb-16">
         <h1 className="text-2xl font-black text-white text-center">
-          {isAr ? 'التسجيل في المسابقة' : 'Inscription au concours'}
+          {isAr ? 'التسجيل في الاختبار' : 'Inscription au test'}
         </h1>
         <p className={`${th.textMuted} text-sm text-center mt-1 mb-6`}>
           {isAr ? PROFESSION[target].ar : PROFESSION[target].fr}
@@ -94,7 +94,7 @@ function RegisterContent() {
 
         {!session?.isOpen ? (
           <div className={`rounded-3xl border p-7 text-center ${th.card}`}>
-            <p className="text-white font-semibold">{isAr ? 'المسابقة غير مفتوحة حالياً' : "Le concours n'est pas ouvert actuellement"}</p>
+            <p className="text-white font-semibold">{isAr ? 'الاختبار غير مفتوح حالياً' : "Le test n'est pas ouvert actuellement"}</p>
             <Link href={concoursHome(target)} className={`inline-block mt-4 text-sm font-semibold hover:underline ${th.accentText}`}>
               {isAr ? 'العودة' : 'Retour'}
             </Link>
@@ -155,7 +155,7 @@ function RegisterContent() {
               style={{ background: th.accent }}>
               {submitting
                 ? <><Loader2 className="w-5 h-5 animate-spin" /> {t('Inscription…', 'جارٍ التسجيل…')}</>
-                : <>{t('Commencer le concours', 'ابدأ المسابقة')} <ChevronRight className="w-5 h-5 rtl:rotate-180" /></>}
+                : <>{t('Commencer le test', 'ابدأ الاختبار')} <ChevronRight className="w-5 h-5 rtl:rotate-180" /></>}
             </button>
             <p className={`text-center text-xs ${th.textFaint}`}>
               {t('Le chronomètre démarre dès que vous cliquez.', 'يبدأ العد التنازلي فور الضغط.')}

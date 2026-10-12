@@ -26,8 +26,8 @@ export class AdminController {
   ) {}
 
   @Get('stats')
-  getStats() {
-    return this.adminService.getDashboardStats();
+  getStats(@Query('from') from?: string, @Query('to') to?: string) {
+    return this.adminService.getDashboardStats(from, to);
   }
 
   @Get('registrations-per-day')

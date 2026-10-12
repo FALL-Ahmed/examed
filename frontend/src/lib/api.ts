@@ -175,7 +175,7 @@ export const freemiumApi = {
 
 // Admin
 export const adminApi = {
-  stats: () => api.get('/admin/stats'),
+  stats: (range?: { from: string; to: string }) => api.get('/admin/stats', range ? { params: range } : undefined),
   freemium: () => api.get('/admin/freemium'),
   freemiumUpdateConfig: (data: { enabled: boolean; startDate: string; endDate: string }) => api.put('/admin/freemium/config', data),
   freemiumSetSubThemes: (subThemeIds: string[], isFreemium: boolean) => api.put('/admin/freemium/subthemes', { subThemeIds, isFreemium }),
@@ -292,6 +292,7 @@ export const examenBlancApi = {
 // Concours de la Rentrée : même moteur que l'examen blanc (sessions kind=CONCOURS)
 export const concoursApi = {
   current: (target: string) => axios.get(`${API_URL}/examen-blanc/current`, { params: { target, kind: 'CONCOURS' } }),
+  findParticipation: (target: string, telephone: string) => axios.post(`${API_URL}/examen-blanc/concours/find`, { target, telephone }),
   adminSessions: () => api.get('/examen-blanc/admin/sessions', { params: { kind: 'CONCOURS' } }),
   adminCreate: (data: {
     title?: string; startsAt: string; endsAt: string; resultsAt?: string;

@@ -64,6 +64,11 @@ export class ExamenBlancController {
     return this.service.registerPast(body);
   }
 
+  @Post('concours/find')
+  findConcoursParticipation(@Body() body: { target: string; telephone: string }) {
+    return this.service.findConcoursParticipation(body.target, body.telephone ?? '');
+  }
+
   @Post('recover')
   recover(@Body() body: { telephone: string }) {
     return this.service.recoverSession(body.telephone);
