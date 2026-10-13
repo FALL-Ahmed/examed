@@ -92,13 +92,16 @@ export default function AdminConcoursPage() {
     }).catch(() => setSessions([]));
   }
 
+  // Classement par filière ou global (infirmier + sage-femme réunis, comme le rang vu par les participants)
+  const [rankScope, setRankScope] = useState<'session' | 'global'>('global');
+
   function loadRanking(id: string) {
     setRankingLoading(true);
-    concoursApi.adminRanking(id).then((r) => setRanking(r.data)).catch(() => setRanking(null)).finally(() => setRankingLoading(false));
+    concoursApi.adminRanking(id, rankScope).then((r) => setRanking(r.data)).catch(() => setRanking(null)).finally(() => setRankingLoading(false));
   }
 
   useEffect(() => { loadSessions(); }, []);
-  useEffect(() => { if (selectedId) loadRanking(selectedId); }, [selectedId]);
+  useEffect(() => { if (selectedId) loadRanking(selectedId); }, [selectedId, rankScope]);
 
   async function create() {
     setMessage(null);
@@ -409,10 +412,19 @@ export default function AdminConcoursPage() {
               {ranking && (
                 <p className="text-xs text-muted-foreground mt-0.5">
                   {ranking.participants.length} terminés · {ranking.inProgress} en cours · score puis temps
+                  {ranking.scope === 'global' ? ' · infirmier + sage-femme réunis' : ' · cette filière uniquement'}
                 </p>
               )}
             </div>
             <div className="flex items-center gap-2 ms-auto">
+              <div className="flex gap-1 bg-secondary/50 border border-border rounded-lg p-0.5">
+                {([['global', 'Global'], ['session', 'Par filière']] as const).map(([id, label]) => (
+                  <button key={id} onClick={() => setRankScope(id)}
+                    className={`px-2.5 py-1 rounded-md text-xs font-semibold transition ${rankScope === id ? 'bg-background shadow text-foreground' : 'text-muted-foreground hover:text-foreground'}`}>
+                    {label}
+                  </button>
+                ))}
+              </div>
               <div className="flex gap-1 bg-secondary/50 border border-border rounded-lg p-0.5">
                 {([['all', 'Tous'], ['fr', '🇫🇷 FR'], ['ar', '🇲🇷 AR']] as const).map(([id, label]) => (
                   <button key={id} onClick={() => setRankLang(id)}
@@ -456,7 +468,10 @@ export default function AdminConcoursPage() {
                           <td className="px-4 py-3 font-bold tabular-nums">{winner ? `🏆 ${p.rank}` : p.rank}</td>
                           <td className="px-4 py-3">
                             <p className="font-medium">{p.prenom} {p.nom}</p>
-                            <p className="text-xs text-muted-foreground">{p.ville} · {p.lang === 'ar' ? 'AR' : 'FR'}</p>
+                            <p className="text-xs text-muted-foreground">
+                              {ranking.scope === 'global' && <span className={`font-semibold ${p.target === 'SAGE_FEMME' ? 'text-pink-600' : 'text-indigo-600'}`}>{TARGET_LABEL[p.target] ?? p.target} · </span>}
+                              {p.ville} · {p.lang === 'ar' ? 'AR' : 'FR'}
+                            </p>
                           </td>
                           <td className="px-4 py-3" dir="ltr">
                             <a href={`https://wa.me/${waNumber(p.telephone)}`} target="_blank" rel="noopener noreferrer"
@@ -466,7 +481,7 @@ export default function AdminConcoursPage() {
                           </td>
                           <td className="px-4 py-3 text-end">
                             <p className="font-bold tabular-nums">{note20(p.score)}/20</p>
-                            <p className="text-xs text-muted-foreground tabular-nums">{p.correctQ}/{ranking.session.totalQ} justes</p>
+                            <p className="text-xs text-muted-foreground tabular-nums">{p.correctQ}/{p.totalQ ?? ranking.session.totalQ} justes</p>
                           </td>
                           <td className="px-4 py-3 text-end tabular-nums text-muted-foreground">{duration(p.timeTaken)}</td>
                           <td className="px-4 py-3 text-center">

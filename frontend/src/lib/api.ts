@@ -298,7 +298,7 @@ export const concoursApi = {
     title?: string; startsAt: string; endsAt: string; resultsAt?: string;
     durationMin?: number; infirmierQ?: number; sageFemmeQ?: number;
   }) => api.post('/examen-blanc/admin/concours', data),
-  adminRanking: (id: string) => api.get(`/examen-blanc/admin/concours/${id}/ranking`),
+  adminRanking: (id: string, scope: 'session' | 'global' = 'session') => api.get(`/examen-blanc/admin/concours/${id}/ranking`, { params: { scope } }),
   adminUpdate: (id: string, data: any) => api.put(`/examen-blanc/admin/sessions/${id}`, data),
   adminDelete: (id: string) => api.delete(`/examen-blanc/admin/concours/${id}`),
   setPrize: (id: string, prizeGranted: boolean) => api.patch(`/examen-blanc/admin/participants/${id}/prize`, { prizeGranted }),

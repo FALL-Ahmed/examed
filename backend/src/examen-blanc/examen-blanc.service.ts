@@ -405,11 +405,13 @@ export class ExamenBlancService {
       select: { id: true },
     });
     const isLatestExam = recentExams[0]?.id === session.id;
-    const totalExamIds = isLatestExam && session.kind !== 'CONCOURS' ? recentExams.map((e: any) => e.id) : [session.id];
+    // Challenge : rang et total calculés sur infirmier + sage-femme réunis
+    const rankIds = session.kind === 'CONCOURS' ? await this.concoursSiblingIds(session) : [participant.examenBlancId];
+    const totalExamIds = session.kind === 'CONCOURS' ? rankIds : isLatestExam ? recentExams.map((e: any) => e.id) : [session.id];
 
     const [allCompleted, totalRegistered] = await Promise.all([
       db(this.prisma).examenBlancParticipant.findMany({
-        where: { examenBlancId: participant.examenBlancId, isCompleted: true, isTest: false },
+        where: { examenBlancId: { in: rankIds }, isCompleted: true, isTest: false },
         orderBy: [{ score: 'desc' }, { timeTaken: 'asc' }],
         select: { id: true, score: true },
       }),
@@ -497,7 +499,7 @@ export class ExamenBlancService {
     }
 
     const session = await db(this.prisma).examenBlanc.findUnique({
-      where: { id: sessionId }, select: { resultsAt: true, title: true },
+      where: { id: sessionId }, select: { id: true, resultsAt: true, title: true, kind: true, startsAt: true },
     });
     if (!session) return { participants: [], total: 0 };
     if (new Date() < new Date(session.resultsAt)) return { locked: true, resultsAt: session.resultsAt, participants: [] };
@@ -509,7 +511,9 @@ export class ExamenBlancService {
       select: { id: true, nom: true, prenom: true, ville: true, score: true, timeTaken: true },
     });
 
-    const total = await db(this.prisma).examenBlancParticipant.count({ where: { examenBlancId: sessionId, isCompleted: true, isTest: false } });
+    // Challenge : nombre de participants infirmier + sage-femme réunis
+    const countIds = session.kind === 'CONCOURS' ? await this.concoursSiblingIds(session) : [sessionId];
+    const total = await db(this.prisma).examenBlancParticipant.count({ where: { examenBlancId: { in: countIds }, isCompleted: true, isTest: false } });
 
     const cityBreakdown = await db(this.prisma).examenBlancParticipant.groupBy({
       by: ['ville'], where: { examenBlancId: sessionId, isCompleted: true, isTest: false },
@@ -1689,22 +1693,38 @@ export class ExamenBlancService {
     return { infirmier, sageFemme };
   }
 
-  // Classement complet d'un concours (admin) : score décroissant puis temps croissant
-  async getConcoursRanking(id: string) {
+  // Sessions d'un même challenge (infirmier + sage-femme) : même titre, ouverture le même jour.
+  // Le rang affiché est calculé sur l'ensemble de ces sessions.
+  async concoursSiblingIds(session: { id: string; title: string; startsAt: Date }) {
+    const day = 24 * 3600 * 1000;
+    const start = new Date(session.startsAt).getTime();
+    const rows = await db(this.prisma).examenBlanc.findMany({
+      where: { kind: 'CONCOURS', title: session.title, startsAt: { gte: new Date(start - day / 2), lte: new Date(start + day / 2) } },
+      select: { id: true },
+    });
+    const ids = rows.map((r: any) => r.id);
+    return ids.includes(session.id) ? ids : [...ids, session.id];
+  }
+
+  // Classement complet d'un concours (admin) : score décroissant puis temps croissant.
+  // scope « global » = infirmier et sage-femme ensemble
+  async getConcoursRanking(id: string, scope: 'session' | 'global' = 'session') {
     const session = await db(this.prisma).examenBlanc.findUnique({ where: { id } });
     if (!session) throw new NotFoundException('Session introuvable');
+    const ids = scope === 'global' ? await this.concoursSiblingIds(session) : [id];
     const [ranked, inProgress] = await Promise.all([
       db(this.prisma).examenBlancParticipant.findMany({
-        where: { examenBlancId: id, isCompleted: true, isTest: false },
+        where: { examenBlancId: { in: ids }, isCompleted: true, isTest: false },
         orderBy: [{ score: 'desc' }, { timeTaken: 'asc' }],
         select: {
           id: true, prenom: true, nom: true, telephone: true, ville: true, lang: true,
           score: true, timeTaken: true, tricherie: true, tabSwitches: true,
           contacted: true, prizeGranted: true, submittedAt: true,
+          examenBlanc: { select: { target: true, totalQ: true } },
           _count: { select: { reponses: { where: { isCorrect: true } } } },
         },
       }),
-      db(this.prisma).examenBlancParticipant.count({ where: { examenBlancId: id, isCompleted: false, isTest: false } }),
+      db(this.prisma).examenBlancParticipant.count({ where: { examenBlancId: { in: ids }, isCompleted: false, isTest: false } }),
     ]);
     return {
       session: {
@@ -1712,8 +1732,10 @@ export class ExamenBlancService {
         startsAt: session.startsAt, endsAt: session.endsAt, resultsAt: session.resultsAt, isActive: session.isActive,
       },
       inProgress,
+      scope,
       participants: ranked.map((p: any, i: number) => ({
-        rank: i + 1, ...p, correctQ: p._count.reponses, _count: undefined,
+        rank: i + 1, ...p, target: p.examenBlanc.target, totalQ: p.examenBlanc.totalQ,
+        correctQ: p._count.reponses, _count: undefined, examenBlanc: undefined,
       })),
     };
   }

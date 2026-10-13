@@ -114,8 +114,8 @@ export class ExamenBlancController {
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles('ADMIN')
   @Get('admin/concours/:id/ranking')
-  adminConcoursRanking(@Param('id') id: string) {
-    return this.service.getConcoursRanking(id);
+  adminConcoursRanking(@Param('id') id: string, @Query('scope') scope?: string) {
+    return this.service.getConcoursRanking(id, scope === 'global' ? 'global' : 'session');
   }
 
   @UseGuards(JwtAuthGuard, RolesGuard)
