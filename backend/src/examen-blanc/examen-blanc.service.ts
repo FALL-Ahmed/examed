@@ -1739,6 +1739,15 @@ export class ExamenBlancService {
     return { ...(await this.getSession(participant.sessionId)), isCompleted: false, target: session.target };
   }
 
+  // Suppression d'une session de challenge (participants et réponses supprimés en cascade)
+  async deleteConcoursSession(id: string) {
+    const session = await db(this.prisma).examenBlanc.findUnique({ where: { id }, select: { kind: true } });
+    if (!session) throw new NotFoundException('Session introuvable');
+    if (session.kind !== 'CONCOURS') throw new BadRequestException('Seules les sessions de challenge peuvent être supprimées ici');
+    await db(this.prisma).examenBlanc.delete({ where: { id } });
+    return { deleted: true };
+  }
+
   async setPrizeGranted(id: string, prizeGranted: boolean) {
     return db(this.prisma).examenBlancParticipant.update({
       where: { id },

@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Put, Patch, Param, Body, Query, Req, UseGuards, ParseIntPipe, DefaultValuePipe } from '@nestjs/common';
+import { Controller, Get, Post, Put, Patch, Delete, Param, Body, Query, Req, UseGuards, ParseIntPipe, DefaultValuePipe } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
@@ -102,6 +102,13 @@ export class ExamenBlancController {
   @Post('admin/concours')
   adminCreateConcours(@Body() body: any) {
     return this.service.createConcours(body);
+  }
+
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('ADMIN')
+  @Delete('admin/concours/:id')
+  adminDeleteConcours(@Param('id') id: string) {
+    return this.service.deleteConcoursSession(id);
   }
 
   @UseGuards(JwtAuthGuard, RolesGuard)

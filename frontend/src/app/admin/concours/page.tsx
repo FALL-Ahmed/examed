@@ -18,6 +18,13 @@ const waNumber = (phone: string) => {
 };
 // datetime-local (heure locale du navigateur) → ISO
 const toIso = (v: string) => (v ? new Date(v).toISOString() : '');
+// ISO → valeur d'un champ datetime-local (heure locale du navigateur)
+const toLocalInput = (iso?: string) => {
+  if (!iso) return '';
+  const d = new Date(iso);
+  const pad2 = (n: number) => String(n).padStart(2, '0');
+  return `${d.getFullYear()}-${pad2(d.getMonth() + 1)}-${pad2(d.getDate())}T${pad2(d.getHours())}:${pad2(d.getMinutes())}`;
+};
 
 // Lance une épreuve de test (ignore les dates, hors classement) dans un nouvel onglet
 function TestButton({ session }: { session: any }) {
@@ -113,6 +120,64 @@ export default function AdminConcoursPage() {
     } finally {
       setCreating(false);
     }
+  }
+
+  // Modification d'une session (dates, durée, titre), éventuellement appliquée à toutes les sessions actives
+  const [editing, setEditing] = useState<any>(null);
+  const [editForm, setEditForm] = useState({ title: '', startsAt: '', endsAt: '', resultsAt: '', durationMin: 60, applyAll: true });
+  const [savingEdit, setSavingEdit] = useState(false);
+
+  function openEdit(s: any) {
+    setEditing(s);
+    setEditForm({
+      title: s.title, startsAt: toLocalInput(s.startsAt), endsAt: toLocalInput(s.endsAt), resultsAt: toLocalInput(s.resultsAt),
+      durationMin: s.durationMin, applyAll: true,
+    });
+  }
+
+  async function saveEdit() {
+    if (!editing) return;
+    if (!editForm.startsAt || !editForm.endsAt || !editForm.resultsAt) return setMessage({ ok: false, text: 'Renseignez les trois dates.' });
+    if (editForm.endsAt <= editForm.startsAt) return setMessage({ ok: false, text: 'La clôture doit être après l’ouverture.' });
+    setSavingEdit(true);
+    const targets = editForm.applyAll ? (sessions ?? []).filter((x) => x.isActive || x.id === editing.id) : [editing];
+    try {
+      await Promise.all(targets.map((x) => concoursApi.adminUpdate(x.id, {
+        title: editForm.title.trim() || x.title,
+        startsAt: toIso(editForm.startsAt), endsAt: toIso(editForm.endsAt), resultsAt: toIso(editForm.resultsAt),
+        durationMin: Number(editForm.durationMin),
+      })));
+      setMessage({ ok: true, text: `Modifications enregistrées (${targets.length} session${targets.length > 1 ? 's' : ''}).` });
+      setEditing(null);
+      await loadSessions();
+    } catch (e: any) {
+      setMessage({ ok: false, text: e.response?.data?.message || 'Erreur lors de la modification' });
+    } finally {
+      setSavingEdit(false);
+    }
+  }
+
+  async function deleteSession(s: any) {
+    const warn = s.participantCount > 0
+      ? `
+
+⚠️ ${s.participantCount} participant(s) inscrit(s) : leurs résultats seront définitivement supprimés.`
+      : '';
+    if (!window.confirm(`Supprimer définitivement « ${s.title} · ${TARGET_LABEL[s.target] ?? s.target} » ?${warn}`)) return;
+    try {
+      await concoursApi.adminDelete(s.id);
+      if (selectedId === s.id) { setSelectedId(null); setRanking(null); }
+      setMessage({ ok: true, text: 'Session supprimée.' });
+      await loadSessions();
+    } catch (e: any) {
+      setMessage({ ok: false, text: e.response?.data?.message || 'Erreur lors de la suppression' });
+    }
+  }
+
+  // Sélectionne un challenge et fait défiler jusqu'à ses statistiques
+  function selectSession(id: string) {
+    setSelectedId(id);
+    setTimeout(() => document.getElementById('session-detail')?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 50);
   }
 
   async function toggleActive(s: any) {
@@ -228,7 +293,7 @@ export default function AdminConcoursPage() {
             return (
               <div key={s.id}
                 className={`bg-card border rounded-2xl p-4 transition ${selected ? 'border-primary ring-2 ring-primary/20' : 'border-border'}`}>
-                <button onClick={() => setSelectedId(s.id)} className="w-full text-start">
+                <button onClick={() => selectSession(s.id)} className="w-full text-start">
                   <div className="flex items-center justify-between gap-2">
                     <p className="font-semibold text-sm truncate">{s.title} · {TARGET_LABEL[s.target] ?? s.target}</p>
                     <span className={`text-[11px] font-semibold px-2 py-0.5 rounded-full flex-shrink-0 ${st.cls}`}>{st.label}</span>
@@ -246,8 +311,14 @@ export default function AdminConcoursPage() {
                     <ExternalLink className="w-3.5 h-3.5" /> Page publique
                   </a>
                   <TestButton session={s} />
-                  <button onClick={() => toggleActive(s)} className="text-xs font-semibold text-muted-foreground hover:text-foreground ms-auto">
+                  <button onClick={() => openEdit(s)} className="text-xs font-semibold text-primary hover:underline ms-auto">
+                    Modifier
+                  </button>
+                  <button onClick={() => toggleActive(s)} className="text-xs font-semibold text-muted-foreground hover:text-foreground">
                     {s.isActive ? 'Désactiver' : 'Réactiver'}
+                  </button>
+                  <button onClick={() => deleteSession(s)} className="text-xs font-semibold text-red-600 hover:underline">
+                    Supprimer
                   </button>
                 </div>
               </div>
@@ -256,7 +327,64 @@ export default function AdminConcoursPage() {
         </div>
       )}
 
+      {/* Fenêtre de modification */}
+      {editing && (
+        <div className="fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-4" onClick={() => setEditing(null)}>
+          <div className="w-full max-w-lg bg-card border border-border rounded-2xl p-5 space-y-4" onClick={(e) => e.stopPropagation()}>
+            <div>
+              <p className="font-semibold">Modifier · {TARGET_LABEL[editing.target] ?? editing.target}</p>
+              <p className="text-xs text-muted-foreground mt-0.5">Heure de Nouakchott. {editing.participantCount > 0 && `${editing.participantCount} inscrit(s) : leurs réponses sont conservées.`}</p>
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <label className={`${labelCls} sm:col-span-2`}>
+                <span>Titre</span>
+                <input value={editForm.title} onChange={(e) => setEditForm({ ...editForm, title: e.target.value })} className={inputCls} />
+              </label>
+              <label className={labelCls}>
+                <span>Ouverture</span>
+                <input type="datetime-local" value={editForm.startsAt} onChange={(e) => setEditForm({ ...editForm, startsAt: e.target.value })} className={inputCls} />
+              </label>
+              <label className={labelCls}>
+                <span>Clôture des inscriptions</span>
+                <input type="datetime-local" value={editForm.endsAt} min={editForm.startsAt || undefined} onChange={(e) => setEditForm({ ...editForm, endsAt: e.target.value })} className={inputCls} />
+              </label>
+              <label className={labelCls}>
+                <span>Publication des résultats</span>
+                <input type="datetime-local" value={editForm.resultsAt} onChange={(e) => setEditForm({ ...editForm, resultsAt: e.target.value })} className={inputCls} />
+              </label>
+              <label className={labelCls}>
+                <span>Durée de l’épreuve (min)</span>
+                <input type="number" min={10} max={240} value={editForm.durationMin} onChange={(e) => setEditForm({ ...editForm, durationMin: Number(e.target.value) })} className={inputCls} />
+              </label>
+            </div>
+            <label className="flex items-center gap-2 text-sm">
+              <input type="checkbox" checked={editForm.applyAll} onChange={(e) => setEditForm({ ...editForm, applyAll: e.target.checked })} className="w-4 h-4 accent-primary" />
+              Appliquer aussi aux autres sessions actives (infirmier et sage-femme)
+            </label>
+            <div className="flex justify-end gap-2">
+              <button onClick={() => setEditing(null)} className="px-4 py-2 rounded-xl text-sm font-semibold text-muted-foreground hover:text-foreground">Annuler</button>
+              <button onClick={saveEdit} disabled={savingEdit}
+                className="flex items-center gap-2 px-5 py-2 rounded-xl text-sm font-semibold text-white bg-primary hover:opacity-90 disabled:opacity-60">
+                {savingEdit && <Loader2 className="w-4 h-4 animate-spin" />} Enregistrer
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Session sélectionnée : statistiques (comme l'examen blanc) ou classement & gagnants */}
+      {selectedId && (() => {
+        const sel = sessions.find((x) => x.id === selectedId);
+        return sel ? (
+          <div id="session-detail" className="scroll-mt-4 flex items-center justify-between gap-3 flex-wrap border-t border-border pt-6">
+            <div>
+              <p className="text-xs font-bold uppercase tracking-widest text-muted-foreground">Challenge sélectionné</p>
+              <h2 className="text-lg font-bold mt-0.5">{sel.title} · {TARGET_LABEL[sel.target] ?? sel.target}</h2>
+              <p className="text-xs text-muted-foreground">{fmt(sel.startsAt)} → {fmt(sel.endsAt)} · {sel.participantCount} inscrits · chiffres de ce challenge uniquement</p>
+            </div>
+          </div>
+        ) : null;
+      })()}
       {selectedId && (
         <div className="flex gap-1 bg-secondary/50 border border-border rounded-xl p-1 w-fit">
           {([['stats', '📊 Statistiques'], ['ranking', '🏆 Classement & gagnants']] as const).map(([id, label]) => (

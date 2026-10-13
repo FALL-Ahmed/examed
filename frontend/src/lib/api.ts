@@ -300,6 +300,7 @@ export const concoursApi = {
   }) => api.post('/examen-blanc/admin/concours', data),
   adminRanking: (id: string) => api.get(`/examen-blanc/admin/concours/${id}/ranking`),
   adminUpdate: (id: string, data: any) => api.put(`/examen-blanc/admin/sessions/${id}`, data),
+  adminDelete: (id: string) => api.delete(`/examen-blanc/admin/concours/${id}`),
   setPrize: (id: string, prizeGranted: boolean) => api.patch(`/examen-blanc/admin/participants/${id}/prize`, { prizeGranted }),
   setContacted: (id: string, contacted: boolean) => api.patch(`/examen-blanc/admin/participants/${id}/contacted`, { contacted }),
 };
