@@ -70,7 +70,7 @@ export function ConcoursLanding({ target }: { target: 'INFIRMIER' | 'SAGE_FEMME'
     <ConcoursShell target={target}>
       <section className="max-w-3xl mx-auto px-4 sm:px-6 pt-6 pb-16 text-center">
         <p className={`${th.accentText} text-sm font-bold uppercase tracking-widest mb-3`}>
-          🎓 {isAr ? 'اختبار الدخول المدرسي' : 'Test de la Rentrée'} · {isAr ? (target === 'SAGE_FEMME' ? 'قابلة' : 'ممرض') : prof.fr}
+          🎓 {isAr ? 'تحدي الدخول المدرسي' : 'Challenge de la Rentrée'} · {isAr ? (target === 'SAGE_FEMME' ? 'قابلة' : 'ممرض') : prof.fr}
         </p>
         <h1 className="text-3xl sm:text-5xl font-black text-white leading-tight">
           {isAr
@@ -107,7 +107,7 @@ export function ConcoursLanding({ target }: { target: 'INFIRMIER' | 'SAGE_FEMME'
         <div className={`rounded-3xl border p-6 sm:p-8 ${th.card}`}>
           {!session ? (
             <>
-              <p className="text-white font-bold text-lg">{isAr ? 'الاختبار سيفتح قريباً' : 'Le test ouvre bientôt'}</p>
+              <p className="text-white font-bold text-lg">{isAr ? 'التحدي سيفتح قريباً' : 'Le challenge ouvre bientôt'}</p>
               <p className={`${th.textMuted} text-sm mt-1`}>{isAr ? 'تابعنا لمعرفة الموعد.' : 'Restez connecté pour connaître la date.'}</p>
             </>
           ) : mine?.isCompleted ? (
@@ -138,7 +138,7 @@ export function ConcoursLanding({ target }: { target: 'INFIRMIER' | 'SAGE_FEMME'
           ) : !session.isClosed ? (
             <>
               <p className={`${th.textDim} text-sm mb-4`}>
-                {isAr ? 'يفتح الاختبار ' : 'Ouverture le '}<strong className="text-white">{fmtDate(session.startsAt, isAr)} · {fmtTime(session.startsAt, isAr)}</strong>
+                {isAr ? 'يفتح التحدي ' : 'Ouverture le '}<strong className="text-white">{fmtDate(session.startsAt, isAr)} · {fmtTime(session.startsAt, isAr)}</strong>
               </p>
               <Countdown to={session.startsAt} isAr={isAr} cardCls={th.card} />
             </>
@@ -153,7 +153,7 @@ export function ConcoursLanding({ target }: { target: 'INFIRMIER' | 'SAGE_FEMME'
             </>
           ) : (
             <>
-              <p className="text-white font-bold text-lg">{isAr ? 'انتهى الاختبار' : 'Le test est terminé'}</p>
+              <p className="text-white font-bold text-lg">{isAr ? 'انتهى التحدي' : 'Le challenge est terminé'}</p>
               <p className={`${th.textDim} text-sm mt-1`}>
                 {isAr ? 'النتائج يوم ' : 'Résultats le '}{fmtDate(session.resultsAt, isAr)} · {fmtTime(session.resultsAt, isAr)}
               </p>

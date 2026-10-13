@@ -41,7 +41,7 @@ export function ClassementView({ target, data, mine }: { target: 'INFIRMIER' | '
           <Trophy className={`w-14 h-14 mx-auto mb-4 ${target === 'SAGE_FEMME' ? 'text-white' : 'text-amber-400'}`} />
           <h1 className="text-3xl font-black text-white mb-2">{isAr ? 'الترتيب' : 'Classement'}</h1>
           <p className={`${th.textMuted} text-sm`}>
-            {isAr ? 'اختبار الدخول المدرسي' : 'Test de la Rentrée'} · {profLabel}
+            {isAr ? 'تحدي الدخول المدرسي' : 'Challenge de la Rentrée'} · {profLabel}
           </p>
           {data.total > 0 && (
             <p className={`${th.textFaint} text-sm mt-1`}>{isAr ? `${data.total} مشارك` : `${data.total} participants`}</p>
@@ -51,7 +51,7 @@ export function ClassementView({ target, data, mine }: { target: 'INFIRMIER' | '
         {data.empty ? (
           <div className={`rounded-3xl border p-8 text-center ${th.card}`}>
             <div className="text-5xl mb-4">📅</div>
-            <p className="text-white font-semibold">{isAr ? 'لا يوجد اختبار حالياً' : 'Aucun test pour le moment'}</p>
+            <p className="text-white font-semibold">{isAr ? 'لا يوجد تحدٍّ حالياً' : 'Aucun challenge pour le moment'}</p>
             <Link href={concoursHome(target)} className={`${btn} mt-6`} style={{ background: th.accent }}>
               {isAr ? 'رجوع للرئيسية' : "Retour à l'accueil"} <ChevronRight className="w-4 h-4 rtl:rotate-180" />
             </Link>
@@ -75,7 +75,7 @@ export function ClassementView({ target, data, mine }: { target: 'INFIRMIER' | '
           <div className={`rounded-3xl border p-8 text-center ${th.card}`}>
             <div className="text-5xl mb-4">📊</div>
             <p className="text-white text-lg font-semibold">
-              {isAr ? `${data.total} مشارك أتمّوا الاختبار` : `${data.total} participants ont terminé le test`}
+              {isAr ? `${data.total} مشارك أتمّوا التحدي` : `${data.total} participants ont terminé le challenge`}
             </p>
             <p className={`${th.textDim} text-sm mt-3 leading-relaxed`}>
               {isAr

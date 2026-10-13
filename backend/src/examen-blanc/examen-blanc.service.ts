@@ -1669,7 +1669,7 @@ export class ExamenBlancService {
     if (!dto.startsAt || !dto.endsAt) throw new BadRequestException('Dates de début et de fin requises');
     if (new Date(dto.endsAt) <= new Date(dto.startsAt)) throw new BadRequestException('La fin doit être après le début');
     const base = {
-      title: dto.title || 'Test de la Rentrée',
+      title: dto.title || 'Challenge de la Rentrée',
       descriptionFr: dto.descriptionFr, descriptionAr: dto.descriptionAr,
       startsAt: dto.startsAt, endsAt: dto.endsAt, resultsAt: dto.resultsAt,
       durationMin: dto.durationMin ?? 60,

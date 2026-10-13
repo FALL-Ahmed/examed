@@ -73,7 +73,7 @@ export default function AdminConcoursPage() {
   const [creating, setCreating] = useState(false);
   const [message, setMessage] = useState<{ ok: boolean; text: string } | null>(null);
   const [form, setForm] = useState({
-    title: 'Test de la Rentrée', startsAt: '', endsAt: '', resultsAt: '',
+    title: 'Challenge de la Rentrée', startsAt: '', endsAt: '', resultsAt: '',
     durationMin: 60, infirmierQ: 60, sageFemmeQ: 40,
   });
 

@@ -150,7 +150,7 @@ export function ResultsView({ target, res, error, isTest }: { target: string; re
           <div className={card}>
             <p className="text-white font-semibold">{error}</p>
             <Link href={`/concours/exam?target=${target}`} className={`inline-block mt-4 text-sm font-semibold hover:underline ${th.accentText}`}>
-              {isAr ? 'العودة إلى الاختبار' : 'Retour au test'}
+              {isAr ? 'العودة إلى التحدي' : 'Retour au challenge'}
             </Link>
           </div>
         ) : res.locked ? (
