@@ -142,10 +142,12 @@ function RegisterContent() {
 
             <label className="block">
               <span className={labelCls}>{t('Wilaya', 'الولاية')}</span>
-              <select value={form.ville} onChange={(e) => set('ville', e.target.value)} className={`${inputCls} cursor-pointer`}>
-                <option value="" style={{ background: th.selectBg }}>{t('Sélectionner…', 'اختر…')}</option>
+              {/* Liste des wilayas sur fond blanc, plus lisible que le champ sombre */}
+              <select value={form.ville} onChange={(e) => set('ville', e.target.value)}
+                className={`w-full px-4 py-3 rounded-xl border-2 border-white bg-white text-sm font-semibold cursor-pointer focus:outline-none focus:ring-2 focus:ring-white/60 ${form.ville ? 'text-gray-900' : 'text-gray-500'}`}>
+                <option value="" style={{ background: '#ffffff', color: '#6b7280' }}>{t('Sélectionner…', 'اختر…')}</option>
                 {WILAYAS.map((w) => (
-                  <option key={w} value={w} style={{ background: th.selectBg }}>{formLang === 'ar' ? WILAYAS_AR[w] ?? w : w}</option>
+                  <option key={w} value={w} style={{ background: '#ffffff', color: '#111827' }}>{formLang === 'ar' ? WILAYAS_AR[w] ?? w : w}</option>
                 ))}
               </select>
             </label>

@@ -256,11 +256,12 @@ function ExamContent({ stateKey: baseKey, testStateKey, homePath, resultsPath, r
             <Timer endTime={examEndTime} onExpire={handleFinish} isAr={isAr} />
           )}
 
-          <button onClick={() => setShowConfirm(true)}
-            className="flex items-center gap-1.5 px-4 py-2 rounded-xl font-bold text-sm text-white transition hover:opacity-80"
+          {/* « Suivant » ici : « Terminer » est en bas de page pour éviter les envois par erreur */}
+          <button onClick={() => setCurrentIdx(i => Math.min(totalQ - 1, i + 1))} disabled={currentIdx === totalQ - 1}
+            className="flex items-center gap-1.5 px-4 py-2 rounded-xl font-bold text-sm text-white transition hover:opacity-80 disabled:opacity-30"
             style={{ background: 'linear-gradient(135deg,#7c3aed,#6366f1)' }}>
-            <Send className="w-3.5 h-3.5" />
-            {isAr ? 'إرسال' : 'Terminer'}
+            {isAr ? 'التالي' : 'Suivant'}
+            <ChevronRight className="w-4 h-4 rtl:rotate-180" />
           </button>
         </div>
 
@@ -383,6 +384,20 @@ function ExamContent({ stateKey: baseKey, testStateKey, homePath, resultsPath, r
             </div>
           </div>
         </div>
+      </div>
+
+      {/* Envoi final, en bas de page */}
+      <div className="max-w-3xl mx-auto w-full px-4 pt-6 pb-10 mt-4 border-t border-white/10 text-center">
+        <p className="text-white/40 text-xs mb-3">
+          {isAr
+            ? `أجبت على ${answeredCount} من ${totalQ}. عند الانتهاء من كل الأسئلة، أرسل إجاباتك.`
+            : `${answeredCount} / ${totalQ} répondues. Quand vous avez fini toutes les questions, envoyez vos réponses.`}
+        </p>
+        <button onClick={() => setShowConfirm(true)}
+          className="inline-flex items-center gap-2 px-8 py-3.5 rounded-2xl font-bold text-sm text-white border border-white/20 bg-white/10 hover:bg-white/15 transition">
+          <Send className="w-4 h-4" />
+          {isAr ? 'إنهاء وإرسال إجاباتي' : 'Terminer et envoyer mes réponses'}
+        </button>
       </div>
     </div>
   );
