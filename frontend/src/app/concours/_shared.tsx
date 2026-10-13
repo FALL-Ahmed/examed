@@ -46,6 +46,7 @@ export const WILAYAS = [
   'Hodh Ech Chargui', 'Hodh El Gharbi', 'Assaba', 'Gorgol', 'Brakna',
   'Trarza', 'Adrar', 'Dakhlet Nouadhibou', 'Tagant', 'Guidimaka',
   'Tiris Zemmour', 'Inchiri', 'Nouakchott Ouest', 'Nouakchott Nord', 'Nouakchott Sud',
+  'Autre', // hors liste (étranger, wilaya non listée…)
 ];
 export const WILAYAS_AR: Record<string, string> = {
   'Hodh Ech Chargui': 'الحوض الشرقي', 'Hodh El Gharbi': 'الحوض الغربي',
@@ -54,6 +55,7 @@ export const WILAYAS_AR: Record<string, string> = {
   'Tagant': 'التاكانت', 'Guidimaka': 'كيدي ماغا', 'Tiris Zemmour': 'تيرس زمور',
   'Inchiri': 'إنشيري', 'Nouakchott Ouest': 'نواكشوط الغربية',
   'Nouakchott Nord': 'نواكشوط الشمالية', 'Nouakchott Sud': 'نواكشوط الجنوبية',
+  'Autre': 'أخرى',
 };
 
 export const fmtDate = (d: string | Date, isAr: boolean) =>
