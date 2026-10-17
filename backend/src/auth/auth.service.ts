@@ -64,8 +64,11 @@ export class AuthService {
     }
     if (!EMAIL_RE.test(dto.email)) throw new BadRequestException('Adresse email invalide.');
     if (BLOCKED_EMAIL_DOMAINS.has(dto.email.split('@')[1])) throw new BadRequestException('Cette adresse email n’est pas acceptée.');
-    const phoneDigits = (dto.phone ?? '').replace(/\D/g, '').replace(/^(00)?222/, '');
-    if (!/^[234]\d{7}$/.test(phoneDigits)) throw new BadRequestException('Numéro de téléphone mauritanien invalide (8 chiffres).');
+    // Numéro mauritanien (8 chiffres) ou étranger (Sénégal, Mali…) : 8 à 15 chiffres, indicatif compris
+    const phoneDigits = (dto.phone ?? '').replace(/\D/g, '').replace(/^00/, '');
+    if (phoneDigits.length < 8 || phoneDigits.length > 15 || /^(\d)\1+$/.test(phoneDigits)) {
+      throw new BadRequestException('Numéro de téléphone invalide.');
+    }
     const name = (dto.fullName ?? '').trim();
     if (name.length < 3 || /^fullname$/i.test(name.replace(/\s/g, ''))) throw new BadRequestException('Nom invalide.');
 
