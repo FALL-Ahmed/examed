@@ -4,6 +4,8 @@ import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
 import { Roles } from '../common/decorators/roles.decorator';
 import { ExamenBlancService } from './examen-blanc.service';
+import { getClientIp, isRateLimited } from '../common/utils/client-ip';
+import { BadRequestException } from '@nestjs/common';
 
 @ApiTags('Examen Blanc')
 @Controller('examen-blanc')
@@ -16,7 +18,12 @@ export class ExamenBlancController {
   }
 
   @Post('register')
-  register(@Body() body: { nom: string; prenom: string; telephone: string; ville: string; examenBlancId: string; lang: string }) {
+  register(@Req() req: any, @Body() body: { nom: string; prenom: string; telephone: string; ville: string; examenBlancId: string; lang: string }) {
+    // Anti-robots : au plus 10 inscriptions par heure et par connexion
+    const ip = getClientIp(req);
+    if (ip !== 'unknown' && isRateLimited(`eb-register:${ip}`, 10, 60 * 60 * 1000)) {
+      throw new BadRequestException('Trop d’inscriptions depuis cette connexion. Réessayez plus tard.');
+    }
     return this.service.register(body);
   }
 

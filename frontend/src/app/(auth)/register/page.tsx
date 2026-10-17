@@ -79,6 +79,8 @@ function RegisterContent() {
   const [loading, setLoading] = useState(false);
   const [started, setStarted] = useState(false);
   const [waPhone, setWaPhone] = useState<string | null>(null);
+  // Champ piège : invisible pour un humain, rempli par les robots
+  const [website, setWebsite] = useState('');
   // Essai gratuit : proposé uniquement pendant une campagne ouverte (réglée dans l'admin)
   const [freemium, setFreemium] = useState<{ open: boolean; endDate: string | null }>({ open: false, endDate: null });
   const [accessMode, setAccessMode] = useState<'PAID' | 'FREEMIUM'>(planParam === 'FREEMIUM' ? 'FREEMIUM' : 'PAID');
@@ -169,6 +171,7 @@ function RegisterContent() {
     try {
       const fd = new FormData();
       fd.append('fullName', `${form.firstName.trim()} ${form.lastName.trim()}`);
+      if (website) fd.append('website', website);
       fd.append('email', form.email.trim());
       fd.append('password', form.password);
       if (form.profession) fd.append('profession', form.profession);
@@ -210,6 +213,7 @@ function RegisterContent() {
     try {
       const fd = new FormData();
       fd.append('fullName', `${form.firstName.trim()} ${form.lastName.trim()}`);
+      if (website) fd.append('website', website);
       fd.append('email', form.email.trim());
       fd.append('password', form.password);
       fd.append('profession', form.profession);
@@ -402,6 +406,9 @@ function RegisterContent() {
               </div>
             </div>
           )}
+
+          <input type="text" name="website" tabIndex={-1} autoComplete="off" aria-hidden="true" value={website}
+            onChange={(e) => setWebsite(e.target.value)} className="absolute -left-[9999px] w-px h-px opacity-0" />
 
           {/* ── Section 1 : Profil ── */}
           <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6 mb-4">

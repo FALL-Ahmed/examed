@@ -7,6 +7,7 @@ import { FileInterceptor } from '@nestjs/platform-express';
 import { memoryStorage } from 'multer';
 import { ApiTags, ApiBearerAuth } from '@nestjs/swagger';
 import { AuthService } from './auth.service';
+import { getClientIp } from '../common/utils/client-ip';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
 import { LoginDto, RefreshDto, ResetPasswordDto, VerifyDeviceDto } from './dto/auth.dto';
 
@@ -24,11 +25,11 @@ export class AuthController {
       allowed.includes(file.mimetype) ? cb(null, true) : cb(new Error('Type de fichier non autorisé'), false);
     },
   }))
-  register(@Body() dto: any, @UploadedFile() receipt?: Express.Multer.File) {
+  register(@Body() dto: any, @Req() req: any, @UploadedFile() receipt?: Express.Multer.File) {
     if (dto.groupEmails) {
       try { dto.groupEmails = JSON.parse(dto.groupEmails); } catch { dto.groupEmails = []; }
     }
-    return this.authService.register(dto, receipt);
+    return this.authService.register(dto, receipt, { ip: getClientIp(req), userAgent: String(req.headers['user-agent'] ?? '') });
   }
 
   @Post('login')
@@ -36,7 +37,7 @@ export class AuthController {
   login(@Body() dto: LoginDto, @Req() req: any) {
     const deviceId = req.headers['x-device-id'] || 'unknown';
     const userAgent = req.headers['user-agent'] || 'unknown';
-    const ip = req.ip || req.connection?.remoteAddress || 'unknown';
+    const ip = getClientIp(req);
     return this.authService.login(dto.email, dto.password, { deviceId, userAgent, ip });
   }
 
@@ -123,7 +124,7 @@ export class AuthController {
   groupSetup(@Body() body: { token: string; fullName: string; password: string; gender?: string; phone?: string; wilaya?: string; profession?: string }, @Req() req: any) {
     const deviceId = req.headers['x-device-id'] || 'unknown';
     const userAgent = req.headers['user-agent'] || 'unknown';
-    const ip = req.ip || req.connection?.remoteAddress || 'unknown';
+    const ip = getClientIp(req);
     const { token, fullName, password, ...extra } = body;
     return this.authService.groupSetup(token, fullName, password, { deviceId, userAgent, ip }, extra);
   }

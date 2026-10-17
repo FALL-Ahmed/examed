@@ -13,6 +13,17 @@ import { EmailService } from '../common/services/email.service';
 import { StorageService } from '../storage/storage.service';
 import { PushService } from '../push/push.service';
 import { FreemiumService } from '../freemium/freemium.service';
+import { isRateLimited } from '../common/utils/client-ip';
+
+// Domaines d'email factices ou jetables, utilisés par les robots
+const BLOCKED_EMAIL_DOMAINS = new Set([
+  'example.com', 'example.org', 'example.net', 'test.com', 'test.fr', 'mailinator.com', 'yopmail.com', 'yopmail.fr',
+  'guerrillamail.com', 'sharklasers.com', '10minutemail.com', 'tempmail.com', 'temp-mail.org', 'trashmail.com',
+  'getnada.com', 'dispostable.com', 'maildrop.cc', 'fakeinbox.com', 'throwawaymail.com',
+]);
+const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[a-z]{2,}$/i;
+const REGISTER_MAX_PER_IP = 3;
+const REGISTER_WINDOW_MS = 60 * 60 * 1000;
 import { generateDeviceFingerprint, generateVerificationCode, generateDeviceName, DeviceInfo } from '../common/utils/device.utils';
 
 const MAX_ACTIVE_SESSIONS = 2;
@@ -42,8 +53,21 @@ export class AuthService {
       source?: string; utmSource?: string;
     },
     receipt?: Express.Multer.File,
+    meta: { ip?: string; userAgent?: string } = {},
   ) {
     dto.email = sanitizeEmail(dto.email);
+
+    // ── Anti-robots : vérifié avant toute création de compte ou envoi de reçu ──
+    if ((dto as any).website) throw new BadRequestException('Inscription refusée.'); // champ piège invisible
+    if (meta.ip && meta.ip !== 'unknown' && isRateLimited(`register:${meta.ip}`, REGISTER_MAX_PER_IP, REGISTER_WINDOW_MS)) {
+      throw new BadRequestException('Trop d’inscriptions depuis cette connexion. Réessayez plus tard ou contactez le support.');
+    }
+    if (!EMAIL_RE.test(dto.email)) throw new BadRequestException('Adresse email invalide.');
+    if (BLOCKED_EMAIL_DOMAINS.has(dto.email.split('@')[1])) throw new BadRequestException('Cette adresse email n’est pas acceptée.');
+    const phoneDigits = (dto.phone ?? '').replace(/\D/g, '').replace(/^(00)?222/, '');
+    if (!/^[234]\d{7}$/.test(phoneDigits)) throw new BadRequestException('Numéro de téléphone mauritanien invalide (8 chiffres).');
+    const name = (dto.fullName ?? '').trim();
+    if (name.length < 3 || /^fullname$/i.test(name.replace(/\s/g, ''))) throw new BadRequestException('Nom invalide.');
 
     const existing = await this.prisma.user.findUnique({ where: { email: dto.email } });
     if (existing) throw new BadRequestException('Email déjà utilisé');
@@ -91,6 +115,8 @@ export class AuthService {
       wilaya: dto.wilaya || null,
       source: dto.source || null,
       utmSource: dto.utmSource || null,
+      signupIp: meta.ip ? meta.ip.slice(0, 64) : null,
+      signupUserAgent: meta.userAgent ? meta.userAgent.slice(0, 300) : null,
     };
 
     if (invite) {

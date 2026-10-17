@@ -73,6 +73,8 @@ model User {
   role            Role         @default(FREE)
   subscriptionEnd DateTime?
   freemiumAt      DateTime?    // Inscription en essai gratuit (reste renseigné après passage Premium)
+  signupIp        String?      // IP réelle à l'inscription (traçabilité anti-abus)
+  signupUserAgent String?
   isActive        Boolean      @default(true)
   sessions        Session[]
   refreshTokens   RefreshToken[]
