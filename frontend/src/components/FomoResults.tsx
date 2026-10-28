@@ -67,7 +67,7 @@ export function FomoResults({ score, totalQ, correctQ, themeName, subThemeName, 
       setOperators(map);
     }).catch(() => {});
     settingsApi.promo().then((r) => {
-      if (r.data?.discount) setPromo(r.data);
+      if (r.data?.active) setPromo({ ...r.data, discount: r.data.maxPct ?? r.data.discount });
     }).catch(() => {});
   }, [score, themeId, subThemeId]);
 
@@ -142,7 +142,7 @@ export function FomoResults({ score, totalQ, correctQ, themeName, subThemeName, 
           <div className="relative inline-flex items-center gap-2 bg-white/15 border border-white/40 backdrop-blur font-black text-white px-4 py-2 rounded-xl mb-4 text-base">
             🔥
             <span>
-              {isAr ? `خصم استثنائي` : `Offre limitée`}
+              {isAr ? `عرض خاص` : `Offre spéciale`}
               {' '}
               <span className="text-2xl font-black">-{promo.discount}%</span>
             </span>

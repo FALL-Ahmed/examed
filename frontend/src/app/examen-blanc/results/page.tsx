@@ -158,7 +158,7 @@ function ResultsContent() {
   const [showAll, setShowAll] = useState(false);
   const [resultsAt, setResultsAt] = useState<Date | null>(null);
   const [localState, setLocalState] = useState<any>(null);
-  const [promo, setPromo] = useState<{ active: boolean; discount: number } | null>(null);
+  const [promo, setPromo] = useState<{ active: boolean; discount: number; maxPct?: number } | null>(null);
   const [mySessions, setMySessions] = useState<any[]>([]);
   const [allFiches, setAllFiches] = useState<{ id: string; title: string; fileUrl: string }[]>([]);
 
@@ -602,7 +602,7 @@ function ResultsContent() {
               style={{ background: 'linear-gradient(135deg,#7c3aed,#6366f1)' }}>
               <BookOpen className="w-4 h-4" />
               {promo?.active
-                ? (isAr ? `استفد من -${promo.discount}% وواصل التدريب` : `Profiter de -${promo.discount} % et continuer à s'entraîner`)
+                ? (isAr ? `استفد من -${promo.maxPct ?? promo.discount}% وواصل التدريب` : `Profiter de -${promo.maxPct ?? promo.discount} % et continuer à s'entraîner`)
                 : (isAr ? 'واصل التدريب على المنصة' : "Continuer à s'entraîner sur la plateforme")}
             </Link>
 
@@ -622,7 +622,7 @@ function ResultsContent() {
                 <Link href="/register"
                   className="block px-3 py-2.5 rounded-xl bg-yellow-400/20 border border-yellow-400/50 text-center hover:bg-yellow-400/30 transition">
                   <p className="text-yellow-300 font-extrabold text-sm tracking-wide">
-                    🔥 {isAr ? `عرض خاص : -${promo.discount}% على التسجيل اليوم` : `Offre spéciale : -${promo.discount} % sur l'inscription aujourd'hui`}
+                    🔥 {isAr ? `عرض خاص : -${promo.maxPct ?? promo.discount}% على التسجيل اليوم` : `Offre spéciale : -${promo.maxPct ?? promo.discount} % sur l'inscription aujourd'hui`}
                   </p>
                 </Link>
               )}
