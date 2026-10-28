@@ -185,15 +185,15 @@ function FreeTrialContent() {
 
   const plans = [
     {
-      label: isAr ? 'فردي — حتى المسابقة' : 'Solo — jusqu\'au concours',
+      label: isAr ? 'فردي — 6 أشهر' : 'Solo — 6 mois',
       href: '/register?plan=SOLO_1M',
       price: prices.solo,
       oldPrice: promoActive ? solo1m : null,
       badge: isAr ? '⭐ الأكثر طلباً' : '⭐ Populaire',
-      sub: isAr ? 'وصول كامل حتى يوم المسابقة' : 'Accès jusqu\'au concours',
+      sub: isAr ? 'وصول كامل لمدة 6 أشهر' : 'Accès pendant 6 mois',
     },
     {
-      label: isAr ? `باك الأصدقاء · حتى المسابقة` : `Pack Amis · jusqu'au concours`,
+      label: isAr ? `باك الأصدقاء · 6 أشهر` : `Pack Amis · 6 mois`,
       href: '/register?plan=GROUP',
       price: prices.group,
       oldPrice: prices.onGroup ? groupPerP * groupMin : null,

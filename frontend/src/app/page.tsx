@@ -468,7 +468,7 @@ export default function LandingPage() {
                 <Users className="w-5 h-5 text-emerald-600" />
               </div>
               <h3 className="font-extrabold text-xl text-gray-900 mb-1">{t('landing.pricing.group.name')}</h3>
-              <p className="text-gray-400 text-sm mb-1">{lang === 'ar' ? 'حتى المسابقة' : 'Accès jusqu\'au concours'}</p>
+              <p className="text-gray-400 text-sm mb-1">{lang === 'ar' ? 'لمدة 6 أشهر' : 'Accès pendant 6 mois'}</p>
               <p className="text-emerald-600 text-sm font-bold mb-4">
                 {lang === 'ar' ? '🎁 ادفع لـ 2، وتعالوا 3!' : '🎁 Payez pour 2, venez à 3 !'}
               </p>

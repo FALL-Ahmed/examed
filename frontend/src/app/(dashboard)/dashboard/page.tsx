@@ -169,7 +169,7 @@ export default function DashboardPage() {
         <div className="flex items-center gap-3 bg-emerald-500/10 border border-emerald-500/20 rounded-2xl px-5 py-3">
           <CalendarCheck className="w-4 h-4 text-emerald-400 flex-shrink-0" />
           <p className="text-sm text-emerald-400">
-            {isAr ? 'الاشتراك صالح حتى يوم المسابقة ✓' : 'Compte actif · valable jusqu\'au concours ✓'}
+            {isAr ? 'الاشتراك صالح لمدة 6 أشهر ✓' : 'Compte actif · valable 6 mois ✓'}
           </p>
         </div>
       )}
