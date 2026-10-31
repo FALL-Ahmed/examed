@@ -6,7 +6,7 @@ import { concoursApi, examenBlancApi } from '@/lib/api';
 import { useLang } from '@/components/LanguageProvider';
 import { AlertCircle, ChevronRight, Loader2 } from 'lucide-react';
 import {
-  ConcoursShell, Spinner, PROFESSION, WILAYAS, WILAYAS_AR, CONCOURS_STATE_KEY, concoursHome, concoursTheme, readConcoursState,
+  ConcoursShell, Spinner, PROFESSION, WILAYAS, WILAYAS_AR, CONCOURS_STATE_KEY, WINNERS_COUNT, concoursHome, concoursTheme, readConcoursState,
 } from '../_shared';
 
 function RegisterContent() {
@@ -136,7 +136,9 @@ function RegisterContent() {
               <input type="tel" inputMode="numeric" value={form.telephone} dir="ltr" placeholder="XX XX XX XX"
                 onChange={(e) => set('telephone', e.target.value.replace(/[^0-9+\s]/g, ''))} className={inputCls} />
               <span className={`block text-xs mt-1.5 ${th.textFaint}`}>
-                {t('Les gagnants sont contactés sur ce numéro. Une seule participation par numéro.', 'سيتم التواصل مع الفائزين على هذا الرقم. مشاركة واحدة لكل رقم.')}
+                {WINNERS_COUNT > 0
+                  ? t('Les gagnants sont contactés sur ce numéro. Une seule participation par numéro.', 'سيتم التواصل مع الفائزين على هذا الرقم. مشاركة واحدة لكل رقم.')
+                  : t('Une seule participation par numéro.', 'مشاركة واحدة لكل رقم.')}
               </span>
             </label>
 

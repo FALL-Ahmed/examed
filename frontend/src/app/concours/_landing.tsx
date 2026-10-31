@@ -6,7 +6,7 @@ import { useLang } from '@/components/LanguageProvider';
 import { ChevronRight, Clock, FileText, Users, Trophy, Smartphone, EyeOff, Timer } from 'lucide-react';
 import { ResultsLookup } from './_results-lookup';
 import {
-  ConcoursShell, Spinner, PROFESSION, WINNERS_COUNT, concoursTheme, fmtDate, fmtTime, readConcoursState,
+  ConcoursShell, Spinner, PROFESSION, WINNERS_COUNT, CHALLENGE_TITLE, concoursTheme, fmtDate, fmtTime, readConcoursState,
 } from './_shared';
 
 const pad = (n: number) => String(n).padStart(2, '0');
@@ -59,7 +59,7 @@ export function ConcoursLanding({ target }: { target: 'INFIRMIER' | 'SAGE_FEMME'
   const btn = `inline-flex items-center gap-2 mt-5 px-6 py-3 rounded-2xl font-bold text-white hover:opacity-90 transition`;
 
   const rules = [
-    { icon: FileText, fr: `${session?.totalQ ?? '—'} cas cliniques, les mêmes pour tous`, ar: `${session?.totalQ ?? '—'} حالة سريرية، نفس الأسئلة للجميع` },
+    { icon: FileText, fr: `${session?.totalQ ?? '—'} questions, les mêmes pour tous`, ar: `${session?.totalQ ?? '—'} سؤال، نفس الأسئلة للجميع` },
     { icon: Timer, fr: `${session?.durationMin ?? '—'} minutes chrono, dès l'inscription`, ar: `${session?.durationMin ?? '—'} دقيقة تبدأ فور التسجيل` },
     { icon: Smartphone, fr: 'Une seule participation par numéro de téléphone', ar: 'مشاركة واحدة فقط لكل رقم هاتف' },
     { icon: Trophy, fr: 'Classement par score, puis par temps en cas d’égalité', ar: 'الترتيب حسب النتيجة ثم الوقت عند التعادل' },
@@ -70,20 +70,24 @@ export function ConcoursLanding({ target }: { target: 'INFIRMIER' | 'SAGE_FEMME'
     <ConcoursShell target={target}>
       <section className="max-w-3xl mx-auto px-4 sm:px-6 pt-6 pb-16 text-center">
         <p className={`${th.accentText} text-sm font-bold uppercase tracking-widest mb-3`}>
-          🎓 {isAr ? 'تحدي الدخول المدرسي' : 'Challenge de la Rentrée'} · {isAr ? (target === 'SAGE_FEMME' ? 'قابلة' : 'ممرض') : prof.fr}
+          🎓 {isAr ? CHALLENGE_TITLE.ar : CHALLENGE_TITLE.fr} · {isAr ? (target === 'SAGE_FEMME' ? 'قابلة' : 'ممرض') : prof.fr}
         </p>
         <h1 className="text-3xl sm:text-5xl font-black text-white leading-tight">
-          {isAr
-            ? <>أفضل {WINNERS_COUNT} من {prof.ar} يربحون</>
-            : <>Les {WINNERS_COUNT} meilleurs {target === 'SAGE_FEMME' ? 'sages-femmes' : 'infirmiers'} gagnent</>}
+          {WINNERS_COUNT > 0
+            ? (isAr
+              ? <>أفضل {WINNERS_COUNT} من {prof.ar} يربحون</>
+              : <>Les {WINNERS_COUNT} meilleurs {target === 'SAGE_FEMME' ? 'sages-femmes' : 'infirmiers'} gagnent</>)
+            : (isAr ? 'اختبر مستواك' : 'Testez votre niveau')}
           <span className="block mt-2" style={{ background: th.headline, WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', paddingBottom: '0.1em' }}>
-            {isAr ? 'اشتراك Premium مجاني' : 'un abonnement Premium gratuit'}
+            {WINNERS_COUNT > 0
+              ? (isAr ? 'اشتراك Premium مجاني' : 'un abonnement Premium gratuit')
+              : (isAr ? 'أمام باقي المترشحين' : 'face aux autres candidats')}
           </span>
         </h1>
         <p className={`${th.textDim} mt-4 max-w-xl mx-auto`}>
           {isAr
-            ? 'اختبر نفسك على حالات سريرية حقيقية، وقارن مستواك مع باقي المشاركين.'
-            : 'Testez-vous sur de vrais cas cliniques et comparez votre niveau à celui des autres candidats.'}
+            ? 'أسئلة مختارة من أفضل امتحاناتنا التجريبية، قارن مستواك مع باقي المشاركين.'
+            : 'Des questions tirées de nos meilleurs examens blancs : comparez votre niveau à celui des autres candidats.'}
         </p>
 
         {/* Chiffres */}
@@ -172,11 +176,13 @@ export function ConcoursLanding({ target }: { target: 'INFIRMIER' | 'SAGE_FEMME'
               </li>
             ))}
           </ul>
-          <p className={`text-xs ${th.textFaint} mt-5`}>
-            {isAr
-              ? `سيتم التواصل مع أفضل ${WINNERS_COUNT} عبر واتساب بعد التحقق من النتائج.`
-              : `Les ${WINNERS_COUNT} premiers seront contactés sur WhatsApp après vérification des résultats.`}
-          </p>
+          {WINNERS_COUNT > 0 && (
+            <p className={`text-xs ${th.textFaint} mt-5`}>
+              {isAr
+                ? `سيتم التواصل مع أفضل ${WINNERS_COUNT} عبر واتساب بعد التحقق من النتائج.`
+                : `Les ${WINNERS_COUNT} premiers seront contactés sur WhatsApp après vérification des résultats.`}
+            </p>
+          )}
         </div>
       </section>
     </ConcoursShell>

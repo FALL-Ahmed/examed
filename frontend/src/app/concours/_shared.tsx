@@ -3,10 +3,11 @@ import Link from 'next/link';
 import { BookOpen, Trophy } from 'lucide-react';
 import { useLang } from '@/components/LanguageProvider';
 
-// Concours de la Rentrée — éléments partagés par les pages publiques
+// Challenge — éléments partagés par les pages publiques
 export const CONCOURS_STATE_KEY = 'concours_state';
 export const CONCOURS_TEST_KEY = 'concours_test_state'; // test admin : ignore les dates, hors classement
-export const WINNERS_COUNT = 10;
+export const CHALLENGE_TITLE = { fr: 'Challenge du mois', ar: 'تحدي الشهر' };
+export const WINNERS_COUNT = 0; // nombre de gagnants (Premium offert) ; 0 = pas de lot, textes masqués
 
 export const concoursHome = (target: string) => (target === 'SAGE_FEMME' ? '/concours/sage-femme' : '/concours');
 

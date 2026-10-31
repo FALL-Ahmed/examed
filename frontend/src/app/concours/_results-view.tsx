@@ -164,11 +164,13 @@ export function ResultsView({ target, res, error, isTest }: { target: string; re
               <p className="text-white/90 text-sm">{isAr ? 'النتائج والترتيب يوم' : 'Résultats et classement le'}</p>
               <p className="text-white font-bold mt-1">{fmtDate(res.resultsAt, isAr)} · {fmtTime(res.resultsAt, isAr)}</p>
             </div>
-            <p className={`${th.textFaint} text-xs mt-4`}>
-              {isAr
-                ? `سيتم التواصل مع أفضل ${WINNERS_COUNT} عبر واتساب على ${res.participant?.telephone ?? ''}.`
-                : `Les ${WINNERS_COUNT} premiers seront contactés sur WhatsApp au ${res.participant?.telephone ?? ''}.`}
-            </p>
+            {WINNERS_COUNT > 0 && (
+              <p className={`${th.textFaint} text-xs mt-4`}>
+                {isAr
+                  ? `سيتم التواصل مع أفضل ${WINNERS_COUNT} عبر واتساب على ${res.participant?.telephone ?? ''}.`
+                  : `Les ${WINNERS_COUNT} premiers seront contactés sur WhatsApp au ${res.participant?.telephone ?? ''}.`}
+              </p>
+            )}
           </div>
         ) : (
           <>
@@ -201,7 +203,7 @@ export function ResultsView({ target, res, error, isTest }: { target: string; re
               </div>
             </div>
 
-            {res.classement <= WINNERS_COUNT ? (
+            {WINNERS_COUNT > 0 && res.classement <= WINNERS_COUNT ? (
               <div className={`rounded-3xl p-6 text-center border ${th.highlight}`}>
                 <Trophy className={`w-10 h-10 mx-auto mb-2 ${th.accentText}`} />
                 <p className="text-white font-black text-lg">{isAr ? `أنت ضمن أفضل ${WINNERS_COUNT}!` : `Vous êtes dans le top ${WINNERS_COUNT} !`}</p>

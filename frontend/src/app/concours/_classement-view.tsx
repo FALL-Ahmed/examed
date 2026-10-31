@@ -3,7 +3,7 @@ import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useLang } from '@/components/LanguageProvider';
 import { Trophy, ChevronRight } from 'lucide-react';
-import { ConcoursShell, PROFESSION, WINNERS_COUNT, concoursHome, concoursTheme } from './_shared';
+import { ConcoursShell, PROFESSION, WINNERS_COUNT, CHALLENGE_TITLE, concoursHome, concoursTheme } from './_shared';
 import { ResultsLookup } from './_results-lookup';
 
 const pad = (n: number) => String(n).padStart(2, '0');
@@ -41,7 +41,7 @@ export function ClassementView({ target, data, mine }: { target: 'INFIRMIER' | '
           <Trophy className={`w-14 h-14 mx-auto mb-4 ${target === 'SAGE_FEMME' ? 'text-white' : 'text-amber-400'}`} />
           <h1 className="text-3xl font-black text-white mb-2">{isAr ? 'الترتيب' : 'Classement'}</h1>
           <p className={`${th.textMuted} text-sm`}>
-            {isAr ? 'تحدي الدخول المدرسي' : 'Challenge de la Rentrée'} · {profLabel}
+            {isAr ? CHALLENGE_TITLE.ar : CHALLENGE_TITLE.fr} · {profLabel}
           </p>
           {data.total > 0 && (
             <p className={`${th.textFaint} text-sm mt-1`}>{isAr ? `${data.total} مشارك` : `${data.total} participants`}</p>
@@ -82,11 +82,13 @@ export function ClassementView({ target, data, mine }: { target: 'INFIRMIER' | '
                 ? 'النتائج متاحة بشكل فردي عبر رقم هاتفك.'
                 : 'Les résultats sont disponibles individuellement via votre numéro de téléphone.'}
             </p>
-            <p className={`${th.textFaint} text-xs mt-2`}>
-              {isAr
-                ? `سيتم التواصل مع أفضل ${WINNERS_COUNT} عبر واتساب لتفعيل اشتراك Premium المجاني.`
-                : `Les ${WINNERS_COUNT} premiers sont contactés sur WhatsApp pour activer leur Premium gratuit.`}
-            </p>
+            {WINNERS_COUNT > 0 && (
+              <p className={`${th.textFaint} text-xs mt-2`}>
+                {isAr
+                  ? `سيتم التواصل مع أفضل ${WINNERS_COUNT} عبر واتساب لتفعيل اشتراك Premium المجاني.`
+                  : `Les ${WINNERS_COUNT} premiers sont contactés sur WhatsApp pour activer leur Premium gratuit.`}
+              </p>
+            )}
             <div className="mt-6">
               {mine ? (
                 <Link href="/concours/results" className={btn} style={{ background: th.accent }}>
