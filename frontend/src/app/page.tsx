@@ -445,7 +445,8 @@ export default function LandingPage() {
               <h3 className="font-extrabold text-xl text-gray-900 mb-1">{t('landing.pricing.solo1.name')}</h3>
               <p className="text-gray-400 text-sm mb-6">{t('landing.pricing.solo1.desc')}</p>
               <div className="mb-6">
-                {promoActive && <p className="text-2xl font-black text-red-400 line-through">{pricing?.solo1m?.price ?? 500} MRU</p>}
+                {/* Prix barré d'affichage uniquement (le prix de base en base reste inchangé) */}
+                {promoActive && <p className="text-2xl font-black text-red-400 line-through">1500 MRU {lang === 'ar' ? 'سنوياً' : 'par an'}</p>}
                 <p className="text-4xl font-black text-gray-900">
                   {prices.solo}
                   <span className="text-lg font-semibold text-gray-400 ml-1">MRU</span>
@@ -475,7 +476,7 @@ export default function LandingPage() {
               <div className="mb-1">
                 {promoActive && promoIncludesGroup && (
                   <p className="text-2xl font-black text-red-400 line-through">
-                    {(pricing?.groupPerP?.price ?? 400) * (pricing?.groupMin ?? 3)} MRU
+                    3000 MRU {lang === 'ar' ? 'سنوياً' : 'par an'}
                   </p>
                 )}
                 <p className="text-4xl font-black text-gray-900">
