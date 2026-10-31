@@ -471,6 +471,8 @@ export default function LandingPage() {
               <h3 className="font-extrabold text-xl text-gray-900 mb-1">{lang === 'ar' ? 'باك خاص' : 'Pack spécial'}</h3>
               <p className="text-gray-400 text-sm mb-6">{lang === 'ar' ? 'حتى المسابقة · سنة على الأقل' : "Jusqu'au concours · 1 an minimum"}</p>
               <div className="mb-6">
+                {/* Prix barré d'affichage uniquement */}
+                <p className="text-2xl font-black text-red-400 line-through">1500 MRU</p>
                 <p className="text-4xl font-black text-gray-900">
                   {pricing?.concours?.price ?? 1000}
                   <span className="text-lg font-semibold text-gray-400 ml-1">MRU</span>

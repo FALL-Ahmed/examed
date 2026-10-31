@@ -21,7 +21,7 @@ function PromoCta({ isAr, card, th }: { isAr: boolean; card: string; th: ReturnT
   const prices = computePrices({ soloBase: pricing.solo1m?.price, perPerson: pricing.groupPerP?.price, groupSize, promo });
   const plans = [
     { label: isAr ? 'فردي · 6 أشهر' : 'Solo · 6 mois', price: prices.solo, base: prices.soloBase, pct: prices.soloPct, href: '/register?plan=SOLO_1M' },
-    { label: isAr ? 'باك خاص · حتى المسابقة' : "Pack spécial · jusqu'au concours", price: pricing.concours?.price ?? 1000, base: 0, pct: 0, href: '/register?plan=CONCOURS',
+    { label: isAr ? 'باك خاص · حتى المسابقة' : "Pack spécial · jusqu'au concours", price: pricing.concours?.price ?? 1000, base: 1500, pct: 1, href: '/register?plan=CONCOURS', // 1500 barré : affichage uniquement
       badge: isAr ? '⭐ موصى به' : '⭐ Recommandé' },
     { label: isAr ? `باك الأصدقاء (${groupSize})` : `Pack Amis (${groupSize})`, price: prices.group, base: prices.groupBase, pct: prices.groupPct, href: '/register?plan=GROUP' },
   ];

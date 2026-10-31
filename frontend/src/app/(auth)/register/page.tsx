@@ -549,6 +549,7 @@ function RegisterContent() {
                   <p className="text-xs text-gray-500 mt-0.5">{isAr ? 'وصول لمدة سنة على الأقل' : 'Accès 1 an minimum'}</p>
                 </div>
                 <div className="text-right flex-shrink-0 ml-4">
+                  <p className="text-xs text-gray-400 line-through">1500 MRU</p>
                   <p className="font-extrabold text-amber-600 text-lg">{concoursPrice} <span className="text-sm font-semibold">MRU</span></p>
                 </div>
                 {selectedPlan === 'CONCOURS' && (

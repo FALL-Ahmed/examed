@@ -219,6 +219,7 @@ export default function AbonnementPage() {
             <p className="font-bold">{t('Pack spécial', 'باك خاص')}</p>
             <p className="text-xs text-muted-foreground mt-1">{t("Jusqu'au concours · 1 an minimum", 'حتى المسابقة · سنة على الأقل')}</p>
             <p className="mt-4">
+              <span className="text-sm text-muted-foreground line-through me-2">{fmt(1500)}</span>
               <span className="text-3xl font-black tabular-nums">{fmt(concoursPrice)}</span> <span className="text-sm font-semibold">MRU</span>
             </p>
             {plan === 'CONCOURS' && <span className="absolute top-4 end-4 w-5 h-5 rounded-full bg-amber-500 flex items-center justify-center"><Check className="w-3 h-3 text-white" /></span>}

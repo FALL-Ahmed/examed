@@ -196,7 +196,7 @@ function FreeTrialContent() {
       label: isAr ? 'باك خاص — حتى المسابقة' : "Pack spécial — jusqu'au concours",
       href: '/register?plan=CONCOURS',
       price: pricing?.concours?.price ?? 1000,
-      oldPrice: null,
+      oldPrice: 1500, // prix barré d'affichage uniquement
       badge: isAr ? '⭐ موصى به' : '⭐ Recommandé',
       sub: isAr ? 'سنة على الأقل' : '1 an minimum',
     },
