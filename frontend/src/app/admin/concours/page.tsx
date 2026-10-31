@@ -26,6 +26,73 @@ const toLocalInput = (iso?: string) => {
   return `${d.getFullYear()}-${pad2(d.getMonth() + 1)}-${pad2(d.getDate())}T${pad2(d.getHours())}:${pad2(d.getMinutes())}`;
 };
 
+const ago = (d?: string) => {
+  if (!d) return '';
+  const min = Math.round((Date.now() - new Date(d).getTime()) / 60000);
+  return min < 1 ? "à l'instant" : min < 60 ? `il y a ${min} min` : `il y a ${Math.floor(min / 60)} h ${String(min % 60).padStart(2, '0')}`;
+};
+
+// Derniers inscrits (en cours) et derniers terminés, du plus récent au plus ancien
+function RecentList({ ranking, lang }: { ranking: any; lang: 'all' | 'fr' | 'ar' }) {
+  const rows = [
+    ...ranking.participants.map((p: any) => ({ ...p, done: true, at: p.submittedAt ?? p.createdAt })),
+    ...(ranking.inProgressList ?? []).map((p: any) => ({ ...p, done: false, at: p.createdAt })),
+  ]
+    .filter((p) => lang === 'all' || p.lang === lang)
+    .sort((a, b) => new Date(b.at ?? 0).getTime() - new Date(a.at ?? 0).getTime());
+
+  if (rows.length === 0) return <p className="text-sm text-muted-foreground text-center py-12">Aucun participant pour l’instant.</p>;
+
+  return (
+    <div className="overflow-x-auto">
+      <table className="w-full text-sm">
+        <thead className="bg-secondary/50 text-xs text-muted-foreground uppercase tracking-wide">
+          <tr>
+            <th className="text-start px-4 py-3 font-semibold">Quand</th>
+            <th className="text-start px-4 py-3 font-semibold">Statut</th>
+            <th className="text-start px-4 py-3 font-semibold">Participant</th>
+            <th className="text-start px-4 py-3 font-semibold">Téléphone</th>
+            <th className="text-end px-4 py-3 font-semibold">Note / avancée</th>
+          </tr>
+        </thead>
+        <tbody className="divide-y divide-border">
+          {rows.map((p) => (
+            <tr key={p.id}>
+              <td className="px-4 py-3 whitespace-nowrap">
+                <p className="font-medium tabular-nums">{fmt(p.at)}</p>
+                <p className="text-xs text-muted-foreground">{ago(p.at)}</p>
+              </td>
+              <td className="px-4 py-3">
+                {p.done
+                  ? <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-600">Terminé · #{p.rank}</span>
+                  : <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-amber-500/10 text-amber-600">En cours</span>}
+              </td>
+              <td className="px-4 py-3">
+                <p className="font-medium">{p.prenom} {p.nom}</p>
+                <p className="text-xs text-muted-foreground">
+                  <span className={`font-semibold ${p.target === 'SAGE_FEMME' ? 'text-pink-600' : 'text-indigo-600'}`}>{TARGET_LABEL[p.target] ?? p.target} · </span>
+                  {p.ville} · {p.lang === 'ar' ? 'AR' : 'FR'}
+                </p>
+              </td>
+              <td className="px-4 py-3" dir="ltr">
+                <a href={`https://wa.me/${waNumber(p.telephone)}`} target="_blank" rel="noopener noreferrer"
+                  className="inline-flex items-center gap-1.5 text-emerald-600 hover:underline">
+                  <MessageCircle className="w-3.5 h-3.5" /> {p.telephone}
+                </a>
+              </td>
+              <td className="px-4 py-3 text-end tabular-nums">
+                {p.done
+                  ? <><p className="font-bold">{note20(p.score)}/20</p><p className="text-xs text-muted-foreground">{duration(p.timeTaken)}</p></>
+                  : <p className="text-xs text-muted-foreground">{p.answeredQ ?? 0}/{ranking.session.totalQ} répondues</p>}
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  );
+}
+
 // Lance une épreuve de test (ignore les dates, hors classement) dans un nouvel onglet
 function TestButton({ session }: { session: any }) {
   const [loading, setLoading] = useState<'fr' | 'ar' | null>(null);
@@ -94,6 +161,8 @@ export default function AdminConcoursPage() {
 
   // Classement par filière ou global (infirmier + sage-femme réunis, comme le rang vu par les participants)
   const [rankScope, setRankScope] = useState<'session' | 'global'>('global');
+  // « Récents » : derniers inscrits et derniers terminés, du plus récent au plus ancien
+  const [rankSort, setRankSort] = useState<'rank' | 'recent'>('rank');
 
   function loadRanking(id: string) {
     setRankingLoading(true);
@@ -416,7 +485,15 @@ export default function AdminConcoursPage() {
                 </p>
               )}
             </div>
-            <div className="flex items-center gap-2 ms-auto">
+            <div className="flex flex-wrap items-center justify-end gap-2 ms-auto">
+              <div className="flex gap-1 bg-secondary/50 border border-border rounded-lg p-0.5">
+                {([['rank', 'Classement'], ['recent', '🕒 Récents']] as const).map(([id, label]) => (
+                  <button key={id} onClick={() => setRankSort(id)}
+                    className={`px-2.5 py-1 rounded-md text-xs font-semibold transition ${rankSort === id ? 'bg-background shadow text-foreground' : 'text-muted-foreground hover:text-foreground'}`}>
+                    {label}
+                  </button>
+                ))}
+              </div>
               <div className="flex gap-1 bg-secondary/50 border border-border rounded-lg p-0.5">
                 {([['global', 'Global'], ['session', 'Par filière']] as const).map(([id, label]) => (
                   <button key={id} onClick={() => setRankScope(id)}
@@ -442,6 +519,8 @@ export default function AdminConcoursPage() {
 
           {!ranking ? (
             <div className="flex justify-center py-12"><Loader2 className="w-5 h-5 animate-spin text-primary" /></div>
+          ) : rankSort === 'recent' ? (
+            <RecentList ranking={ranking} lang={rankLang} />
           ) : ranking.participants.length === 0 ? (
             <p className="text-sm text-muted-foreground text-center py-12">Aucun participant n’a encore terminé.</p>
           ) : (

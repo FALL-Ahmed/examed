@@ -1719,19 +1719,31 @@ export class ExamenBlancService {
         select: {
           id: true, prenom: true, nom: true, telephone: true, ville: true, lang: true,
           score: true, timeTaken: true, tricherie: true, tabSwitches: true,
-          contacted: true, prizeGranted: true, submittedAt: true,
+          contacted: true, prizeGranted: true, submittedAt: true, createdAt: true,
           examenBlanc: { select: { target: true, totalQ: true } },
           _count: { select: { reponses: { where: { isCorrect: true } } } },
         },
       }),
-      db(this.prisma).examenBlancParticipant.count({ where: { examenBlancId: { in: ids }, isCompleted: false, isTest: false } }),
+      // Participants encore en cours (filtre « Récents » de l'admin)
+      db(this.prisma).examenBlancParticipant.findMany({
+        where: { examenBlancId: { in: ids }, isCompleted: false, isTest: false },
+        orderBy: { createdAt: 'desc' },
+        select: {
+          id: true, prenom: true, nom: true, telephone: true, ville: true, lang: true, createdAt: true, tabSwitches: true,
+          examenBlanc: { select: { target: true } },
+          _count: { select: { reponses: true } },
+        },
+      }),
     ]);
     return {
       session: {
         id: session.id, title: session.title, target: session.target, totalQ: session.totalQ,
         startsAt: session.startsAt, endsAt: session.endsAt, resultsAt: session.resultsAt, isActive: session.isActive,
       },
-      inProgress,
+      inProgress: inProgress.length,
+      inProgressList: inProgress.map((p: any) => ({
+        ...p, target: p.examenBlanc.target, answeredQ: p._count.reponses, _count: undefined, examenBlanc: undefined,
+      })),
       scope,
       participants: ranked.map((p: any, i: number) => ({
         rank: i + 1, ...p, target: p.examenBlanc.target, totalQ: p.examenBlanc.totalQ,
