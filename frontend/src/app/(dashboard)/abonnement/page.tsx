@@ -25,13 +25,13 @@ export default function AbonnementPage() {
   const t = (fr: string, ar: string) => (isAr ? ar : fr);
   const fmt = (n: number) => n.toLocaleString(isAr ? 'ar-EG' : 'fr-FR');
 
-  const [pricing, setPricing] = useState({ solo: 2000, perPerson: 1500, groupMin: 3 });
+  const [pricing, setPricing] = useState({ solo: 2000, perPerson: 1500, groupMin: 3, concours: 1000 });
   const [promo, setPromo] = useState<any>(null);
   const [phones, setPhones] = useState<Record<string, string>>({});
   const [waPhone, setWaPhone] = useState<string | null>(null);
   const [pending, setPending] = useState(false); // paiement déjà envoyé, en attente de validation
 
-  const [plan, setPlan] = useState<'SOLO_1M' | 'GROUP'>('SOLO_1M');
+  const [plan, setPlan] = useState<'SOLO_1M' | 'CONCOURS' | 'GROUP'>('CONCOURS');
   const [groupSize, setGroupSize] = useState(3);
   const [emails, setEmails] = useState('');
   const [operator, setOperator] = useState('');
@@ -44,7 +44,7 @@ export default function AbonnementPage() {
 
   useEffect(() => {
     settingsApi.pricing().then((r) => {
-      setPricing({ solo: r.data.solo1m?.price ?? 2000, perPerson: r.data.groupPerP?.price ?? 1500, groupMin: r.data.groupMin ?? 3 });
+      setPricing({ solo: r.data.solo1m?.price ?? 2000, perPerson: r.data.groupPerP?.price ?? 1500, groupMin: r.data.groupMin ?? 3, concours: r.data.concours?.price ?? 1000 });
       setGroupSize(r.data.groupMin ?? 3);
     }).catch(() => {});
     settingsApi.promo().then((r) => setPromo(r.data)).catch(() => {});
@@ -64,7 +64,8 @@ export default function AbonnementPage() {
   const soloPrice = prices.solo;
   const groupBase = prices.groupBase;
   const groupPrice = prices.group;
-  const amount = plan === 'SOLO_1M' ? soloPrice : groupPrice;
+  const concoursPrice = pricing.concours ?? 1000;
+  const amount = plan === 'SOLO_1M' ? soloPrice : plan === 'CONCOURS' ? concoursPrice : groupPrice;
   const emailList = emails.split('\n').map((e) => e.trim()).filter(Boolean);
 
   async function submit() {
@@ -87,7 +88,7 @@ export default function AbonnementPage() {
       fd.append('paymentMethod', 'MOBILE_MONEY');
       fd.append('operator', operator);
       fd.append('planType', plan);
-      fd.append('durationDays', '30');
+      fd.append('durationDays', plan === 'CONCOURS' ? '365' : '30');
       if (plan === 'GROUP') {
         fd.append('groupSize', String(groupSize));
         fd.append('groupEmails', JSON.stringify(emailList));
@@ -198,7 +199,7 @@ export default function AbonnementPage() {
             </div>
           </div>
         )}
-        <div className="grid sm:grid-cols-2 gap-3 mt-4">
+        <div className="grid sm:grid-cols-3 gap-3 mt-4">
           <button type="button" onClick={() => setPlan('SOLO_1M')}
             className={`relative text-start rounded-2xl border-2 p-5 transition ${plan === 'SOLO_1M' ? 'border-primary bg-primary/5' : 'border-border hover:border-primary/40'}`}>
             <p className="font-bold">Solo</p>
@@ -211,9 +212,20 @@ export default function AbonnementPage() {
             {plan === 'SOLO_1M' && <span className="absolute top-4 end-4 w-5 h-5 rounded-full bg-primary flex items-center justify-center"><Check className="w-3 h-3 text-white" /></span>}
           </button>
 
+          {/* Pack spécial jusqu'au concours (recommandé) */}
+          <button type="button" onClick={() => setPlan('CONCOURS')}
+            className={`relative text-start rounded-2xl border-2 p-5 transition ${plan === 'CONCOURS' ? 'border-amber-500 bg-amber-50' : 'border-amber-300 hover:border-amber-400'}`}>
+            <span className="absolute -top-2.5 start-4 text-[11px] font-bold bg-amber-400 text-gray-900 px-2 py-0.5 rounded-full">⭐ {t('Recommandé', 'موصى به')}</span>
+            <p className="font-bold">{t('Pack spécial', 'باك خاص')}</p>
+            <p className="text-xs text-muted-foreground mt-1">{t("Jusqu'au concours · 1 an minimum", 'حتى المسابقة · سنة على الأقل')}</p>
+            <p className="mt-4">
+              <span className="text-3xl font-black tabular-nums">{fmt(concoursPrice)}</span> <span className="text-sm font-semibold">MRU</span>
+            </p>
+            {plan === 'CONCOURS' && <span className="absolute top-4 end-4 w-5 h-5 rounded-full bg-amber-500 flex items-center justify-center"><Check className="w-3 h-3 text-white" /></span>}
+          </button>
+
           <div role="button" tabIndex={0} onClick={() => setPlan('GROUP')} onKeyDown={(e) => e.key === 'Enter' && setPlan('GROUP')}
             className={`relative text-start rounded-2xl border-2 p-5 transition cursor-pointer ${plan === 'GROUP' ? 'border-primary bg-primary/5' : 'border-border hover:border-primary/40'}`}>
-            <span className="absolute -top-2.5 start-4 text-[11px] font-bold bg-amber-400 text-gray-900 px-2 py-0.5 rounded-full">⭐ {t('Populaire', 'الأكثر طلباً')}</span>
             <p className="font-bold flex items-center gap-1.5"><Users className="w-4 h-4" /> {t('Pack Amis', 'باك الأصدقاء')}</p>
             <p className="text-xs text-emerald-600 font-semibold mt-1">🎁 {t('Payez pour 2, venez à 3 !', 'ادفع لـ 2، وتعالوا 3!')}</p>
             <p className="mt-4">

@@ -188,6 +188,9 @@ export default function AdminPaymentsPage() {
                       {p.planType === 'SOLO_1M' && (
                         <span className="px-2.5 py-0.5 rounded-full bg-indigo-50 border border-indigo-200 text-indigo-700 text-xs font-bold">Solo · jusqu'au concours</span>
                       )}
+                      {p.planType === 'CONCOURS' && (
+                        <span className="px-2.5 py-0.5 rounded-full bg-amber-50 border border-amber-200 text-amber-700 text-xs font-bold">Pack spécial · 1 an</span>
+                      )}
                       {p.planType === 'GROUP' && (
                         <span className="px-2.5 py-0.5 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-700 text-xs font-bold">
                           Groupe · {p.groupSize ?? '?'} membres

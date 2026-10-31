@@ -1,5 +1,6 @@
 import { Controller, Get } from '@nestjs/common';
 import { AdminService } from './admin.service';
+import { CONCOURS_PLAN_DAYS } from '../common/utils/plans';
 
 const OPERATOR_DEFAULTS: Record<string, { name: string; phone: string }> = {
   BANKILY: { name: 'Bankily', phone: '+222 20 00 00 01' },
@@ -25,13 +26,15 @@ export class SettingsController {
 
   @Get('pricing')
   async getPricing() {
-    const [price1m, priceGroup, groupMin] = await Promise.all([
+    const [price1m, priceGroup, groupMin, priceConcours] = await Promise.all([
       this.adminService.getSetting('PRICE_1M'),
       this.adminService.getSetting('PRICE_GROUP_PER_PERSON'),
       this.adminService.getSetting('GROUP_MIN_MEMBERS'),
+      this.adminService.getSetting('PRICE_CONCOURS'),
     ]);
     return {
       solo1m:    { price: price1m    ? parseInt(price1m)    : 1000, duration: 30 },
+      concours:  { price: priceConcours ? parseInt(priceConcours) : 1000, duration: CONCOURS_PLAN_DAYS },
       groupPerP: { price: priceGroup ? parseInt(priceGroup) : 700 },
       groupMin:  groupMin ? parseInt(groupMin) : 3,
     };

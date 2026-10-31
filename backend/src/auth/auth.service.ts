@@ -14,6 +14,7 @@ import { StorageService } from '../storage/storage.service';
 import { PushService } from '../push/push.service';
 import { FreemiumService } from '../freemium/freemium.service';
 import { isRateLimited } from '../common/utils/client-ip';
+import { CONCOURS_PLAN_DAYS } from '../common/utils/plans';
 
 // Domaines d'email factices ou jetables, utilisés par les robots
 const BLOCKED_EMAIL_DOMAINS = new Set([
@@ -143,7 +144,7 @@ export class AuthService {
           data: {
             userId: u.id,
             amount: Number(dto.amount) || 0,
-            durationDays: Number(dto.durationDays) || 30,
+            durationDays: dto.planType === 'CONCOURS' ? CONCOURS_PLAN_DAYS : Number(dto.durationDays) || 30,
             paymentMethod: dto.paymentMethod || 'MOBILE_MONEY',
             operator: dto.operator || null,
             planType: dto.planType || 'SOLO_1M',

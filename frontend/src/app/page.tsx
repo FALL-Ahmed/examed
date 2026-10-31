@@ -6,7 +6,7 @@ import { useAuthStore } from '@/lib/auth-store';
 import { useLang } from '@/components/LanguageProvider';
 import {
   BookOpen, Zap, TrendingUp, CheckCircle2,
-  GraduationCap, ArrowRight, Target, Users, Clock, FileText, ClipboardList,
+  GraduationCap, ArrowRight, Target, Users, Clock, FileText, ClipboardList, Trophy,
 } from 'lucide-react';
 import { settingsApi } from '@/lib/api';
 import { computePrices, type PromoSettings } from '@/lib/promo';
@@ -435,7 +435,7 @@ export default function LandingPage() {
             </div>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-start max-w-2xl mx-auto w-full">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 items-start max-w-5xl mx-auto w-full">
 
             {/* Solo */}
             <div className="bg-white rounded-3xl border border-gray-200 p-8 shadow-sm">
@@ -460,11 +460,31 @@ export default function LandingPage() {
               </Link>
             </div>
 
+            {/* Pack spécial jusqu'au concours (recommandé) */}
+            <div className="relative bg-white rounded-3xl border-2 border-amber-500 p-8 shadow-xl shadow-amber-100">
+              <div className="absolute -top-3.5 left-1/2 -translate-x-1/2">
+                <span className="bg-amber-500 text-white text-xs font-bold px-4 py-1.5 rounded-full whitespace-nowrap">{lang === 'ar' ? '⭐ موصى به' : '⭐ Recommandé'}</span>
+              </div>
+              <div className="w-10 h-10 rounded-2xl bg-amber-50 flex items-center justify-center mb-5">
+                <Trophy className="w-5 h-5 text-amber-600" />
+              </div>
+              <h3 className="font-extrabold text-xl text-gray-900 mb-1">{lang === 'ar' ? 'باك خاص' : 'Pack spécial'}</h3>
+              <p className="text-gray-400 text-sm mb-6">{lang === 'ar' ? 'حتى المسابقة · سنة على الأقل' : "Jusqu'au concours · 1 an minimum"}</p>
+              <div className="mb-6">
+                <p className="text-4xl font-black text-gray-900">
+                  {pricing?.concours?.price ?? 1000}
+                  <span className="text-lg font-semibold text-gray-400 ml-1">MRU</span>
+                </p>
+              </div>
+              <Link href="/register?plan=CONCOURS"
+                className="block w-full text-center py-3 rounded-2xl font-bold text-sm text-white transition hover:opacity-90 shadow-md shadow-amber-200"
+                style={{ background: 'linear-gradient(135deg,#f59e0b,#d97706)' }}>
+                {t('landing.pricing.start')}
+              </Link>
+            </div>
+
             {/* Pack Amis */}
             <div className="relative bg-white rounded-3xl border-2 border-emerald-500 p-8 shadow-xl shadow-emerald-100">
-              <div className="absolute -top-3.5 left-1/2 -translate-x-1/2">
-                <span className="bg-emerald-600 text-white text-xs font-bold px-4 py-1.5 rounded-full">{t('landing.pricing.popular')}</span>
-              </div>
               <div className="w-10 h-10 rounded-2xl bg-emerald-50 flex items-center justify-center mb-5">
                 <Users className="w-5 h-5 text-emerald-600" />
               </div>

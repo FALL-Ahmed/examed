@@ -3,6 +3,7 @@ import { Injectable, BadRequestException, NotFoundException } from '@nestjs/comm
 import { PrismaService } from '../prisma/prisma.service';
 import { StorageService } from '../storage/storage.service';
 import { PushService } from '../push/push.service';
+import { CONCOURS_PLAN_DAYS } from '../common/utils/plans';
 
 @Injectable()
 export class PaymentsService {
@@ -33,7 +34,8 @@ export class PaymentsService {
       data: {
         userId,
         amount: dto.amount,
-        durationDays: dto.durationDays || 30,
+        // Pack spécial « jusqu'au concours » : 1 an, fixé côté serveur
+        durationDays: dto.planType === 'CONCOURS' ? CONCOURS_PLAN_DAYS : dto.durationDays || 30,
         paymentMethod: dto.paymentMethod,
         operator: dto.operator,
         planType: dto.planType,

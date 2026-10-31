@@ -68,8 +68,8 @@ function RegisterContent() {
   const [pricing, setPricing] = useState<any>({ solo1m: { price: 1000 }, groupPerP: { price: 700 }, groupMin: 3 });
   const [promoSettings, setPromoSettings] = useState<{ active: boolean; discount: number; endDate?: string | null; includesGroup?: boolean; bio?: { active: boolean; discount: number; endDate?: string | null; includesGroup?: boolean } } | null>(null);
   const planParam = searchParams.get('plan');
-  const [selectedPlan, setSelectedPlan] = useState<'SOLO_1M' | 'GROUP'>(
-    planParam === 'GROUP' ? 'GROUP' : 'SOLO_1M'
+  const [selectedPlan, setSelectedPlan] = useState<'SOLO_1M' | 'CONCOURS' | 'GROUP'>(
+    planParam === 'GROUP' ? 'GROUP' : planParam === 'SOLO_1M' ? 'SOLO_1M' : 'CONCOURS'
   );
   const [groupSize, setGroupSize] = useState(3);
   const [groupEmailsText, setGroupEmailsText] = useState('');
@@ -114,8 +114,9 @@ function RegisterContent() {
   const solo1mPrice = prices.solo;
   const groupPrice  = prices.group;
 
-  const computedAmount   = selectedPlan === 'SOLO_1M' ? solo1mPrice : groupPrice;
-  const computedDuration = 30;
+  const concoursPrice = pricing.concours?.price ?? 1000;
+  const computedAmount   = selectedPlan === 'SOLO_1M' ? solo1mPrice : selectedPlan === 'CONCOURS' ? concoursPrice : groupPrice;
+  const computedDuration = selectedPlan === 'CONCOURS' ? (pricing.concours?.duration ?? 365) : 30;
 
   function set(key: string, value: string) {
     if (!started) { setStarted(true); gtrack('register_start', { lang }); }
@@ -533,6 +534,25 @@ function RegisterContent() {
                 </div>
                 {selectedPlan === 'SOLO_1M' && (
                   <div className="absolute top-3 right-3 w-4 h-4 rounded-full bg-violet-500 flex items-center justify-center">{checkIcon}</div>
+                )}
+              </button>
+
+              {/* Pack spécial jusqu'au concours (recommandé) */}
+              <button type="button" onClick={() => { setSelectedPlan('CONCOURS'); gtrack('register_plan_selected', { plan: 'CONCOURS' }); }}
+                className={`relative w-full flex items-center justify-between p-4 pt-5 rounded-2xl border-2 transition-all text-left
+                  ${selectedPlan === 'CONCOURS' ? 'border-amber-500 bg-amber-50' : 'border-amber-300 bg-white hover:border-amber-400'}`}>
+                <span className="absolute -top-2.5 left-4 bg-amber-500 text-white text-[11px] font-bold px-2.5 py-0.5 rounded-full">
+                  {isAr ? '⭐ موصى به' : '⭐ Recommandé'}
+                </span>
+                <div>
+                  <p className="font-bold text-gray-900 text-sm">{isAr ? 'باك خاص · حتى المسابقة' : 'Pack spécial · jusqu\'au concours'}</p>
+                  <p className="text-xs text-gray-500 mt-0.5">{isAr ? 'وصول لمدة سنة على الأقل' : 'Accès 1 an minimum'}</p>
+                </div>
+                <div className="text-right flex-shrink-0 ml-4">
+                  <p className="font-extrabold text-amber-600 text-lg">{concoursPrice} <span className="text-sm font-semibold">MRU</span></p>
+                </div>
+                {selectedPlan === 'CONCOURS' && (
+                  <div className="absolute top-3 right-3 w-4 h-4 rounded-full bg-amber-500 flex items-center justify-center">{checkIcon}</div>
                 )}
               </button>
 

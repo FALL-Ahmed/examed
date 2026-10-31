@@ -7,11 +7,12 @@ import {
   RotateCcw, Trash2, Users, Crown, UserCheck, X,
 } from 'lucide-react';
 
-type Tab = 'ALL' | 'SOLO_1M' | 'GROUP' | 'EXPIRING' | 'ACTIVITE';
+type Tab = 'ALL' | 'SOLO_1M' | 'CONCOURS' | 'GROUP' | 'EXPIRING' | 'ACTIVITE';
 
 const TABS: { id: Tab; label: string; icon: React.ReactNode; color: string }[] = [
   { id: 'ALL',      label: 'Tous',           icon: <User className="w-4 h-4" />,    color: 'slate' },
   { id: 'SOLO_1M',  label: 'Solo — concours', icon: <UserCheck className="w-4 h-4" />, color: 'indigo' },
+  { id: 'CONCOURS', label: 'Pack spécial',    icon: <UserCheck className="w-4 h-4" />, color: 'amber' },
   { id: 'GROUP',    label: 'Groupes',         icon: <Users className="w-4 h-4" />,   color: 'emerald' },
   { id: 'EXPIRING', label: '⚠️ Expire ≤7j',  icon: null,                             color: 'amber' },
   { id: 'ACTIVITE', label: '📊 Activité',    icon: null,                             color: 'violet' },

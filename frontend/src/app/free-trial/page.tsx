@@ -189,8 +189,16 @@ function FreeTrialContent() {
       href: '/register?plan=SOLO_1M',
       price: prices.solo,
       oldPrice: promoActive ? solo1m : null,
-      badge: isAr ? '⭐ الأكثر طلباً' : '⭐ Populaire',
+      badge: null,
       sub: isAr ? 'وصول كامل لمدة 6 أشهر' : 'Accès pendant 6 mois',
+    },
+    {
+      label: isAr ? 'باك خاص — حتى المسابقة' : "Pack spécial — jusqu'au concours",
+      href: '/register?plan=CONCOURS',
+      price: pricing?.concours?.price ?? 1000,
+      oldPrice: null,
+      badge: isAr ? '⭐ موصى به' : '⭐ Recommandé',
+      sub: isAr ? 'سنة على الأقل' : '1 an minimum',
     },
     {
       label: isAr ? `باك الأصدقاء · 6 أشهر` : `Pack Amis · 6 mois`,

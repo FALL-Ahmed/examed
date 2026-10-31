@@ -21,6 +21,8 @@ function PromoCta({ isAr, card, th }: { isAr: boolean; card: string; th: ReturnT
   const prices = computePrices({ soloBase: pricing.solo1m?.price, perPerson: pricing.groupPerP?.price, groupSize, promo });
   const plans = [
     { label: isAr ? 'فردي · 6 أشهر' : 'Solo · 6 mois', price: prices.solo, base: prices.soloBase, pct: prices.soloPct, href: '/register?plan=SOLO_1M' },
+    { label: isAr ? 'باك خاص · حتى المسابقة' : "Pack spécial · jusqu'au concours", price: pricing.concours?.price ?? 1000, base: 0, pct: 0, href: '/register?plan=CONCOURS',
+      badge: isAr ? '⭐ موصى به' : '⭐ Recommandé' },
     { label: isAr ? `باك الأصدقاء (${groupSize})` : `Pack Amis (${groupSize})`, price: prices.group, base: prices.groupBase, pct: prices.groupPct, href: '/register?plan=GROUP' },
   ];
 
@@ -34,12 +36,16 @@ function PromoCta({ isAr, card, th }: { isAr: boolean; card: string; th: ReturnT
       <p className="text-white font-black text-lg">
         {isAr ? 'واصل التدريب على كل البرنامج' : "Accédez à tout le programme"}
       </p>
-      <div className="grid grid-cols-2 gap-3 mt-5">
+      <div className="space-y-3 mt-5">
         {plans.map((p) => (
-          <Link key={p.href} href={p.href} className={`rounded-2xl border p-3 hover:opacity-90 transition ${th.softCard}`}>
-            <p className={`${th.textMuted} text-xs font-semibold`}>{p.label}</p>
-            {p.pct > 0 && <p className="text-red-400 text-sm font-bold line-through mt-1">{p.base} MRU</p>}
-            <p className="text-white font-black text-2xl tabular-nums">{p.price} <span className="text-sm font-semibold">MRU</span></p>
+          <Link key={p.href} href={p.href}
+            className={`relative flex items-center justify-between gap-3 rounded-2xl border p-3 text-start hover:opacity-90 transition ${p.badge ? 'border-amber-400 bg-amber-400/15' : th.softCard}`}>
+            {p.badge && <span className="absolute -top-2.5 start-3 bg-amber-500 text-white text-[11px] font-bold px-2 py-0.5 rounded-full">{p.badge}</span>}
+            <p className={`${p.badge ? 'text-white' : th.textMuted} text-sm font-semibold`}>{p.label}</p>
+            <div className="text-end flex-shrink-0">
+              {p.pct > 0 && <p className="text-red-400 text-xs font-bold line-through">{p.base} MRU</p>}
+              <p className="text-white font-black text-xl tabular-nums">{p.price} <span className="text-xs font-semibold">MRU</span></p>
+            </div>
           </Link>
         ))}
       </div>
