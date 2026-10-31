@@ -256,13 +256,22 @@ function ExamContent({ stateKey: baseKey, testStateKey, homePath, resultsPath, r
             <Timer endTime={examEndTime} onExpire={handleFinish} isAr={isAr} />
           )}
 
-          {/* « Suivant » ici : « Terminer » est en bas de page pour éviter les envois par erreur */}
-          <button onClick={() => setCurrentIdx(i => Math.min(totalQ - 1, i + 1))} disabled={currentIdx === totalQ - 1}
-            className="flex items-center gap-1.5 px-4 py-2 rounded-xl font-bold text-sm text-white transition hover:opacity-80 disabled:opacity-30"
-            style={{ background: 'linear-gradient(135deg,#7c3aed,#6366f1)' }}>
-            {isAr ? 'التالي' : 'Suivant'}
-            <ChevronRight className="w-4 h-4 rtl:rotate-180" />
-          </button>
+          {/* « Suivant », puis « Terminer » à la dernière question (ouvre la confirmation) */}
+          {currentIdx === totalQ - 1 ? (
+            <button onClick={() => setShowConfirm(true)}
+              className="flex items-center gap-1.5 px-4 py-2 rounded-xl font-bold text-sm text-white transition hover:opacity-80"
+              style={{ background: 'linear-gradient(135deg,#7c3aed,#6366f1)' }}>
+              <Send className="w-4 h-4" />
+              {isAr ? 'إنهاء' : 'Terminer'}
+            </button>
+          ) : (
+            <button onClick={() => setCurrentIdx(i => Math.min(totalQ - 1, i + 1))}
+              className="flex items-center gap-1.5 px-4 py-2 rounded-xl font-bold text-sm text-white transition hover:opacity-80"
+              style={{ background: 'linear-gradient(135deg,#7c3aed,#6366f1)' }}>
+              {isAr ? 'التالي' : 'Suivant'}
+              <ChevronRight className="w-4 h-4 rtl:rotate-180" />
+            </button>
+          )}
         </div>
 
         {/* Progress bar */}
@@ -340,12 +349,21 @@ function ExamContent({ stateKey: baseKey, testStateKey, homePath, resultsPath, r
               {isAr ? 'علّم' : 'Marquer'}
             </button>
 
-            <button onClick={() => setCurrentIdx(i => Math.min(totalQ - 1, i + 1))} disabled={currentIdx === totalQ - 1}
-              className="flex items-center gap-2 px-6 py-2.5 rounded-xl font-bold text-sm text-white transition disabled:opacity-30 disabled:bg-white/5 disabled:border disabled:border-white/10 disabled:text-white/40"
-              style={currentIdx === totalQ - 1 ? {} : { background: 'linear-gradient(135deg,#7c3aed,#6366f1)' }}>
-              {isAr ? 'التالي' : 'Suivant'}
-              <ChevronRight className="w-4 h-4" />
-            </button>
+            {currentIdx === totalQ - 1 ? (
+              <button onClick={() => setShowConfirm(true)}
+                className="flex items-center gap-2 px-6 py-2.5 rounded-xl font-bold text-sm text-white transition hover:opacity-90"
+                style={{ background: 'linear-gradient(135deg,#7c3aed,#6366f1)' }}>
+                <Send className="w-4 h-4" />
+                {isAr ? 'إنهاء' : 'Terminer'}
+              </button>
+            ) : (
+              <button onClick={() => setCurrentIdx(i => Math.min(totalQ - 1, i + 1))}
+                className="flex items-center gap-2 px-6 py-2.5 rounded-xl font-bold text-sm text-white transition"
+                style={{ background: 'linear-gradient(135deg,#7c3aed,#6366f1)' }}>
+                {isAr ? 'التالي' : 'Suivant'}
+                <ChevronRight className="w-4 h-4" />
+              </button>
+            )}
           </div>
         </div>
 

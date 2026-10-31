@@ -1,9 +1,59 @@
 'use client';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useLang } from '@/components/LanguageProvider';
 import { CheckCircle2, ChevronLeft, ChevronRight, Clock, Trophy } from 'lucide-react';
+import { settingsApi } from '@/lib/api';
+import { computePrices, type PromoSettings } from '@/lib/promo';
 import { ConcoursShell, WINNERS_COUNT, concoursTheme, fmtDate, fmtTime, toNote20 } from './_shared';
+
+// Après le résultat : prix de l'offre en cours + inscription
+function PromoCta({ isAr, card, th }: { isAr: boolean; card: string; th: ReturnType<typeof concoursTheme> }) {
+  const [pricing, setPricing] = useState<any>(null);
+  const [promo, setPromo] = useState<PromoSettings | null>(null);
+  useEffect(() => {
+    settingsApi.pricing().then((r) => setPricing(r.data)).catch(() => {});
+    settingsApi.promo().then((r) => setPromo(r.data)).catch(() => {});
+  }, []);
+  if (!pricing) return null;
+
+  const groupSize = pricing.groupMin ?? 3;
+  const prices = computePrices({ soloBase: pricing.solo1m?.price, perPerson: pricing.groupPerP?.price, groupSize, promo });
+  const plans = [
+    { label: isAr ? 'فردي · 6 أشهر' : 'Solo · 6 mois', price: prices.solo, base: prices.soloBase, pct: prices.soloPct, href: '/register?plan=SOLO_1M' },
+    { label: isAr ? `باك الأصدقاء (${groupSize})` : `Pack Amis (${groupSize})`, price: prices.group, base: prices.groupBase, pct: prices.groupPct, href: '/register?plan=GROUP' },
+  ];
+
+  return (
+    <div className={card}>
+      {prices.active && (
+        <p className="inline-block text-xs font-black uppercase tracking-wide text-white bg-red-500 px-3 py-1 rounded-full mb-3">
+          🔥 {isAr ? 'عرض خاص' : 'Offre spéciale'}{prices.maxPct > 0 && ` -${prices.maxPct}%`}
+        </p>
+      )}
+      <p className="text-white font-black text-lg">
+        {isAr ? 'واصل التدريب على كل البرنامج' : "Accédez à tout le programme"}
+      </p>
+      <div className="grid grid-cols-2 gap-3 mt-5">
+        {plans.map((p) => (
+          <Link key={p.href} href={p.href} className={`rounded-2xl border p-3 hover:opacity-90 transition ${th.softCard}`}>
+            <p className={`${th.textMuted} text-xs font-semibold`}>{p.label}</p>
+            {p.pct > 0 && <p className="text-red-400 text-sm font-bold line-through mt-1">{p.base} MRU</p>}
+            <p className="text-white font-black text-2xl tabular-nums">{p.price} <span className="text-sm font-semibold">MRU</span></p>
+          </Link>
+        ))}
+      </div>
+      {prices.active && prices.endDate && (
+        <p className={`${th.textFaint} text-xs mt-3`}>
+          {isAr ? 'العرض متاح حتى ' : "Offre valable jusqu'au "}{fmtDate(prices.endDate, isAr)}
+        </p>
+      )}
+      <Link href="/register" className="inline-flex items-center gap-2 mt-5 px-6 py-3 rounded-2xl font-bold text-white" style={{ background: th.accent }}>
+        {isAr ? 'سجّل الآن' : "S'inscrire maintenant"} <ChevronRight className="w-4 h-4 rtl:rotate-180" />
+      </Link>
+    </div>
+  );
+}
 
 const pad = (n: number) => String(n).padStart(2, '0');
 const formatDuration = (sec: number) => {
@@ -214,15 +264,7 @@ export function ResultsView({ target, res, error, isTest }: { target: string; re
                 </p>
               </div>
             ) : (
-              <div className={card}>
-                <p className="text-white font-bold">{isAr ? 'شكراً على مشاركتك!' : 'Merci pour votre participation !'}</p>
-                <p className={`${th.textDim} text-sm mt-2`}>
-                  {isAr ? 'واصل التدرب على آلاف الأسئلة المصححة.' : 'Continuez à vous entraîner sur des milliers de questions corrigées.'}
-                </p>
-                <Link href="/register?plan=FREEMIUM" className="inline-flex items-center gap-2 mt-5 px-6 py-3 rounded-2xl font-bold text-white" style={{ background: th.accent }}>
-                  {isAr ? 'جرّب مجاناً' : 'Essayer gratuitement'} <ChevronRight className="w-4 h-4 rtl:rotate-180" />
-                </Link>
-              </div>
+              <PromoCta isAr={isAr} card={card} th={th} />
             )}
 
             {res.questions?.length > 0 && <CorrectionReview questions={res.questions} isAr={isAr} accent={th.accent} />}
