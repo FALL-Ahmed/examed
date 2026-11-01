@@ -1735,6 +1735,8 @@ export class ExamenBlancService {
         },
       }),
     ]);
+    const pastWinners = await this.concoursPastWinners(session.startsAt);
+    const pastWinner = (p: any) => pastWinners.get(normalizePhone(p.telephone ?? '')) ?? null;
     return {
       session: {
         id: session.id, title: session.title, target: session.target, totalQ: session.totalQ,
@@ -1742,14 +1744,43 @@ export class ExamenBlancService {
       },
       inProgress: inProgress.length,
       inProgressList: inProgress.map((p: any) => ({
-        ...p, target: p.examenBlanc.target, answeredQ: p._count.reponses, _count: undefined, examenBlanc: undefined,
+        ...p, target: p.examenBlanc.target, answeredQ: p._count.reponses, pastWinner: pastWinner(p), _count: undefined, examenBlanc: undefined,
       })),
       scope,
       participants: ranked.map((p: any, i: number) => ({
         rank: i + 1, ...p, target: p.examenBlanc.target, totalQ: p.examenBlanc.totalQ,
-        correctQ: p._count.reponses, _count: undefined, examenBlanc: undefined,
+        correctQ: p._count.reponses, pastWinner: pastWinner(p), _count: undefined, examenBlanc: undefined,
       })),
     };
+  }
+
+  // Gagnants des challenges précédents (top 10 global, infirmier + sage-femme réunis) : numéro → titre du challenge
+  async concoursPastWinners(before: Date, top = 10) {
+    const sessions = await db(this.prisma).examenBlanc.findMany({
+      where: { kind: 'CONCOURS', startsAt: { lt: new Date(new Date(before).getTime() - 12 * 3600 * 1000) } },
+      select: { id: true, title: true, startsAt: true },
+    });
+    // Regroupe les sessions sœurs (même titre, même jour)
+    const groups = new Map<string, { title: string; ids: string[] }>();
+    for (const s of sessions) {
+      const key = `${s.title}|${new Date(s.startsAt).toISOString().slice(0, 10)}`;
+      if (!groups.has(key)) groups.set(key, { title: s.title, ids: [] });
+      groups.get(key)!.ids.push(s.id);
+    }
+    const winners = new Map<string, string>();
+    for (const g of groups.values()) {
+      const rows = await db(this.prisma).examenBlancParticipant.findMany({
+        where: { examenBlancId: { in: g.ids }, isCompleted: true, isTest: false },
+        orderBy: [{ score: 'desc' }, { timeTaken: 'asc' }],
+        take: top,
+        select: { telephone: true },
+      });
+      for (const r of rows) {
+        const phone = normalizePhone(r.telephone ?? '');
+        if (phone && !winners.has(phone)) winners.set(phone, g.title);
+      }
+    }
+    return winners;
   }
 
   // Retrouver sa participation au test avec son numéro (comme « Voir mes résultats » de l'examen blanc),

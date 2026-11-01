@@ -210,6 +210,7 @@ export function ResultsView({ target, res, error, isTest }: { target: string; re
             </Link>
           </div>
         ) : res.locked ? (
+          <>
           <div className={card}>
             <p className="text-5xl mb-3">✅</p>
             <h1 className="text-xl font-black text-white">{isAr ? 'تم تسجيل مشاركتك' : 'Participation enregistrée'}</h1>
@@ -228,6 +229,8 @@ export function ResultsView({ target, res, error, isTest }: { target: string; re
               </p>
             )}
           </div>
+          <PromoCta isAr={isAr} card={card} th={th} />
+          </>
         ) : (
           <>
             <div className={card}>

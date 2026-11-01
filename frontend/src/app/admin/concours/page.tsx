@@ -68,7 +68,15 @@ function RecentList({ ranking, lang }: { ranking: any; lang: 'all' | 'fr' | 'ar'
                   : <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-amber-500/10 text-amber-600">En cours</span>}
               </td>
               <td className="px-4 py-3">
-                <p className="font-medium">{p.prenom} {p.nom}</p>
+                <p className="font-medium">
+                  {p.prenom} {p.nom}
+                  {p.pastWinner && (
+                    <span title={`Déjà gagnant : ${p.pastWinner}`}
+                      className="ms-1.5 inline-flex items-center text-[11px] font-bold px-1.5 py-0.5 rounded-full bg-amber-500/15 text-amber-600 align-middle">
+                      🏅 Déjà gagnant
+                    </span>
+                  )}
+                </p>
                 <p className="text-xs text-muted-foreground">
                   <span className={`font-semibold ${p.target === 'SAGE_FEMME' ? 'text-pink-600' : 'text-indigo-600'}`}>{TARGET_LABEL[p.target] ?? p.target} · </span>
                   {p.ville} · {p.lang === 'ar' ? 'AR' : 'FR'}
@@ -546,7 +554,15 @@ export default function AdminConcoursPage() {
                         <tr key={p.id} className={winner ? 'bg-amber-500/5' : ''}>
                           <td className="px-4 py-3 font-bold tabular-nums">{winner ? `🏆 ${p.rank}` : p.rank}</td>
                           <td className="px-4 py-3">
-                            <p className="font-medium">{p.prenom} {p.nom}</p>
+                            <p className="font-medium">
+                  {p.prenom} {p.nom}
+                  {p.pastWinner && (
+                    <span title={`Déjà gagnant : ${p.pastWinner}`}
+                      className="ms-1.5 inline-flex items-center text-[11px] font-bold px-1.5 py-0.5 rounded-full bg-amber-500/15 text-amber-600 align-middle">
+                      🏅 Déjà gagnant
+                    </span>
+                  )}
+                </p>
                             <p className="text-xs text-muted-foreground">
                               {ranking.scope === 'global' && <span className={`font-semibold ${p.target === 'SAGE_FEMME' ? 'text-pink-600' : 'text-indigo-600'}`}>{TARGET_LABEL[p.target] ?? p.target} · </span>}
                               {p.ville} · {p.lang === 'ar' ? 'AR' : 'FR'}
