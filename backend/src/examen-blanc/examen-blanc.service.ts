@@ -1696,6 +1696,14 @@ export class ExamenBlancService {
   // Sessions d'un même challenge (infirmier + sage-femme) : même titre, ouverture le même jour.
   // Le rang affiché est calculé sur l'ensemble de ces sessions.
   async concoursSiblingIds(session: { id: string; title: string; startsAt: Date }) {
+    // Fusion manuelle (Setting CONCOURS_LINKS = {"<id>": ["<autreId>", ...]}) : prioritaire sur le titre/jour
+    const links = await db(this.prisma).setting.findUnique({ where: { key: 'CONCOURS_LINKS' } });
+    if (links) {
+      try {
+        const linked = JSON.parse(links.value)[session.id];
+        if (Array.isArray(linked) && linked.length) return [session.id, ...linked];
+      } catch {}
+    }
     const day = 24 * 3600 * 1000;
     const start = new Date(session.startsAt).getTime();
     const rows = await db(this.prisma).examenBlanc.findMany({
