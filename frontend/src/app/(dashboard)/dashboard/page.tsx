@@ -46,9 +46,17 @@ export default function DashboardPage() {
   const [streak, setStreak] = useState(0);
   const [weakTheme, setWeakTheme] = useState<{ themeId: string; name: string; avgScore: number; sessions: number } | null>(null);
   const [showProfileModal, setShowProfileModal] = useState(false);
+  const [untilConcours, setUntilConcours] = useState(false);
 
   useEffect(() => {
     userApi.stats().then((r) => setStats(r.data)).catch(() => {});
+    // Pack spécial ou formule à 1000 MRU (par personne) : accès « jusqu'au concours »
+    userApi.myPayments().then((r) => {
+      const last = (r.data || []).find((p: any) => p.status === 'VALIDATED' && p.amount > 0);
+      if (!last) return;
+      const perPerson = last.planType === 'GROUP' ? last.amount / (last.groupSize || 3) : last.amount;
+      setUntilConcours(last.planType === 'CONCOURS' || perPerson >= 1000);
+    }).catch(() => {});
     attemptsApi.history().then((r) => {
       setHistory(r.data.slice(0, 5));
       // Calcul streak : jours consécutifs avec au moins 1 session
@@ -169,8 +177,8 @@ export default function DashboardPage() {
         <div className="flex items-center gap-3 bg-emerald-500/10 border border-emerald-500/20 rounded-2xl px-5 py-3">
           <CalendarCheck className="w-4 h-4 text-emerald-400 flex-shrink-0" />
           <p className="text-sm text-emerald-400">
-            {daysLeft > 200
-              ? (isAr ? 'الاشتراك صالح لمدة سنة ✓' : 'Compte actif · valable 1 an ✓')
+            {untilConcours
+              ? (isAr ? 'الاشتراك صالح حتى المسابقة ✓' : "Compte actif · valable jusqu'au concours ✓")
               : (isAr ? 'الاشتراك صالح لمدة 6 أشهر ✓' : 'Compte actif · valable 6 mois ✓')}
           </p>
         </div>
