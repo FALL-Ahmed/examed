@@ -155,7 +155,9 @@ function EditForm({ editing, setEditing, onSave, saving, onImageUpload, uploadin
 
 export default function AdminQuestionsPage() {
   const [langTab, setLangTab] = useState<'FR' | 'AR'>('FR');
-  const [targetTab, setTargetTab] = useState<'INFIRMIER' | 'SAGE_FEMME' | 'BIOLOGISTE'>('INFIRMIER');
+  const [targetTab, setTargetTab] = useState<'INFIRMIER' | 'SAGE_FEMME' | 'BIOLOGISTE' | 'RESIDENT'>('INFIRMIER');
+  // Questions désactivées : supprimées depuis l'admin, ou QCM « à vérifier » importés désactivés (Résidanat)
+  const [onlyInactive, setOnlyInactive] = useState(false);
   const [themes, setThemes] = useState<any[]>([]);
   const [expandedThemes, setExpandedThemes] = useState<Set<string>>(new Set());
   const [selectedThemeId, setSelectedThemeId] = useState('');
@@ -180,11 +182,14 @@ export default function AdminQuestionsPage() {
     }).catch(() => {});
   }, [langTab, targetTab]);
 
-  useEffect(() => { setPage(1); }, [selectedThemeId, selectedSubThemeId, search, langTab, targetTab]);
-  useEffect(() => { load(); }, [page, selectedThemeId, selectedSubThemeId, search, langTab, targetTab]);
+  useEffect(() => { setPage(1); }, [selectedThemeId, selectedSubThemeId, search, langTab, targetTab, onlyInactive]);
+  useEffect(() => { load(); }, [page, selectedThemeId, selectedSubThemeId, search, langTab, targetTab, onlyInactive]);
+  // Résidanat : contenu uniquement en français
+  useEffect(() => { if (targetTab === 'RESIDENT') setLangTab('FR'); }, [targetTab]);
 
   async function load() {
     const params: any = { page, language: langTab, target: targetTab };
+    if (onlyInactive) params.inactive = 'true';
     if (selectedSubThemeId) params.subThemeId = selectedSubThemeId;
     else if (selectedThemeId) params.themeId = selectedThemeId;
     if (search) params.search = search;
@@ -215,6 +220,7 @@ export default function AdminQuestionsPage() {
       choiceC: editing.choiceC, choiceD: editing.choiceD, choiceE: editing.choiceE,
       correctAnswer: editing.correctAnswer, explanation: editing.explanation,
       imageUrl: editing.imageUrl || null,
+      ...(typeof editing.isActive === 'boolean' ? { isActive: editing.isActive } : {}),
     }).catch(() => {});
     setEditing(null);
     setSaving(false);
@@ -235,6 +241,11 @@ export default function AdminQuestionsPage() {
     }
   }
 
+  async function setActive(id: string, isActive: boolean) {
+    await adminApi.updateQuestion(id, { isActive }).catch(() => {});
+    await load();
+  }
+
   async function remove(id: string) {
     if (!confirm('Supprimer cette question ?')) return;
     await adminApi.deleteQuestion(id).catch(() => {});
@@ -242,7 +253,7 @@ export default function AdminQuestionsPage() {
   }
 
   async function deleteAll() {
-    if (!confirm(`Supprimer TOUTES les questions ${targetTab === 'SAGE_FEMME' ? 'sage-femme' : targetTab === 'BIOLOGISTE' ? 'biologiste' : 'infirmier'} (${data?.total ?? 0}) ? Irréversible.`)) return;
+    if (!confirm(`Supprimer TOUTES les questions ${targetTab === 'SAGE_FEMME' ? 'sage-femme' : targetTab === 'BIOLOGISTE' ? 'biologiste' : targetTab === 'RESIDENT' ? 'résidanat' : 'infirmier'} (${data?.total ?? 0}) ? Irréversible.`)) return;
     if (!confirm('Confirmation finale ?')) return;
     setDeletingAll(true);
     await adminApi.deleteAllQuestions(targetTab).catch(() => {});
@@ -283,7 +294,23 @@ export default function AdminQuestionsPage() {
           >
             🔬 Biologiste
           </button>
+          <button
+            onClick={() => { setTargetTab('RESIDENT'); setSelectedThemeId(''); setSelectedSubThemeId(''); }}
+            className={`flex items-center gap-2 px-4 py-2 rounded-xl border text-sm font-semibold transition
+              ${targetTab === 'RESIDENT' ? 'bg-sky-600 border-sky-600 text-white shadow-sm' : 'bg-sky-50 border-sky-200 text-sky-700 hover:bg-sky-100'}`}
+          >
+            🩺 Résidanat
+          </button>
         </div>
+        <div className="w-px h-6 bg-slate-200" />
+        <button
+          onClick={() => setOnlyInactive((v) => !v)}
+          title="Questions désactivées : invisibles pour les étudiants (supprimées, ou QCM à vérifier)"
+          className={`flex items-center gap-2 px-4 py-2 rounded-xl border text-sm font-semibold transition
+            ${onlyInactive ? 'bg-amber-500 border-amber-500 text-white shadow-sm' : 'bg-amber-50 border-amber-200 text-amber-700 hover:bg-amber-100'}`}
+        >
+          <AlertTriangle className="w-3.5 h-3.5" /> Désactivées / à vérifier
+        </button>
         <div className="w-px h-6 bg-slate-200" />
         <div className="flex gap-2">
           <button
@@ -432,6 +459,11 @@ export default function AdminQuestionsPage() {
 
                       {/* Badges */}
                       <div className="flex gap-3 mt-2">
+                        {q.isActive === false && (
+                          <span className="flex items-center gap-1 text-xs font-semibold text-amber-700 bg-amber-100 px-2 py-0.5 rounded-full">
+                            <AlertTriangle className="w-3 h-3" /> Désactivée — invisible pour les étudiants
+                          </span>
+                        )}
                         {q.explanation?.trim() && (
                           <span className="flex items-center gap-1 text-xs text-amber-600">
                             <Lightbulb className="w-3 h-3" /> Commentaire
@@ -447,6 +479,12 @@ export default function AdminQuestionsPage() {
 
                     {/* Actions */}
                     <div className="flex gap-1 flex-shrink-0">
+                      {q.isActive === false && (
+                        <button onClick={() => setActive(q.id, true)} title="Réactiver (visible pour les étudiants)"
+                          className="px-2 py-1 rounded-lg bg-emerald-50 border border-emerald-200 text-emerald-700 text-xs font-semibold hover:bg-emerald-100 transition">
+                          Activer
+                        </button>
+                      )}
                       <button onClick={() => setInspecting(q)} title="Aperçu"
                         className="p-1.5 rounded-lg hover:bg-blue-50 text-slate-400 hover:text-blue-600 transition">
                         <Eye className="w-4 h-4" />

@@ -9,6 +9,7 @@ import {
 import Link from 'next/link';
 import { useLang } from '@/components/LanguageProvider';
 import { RegistrationChart } from '@/components/RegistrationChart';
+import { ResidentPricingSettings } from '@/components/ResidentPricingSettings';
 
 
 function KpiCard({ icon: Icon, label, value, sub, color, href }: any) {
@@ -59,7 +60,7 @@ export default function AdminDashboard() {
   const rangeKey = range ? `${range.from}_${range.to}` : 'all';
   const [regData, setRegData] = useState<any[]>([]);
   const [regDays, setRegDays] = useState(30);
-  const [regProfession, setRegProfession] = useState<'all' | 'infirmier' | 'sage_femme' | 'biologiste'>('all');
+  const [regProfession, setRegProfession] = useState<'all' | 'infirmier' | 'sage_femme' | 'biologiste' | 'resident'>('all');
   const [prices, setPrices] = useState({ p1m: '', p3m: '', pGroup: '', groupMin: '' });
   const [savingPlan, setSavingPlan] = useState<string | null>(null);
   const [savedPlan, setSavedPlan] = useState<string | null>(null);
@@ -316,10 +317,11 @@ export default function AdminDashboard() {
                 { val: 'infirmier',  label: '🏥 Infirmier' },
                 { val: 'sage_femme', label: '👶 Sage-femme' },
                 { val: 'biologiste', label: '🔬 Biologiste' },
+                { val: 'resident',   label: '🩺 Résident' },
               ] as const).map(({ val, label }) => (
                 <button key={val} onClick={() => setRegProfession(val)}
                   className={`px-3 py-1 rounded-lg text-xs font-semibold transition ${regProfession === val
-                    ? val === 'sage_femme' ? 'bg-pink-500 text-white' : val === 'infirmier' ? 'bg-indigo-500 text-white' : val === 'biologiste' ? 'bg-emerald-500 text-white' : 'bg-violet-600 text-white'
+                    ? val === 'sage_femme' ? 'bg-pink-500 text-white' : val === 'infirmier' ? 'bg-indigo-500 text-white' : val === 'biologiste' ? 'bg-emerald-500 text-white' : val === 'resident' ? 'bg-sky-600 text-white' : 'bg-violet-600 text-white'
                     : 'bg-secondary text-muted-foreground hover:bg-secondary/80'}`}>
                   {label}
                 </button>
@@ -599,6 +601,9 @@ export default function AdminDashboard() {
           ))}
         </div>
       </div>
+
+      {/* Tarifs Résidanat (réglages RES_*, indépendants) */}
+      <ResidentPricingSettings />
 
       {/* Opérateurs */}
       <div className="bg-card border border-border rounded-2xl p-6">

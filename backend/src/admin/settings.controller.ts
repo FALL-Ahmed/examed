@@ -1,4 +1,4 @@
-import { Controller, Get } from '@nestjs/common';
+import { Controller, Get, Query } from '@nestjs/common';
 import { AdminService } from './admin.service';
 import { CONCOURS_PLAN_DAYS } from '../common/utils/plans';
 
@@ -24,13 +24,15 @@ export class SettingsController {
     return { phone: phone ?? null };
   }
 
+  // Tarifs : le Résidanat a ses propres réglages (préfixe RES_), modifiables sans toucher aux autres profils
   @Get('pricing')
-  async getPricing() {
+  async getPricing(@Query('profile') profile?: string) {
+    const P = profile === 'resident' ? 'RES_' : '';
     const [price1m, priceGroup, groupMin, priceConcours] = await Promise.all([
-      this.adminService.getSetting('PRICE_1M'),
-      this.adminService.getSetting('PRICE_GROUP_PER_PERSON'),
-      this.adminService.getSetting('GROUP_MIN_MEMBERS'),
-      this.adminService.getSetting('PRICE_CONCOURS'),
+      this.adminService.getSetting(`${P}PRICE_1M`),
+      this.adminService.getSetting(`${P}PRICE_GROUP_PER_PERSON`),
+      this.adminService.getSetting(`${P}GROUP_MIN_MEMBERS`),
+      this.adminService.getSetting(`${P}PRICE_CONCOURS`),
     ]);
     return {
       solo1m:    { price: price1m    ? parseInt(price1m)    : 1000, duration: 30 },
@@ -67,7 +69,8 @@ export class SettingsController {
   }
 
   @Get('promo')
-  async getPromo() {
+  async getPromo(@Query('profile') profile?: string) {
+    if (profile === 'resident') return this.getResidentPromo();
     const [active, discount, endDate, includesGroup, bioActive, bioDiscount, bioEndDate, bioIncludesGroup, soloPrice, groupPerPerson, price1m, priceGroup] = await Promise.all([
       this.adminService.getSetting('PROMO_ACTIVE'),
       this.adminService.getSetting('PROMO_DISCOUNT'),
@@ -106,6 +109,38 @@ export class SettingsController {
         endDate: bioEndDate ?? null,
         includesGroup: bioIncludesGroup === 'true',
       },
+    };
+  }
+
+  // Promo propre au Résidanat (clés RES_PROMO_*) — même format de réponse que /settings/promo
+  private async getResidentPromo() {
+    const [active, discount, endDate, includesGroup, soloPrice, groupPerPerson, price1m, priceGroup] = await Promise.all([
+      this.adminService.getSetting('RES_PROMO_ACTIVE'),
+      this.adminService.getSetting('RES_PROMO_DISCOUNT'),
+      this.adminService.getSetting('RES_PROMO_END_DATE'),
+      this.adminService.getSetting('RES_PROMO_INCLUDES_GROUP'),
+      this.adminService.getSetting('RES_PROMO_PRICE_SOLO'),
+      this.adminService.getSetting('RES_PROMO_PRICE_GROUP_PP'),
+      this.adminService.getSetting('RES_PRICE_1M'),
+      this.adminService.getSetting('RES_PRICE_GROUP_PER_PERSON'),
+    ]);
+    const fixed = (v: string | null) => (v && parseInt(v) > 0 ? parseInt(v) : null);
+    const pct = discount ? parseInt(discount) : 30;
+    const realPct = (promoPrice: number | null, base: string | null) => {
+      const b = base ? parseInt(base) : 0;
+      return promoPrice && b > 0 ? Math.round((1 - promoPrice / b) * 100) : pct;
+    };
+    const soloPct = realPct(fixed(soloPrice), price1m);
+    const groupPct = includesGroup === 'true' ? realPct(fixed(groupPerPerson), priceGroup) : 0;
+    return {
+      active: active === 'true',
+      discount: pct,
+      maxPct: Math.max(soloPct, groupPct),
+      endDate: endDate ?? null,
+      includesGroup: includesGroup === 'true',
+      soloPrice: fixed(soloPrice),
+      groupPerPerson: fixed(groupPerPerson),
+      bio: { active: false, discount: 0, endDate: null, includesGroup: false },
     };
   }
 }

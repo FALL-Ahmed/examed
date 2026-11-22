@@ -8,6 +8,7 @@ const TARGETS = [
   { value: 'INFIRMIER',  label: 'Infirmier' },
   { value: 'SAGE_FEMME', label: 'Sage-femme' },
   { value: 'BIOLOGISTE', label: 'Biologiste' },
+  { value: 'RESIDENT',   label: 'Résidanat' },
 ];
 
 const LANGS = [
@@ -200,7 +201,7 @@ export default function FichesMemoPage() {
               />
               <select
                 value={target}
-                onChange={e => { setTarget(e.target.value); if (e.target.value === 'BIOLOGISTE') setLang('FR'); }}
+                onChange={e => { setTarget(e.target.value); if (e.target.value === 'BIOLOGISTE' || e.target.value === 'RESIDENT') setLang('FR'); }}
                 className="border border-border rounded-xl px-3 py-2 text-sm bg-background focus:outline-none focus:ring-2 focus:ring-primary"
               >
                 {TARGETS.map(t => <option key={t.value} value={t.value}>{t.label}</option>)}
@@ -450,7 +451,7 @@ export default function FichesMemoPage() {
             <div className="grid grid-cols-2 gap-3">
               <select
                 value={editing.target}
-                onChange={e => setEditing(ed => ed ? { ...ed, target: e.target.value, lang: e.target.value === 'BIOLOGISTE' ? 'FR' : ed.lang } : ed)}
+                onChange={e => setEditing(ed => ed ? { ...ed, target: e.target.value, lang: e.target.value === 'BIOLOGISTE' || e.target.value === 'RESIDENT' ? 'FR' : ed.lang } : ed)}
                 className="border border-border rounded-xl px-3 py-2 text-sm bg-background focus:outline-none focus:ring-2 focus:ring-primary"
               >
                 {TARGETS.map(t => <option key={t.value} value={t.value}>{t.label}</option>)}

@@ -34,6 +34,13 @@ export class AdminService {
         WHERE "createdAt" >= ${from} AND role != 'ADMIN' AND profession = 'biologiste'
         GROUP BY DATE("createdAt") ORDER BY day ASC
       `;
+    } else if (profession === 'resident') {
+      rows = await this.prisma.$queryRaw`
+        SELECT DATE("createdAt") AS day, COUNT(*)::int AS count
+        FROM "User"
+        WHERE "createdAt" >= ${from} AND role != 'ADMIN' AND profession = 'resident'
+        GROUP BY DATE("createdAt") ORDER BY day ASC
+      `;
     } else {
       rows = await this.prisma.$queryRaw`
         SELECT DATE("createdAt") AS day, COUNT(*)::int AS count
@@ -157,6 +164,8 @@ export class AdminService {
       where.profession = { in: ['etudiant_infirmier', 'infirmier_diplome'] };
     } else if (profession === 'biologiste') {
       where.profession = 'biologiste';
+    } else if (profession === 'resident') {
+      where.profession = 'resident';
     }
     if (expiringSoon) {
       const now = new Date();
@@ -171,7 +180,7 @@ export class AdminService {
       ];
     }
 
-    const [users, total, sageFemmeCount, infirmierCount, biologisteCount] = await Promise.all([
+    const [users, total, sageFemmeCount, infirmierCount, biologisteCount, residentCount] = await Promise.all([
       this.prisma.user.findMany({
         where,
         skip: (page - 1) * limit,
@@ -194,9 +203,10 @@ export class AdminService {
       this.prisma.user.count({ where: { role: { not: 'ADMIN' }, profession: 'sage_femme', OR: [{ payments: { some: { status: 'VALIDATED' } } }, { role: 'PREMIUM' }] } }),
       this.prisma.user.count({ where: { role: { not: 'ADMIN' }, profession: { in: ['etudiant_infirmier', 'infirmier_diplome'] }, OR: [{ payments: { some: { status: 'VALIDATED' } } }, { role: 'PREMIUM' }] } }),
       this.prisma.user.count({ where: { role: { not: 'ADMIN' }, profession: 'biologiste', OR: [{ payments: { some: { status: 'VALIDATED' } } }, { role: 'PREMIUM' }] } }),
+      this.prisma.user.count({ where: { role: { not: 'ADMIN' }, profession: 'resident', OR: [{ payments: { some: { status: 'VALIDATED' } } }, { role: 'PREMIUM' }] } }),
     ]);
 
-    return { users, total, page, totalPages: Math.ceil(total / limit), sageFemmeCount, infirmierCount, biologisteCount };
+    return { users, total, page, totalPages: Math.ceil(total / limit), sageFemmeCount, infirmierCount, biologisteCount, residentCount };
   }
 
   async getUserById(userId: string) {
@@ -343,6 +353,7 @@ export class AdminService {
     if (profession === 'sage_femme') userWhere.profession = 'sage_femme';
     else if (profession === 'infirmier') userWhere.profession = { in: ['etudiant_infirmier', 'infirmier_diplome'] };
     else if (profession === 'biologiste') userWhere.profession = 'biologiste';
+    else if (profession === 'resident') userWhere.profession = 'resident';
 
     const users = await this.prisma.user.findMany({
       where: userWhere,
@@ -415,8 +426,9 @@ export class AdminService {
     return { updated: count };
   }
 
-  async getQuestions(page = 1, limit = 20, themeId?: string, search?: string, subThemeId?: string, language?: string, target?: string) {
-    const where: any = {};
+  async getQuestions(page = 1, limit = 20, themeId?: string, search?: string, subThemeId?: string, language?: string, target?: string, onlyInactive = false) {
+    // onlyInactive : questions désactivées (ex. QCM « à vérifier » importés désactivés) pour correction puis réactivation
+    const where: any = onlyInactive ? { isActive: false } : {};
     if (subThemeId) {
       where.subThemeId = subThemeId;
     } else {
@@ -530,6 +542,7 @@ export class AdminService {
     if (profession === 'sage_femme') userWhere.profession = 'sage_femme';
     if (profession === 'infirmier')  userWhere.profession = { in: ['etudiant_infirmier', 'infirmier_diplome'] };
     if (profession === 'biologiste') userWhere.profession = 'biologiste';
+    if (profession === 'resident')   userWhere.profession = 'resident';
 
     const [attemptsByUser, users] = await Promise.all([
       this.prisma.attempt.groupBy({
@@ -600,12 +613,14 @@ export class AdminService {
     const isSF = target === 'SAGE_FEMME';
     const isIF = target === 'INFIRMIER';
     const isBIO = target === 'BIOLOGISTE';
+    const isRES = target === 'RESIDENT';
     const userWhere: any = { role: { not: 'ADMIN' } };
     if (isSF)  userWhere.profession = 'sage_femme';
     if (isIF)  userWhere.profession = { in: ['etudiant_infirmier', 'infirmier_diplome'] };
     if (isBIO) userWhere.profession = 'biologiste';
+    if (isRES) userWhere.profession = 'resident';
 
-    const targetClause = isSF ? `AND th.target = 'SAGE_FEMME'` : isIF ? `AND th.target = 'INFIRMIER'` : isBIO ? `AND th.target = 'BIOLOGISTE'` : '';
+    const targetClause = isSF ? `AND th.target = 'SAGE_FEMME'` : isIF ? `AND th.target = 'INFIRMIER'` : isBIO ? `AND th.target = 'BIOLOGISTE'` : isRES ? `AND th.target = 'RESIDENT'` : '';
 
     const [users, operatorStats, langStats] = await Promise.all([
       this.prisma.user.findMany({
@@ -614,7 +629,7 @@ export class AdminService {
       }),
       this.prisma.payment.groupBy({
         by: ['operator'],
-        where: { status: 'VALIDATED', amount: { gt: 0 }, ...(isSF || isIF ? { user: userWhere } : {}) },
+        where: { status: 'VALIDATED', amount: { gt: 0 }, ...(isSF || isIF || isRES ? { user: userWhere } : {}) },
         _count: { _all: true },
         _sum: { amount: true },
       }),

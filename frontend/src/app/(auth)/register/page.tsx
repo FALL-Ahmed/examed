@@ -58,8 +58,9 @@ function RegisterContent() {
   const { t, lang } = useLang();
   const isAr = lang === 'ar';
 
+  // ?profil=resident (lien depuis la page /residanat) : profil Résident pré-sélectionné
   const [form, setForm] = useState({
-    firstName: '', lastName: '', email: '', password: '', profession: '', phone: '',
+    firstName: '', lastName: '', email: '', password: '', profession: searchParams.get('profil') === 'resident' ? 'resident' : '', phone: '',
   });
   const [showPwd, setShowPwd] = useState(false);
   const [formError, setFormError] = useState('');
@@ -84,7 +85,9 @@ function RegisterContent() {
   // Essai gratuit : proposé uniquement pendant une campagne ouverte (réglée dans l'admin)
   const [freemium, setFreemium] = useState<{ open: boolean; endDate: string | null }>({ open: false, endDate: null });
   const [accessMode, setAccessMode] = useState<'PAID' | 'FREEMIUM'>(planParam === 'FREEMIUM' ? 'FREEMIUM' : 'PAID');
-  const isFreemium = freemium.open && accessMode === 'FREEMIUM';
+  const isResident = form.profession === 'resident';
+  // Pas d'essai gratuit pour le Résidanat (aucun chapitre gratuit défini pour ce parcours)
+  const isFreemium = freemium.open && accessMode === 'FREEMIUM' && !isResident;
 
   useEffect(() => {
     freemiumApi.status().then((r) => setFreemium(r.data)).catch(() => {});
@@ -94,12 +97,17 @@ function RegisterContent() {
       r.data.forEach((op: any) => { map[op.id] = op.phone; });
       setOperators(map);
     }).catch(() => {});
-    settingsApi.pricing().then((r) => {
+  }, []);
+
+  // Tarifs et promo : ceux du Résidanat si le profil Résident est choisi, sinon les tarifs habituels
+  useEffect(() => {
+    const profile = isResident ? 'resident' : undefined;
+    settingsApi.pricing(profile).then((r) => {
       setPricing(r.data);
       setGroupSize(r.data.groupMin ?? 5);
     }).catch(() => {});
-    settingsApi.promo().then((r) => setPromoSettings(r.data)).catch(() => {});
-  }, []);
+    settingsApi.promo(profile).then((r) => setPromoSettings(r.data)).catch(() => {});
+  }, [isResident]);
 
   const isBiologiste = form.profession === 'biologiste';
   const bioPromo = promoSettings?.bio;
@@ -344,7 +352,7 @@ function RegisterContent() {
           )}
 
           {/* ── Choix : Premium (par défaut) ou Essai gratuit, pendant une campagne ── */}
-          {freemium.open && (
+          {freemium.open && !isResident && (
             <div className="grid grid-cols-2 gap-3 mb-5">
               {([
                 {
@@ -466,6 +474,7 @@ function RegisterContent() {
                     { value: 'etudiant_infirmier', fr: 'Infirmier(e)', ar: 'ممرض / ممرضة', icon: '🏥', active: 'border-indigo-500 bg-indigo-50 text-indigo-700' },
                     { value: 'sage_femme',          fr: 'Sage-femme',  ar: 'قابلة',         icon: '👶', active: 'border-pink-500 bg-pink-50 text-pink-700' },
                     { value: 'biologiste',          fr: 'Biologiste',  ar: 'بيولوجي',       icon: '🔬', active: 'border-emerald-500 bg-emerald-50 text-emerald-700' },
+                    { value: 'resident',            fr: 'Résident(e)', ar: 'طبيب مقيم',     icon: '🩺', active: 'border-sky-500 bg-sky-50 text-sky-700' },
                   ].map((p) => (
                     <button key={p.value} type="button" onClick={() => set('profession', p.value)}
                       className={`flex flex-col items-center gap-2 py-4 px-3 rounded-2xl border-2 font-semibold text-sm transition

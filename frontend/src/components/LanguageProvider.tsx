@@ -1,12 +1,15 @@
 'use client';
 import { createContext, useContext, useEffect, useState } from 'react';
 import { Lang, TranslationKey, translations } from '@/lib/i18n';
+import { useAuthStore } from '@/lib/auth-store';
 
 interface LangContextType {
   lang: Lang;
   setLang: (l: Lang) => void;
   t: (key: TranslationKey, fallback?: string) => string;
   isRTL: boolean;
+  /** true pour un résident connecté : interface verrouillée en français */
+  langLocked: boolean;
 }
 
 const LangContext = createContext<LangContextType>({
@@ -14,16 +17,21 @@ const LangContext = createContext<LangContextType>({
   setLang: () => {},
   t: (key) => key,
   isRTL: false,
+  langLocked: false,
 });
 
 export function LanguageProvider({ children }: { children: React.ReactNode }) {
-  const [lang, setLangState] = useState<Lang>('fr');
+  const [chosenLang, setLangState] = useState<Lang>('fr');
+  // Résidanat : une fois connecté, tout est en français (la page d'accueil publique reste bilingue)
+  const langLocked = useAuthStore((st) => st.user?.profession === 'resident');
+  const lang: Lang = langLocked ? 'fr' : chosenLang;
 
   useEffect(() => {
     const saved = (localStorage.getItem('lang') as Lang) || 'fr';
-    applyLang(saved);
     setLangState(saved);
   }, []);
+
+  useEffect(() => { applyLang(lang); }, [lang]);
 
   function applyLang(l: Lang) {
     const isRTL = l === 'ar';
@@ -34,8 +42,8 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
   }
 
   function setLang(l: Lang) {
+    if (langLocked) return;
     localStorage.setItem('lang', l);
-    applyLang(l);
     setLangState(l);
   }
 
@@ -47,7 +55,7 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
   }
 
   return (
-    <LangContext.Provider value={{ lang, setLang, t, isRTL: lang === 'ar' }}>
+    <LangContext.Provider value={{ lang, setLang, t, isRTL: lang === 'ar', langLocked }}>
       {children}
     </LangContext.Provider>
   );

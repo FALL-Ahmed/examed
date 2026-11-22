@@ -42,12 +42,17 @@ export default function AbonnementPage() {
   const [error, setError] = useState('');
   const fileRef = useRef<HTMLInputElement>(null);
 
+  // Résidanat : tarifs et promo propres (réglages RES_*)
+  const pricingProfile = user?.profession === 'resident' ? 'resident' : undefined;
   useEffect(() => {
-    settingsApi.pricing().then((r) => {
+    settingsApi.pricing(pricingProfile).then((r) => {
       setPricing({ solo: r.data.solo1m?.price ?? 2000, perPerson: r.data.groupPerP?.price ?? 1500, groupMin: r.data.groupMin ?? 3, concours: r.data.concours?.price ?? 1000 });
       setGroupSize(r.data.groupMin ?? 3);
     }).catch(() => {});
-    settingsApi.promo().then((r) => setPromo(r.data)).catch(() => {});
+    settingsApi.promo(pricingProfile).then((r) => setPromo(r.data)).catch(() => {});
+  }, [pricingProfile]);
+
+  useEffect(() => {
     settingsApi.operators().then((r) => setPhones(Object.fromEntries(r.data.map((o: any) => [o.id, o.phone])))).catch(() => {});
     settingsApi.whatsapp().then((r) => setWaPhone(r.data.phone)).catch(() => {});
     paymentsApi.myPayments().then((r) => setPending(r.data.some((p: any) => p.status === 'PENDING'))).catch(() => {});

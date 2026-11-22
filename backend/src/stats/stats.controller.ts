@@ -11,8 +11,9 @@ export class StatsController {
     @Query('score') score: string,
     @Query('themeId') themeId?: string,
     @Query('subThemeId') subThemeId?: string,
+    @Query('profile') profile?: string,
   ) {
-    return this.statsService.getNational(parseFloat(score) || 0, themeId, subThemeId);
+    return this.statsService.getNational(parseFloat(score) || 0, themeId, subThemeId, profile);
   }
 
   @UseGuards(JwtAuthGuard)

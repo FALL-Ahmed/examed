@@ -2,6 +2,7 @@ import { Injectable, ForbiddenException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { UsersService } from '../users/users.service';
 import { FREEMIUM_QUESTION_FILTER } from '../common/utils/role.utils';
+import { professionToTarget, residentThemeGuard } from '../common/utils/profession';
 
 const FREE_DAILY_LIMIT = 3;
 
@@ -36,7 +37,9 @@ export class QuestionsService {
 
     // Déterminer le target selon la profession
     const user = await this.prisma.user.findUnique({ where: { id: userId }, select: { profession: true } });
-    const userTarget = user?.profession === 'sage_femme' ? 'SAGE_FEMME' : user?.profession === 'biologiste' ? 'BIOLOGISTE' : 'INFIRMIER';
+    const userTarget = professionToTarget(user?.profession);
+    // Résidanat : contenu uniquement en français
+    if (userTarget === 'RESIDENT') opts.language = 'FR';
 
     let bioShowUnpublished = true;
     if (userTarget === 'BIOLOGISTE') {
@@ -47,8 +50,10 @@ export class QuestionsService {
     const where: any = { isActive: true };
     if (opts.subThemeIds?.length) {
       where.subThemeId = { in: opts.subThemeIds };
+      where.subTheme = { theme: residentThemeGuard(user?.profession) };
     } else if (opts.subThemeId) {
       where.subThemeId = opts.subThemeId;
+      where.subTheme = { theme: residentThemeGuard(user?.profession) };
     } else {
       const subFilter: any = {};
       if (opts.themeIds?.length) subFilter.themeId = { in: opts.themeIds };
@@ -99,7 +104,8 @@ export class QuestionsService {
     }
 
     const userExam = await this.prisma.user.findUnique({ where: { id: userId }, select: { profession: true } });
-    const examTarget = userExam?.profession === 'sage_femme' ? 'SAGE_FEMME' : userExam?.profession === 'biologiste' ? 'BIOLOGISTE' : 'INFIRMIER';
+    const examTarget = professionToTarget(userExam?.profession);
+    if (examTarget === 'RESIDENT') opts.language = 'FR';
 
     let bioExamShowUnpublished = true;
     if (examTarget === 'BIOLOGISTE') {

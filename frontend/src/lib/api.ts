@@ -104,8 +104,9 @@ export const publicApi = {
     axios.get(`${API_URL}/questions/free-trial/practice`, { params: { themeId, themeName, count, lang, subThemeId } }),
   freeSession: (lang: string) =>
     axios.get(`${API_URL}/questions/free-trial/free-session`, { params: { lang } }),
-  nationalStats: (score: number, themeId?: string, subThemeId?: string) =>
-    axios.get(`${API_URL}/stats/national`, { params: { score, themeId, subThemeId } }),
+  // profile = 'resident' → comparaison avec les seuls résidents (classement séparé)
+  nationalStats: (score: number, themeId?: string, subThemeId?: string, profile?: string) =>
+    axios.get(`${API_URL}/stats/national`, { params: { score, themeId, subThemeId, ...(profile ? { profile } : {}) } }),
   freeTrial: (theme: string, lang: string) => axios.get(`${API_URL}/questions/free-trial`, { params: { theme, lang } }),
   trackFreeTrialEvent: (data: { sessionId: string; theme: string; lang: string; source: string; questionN: number; isCorrect: boolean }) =>
     axios.post(`${API_URL}/questions/free-trial/event`, data).catch(() => {}),
@@ -163,8 +164,9 @@ export const settingsApi = {
   operators: () => api.get('/settings/operators'),
   whatsapp: () => api.get('/settings/whatsapp'),
   contact: () => api.get('/settings/contact'),
-  pricing: () => api.get('/settings/pricing'),
-  promo: () => api.get('/settings/promo'),
+  // profile = 'resident' → tarifs/promo propres au Résidanat (réglages RES_*)
+  pricing: (profile?: string) => api.get('/settings/pricing', { params: profile ? { profile } : {} }),
+  promo: (profile?: string) => api.get('/settings/promo', { params: profile ? { profile } : {} }),
   features: () => api.get('/settings/features'),
 };
 

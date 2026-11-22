@@ -12,6 +12,7 @@ const PROFESSION_LABELS: Record<string, string> = {
   medecin:            'Médecin',
   sage_femme:         'Sage-femme',
   biologiste:         'Biologiste',
+  resident:           'Résident',
   technicien_labo:    'Technicien labo',
   autre:              'Autre',
 };
@@ -93,7 +94,7 @@ function DonutChart({ male, female, unknown }: { male: number; female: number; u
 }
 
 export default function AnalyticsPage() {
-  const [tab, setTab] = useState<'INFIRMIER' | 'SAGE_FEMME' | 'BIOLOGISTE'>('INFIRMIER');
+  const [tab, setTab] = useState<'INFIRMIER' | 'SAGE_FEMME' | 'BIOLOGISTE' | 'RESIDENT'>('INFIRMIER');
   const [data, setData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
 
@@ -166,6 +167,11 @@ export default function AnalyticsPage() {
             onClick={() => setTab('BIOLOGISTE')}
             className={`px-4 py-2 rounded-xl text-sm font-semibold transition ${tab === 'BIOLOGISTE' ? 'bg-emerald-500 text-white shadow' : 'bg-white border border-slate-200 text-slate-500 hover:border-emerald-300'}`}>
             🔬 Biologiste
+          </button>
+          <button
+            onClick={() => setTab('RESIDENT')}
+            className={`px-4 py-2 rounded-xl text-sm font-semibold transition ${tab === 'RESIDENT' ? 'bg-sky-600 text-white shadow' : 'bg-white border border-slate-200 text-slate-500 hover:border-sky-300'}`}>
+            🩺 Résident
           </button>
         </div>
       </div>

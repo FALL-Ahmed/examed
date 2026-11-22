@@ -46,7 +46,7 @@ export default function AdminUsersPage() {
   const [selected, setSelected] = useState<Set<string>>(new Set());
   const [bulkModal, setBulkModal] = useState(false);
   const [customDays, setCustomDays] = useState('');
-  const [profFilter, setProfFilter] = useState<'infirmier' | 'sage_femme' | 'biologiste' | null>(null);
+  const [profFilter, setProfFilter] = useState<'infirmier' | 'sage_femme' | 'biologiste' | 'resident' | null>(null);
 
   useEffect(() => {
     if (tab === 'GROUP') { loadGroups(); }
@@ -161,6 +161,7 @@ export default function AdminUsersPage() {
       medecin:            { label: '⚕️ Médecin',        cls: 'bg-violet-100 text-violet-700' },
       etudiant_pharmacie: { label: '💊 Pharmacie',      cls: 'bg-teal-100 text-teal-700' },
       biologiste:         { label: '🔬 Biologiste',      cls: 'bg-emerald-100 text-emerald-700' },
+      resident:           { label: '🩺 Résident',        cls: 'bg-sky-100 text-sky-700' },
       technicien_labo:    { label: '🔬 Labo',           cls: 'bg-orange-100 text-orange-700' },
       autre:              { label: 'Autre',              cls: 'bg-slate-100 text-slate-500' },
     };
@@ -252,6 +253,16 @@ export default function AdminUsersPage() {
                 <p className={`text-2xl font-black ${profFilter === 'biologiste' ? 'text-white' : 'text-emerald-700'}`}>{data.biologisteCount ?? '—'}</p>
               </div>
             </button>
+            <button
+              onClick={() => { setProfFilter(profFilter === 'resident' ? null : 'resident'); setPage(1); }}
+              className={`flex items-center gap-3 rounded-2xl px-5 py-3 border transition cursor-pointer ${profFilter === 'resident' ? 'bg-sky-600 border-sky-600 text-white' : 'bg-sky-50 border-sky-200 hover:bg-sky-100'}`}
+            >
+              <span className="text-2xl">🩺</span>
+              <div className="text-left">
+                <p className={`text-xs font-medium ${profFilter === 'resident' ? 'text-sky-100' : 'text-sky-600'}`}>Résidents</p>
+                <p className={`text-2xl font-black ${profFilter === 'resident' ? 'text-white' : 'text-sky-700'}`}>{data.residentCount ?? '—'}</p>
+              </div>
+            </button>
           </div>
         )}
 
@@ -311,6 +322,7 @@ export default function AdminUsersPage() {
               <button onClick={() => { setProfFilter('infirmier'); }} className={`px-3 py-1.5 rounded-lg text-xs font-medium border transition ${profFilter === 'infirmier' ? 'bg-blue-500 text-white border-blue-500' : 'border-slate-200 text-slate-500 hover:bg-slate-50'}`}>🏥 Infirmiers</button>
               <button onClick={() => { setProfFilter('sage_femme'); }} className={`px-3 py-1.5 rounded-lg text-xs font-medium border transition ${profFilter === 'sage_femme' ? 'bg-pink-500 text-white border-pink-500' : 'border-slate-200 text-slate-500 hover:bg-slate-50'}`}>👶 Sage-femmes</button>
               <button onClick={() => { setProfFilter('biologiste'); }} className={`px-3 py-1.5 rounded-lg text-xs font-medium border transition ${profFilter === 'biologiste' ? 'bg-emerald-500 text-white border-emerald-500' : 'border-slate-200 text-slate-500 hover:bg-slate-50'}`}>🔬 Biologistes</button>
+              <button onClick={() => { setProfFilter('resident'); }} className={`px-3 py-1.5 rounded-lg text-xs font-medium border transition ${profFilter === 'resident' ? 'bg-sky-600 text-white border-sky-600' : 'border-slate-200 text-slate-500 hover:bg-slate-50'}`}>🩺 Résidents</button>
             </div>
           </div>
           {activityLoading ? (

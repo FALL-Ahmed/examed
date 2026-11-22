@@ -1,4 +1,5 @@
 import { Injectable, NotFoundException, BadRequestException, ForbiddenException } from '@nestjs/common';
+import { isResident, professionToTarget } from '../common/utils/profession';
 import { PrismaService } from '../prisma/prisma.service';
 import { QuestionsService } from '../questions/questions.service';
 import { UsersService } from '../users/users.service';
@@ -86,8 +87,10 @@ export class AttemptsService {
         if (theme) {
           const user = await this.prisma.user.findUnique({ where: { id: userId }, select: { profession: true } });
           const isSF = user?.profession === 'sage_femme';
+          const isRes = isResident(user?.profession);
           if (theme.target === 'SAGE_FEMME' && !isSF) throw new ForbiddenException('Thème non autorisé pour votre profil');
           if (theme.target === 'INFIRMIER' && isSF) throw new ForbiddenException('Thème non autorisé pour votre profil');
+          if ((theme.target === 'RESIDENT') !== isRes) throw new ForbiddenException('Thème non autorisé pour votre profil');
         }
       }
       questions = await this.questionsService.getForPractice(userId, 'ADMIN', {
@@ -288,7 +291,7 @@ export class AttemptsService {
 
   async getWeakTheme(userId: string) {
     const user = await this.prisma.user.findUnique({ where: { id: userId }, select: { profession: true } });
-    const userTarget = user?.profession === 'sage_femme' ? 'SAGE_FEMME' : 'INFIRMIER';
+    const userTarget = professionToTarget(user?.profession);
 
     // Utilise les réponses → question → sous-thème → thème pour avoir les vrais IDs actuels
     const answers = await this.prisma.userAnswer.findMany({

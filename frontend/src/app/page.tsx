@@ -6,7 +6,7 @@ import { useAuthStore } from '@/lib/auth-store';
 import { useLang } from '@/components/LanguageProvider';
 import {
   BookOpen, Zap, TrendingUp, CheckCircle2,
-  GraduationCap, ArrowRight, Target, Users, Clock, FileText, ClipboardList, Trophy,
+  GraduationCap, ArrowRight, Target, Users, Clock, FileText, ClipboardList, Trophy, Stethoscope,
 } from 'lucide-react';
 import { settingsApi } from '@/lib/api';
 import { computePrices, type PromoSettings } from '@/lib/promo';
@@ -151,6 +151,13 @@ export default function LandingPage() {
               </Link>
             </div>
 
+            <Link href="/residanat"
+              className="mt-5 inline-flex items-center gap-2 text-sm font-semibold text-sky-300 hover:text-sky-200 transition">
+              <Stethoscope className="w-4 h-4" />
+              {lang === 'ar' ? 'هل تحضّر لمسابقة الإقامة (Résidanat) ؟ اكتشف الفضاء المخصص' : "Vous préparez le Résidanat ? Découvrez l'espace dédié"}
+              <ArrowRight className="w-4 h-4 rtl:rotate-180" />
+            </Link>
+
             {/* Stats bar */}
             <div className="flex flex-wrap gap-8 mt-12 pt-10 border-t border-white/10">
               <div>
@@ -170,6 +177,58 @@ export default function LandingPage() {
                 <p className="text-xs text-white/40 mt-0.5">{t('landing.stat.available')}</p>
               </div>
             </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ── Deux concours : santé (infirmier, sage-femme, biologiste) et Résidanat ── */}
+      <section className="py-16 px-6 lg:px-10 bg-white border-b border-gray-100">
+        <div className="max-w-5xl mx-auto">
+          <div className="mb-8 text-center">
+            <p className="text-violet-600 text-xs font-bold uppercase tracking-widest mb-3">{lang === 'ar' ? 'مسابقتان، فضاءان' : 'Deux concours, deux espaces'}</p>
+            <h2 className="text-2xl md:text-4xl font-extrabold text-gray-900">{lang === 'ar' ? 'اختر مسابقتك' : 'Choisissez votre concours'}</h2>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+            <a href="#tarifs"
+              className="group rounded-3xl border-2 border-violet-100 hover:border-violet-400 bg-violet-50/50 p-6 transition flex flex-col">
+              <div className="flex items-center gap-3 mb-4">
+                <span className="w-11 h-11 rounded-2xl flex items-center justify-center text-white shadow-md shadow-violet-200" style={{ background: 'linear-gradient(135deg,#7c3aed,#6366f1)' }}>
+                  <GraduationCap className="w-5 h-5" />
+                </span>
+                <div>
+                  <p className="font-extrabold text-gray-900">{lang === 'ar' ? 'المسابقة الوطنية للصحة' : 'Concours national de santé'}</p>
+                  <p className="text-xs text-gray-500">{lang === 'ar' ? 'ممرضون · قابلات · بيولوجيون' : 'Infirmiers · Sages-femmes · Biologistes'}</p>
+                </div>
+              </div>
+              <ul className="space-y-2 text-sm text-gray-700 flex-1">
+                <li className="flex gap-2"><CheckCircle2 className="w-4 h-4 text-violet-500 flex-shrink-0 mt-0.5" />{lang === 'ar' ? '+4500 سؤال متعدد الخيارات' : '4500+ QCM incontournables'}</li>
+                <li className="flex gap-2"><CheckCircle2 className="w-4 h-4 text-violet-500 flex-shrink-0 mt-0.5" />{lang === 'ar' ? 'بالعربية والفرنسية' : 'En français et en arabe'}</li>
+                <li className="flex gap-2"><CheckCircle2 className="w-4 h-4 text-violet-500 flex-shrink-0 mt-0.5" />{lang === 'ar' ? 'امتحانات تجريبية وطنية' : 'Examens blancs nationaux'}</li>
+              </ul>
+              <span className="mt-5 inline-flex items-center gap-1.5 text-sm font-bold text-violet-700">
+                {lang === 'ar' ? 'عرض العروض' : 'Voir les formules'} <ArrowRight className="w-4 h-4 rtl:rotate-180 group-hover:translate-x-0.5 transition" />
+              </span>
+            </a>
+            <Link href="/residanat"
+              className="group rounded-3xl border-2 border-sky-100 hover:border-sky-400 bg-sky-50/50 p-6 transition flex flex-col">
+              <div className="flex items-center gap-3 mb-4">
+                <span className="w-11 h-11 rounded-2xl flex items-center justify-center text-white shadow-md shadow-sky-200" style={{ background: 'linear-gradient(135deg,#0284c7,#0ea5e9)' }}>
+                  <Stethoscope className="w-5 h-5" />
+                </span>
+                <div>
+                  <p className="font-extrabold text-gray-900">{lang === 'ar' ? 'مسابقة الإقامة (Résidanat)' : 'Concours du Résidanat'}</p>
+                  <p className="text-xs text-gray-500">{lang === 'ar' ? 'للأطباء' : 'Pour les médecins'}</p>
+                </div>
+              </div>
+              <ul className="space-y-2 text-sm text-gray-700 flex-1">
+                <li className="flex gap-2"><CheckCircle2 className="w-4 h-4 text-sky-500 flex-shrink-0 mt-0.5" />{lang === 'ar' ? '+8000 سؤال مصحّح ومعلّق عليه' : '8 000+ QCM corrigés et commentés'}</li>
+                <li className="flex gap-2"><CheckCircle2 className="w-4 h-4 text-sky-500 flex-shrink-0 mt-0.5" />{lang === 'ar' ? '3 وحدات: العلوم الأساسية، الأمراض الباطنية، الأمراض الجراحية' : '3 modules : sciences fondamentales, pathologie médicale, pathologie chirurgicale'}</li>
+                <li className="flex gap-2"><CheckCircle2 className="w-4 h-4 text-sky-500 flex-shrink-0 mt-0.5" />{lang === 'ar' ? 'المحتوى بالفرنسية، وترتيب خاص بالمقيمين' : 'Contenu en français, classement entre résidents'}</li>
+              </ul>
+              <span className="mt-5 inline-flex items-center gap-1.5 text-sm font-bold text-sky-700">
+                {lang === 'ar' ? 'اكتشف فضاء الإقامة' : "Découvrir l'espace Résidanat"} <ArrowRight className="w-4 h-4 rtl:rotate-180 group-hover:translate-x-0.5 transition" />
+              </span>
+            </Link>
           </div>
         </div>
       </section>
@@ -384,11 +443,17 @@ export default function LandingPage() {
       </section>
 
       {/* ── Pricing ── */}
-      <section className="py-28 px-6 lg:px-10 bg-slate-50">
+      <section id="tarifs" className="py-28 px-6 lg:px-10 bg-slate-50 scroll-mt-16">
         <div className="max-w-6xl mx-auto">
           <div className="mb-12 text-center">
             <p className="text-violet-600 text-xs font-bold uppercase tracking-widest mb-3">{t('landing.pricing.badge')}</p>
             <h2 className="text-3xl md:text-5xl font-extrabold text-gray-900">{t('landing.pricing.h2')}</h2>
+            <p className="mt-4 text-sm text-gray-500">
+              {lang === 'ar' ? 'هذه العروض خاصة بالمسابقة الوطنية للصحة. ' : 'Formules du concours national de santé. '}
+              <Link href="/residanat#tarifs" className="font-semibold text-sky-700 hover:underline">
+                {lang === 'ar' ? 'عروض مسابقة الإقامة ←' : 'Tarifs du Résidanat →'}
+              </Link>
+            </p>
           </div>
 
           <div className="mb-12 relative overflow-hidden rounded-3xl text-white text-center shadow-2xl shadow-red-300"

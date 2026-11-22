@@ -288,17 +288,26 @@ export default function PaymentPage() {
   const [promoSettings, setPromoSettings]   = useState<{ active: boolean; discount: number; endDate?: string | null; bio?: { active: boolean; discount: number; endDate?: string | null; includesGroup?: boolean } } | null>(null);
 
   const isBiologiste = user?.profession === 'biologiste';
+  const isResident = user?.profession === 'resident';
   const bioPromo = promoSettings?.bio;
   const promoActive   = isBiologiste && bioPromo?.active ? bioPromo.active : (promoSettings?.active ?? false);
   const promoDiscount = isBiologiste && bioPromo?.active ? bioPromo.discount : (promoSettings?.discount ?? 30);
   const finalPrice    = promoActive ? Math.round(price * (1 - promoDiscount / 100)) : price;
 
   useEffect(() => {
-    settingsApi.price().then((r) => setPrice(r.data.price)).catch(() => {});
     settingsApi.operators().then((r) => setOperators(r.data)).catch(() => {});
-    settingsApi.promo().then((r) => setPromoSettings(r.data)).catch(() => {});
     paymentsApi.myPayments().then((r) => setHistory(r.data)).catch(() => {});
   }, []);
+
+  // Résidanat : prix et promo propres (réglages RES_*), indépendants des autres profils
+  useEffect(() => {
+    if (isResident) {
+      settingsApi.pricing('resident').then((r) => setPrice(r.data.solo1m?.price ?? 1000)).catch(() => {});
+    } else {
+      settingsApi.price().then((r) => setPrice(r.data.price)).catch(() => {});
+    }
+    settingsApi.promo(isResident ? 'resident' : undefined).then((r) => setPromoSettings(r.data)).catch(() => {});
+  }, [isResident]);
 
   function refreshHistory() {
     paymentsApi.myPayments().then((r) => setHistory(r.data)).catch(() => {});
@@ -383,7 +392,7 @@ export default function PaymentPage() {
         </div>
         <h1 className="text-3xl font-extrabold tracking-tight">Passez au niveau supérieur</h1>
         <p className="text-muted-foreground text-sm max-w-md mx-auto">
-          {isBiologiste ? "Tout ce qu'il vous faut pour préparer et réussir votre concours biologiste." : user?.profession === 'sage_femme' ? "Tout ce qu'il vous faut pour préparer et réussir votre concours sage-femme." : "Tout ce qu'il vous faut pour préparer et réussir votre concours infirmier."}
+          {isResident ? "Tout ce qu'il vous faut pour préparer et réussir le concours du résidanat." : isBiologiste ? "Tout ce qu'il vous faut pour préparer et réussir votre concours biologiste." : user?.profession === 'sage_femme' ? "Tout ce qu'il vous faut pour préparer et réussir votre concours sage-femme." : "Tout ce qu'il vous faut pour préparer et réussir votre concours infirmier."}
         </p>
       </div>
 

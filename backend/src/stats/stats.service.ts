@@ -1,5 +1,14 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
+import { isResident, professionToTarget, RESIDENT_PROFESSION } from '../common/utils/profession';
+
+// Les résidents ont leur propre classement : ils ne sont comparés qu'entre eux,
+// et n'entrent pas dans les statistiques des autres profils.
+function cohortUserFilter(resident: boolean) {
+  return resident
+    ? { profession: RESIDENT_PROFESSION }
+    : { OR: [{ profession: null }, { profession: { not: RESIDENT_PROFESSION } }] };
+}
 
 const FALLBACK_AVG = 68;
 const BUCKET_MINS = [20, 25, 30, 35, 40, 45, 50, 55, 60, 65, 70, 75, 80, 85, 90, 95, 100];
@@ -22,8 +31,8 @@ function buildDistribution(scores: number[], real: boolean) {
 export class StatsService {
   constructor(private prisma: PrismaService) {}
 
-  async getNational(userScore: number, themeId?: string, subThemeId?: string) {
-    const where: any = { isCompleted: true };
+  async getNational(userScore: number, themeId?: string, subThemeId?: string, profile?: string) {
+    const where: any = { isCompleted: true, user: cohortUserFilter(profile === RESIDENT_PROFESSION) };
     if (subThemeId) where.subThemeId = subThemeId;
     else if (themeId) where.themeId = themeId;
 
@@ -68,9 +77,11 @@ export class StatsService {
     }
     const target = prof.includes('sage_femme') ? 'SAGE_FEMME'
       : prof.includes('biologiste') ? 'BIOLOGISTE'
+      : professionToTarget(prof) === 'RESIDENT' ? 'RESIDENT'
       : 'INFIRMIER';
 
-    const language = (lang || 'FR').toUpperCase() as 'FR' | 'AR';
+    // Résidanat : contenu uniquement en français
+    const language = (target === 'RESIDENT' ? 'FR' : (lang || 'FR').toUpperCase()) as 'FR' | 'AR';
 
     // Thèmes publiés triés → on aplatit au niveau SOUS-THÈME pour une coupe fine
     // (un seul gros thème peut contenir plusieurs centaines de questions, ce qui
@@ -137,9 +148,10 @@ export class StatsService {
   async getMyRank(userId: string) {
     const C = 5; // même constante que le leaderboard admin
 
+    const me = await this.prisma.user.findUnique({ where: { id: userId }, select: { profession: true } });
     const grouped = await this.prisma.attempt.groupBy({
       by: ['userId'],
-      where: { isCompleted: true },
+      where: { isCompleted: true, user: cohortUserFilter(isResident(me?.profession)) },
       _count: { _all: true },
       _avg: { score: true },
     });

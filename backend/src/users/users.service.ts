@@ -145,6 +145,7 @@ export class UsersService {
       aide_soignant: 'INFIRMIER',
       sage_femme: 'SAGE_FEMME',
       biologiste: 'BIOLOGISTE',
+      resident: 'RESIDENT',
     };
     const profession = PROF_MAP[rawProf] ?? rawProf.toUpperCase();
     const langUpper = (lang ?? 'FR').toUpperCase();
@@ -152,7 +153,7 @@ export class UsersService {
       where: {
         isVisible: true,
         lang: langUpper,
-        OR: [{ target: 'ALL' }, { target: profession }],
+        OR: profession === 'RESIDENT' ? [{ target: 'RESIDENT' }] : [{ target: 'ALL' }, { target: profession }],
       },
       orderBy: { createdAt: 'desc' },
       select: { id: true, title: true, target: true, lang: true, createdAt: true },
@@ -171,11 +172,12 @@ export class UsersService {
       aide_soignant: 'INFIRMIER',
       sage_femme: 'SAGE_FEMME',
       biologiste: 'BIOLOGISTE',
+      resident: 'RESIDENT',
     };
     const profession = PROF_MAP[rawProf] ?? rawProf.toUpperCase();
 
     const fiche = await this.prisma.ficheMemo.findFirst({
-      where: { id: ficheId, isVisible: true, OR: [{ target: 'ALL' }, { target: profession }] },
+      where: { id: ficheId, isVisible: true, OR: profession === 'RESIDENT' ? [{ target: 'RESIDENT' }] : [{ target: 'ALL' }, { target: profession }] },
     });
     if (!fiche) return null;
 
@@ -193,11 +195,12 @@ export class UsersService {
       aide_soignant: 'INFIRMIER',
       sage_femme: 'SAGE_FEMME',
       biologiste: 'BIOLOGISTE',
+      resident: 'RESIDENT',
     };
     const profession = PROF_MAP[rawProf] ?? rawProf.toUpperCase();
 
     const fiche = await this.prisma.ficheMemo.findFirst({
-      where: { id: ficheId, isVisible: true, OR: [{ target: 'ALL' }, { target: profession }] },
+      where: { id: ficheId, isVisible: true, OR: profession === 'RESIDENT' ? [{ target: 'RESIDENT' }] : [{ target: 'ALL' }, { target: profession }] },
     });
     if (!fiche) return null;
 

@@ -36,7 +36,8 @@ export class ThemesService {
         where: { target, isPublished: true, ...(language ? { language } : {}) },
         include: {
           subThemes: {
-            select: { id: true, name: true, order: true, isFreemium: true, _count: { select: { questions: true } } },
+            // Résidanat : on ne compte que les questions actives (les QCM « à vérifier » sont importés désactivés)
+            select: { id: true, name: true, order: true, isFreemium: true, _count: { select: { questions: target === 'RESIDENT' ? { where: { isActive: true } } : true } } },
             orderBy: [{ order: 'asc' }, { name: 'asc' }],
           },
           _count: { select: { subThemes: true } },
@@ -59,6 +60,21 @@ export class ThemesService {
         include: {
           subThemes: {
             select: { id: true, name: true, order: true, isFreemium: true, _count: { select: { questions: true } } },
+            orderBy: [{ order: 'asc' }, { name: 'asc' }],
+          },
+          _count: { select: { subThemes: true } },
+        },
+        orderBy: [{ order: 'asc' }, { name: 'asc' }],
+      });
+    }
+
+    if (profession === 'resident') {
+      // Résidanat : contenu uniquement en français, quelle que soit la langue de l'interface
+      return this.prisma.theme.findMany({
+        where: { target: 'RESIDENT', isPublished: true, language: 'FR' },
+        include: {
+          subThemes: {
+            select: { id: true, name: true, order: true, isFreemium: true, _count: { select: { questions: { where: { isActive: true } } } } },
             orderBy: [{ order: 'asc' }, { name: 'asc' }],
           },
           _count: { select: { subThemes: true } },

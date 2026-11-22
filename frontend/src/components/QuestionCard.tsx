@@ -2,7 +2,8 @@
 import { useState } from 'react';
 import { CheckCircle2, XCircle, ChevronRight, Lightbulb, Heart } from 'lucide-react';
 import { questionsApi } from '@/lib/api';
-import { sentenceCase, resolveImageUrl } from '@/lib/utils';
+import { sentenceCase, resolveImageUrl, splitExplanation } from '@/lib/utils';
+import { ExplanationImages } from '@/components/ExplanationImages';
 import { useLang } from '@/components/LanguageProvider';
 
 const AR_LETTERS: Record<string, string> = { A: 'أ', B: 'ب', C: 'ج', D: 'د', E: 'هـ' };
@@ -75,6 +76,8 @@ export function QuestionCard({ question, questionNumber, totalQuestions, onAnswe
     savedAnswer ? new Set(savedAnswer.userAnswer.split(',').map((s) => s.trim()).filter(Boolean)) : new Set()
   );
   const [result, setResult] = useState<AnswerResult | null>(savedAnswer?.result ?? null);
+  // Texte de l'explication + illustrations de correction ([[image:URL]])
+  const expl = splitExplanation(result?.explanation);
   const [loading, setLoading] = useState(false);
   const [submitError, setSubmitError] = useState(false);
   const [favorited, setFavorited] = useState(isFavorited);
@@ -292,15 +295,15 @@ export function QuestionCard({ question, questionNumber, totalQuestions, onAnswe
             )}
           </div>
 
-          {result.explanation && (
+          {expl.text && (
             <div className="px-5 py-4 bg-white dark:bg-gray-800 border-t border-gray-100 dark:border-gray-700 flex gap-3">
               <div className="w-7 h-7 rounded-lg bg-amber-50 dark:bg-amber-900/30 border border-amber-200 dark:border-amber-700 flex items-center justify-center flex-shrink-0 mt-0.5">
                 <Lightbulb className="w-3.5 h-3.5 text-amber-500" />
               </div>
               <div className="text-sm text-gray-600 dark:text-gray-300 leading-relaxed">
-                {result.explanation.includes('\n') ? (
+                {expl.text.includes('\n') ? (
                   <ul className="space-y-2">
-                    {result.explanation.split('\n').filter(l => l.trim()).map((line, i) => {
+                    {expl.text.split('\n').filter(l => l.trim()).map((line, i) => {
                       const colonIdx = line.indexOf(':');
                       const hasTitle = colonIdx > 0 && colonIdx < 60 && line.slice(colonIdx + 1).trim().length > 0;
                       return (
@@ -316,13 +319,19 @@ export function QuestionCard({ question, questionNumber, totalQuestions, onAnswe
                     })}
                   </ul>
                 ) : (() => {
-                  const colonIdx = result.explanation.indexOf(':');
-                  const hasTitle = colonIdx > 0 && colonIdx < 60 && result.explanation.slice(colonIdx + 1).trim().length > 0;
+                  const colonIdx = expl.text.indexOf(':');
+                  const hasTitle = colonIdx > 0 && colonIdx < 60 && expl.text.slice(colonIdx + 1).trim().length > 0;
                   return hasTitle ? (
-                    <p><strong className="text-gray-800 dark:text-gray-100">{result.explanation.slice(0, colonIdx + 1)}</strong>{' '}{result.explanation.slice(colonIdx + 1).trim()}</p>
-                  ) : <p>{result.explanation}</p>;
+                    <p><strong className="text-gray-800 dark:text-gray-100">{expl.text.slice(0, colonIdx + 1)}</strong>{' '}{expl.text.slice(colonIdx + 1).trim()}</p>
+                  ) : <p>{expl.text}</p>;
                 })()}
               </div>
+            </div>
+          )}
+
+          {expl.images.length > 0 && (
+            <div className="px-5 pb-4 bg-white dark:bg-gray-800">
+              <ExplanationImages images={expl.images} />
             </div>
           )}
 

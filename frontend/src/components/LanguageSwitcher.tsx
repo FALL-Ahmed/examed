@@ -6,7 +6,8 @@ function Flag() {
 }
 
 export function LanguageSwitcher({ className = '' }: { className?: string }) {
-  const { lang, setLang } = useLang();
+  const { lang, setLang, langLocked } = useLang();
+  if (langLocked) return null;
   const next = lang === 'fr' ? 'ar' : 'fr';
   const nextLabel = lang === 'fr' ? 'العربية' : 'Français';
 
@@ -23,7 +24,8 @@ export function LanguageSwitcher({ className = '' }: { className?: string }) {
 }
 
 export function LanguageSwitcherLight({ className = '' }: { className?: string }) {
-  const { lang, setLang } = useLang();
+  const { lang, setLang, langLocked } = useLang();
+  if (langLocked) return null;
   const next = lang === 'fr' ? 'ar' : 'fr';
   const nextLabel = lang === 'fr' ? 'العربية' : 'Français';
 
