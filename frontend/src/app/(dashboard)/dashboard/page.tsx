@@ -10,6 +10,7 @@ import {
   Clock, ArrowRight, Target, Award, Flame, ChevronRight, AlertTriangle, CalendarCheck, Gift,
 } from 'lucide-react';
 import { ProfileCompletionModal } from '@/components/ProfileCompletionModal';
+import { ResidentHome } from '@/components/ResidentHome';
 
 function ScoreRing({ value }: { value: number }) {
   const r = 44;
@@ -111,6 +112,9 @@ export default function DashboardPage() {
 
   const subEnd = profile?.subscriptionEnd ? new Date(profile.subscriptionEnd) : null;
   const daysLeft = subEnd ? Math.ceil((subEnd.getTime() - Date.now()) / 86400000) : null;
+
+  // Résidanat : écran d'accueil « banque de questions » (choix de plusieurs chapitres puis lancement de la série)
+  if (user?.profession === 'resident') return <ResidentHome />;
 
   return (
     <div className="max-w-5xl mx-auto space-y-6">

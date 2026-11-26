@@ -37,6 +37,7 @@ export class AttemptsService {
     themeId?: string;
     themeIds?: string[];
     excludeAnsweredToday?: boolean;
+    excludeAnswered?: boolean;
     subThemeId?: string;
     subThemeIds?: string[];
     count?: number;
@@ -58,6 +59,8 @@ export class AttemptsService {
     } else if (dto.mode === 'EXAM') {
       questions = await this.questionsService.getForExam(userId, userRole, {
         themeId: dto.themeId,
+        subThemeIds: dto.subThemeIds,
+        excludeAnswered: dto.excludeAnswered,
         count: dto.count || 20,
         language: dto.language,
       });
@@ -101,6 +104,7 @@ export class AttemptsService {
         count: dto.count || 1,
         language: dto.language,
         excludeAnsweredToday: dto.excludeAnsweredToday,
+        excludeAnswered: dto.excludeAnswered,
         freemiumOnly,
       });
     }
@@ -287,6 +291,23 @@ export class AttemptsService {
         themeId: true,
       },
     });
+  }
+
+  /** Par chapitre : nombre de questions distinctes déjà faites et nombre réussies (selon la dernière réponse) */
+  async getSubThemeStats(userId: string) {
+    const rows = await this.prisma.$queryRaw<{ subThemeId: string; attempted: bigint; correct: bigint }[]>`
+      SELECT q."subThemeId" AS "subThemeId",
+             COUNT(*) AS attempted,
+             COUNT(*) FILTER (WHERE last."isCorrect") AS correct
+      FROM (
+        SELECT DISTINCT ON (ua."questionId") ua."questionId", ua."isCorrect"
+        FROM "UserAnswer" ua
+        WHERE ua."userId" = ${userId}
+        ORDER BY ua."questionId", ua."answeredAt" DESC
+      ) last
+      JOIN "Question" q ON q.id = last."questionId" AND q."isActive" = true
+      GROUP BY q."subThemeId"`;
+    return rows.map((r) => ({ subThemeId: r.subThemeId, attempted: Number(r.attempted), correct: Number(r.correct) }));
   }
 
   async getWeakTheme(userId: string) {

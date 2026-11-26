@@ -21,6 +21,7 @@ export class QuestionsService {
     count?: number;
     language?: string;
     excludeAnsweredToday?: boolean;
+    excludeAnswered?: boolean;
     freemiumOnly?: boolean;
   }) {
     // Vérifier quota FREE
@@ -80,6 +81,23 @@ export class QuestionsService {
       }
     }
 
+    // « Nouvelles questions uniquement » : jamais répondues par l'utilisateur
+    if (opts.excludeAnswered) {
+      const done = await this.prisma.userAnswer.findMany({ where: { userId }, select: { questionId: true }, distinct: ['questionId'] });
+      if (done.length) where.AND = [...(where.AND ?? []), { id: { notIn: done.map((d) => d.questionId) } }];
+    }
+
+    // Plusieurs chapitres choisis : vrai tirage aléatoire réparti sur tous les chapitres
+    // (l'ancien tirage prenait un bloc de questions consécutives, souvent d'un seul chapitre)
+    if (opts.subThemeIds?.length || opts.excludeAnswered) {
+      const ids = await this.prisma.question.findMany({ where, select: { id: true } });
+      for (let i = ids.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [ids[i], ids[j]] = [ids[j], ids[i]]; }
+      const picked = ids.slice(0, opts.count || 1).map((q) => q.id);
+      const rows = await this.prisma.question.findMany({ where: { id: { in: picked } }, include: { subTheme: { include: { theme: true } } } });
+      const order = new Map(picked.map((id, i) => [id, i]));
+      return rows.sort((a, b) => (order.get(a.id) ?? 0) - (order.get(b.id) ?? 0));
+    }
+
     const total = await this.prisma.question.count({ where });
     const skip = Math.max(0, Math.floor(Math.random() * Math.max(1, total - (opts.count || 1))));
 
@@ -93,6 +111,8 @@ export class QuestionsService {
 
   async getForExam(userId: string, userRole: string, opts: {
     themeId?: string;
+    subThemeIds?: string[];
+    excludeAnswered?: boolean;
     count: number;
     language?: string;
   }) {
@@ -114,6 +134,12 @@ export class QuestionsService {
     }
 
     const where: any = { isActive: true };
+    // Examen sur plusieurs chapitres choisis (écran de sélection Résidanat)
+    if (opts.subThemeIds?.length) where.subThemeId = { in: opts.subThemeIds };
+    if (opts.excludeAnswered) {
+      const done = await this.prisma.userAnswer.findMany({ where: { userId }, select: { questionId: true }, distinct: ['questionId'] });
+      if (done.length) where.id = { notIn: done.map((d) => d.questionId) };
+    }
     const subFilter: any = {};
     if (opts.themeId) subFilter.themeId = opts.themeId;
     const themeFilterExam: any = { target: examTarget };

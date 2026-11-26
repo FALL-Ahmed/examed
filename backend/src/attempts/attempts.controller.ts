@@ -1,6 +1,6 @@
 import { Controller, Post, Get, Body, Param, Query, Req, UseGuards } from '@nestjs/common';
 import { ApiTags, ApiBearerAuth } from '@nestjs/swagger';
-import { IsString, IsOptional, IsNumber, IsIn, IsArray } from 'class-validator';
+import { IsString, IsOptional, IsNumber, IsIn, IsArray, IsBoolean } from 'class-validator';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { AttemptsService } from './attempts.service';
 
@@ -31,6 +31,10 @@ class StartAttemptDto {
 
   @IsOptional() @IsArray() @IsString({ each: true })
   questionIds?: string[];
+
+  // Uniquement des questions jamais répondues par l'utilisateur (« nouvelles questions »)
+  @IsOptional() @IsBoolean()
+  excludeAnswered?: boolean;
 }
 
 class SubmitAnswerDto {
@@ -76,6 +80,12 @@ export class AttemptsController {
   @Get('weak-theme')
   weakTheme(@Req() req: any) {
     return this.attemptsService.getWeakTheme(req.user.sub);
+  }
+
+  // Progression par chapitre : questions déjà faites et réussies (dernière réponse), pour l'écran de sélection
+  @Get('subtheme-stats')
+  subThemeStats(@Req() req: any) {
+    return this.attemptsService.getSubThemeStats(req.user.sub);
   }
 
   @Get('theme-progress')

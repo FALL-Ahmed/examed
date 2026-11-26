@@ -142,6 +142,8 @@ export const attemptsApi = {
   review: (id: string) => api.get(`/attempts/${id}/review`),
   history: () => api.get('/attempts/history/me'),
   weakTheme: () => api.get('/attempts/weak-theme'),
+  // Progression par chapitre (questions faites / réussies) pour l'écran de sélection
+  subThemeStats: () => api.get('/attempts/subtheme-stats'),
   themeProgress: (themeId?: string, subThemeId?: string, excludeId?: string) =>
     api.get('/attempts/theme-progress', { params: { themeId, subThemeId, excludeId } }),
 };
