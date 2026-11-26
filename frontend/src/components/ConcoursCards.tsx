@@ -85,9 +85,9 @@ export function ConcoursCards({ lang }: { lang: 'fr' | 'ar' }) {
                   <span className="px-3 py-1.5 text-gray-400 cursor-default">{c.primary.label}</span>
                 ) : (
                   <>
-                    <Link href={c.primary.href} className="px-3 py-1.5 text-sky-700 hover:bg-sky-50 transition">{c.primary.label}</Link>
+                    <Link href={c.primary.href} className="px-3 py-1.5 text-violet-700 hover:bg-violet-50 transition">{c.primary.label}</Link>
                     {c.secondary && (
-                      <Link href={c.secondary.href} className="px-3 py-1.5 text-emerald-700 hover:bg-emerald-50 border-s border-gray-300 transition">{c.secondary.label}</Link>
+                      <Link href={c.secondary.href} className="px-3 py-1.5 text-indigo-700 hover:bg-indigo-50 border-s border-gray-300 transition">{c.secondary.label}</Link>
                     )}
                   </>
                 )}

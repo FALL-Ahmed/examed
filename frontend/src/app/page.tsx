@@ -87,7 +87,7 @@ export default function LandingPage() {
       <nav className="sticky top-0 z-50 bg-white border-b border-gray-200">
         <div className="w-full px-4 sm:px-6 lg:px-10 h-16 flex items-center justify-between">
           <div className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-md bg-teal-600 flex items-center justify-center">
+            <div className="w-8 h-8 rounded-md bg-violet-600 flex items-center justify-center">
               <BookOpen className="w-4 h-4 text-white" />
             </div>
             <span className="font-bold text-sm md:text-lg tracking-tight text-gray-900">{t('app.name')}</span>
@@ -95,7 +95,7 @@ export default function LandingPage() {
           <div className="flex items-center gap-1 flex-nowrap flex-shrink-0">
             <LanguageSwitcherLight className="!text-gray-500 hover:!bg-gray-100 hover:!text-gray-900 flex-shrink-0" />
             <Link href="/register"
-              className="text-sm font-semibold text-white px-3 py-2 rounded-md bg-emerald-600 hover:bg-emerald-700 transition whitespace-nowrap flex-shrink-0">
+              className="text-sm font-semibold text-white px-3 py-2 rounded-md bg-violet-600 hover:bg-violet-700 transition whitespace-nowrap flex-shrink-0">
               {t('auth.register.submit')}
             </Link>
             <Link href="/login"
@@ -108,14 +108,14 @@ export default function LandingPage() {
 
       {/* ── Hero ── */}
       {/* Hero simple (style PassMedicine) : fond médical discret + encadré centré */}
-      <section className="relative overflow-hidden bg-gradient-to-br from-sky-100 via-teal-50 to-emerald-100">
+      <section className="relative overflow-hidden bg-gradient-to-br from-violet-100 via-indigo-50 to-sky-100">
         <svg className="absolute inset-0 w-full h-full pointer-events-none opacity-40" viewBox="0 0 1200 400" preserveAspectRatio="none" aria-hidden>
           <defs>
-            <pattern id="hero-grid" width="24" height="24" patternUnits="userSpaceOnUse"><path d="M24 0H0V24" fill="none" stroke="#5eead4" strokeWidth="0.6" /></pattern>
+            <pattern id="hero-grid" width="24" height="24" patternUnits="userSpaceOnUse"><path d="M24 0H0V24" fill="none" stroke="#c4b5fd" strokeWidth="0.6" /></pattern>
           </defs>
           <rect width="1200" height="400" fill="url(#hero-grid)" />
           <path d="M0,220 L180,220 L200,200 L215,220 L260,220 L272,240 L288,110 L304,300 L318,220 L380,220 L400,195 L425,220 L620,220 L640,200 L655,220 L700,220 L712,240 L728,110 L744,300 L758,220 L820,220 L840,195 L865,220 L1200,220"
-            fill="none" stroke="#0d9488" strokeWidth="2.5" strokeLinejoin="round" />
+            fill="none" stroke="#7c3aed" strokeWidth="2.5" strokeLinejoin="round" />
         </svg>
 
         <div className="relative max-w-6xl mx-auto px-4 sm:px-6 py-16 md:py-24 flex justify-center">
@@ -130,12 +130,12 @@ export default function LandingPage() {
             </p>
             <div className="mt-6 flex flex-wrap justify-center gap-3">
               <a href="#rubriques"
-                className="inline-flex items-center px-5 py-2.5 rounded-md bg-teal-600 hover:bg-teal-700 text-white font-semibold text-sm transition">
+                className="inline-flex items-center px-5 py-2.5 rounded-md bg-indigo-500 hover:bg-indigo-600 text-white font-semibold text-sm transition">
                 {lang === 'ar' ? 'اعرف المزيد' : 'En savoir plus'}
               </a>
               <div className="relative">
                 <button type="button" onClick={() => setRegOpen((o) => !o)} aria-expanded={regOpen}
-                  className="inline-flex items-center gap-1.5 px-5 py-2.5 rounded-md bg-emerald-600 hover:bg-emerald-700 text-white font-semibold text-sm transition">
+                  className="inline-flex items-center gap-1.5 px-5 py-2.5 rounded-md bg-violet-600 hover:bg-violet-700 text-white font-semibold text-sm transition">
                   {lang === 'ar' ? 'سجّل' : "S'inscrire"} <ChevronDown className="w-4 h-4" />
                 </button>
                 {regOpen && (
@@ -153,7 +153,7 @@ export default function LandingPage() {
             </div>
             <p className="mt-5 text-sm text-gray-500">
               {lang === 'ar' ? 'لديك حساب؟ ' : 'Déjà inscrit ? '}
-              <Link href="/login" className="text-teal-700 font-semibold hover:underline">{t('auth.login.submit')}</Link>
+              <Link href="/login" className="text-violet-700 font-semibold hover:underline">{t('auth.login.submit')}</Link>
             </p>
           </div>
         </div>
@@ -179,7 +179,7 @@ export default function LandingPage() {
             ].map((k) => (
               <div key={k.value} className="p-5 rounded-lg border border-gray-200 bg-white">
                 <div className="flex items-center gap-3">
-                  <span className="w-9 h-9 rounded-md bg-teal-50 text-teal-700 flex items-center justify-center">{k.icon}</span>
+                  <span className="w-9 h-9 rounded-md bg-violet-50 text-violet-700 flex items-center justify-center">{k.icon}</span>
                   <p className="text-2xl font-bold text-gray-900">{k.value}</p>
                 </div>
                 <p className="mt-3 font-semibold text-gray-900 text-sm">{k.title}</p>
@@ -204,10 +204,10 @@ export default function LandingPage() {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {FEATURES.map((f) => (
               <div key={f.title} className="p-6 rounded-lg border border-gray-200 bg-white">
-                <span className="w-10 h-10 rounded-md bg-teal-50 text-teal-700 flex items-center justify-center mb-4">
+                <span className="w-10 h-10 rounded-md bg-violet-50 text-violet-700 flex items-center justify-center mb-4">
                   <f.icon className="w-5 h-5" />
                 </span>
-                <p className="text-xs font-semibold uppercase tracking-wide text-teal-700 mb-1">{f.subtitle}</p>
+                <p className="text-xs font-semibold uppercase tracking-wide text-violet-700 mb-1">{f.subtitle}</p>
                 <h3 className="font-bold text-gray-900 text-lg mb-2">{f.title}</h3>
                 <p className="text-sm text-gray-600 leading-relaxed">{f.desc}</p>
               </div>
@@ -239,7 +239,7 @@ export default function LandingPage() {
       </section>
 
       {/* ── Essai gratuit ── */}
-      <section className="py-16 px-4 sm:px-6 bg-teal-50 border-y border-teal-100">
+      <section className="py-16 px-4 sm:px-6 bg-violet-50 border-y border-violet-100">
         <div className="max-w-3xl mx-auto text-center">
           <h2 className="text-2xl md:text-3xl font-bold text-gray-900">
             {lang === 'ar' ? 'ابدأ بهذه الفصول المجانية' : 'Commencez par ces chapitres offerts'}
@@ -250,9 +250,9 @@ export default function LandingPage() {
           <div className="mt-8 grid grid-cols-1 sm:grid-cols-3 gap-3">
             {FREE_CHAPTERS.map((ch) => (
               <Link key={ch.name} href={`/free-practice${lang === 'ar' ? '?lang=ar' : ''}`}
-                className="flex items-center justify-between gap-3 px-4 py-3 bg-white rounded-lg border border-gray-200 hover:border-teal-500 transition text-start">
+                className="flex items-center justify-between gap-3 px-4 py-3 bg-white rounded-lg border border-gray-200 hover:border-violet-500 transition text-start">
                 <span className="font-semibold text-gray-900 text-sm">{ch.name}</span>
-                <span className="text-xs font-semibold text-teal-700">{lang === 'ar' ? 'مجاناً' : 'Gratuit'} →</span>
+                <span className="text-xs font-semibold text-violet-700">{lang === 'ar' ? 'مجاناً' : 'Gratuit'} →</span>
               </Link>
             ))}
           </div>
@@ -263,13 +263,13 @@ export default function LandingPage() {
       <section className="py-16 md:py-20 bg-white">
         <div className="max-w-6xl mx-auto px-4 sm:px-6">
           <SectionHead kicker={t('landing.testi.badge')} title={t('landing.testi.h2')} />
-          <div className="mb-10 flex items-start gap-4 rounded-lg border border-emerald-200 bg-emerald-50 px-5 py-4">
-            <GraduationCap className="hidden sm:block w-8 h-8 text-emerald-700 flex-shrink-0 mt-0.5" />
+          <div className="mb-10 flex items-start gap-4 rounded-lg border border-violet-200 bg-violet-50 px-5 py-4">
+            <GraduationCap className="hidden sm:block w-8 h-8 text-violet-700 flex-shrink-0 mt-0.5" />
             <div>
-              <p className="text-lg font-bold text-emerald-900">
+              <p className="text-lg font-bold text-violet-900">
                 {lang === 'ar' ? 'لقد نجحوا.' : "Ils l'ont fait."}
               </p>
-              <p className="text-sm text-emerald-800 leading-relaxed mt-0.5">
+              <p className="text-sm text-violet-800 leading-relaxed mt-0.5">
                 {lang === 'ar'
                   ? 'بفضل الله أولًا، ثم بفضل اجتهادهم. ونفخر بأن منصة البُرور كانت جزءًا من قصة نجاحهم.'
                   : "Grâce à Allah puis grâce à leur travail. Et nous sommes fiers d'avoir participé à leur réussite."}
@@ -301,15 +301,15 @@ export default function LandingPage() {
           <SectionHead center kicker={t('landing.pricing.badge')} title={t('landing.pricing.h2')} />
           <p className="-mt-4 mb-8 text-center text-sm text-gray-600">
             {lang === 'ar' ? 'هذه العروض خاصة بالمسابقة الوطنية للصحة. ' : 'Formules du concours national de santé. '}
-            <Link href="/residanat#tarifs" className="font-semibold text-teal-700 hover:underline">
+            <Link href="/residanat#tarifs" className="font-semibold text-violet-700 hover:underline">
               {lang === 'ar' ? 'عروض مسابقة الإقامة ←' : 'Tarifs du Résidanat →'}
             </Link>
           </p>
 
-          <div className={`mb-8 rounded-lg border px-5 py-4 text-center ${promoActive || isNursesDay ? 'border-red-200 bg-red-50' : 'border-gray-200 bg-white'}`}>
+          <div className="mb-8 rounded-lg px-6 py-7 text-center text-white" style={{ background: 'linear-gradient(135deg,#b91c1c 0%,#dc2626 40%,#f97316 100%)' }}>
             {promoActive && (
               <>
-                <p className="text-2xl md:text-3xl font-bold text-red-600">
+                <p className="text-3xl md:text-4xl font-black tracking-tight mb-1">
                   {prices.upTo
                     ? (lang === 'ar' ? `خصم حتى ${prices.maxPct}% !` : `Jusqu'à -${prices.maxPct}% !`)
                     : prices.onGroup
@@ -317,7 +317,7 @@ export default function LandingPage() {
                       : (lang === 'ar' ? `-${prices.soloPct}% على الخطة الفردية !` : `-${prices.soloPct}% sur l'offre Solo !`)}
                 </p>
                 {formattedEndDate && (
-                  <p className="text-sm text-red-700 mt-1 mb-2">
+                  <p className="text-white/85 text-base mb-3">
                     {lang === 'ar' ? `صالح حتى ${formattedEndDate}` : `valable jusqu'au ${formattedEndDate}`}
                   </p>
                 )}
@@ -325,17 +325,17 @@ export default function LandingPage() {
             )}
             {isNursesDay ? (
               <>
-                <p className="text-xl md:text-2xl font-bold text-gray-900">
+                <p className="text-2xl md:text-3xl font-black mb-1">
                   {lang === 'ar' ? 'عيد الممرضين العالمي السعيد !' : 'Bonne Journée Internationale des Infirmiers !'}
                 </p>
-                <p className="text-gray-700 mt-1">
+                <p className="text-white/90 text-base md:text-lg max-w-2xl mx-auto">
                   {lang === 'ar'
                     ? 'احتفالاً بهذا اليوم، استفد من عرض خاص سارٍ اليوم فقط.'
                     : "Pour célébrer cette journée, profitez d'une offre spéciale valable aujourd'hui seulement."}
                 </p>
               </>
             ) : (
-              <p className="text-gray-700">
+              <p className="text-white/90 text-base md:text-lg max-w-2xl mx-auto">
                 {lang === 'ar'
                   ? 'سجّل مرة واحدة، وذاكر حتى النهاية. آل بورور يرافقكم حتى باب قاعة الامتحان'
                   : "Inscrivez-vous une fois, révisez jusqu'au bout. Al Bourour vous accompagne jusqu'à la porte de la salle d'examen."}
@@ -347,7 +347,7 @@ export default function LandingPage() {
 
             {/* Solo */}
             <div className="flex flex-col bg-white rounded-lg border border-gray-200 p-6">
-              <Target className="w-6 h-6 text-teal-700 mb-4" />
+              <Target className="w-6 h-6 text-violet-700 mb-4" />
               <h3 className="font-bold text-lg text-gray-900">{t('landing.pricing.solo1.name')}</h3>
               <p className="text-gray-500 text-sm mb-5">{t('landing.pricing.solo1.desc')}</p>
               <div className="mb-6 flex-1">
@@ -359,17 +359,17 @@ export default function LandingPage() {
                 {promoActive && prices.soloPct > 0 && <span className="inline-block mt-2 bg-red-600 text-white text-xs font-bold px-2 py-1 rounded">-{prices.soloPct}%</span>}
               </div>
               <Link href="/register?plan=SOLO_1M"
-                className="block w-full text-center py-2.5 rounded-md font-semibold text-sm text-teal-700 border border-teal-600 hover:bg-teal-50 transition">
+                className="block w-full text-center py-2.5 rounded-md font-semibold text-sm text-violet-700 border border-violet-600 hover:bg-violet-50 transition">
                 {t('landing.pricing.start')}
               </Link>
             </div>
 
             {/* Pack spécial jusqu'au concours (recommandé) */}
-            <div className="relative flex flex-col bg-white rounded-lg border-2 border-teal-600 p-6">
-              <span className="absolute -top-3 start-6 bg-teal-600 text-white text-xs font-semibold px-2.5 py-1 rounded">
+            <div className="relative flex flex-col bg-white rounded-lg border-2 border-violet-600 p-6">
+              <span className="absolute -top-3 start-6 bg-violet-600 text-white text-xs font-semibold px-2.5 py-1 rounded">
                 {lang === 'ar' ? 'موصى به' : 'Recommandé'}
               </span>
-              <Trophy className="w-6 h-6 text-teal-700 mb-4" />
+              <Trophy className="w-6 h-6 text-violet-700 mb-4" />
               <h3 className="font-bold text-lg text-gray-900">{lang === 'ar' ? 'باك خاص' : 'Pack spécial'}</h3>
               <p className="text-gray-500 text-sm mb-5">{lang === 'ar' ? 'حتى المسابقة · سنة على الأقل' : "Jusqu'au concours · 1 an minimum"}</p>
               <div className="mb-6 flex-1">
@@ -380,17 +380,17 @@ export default function LandingPage() {
                 </p>
               </div>
               <Link href="/register?plan=CONCOURS"
-                className="block w-full text-center py-2.5 rounded-md font-semibold text-sm text-white bg-teal-600 hover:bg-teal-700 transition">
+                className="block w-full text-center py-2.5 rounded-md font-semibold text-sm text-white bg-violet-600 hover:bg-violet-700 transition">
                 {t('landing.pricing.start')}
               </Link>
             </div>
 
             {/* Pack Amis */}
             <div className="flex flex-col bg-white rounded-lg border border-gray-200 p-6">
-              <Users className="w-6 h-6 text-teal-700 mb-4" />
+              <Users className="w-6 h-6 text-violet-700 mb-4" />
               <h3 className="font-bold text-lg text-gray-900">{t('landing.pricing.group.name')}</h3>
               <p className="text-gray-500 text-sm">{lang === 'ar' ? 'لمدة 6 أشهر' : 'Accès pendant 6 mois'}</p>
-              <p className="text-emerald-700 text-sm font-semibold mb-4 mt-1">
+              <p className="text-violet-700 text-sm font-semibold mb-4 mt-1">
                 {lang === 'ar' ? 'ادفع لـ 2، وتعالوا 3!' : 'Payez pour 2, venez à 3 !'}
               </p>
               <div className="mb-6 flex-1">
@@ -412,7 +412,7 @@ export default function LandingPage() {
                 </p>
               </div>
               <Link href="/register?plan=GROUP"
-                className="block w-full text-center py-2.5 rounded-md font-semibold text-sm text-teal-700 border border-teal-600 hover:bg-teal-50 transition">
+                className="block w-full text-center py-2.5 rounded-md font-semibold text-sm text-violet-700 border border-violet-600 hover:bg-violet-50 transition">
                 {t('landing.pricing.group.create')}
               </Link>
             </div>
@@ -423,7 +423,7 @@ export default function LandingPage() {
       {/* ── Citations ── */}
       <section className="py-16 px-4 sm:px-6 bg-white">
         <div className="max-w-4xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-4">
-          <figure className="rounded-lg border border-gray-200 border-s-4 border-s-teal-600 p-6">
+          <figure className="rounded-lg border border-gray-200 border-s-4 border-s-violet-600 p-6">
             <p className="text-right text-gray-900 leading-loose text-base font-medium mb-4" dir="rtl">
               ولا تكن في كل يوم تاركا <span className="text-gray-300 mx-2 select-none">‖</span> تعلما واعمل به مداركا<br />
               فالعلم يحيي قلب من تعلما <span className="text-gray-300 mx-2 select-none">‖</span> ينوّر النفس يقيها الظّلما
@@ -432,29 +432,29 @@ export default function LandingPage() {
               Ne cesse chaque jour d'apprendre, puis de mettre en pratique ce que tu as appris.
               Le savoir ranime le cœur de qui l'étudie, éclaire l'âme et la protège des ténèbres.
             </p>
-            <figcaption className="text-xs text-teal-700 font-semibold mt-3">— الشيخ أحمد بمب امباكي · Cheikh Ahmedou Bamba Mbacke</figcaption>
+            <figcaption className="text-xs text-violet-700 font-semibold mt-3">— الشيخ أحمد بمب امباكي · Cheikh Ahmedou Bamba Mbacke</figcaption>
           </figure>
-          <figure className="rounded-lg border border-gray-200 border-s-4 border-s-teal-600 p-6">
+          <figure className="rounded-lg border border-gray-200 border-s-4 border-s-violet-600 p-6">
             <p className="text-gray-900 leading-relaxed text-base italic mb-4">
               "Celui qui étudie la médecine sans livres navigue sur une mer inexplorée, mais celui qui étudie la médecine sans patients ne prend pas du tout la mer."
             </p>
             <p className="text-right text-gray-600 text-sm leading-relaxed mb-4" dir="rtl">
               «من يدرس الطب بلا كتب يبحر في بحرٍ مجهولٍ، ومن يدرس الطب بلا مرضى فلا يبحر إطلاقًا»
             </p>
-            <figcaption className="text-xs text-teal-700 font-semibold">— Sir William Osler</figcaption>
+            <figcaption className="text-xs text-violet-700 font-semibold">— Sir William Osler</figcaption>
           </figure>
         </div>
       </section>
 
       {/* ── Appel final ── */}
       <section className="px-4 sm:px-6 pb-16">
-        <div className="max-w-5xl mx-auto rounded-lg bg-teal-700 px-6 py-12 md:px-12 text-center text-white">
+        <div className="max-w-5xl mx-auto rounded-lg bg-violet-700 px-6 py-12 md:px-12 text-center text-white">
           <h2 className="text-2xl md:text-3xl font-bold">
             {t('landing.cta.h2a')} {t('landing.cta.h2b')}
           </h2>
-          <p className="text-teal-50 mt-3 max-w-xl mx-auto leading-relaxed">{t('landing.cta.desc')}</p>
+          <p className="text-violet-50 mt-3 max-w-xl mx-auto leading-relaxed">{t('landing.cta.desc')}</p>
           <Link href="/register"
-            className="mt-6 inline-flex items-center gap-2 font-semibold px-6 py-3 rounded-md text-sm bg-white text-teal-800 hover:bg-teal-50 transition">
+            className="mt-6 inline-flex items-center gap-2 font-semibold px-6 py-3 rounded-md text-sm bg-white text-violet-800 hover:bg-violet-50 transition">
             {t('landing.cta.button')} <ArrowRight className="w-4 h-4 rtl:rotate-180" />
           </Link>
         </div>
@@ -465,7 +465,7 @@ export default function LandingPage() {
         <div className="max-w-6xl mx-auto">
           <div className="flex flex-col sm:flex-row items-center justify-between gap-6 text-sm text-gray-500 mb-6">
             <div className="flex items-center gap-2 flex-wrap justify-center">
-              <span className="w-6 h-6 rounded-md bg-teal-600 flex items-center justify-center">
+              <span className="w-6 h-6 rounded-md bg-violet-600 flex items-center justify-center">
                 <BookOpen className="w-3 h-3 text-white" />
               </span>
               <span className="font-bold text-gray-700">{t('app.name')}</span>
@@ -499,7 +499,7 @@ export default function LandingPage() {
 function SectionHead({ kicker, title, desc, center }: { kicker?: string; title: string; desc?: string; center?: boolean }) {
   return (
     <div className={`mb-10 ${center ? 'text-center' : ''}`}>
-      {kicker && <p className="text-teal-700 text-sm font-semibold mb-2">{kicker}</p>}
+      {kicker && <p className="text-violet-700 text-sm font-semibold mb-2">{kicker}</p>}
       <h2 className={`text-2xl md:text-3xl font-bold text-gray-900 ${center ? '' : 'max-w-2xl'}`}>{title}</h2>
       {desc && <p className={`text-gray-600 mt-3 ${center ? 'max-w-xl mx-auto' : 'max-w-2xl'}`}>{desc}</p>}
     </div>
