@@ -6,7 +6,7 @@ import { useAuthStore } from '@/lib/auth-store';
 import { useLang } from '@/components/LanguageProvider';
 import {
   BookOpen, Zap, TrendingUp, CheckCircle2,
-  GraduationCap, ArrowRight, Target, Users, Clock, FileText, ClipboardList, Trophy, Stethoscope, ChevronDown,
+  GraduationCap, ArrowRight, Target, Users, Clock, FileText, ClipboardList, Trophy, Stethoscope, ChevronDown, Languages,
 } from 'lucide-react';
 import { settingsApi } from '@/lib/api';
 import { computePrices, type PromoSettings } from '@/lib/promo';
@@ -84,21 +84,19 @@ export default function LandingPage() {
     <div className="min-h-screen bg-white text-gray-900" dir={lang === 'ar' ? 'rtl' : 'ltr'}>
 
       {/* ── Navbar ── */}
-      <nav className="sticky top-0 z-50 bg-white/95 backdrop-blur-md border-b border-gray-100/80 shadow-sm">
-        <div className="w-full px-6 lg:px-10 h-16 flex items-center justify-between">
+      <nav className="sticky top-0 z-50 bg-white border-b border-gray-200">
+        <div className="w-full px-4 sm:px-6 lg:px-10 h-16 flex items-center justify-between">
           <div className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-lg flex items-center justify-center shadow-md shadow-violet-200"
-              style={{ background: 'linear-gradient(135deg,#7c3aed,#6366f1)' }}>
+            <div className="w-8 h-8 rounded-md bg-teal-600 flex items-center justify-center">
               <BookOpen className="w-4 h-4 text-white" />
             </div>
-            <span className="font-extrabold text-sm md:text-lg tracking-tight text-gray-900">{t('app.name')}</span>
+            <span className="font-bold text-sm md:text-lg tracking-tight text-gray-900">{t('app.name')}</span>
           </div>
           <div className="flex items-center gap-1 flex-nowrap flex-shrink-0">
             <LanguageSwitcherLight className="!text-gray-500 hover:!bg-gray-100 hover:!text-gray-900 flex-shrink-0" />
             <Link href="/register"
-              className="text-sm font-semibold text-white px-3 py-2 rounded-xl transition hover:opacity-90 shadow-md shadow-violet-200 whitespace-nowrap flex-shrink-0"
-              style={{ background: 'linear-gradient(135deg,#7c3aed,#6366f1)' }}>
-              {t('auth.register.submit')} →
+              className="text-sm font-semibold text-white px-3 py-2 rounded-md bg-emerald-600 hover:bg-emerald-700 transition whitespace-nowrap flex-shrink-0">
+              {t('auth.register.submit')}
             </Link>
             <Link href="/login"
               className="hidden sm:inline-block text-sm font-semibold text-gray-500 hover:text-gray-900 px-3 py-2 rounded-lg hover:bg-gray-100 transition whitespace-nowrap flex-shrink-0">
@@ -166,22 +164,112 @@ export default function LandingPage() {
         <ConcoursCards lang={lang} />
       </div>
 
-      {/* ── Testimonials ── */}
-      <section className="py-20 px-6 lg:px-10 bg-slate-50">
+      {/* ── Chiffres clés ── */}
+      <section className="py-16 md:py-20 px-4 sm:px-6 bg-white">
         <div className="max-w-6xl mx-auto">
-          <div className="mb-10">
-            <p className="text-violet-600 text-xs font-bold uppercase tracking-widest mb-3">{t('landing.testi.badge')}</p>
-            <h2 className="text-3xl md:text-5xl font-extrabold text-gray-900 max-w-lg">{t('landing.testi.h2')}</h2>
+          <SectionHead center
+            kicker={lang === 'ar' ? 'الأرقام الرئيسية' : 'Chiffres clés'}
+            title={lang === 'ar' ? 'لماذا البورور ؟' : 'Pourquoi Al Bourour ?'} />
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            {[
+              { icon: <BookOpen className="w-5 h-5" />, value: '4500+', title: lang === 'ar' ? 'سؤال لا غنى عنه' : 'QCM incontournables', desc: lang === 'ar' ? 'تغطي 100% من البرنامج الرسمي الموريتاني' : 'Couvrant 100 % du programme officiel mauritanien' },
+              { icon: <Languages className="w-5 h-5" />, value: 'FR · AR', title: lang === 'ar' ? 'متاح بالعربية والفرنسية' : 'En arabe et en français', desc: lang === 'ar' ? 'غيّر اللغة بنقرة واحدة للفهم الكامل' : 'Changez de langue en un clic pour une compréhension totale' },
+              { icon: <CheckCircle2 className="w-5 h-5" />, value: '100%', title: lang === 'ar' ? 'فهم المفاهيم' : 'Comprenez les concepts', desc: lang === 'ar' ? 'كل سؤال مرفق بشرح طبي مفصّل' : "Chaque question est suivie d'une explication médicale" },
+              { icon: <Clock className="w-5 h-5" />, value: '10 min', title: lang === 'ar' ? 'تفعيل سريع' : 'Activation express', desc: lang === 'ar' ? 'حسابك جاهز في 10 دقائق بعد الدفع' : 'Votre compte prêt en 10 min après paiement', pay: true },
+            ].map((k) => (
+              <div key={k.value} className="p-5 rounded-lg border border-gray-200 bg-white">
+                <div className="flex items-center gap-3">
+                  <span className="w-9 h-9 rounded-md bg-teal-50 text-teal-700 flex items-center justify-center">{k.icon}</span>
+                  <p className="text-2xl font-bold text-gray-900">{k.value}</p>
+                </div>
+                <p className="mt-3 font-semibold text-gray-900 text-sm">{k.title}</p>
+                <p className="text-sm text-gray-600 mt-1 leading-relaxed">{k.desc}</p>
+                {k.pay && (
+                  <div className="flex gap-2 mt-3">
+                    {['bankily', 'masrivi', 'sedad'].map((op) => (
+                      <img key={op} src={`/images/${op}.png`} alt={op} className="h-5 w-auto object-contain" />
+                    ))}
+                  </div>
+                )}
+              </div>
+            ))}
           </div>
-          <div className="mb-12 flex items-center gap-5 rounded-2xl px-6 py-5 bg-emerald-600 shadow-lg shadow-emerald-900/20">
-            <div className="hidden sm:flex w-14 h-14 rounded-xl bg-white/15 items-center justify-center flex-shrink-0">
-              <GraduationCap className="w-7 h-7 text-white" />
-            </div>
+        </div>
+      </section>
+
+      {/* ── Fonctionnalités ── */}
+      <section className="py-16 md:py-20 px-4 sm:px-6 bg-slate-50 border-y border-gray-100">
+        <div className="max-w-6xl mx-auto">
+          <SectionHead kicker={t('landing.features.badge')} title={t('landing.features.h2')} />
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {FEATURES.map((f) => (
+              <div key={f.title} className="p-6 rounded-lg border border-gray-200 bg-white">
+                <span className="w-10 h-10 rounded-md bg-teal-50 text-teal-700 flex items-center justify-center mb-4">
+                  <f.icon className="w-5 h-5" />
+                </span>
+                <p className="text-xs font-semibold uppercase tracking-wide text-teal-700 mb-1">{f.subtitle}</p>
+                <h3 className="font-bold text-gray-900 text-lg mb-2">{f.title}</h3>
+                <p className="text-sm text-gray-600 leading-relaxed">{f.desc}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ── Vidéo démo ── */}
+      <section className="py-16 md:py-20 px-4 sm:px-6 bg-white">
+        <div className="max-w-6xl mx-auto">
+          <SectionHead center
+            kicker={lang === 'ar' ? 'اكتشف المنصة' : 'Découvrez la plateforme'}
+            title={lang === 'ar' ? 'شاهد كيف يعمل البورور' : 'Voyez Al Bourour en action'}
+            desc={lang === 'ar'
+              ? 'جولة سريعة في المنصة — من التدريب إلى نتائجك في دقائق'
+              : "Tour rapide de la plateforme — de l'entraînement à vos résultats en quelques minutes"} />
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {[{ src: '/demo-fr.mp4', label: '🇫🇷 Français' }, { src: '/demo-ar.mp4', label: '🇲🇷 العربية' }].map((v) => (
+              <div key={v.src}>
+                <p className="text-sm font-semibold text-gray-600 mb-2">{v.label}</p>
+                <div className="rounded-lg overflow-hidden border border-gray-200">
+                  <video src={v.src} controls playsInline preload="metadata" className="w-full aspect-video bg-gray-900" />
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ── Essai gratuit ── */}
+      <section className="py-16 px-4 sm:px-6 bg-teal-50 border-y border-teal-100">
+        <div className="max-w-3xl mx-auto text-center">
+          <h2 className="text-2xl md:text-3xl font-bold text-gray-900">
+            {lang === 'ar' ? 'ابدأ بهذه الفصول المجانية' : 'Commencez par ces chapitres offerts'}
+          </h2>
+          <p className="text-gray-600 mt-2">
+            {lang === 'ar' ? '300 سؤالاً مجانياً — بدون بطاقة بنكية' : '300 QCM gratuits — sans carte bancaire'}
+          </p>
+          <div className="mt-8 grid grid-cols-1 sm:grid-cols-3 gap-3">
+            {FREE_CHAPTERS.map((ch) => (
+              <Link key={ch.name} href={`/free-practice${lang === 'ar' ? '?lang=ar' : ''}`}
+                className="flex items-center justify-between gap-3 px-4 py-3 bg-white rounded-lg border border-gray-200 hover:border-teal-500 transition text-start">
+                <span className="font-semibold text-gray-900 text-sm">{ch.name}</span>
+                <span className="text-xs font-semibold text-teal-700">{lang === 'ar' ? 'مجاناً' : 'Gratuit'} →</span>
+              </Link>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ── Témoignages ── */}
+      <section className="py-16 md:py-20 bg-white">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6">
+          <SectionHead kicker={t('landing.testi.badge')} title={t('landing.testi.h2')} />
+          <div className="mb-10 flex items-start gap-4 rounded-lg border border-emerald-200 bg-emerald-50 px-5 py-4">
+            <GraduationCap className="hidden sm:block w-8 h-8 text-emerald-700 flex-shrink-0 mt-0.5" />
             <div>
-              <p className="text-xl md:text-2xl font-black text-white mb-1">
-                🎉 {lang === 'ar' ? 'لقد نجحوا.' : "Ils l'ont fait."}
+              <p className="text-lg font-bold text-emerald-900">
+                {lang === 'ar' ? 'لقد نجحوا.' : "Ils l'ont fait."}
               </p>
-              <p className="text-sm text-emerald-50 leading-relaxed">
+              <p className="text-sm text-emerald-800 leading-relaxed mt-0.5">
                 {lang === 'ar'
                   ? 'بفضل الله أولًا، ثم بفضل اجتهادهم. ونفخر بأن منصة البُرور كانت جزءًا من قصة نجاحهم.'
                   : "Grâce à Allah puis grâce à leur travail. Et nous sommes fiers d'avoir participé à leur réussite."}
@@ -190,16 +278,16 @@ export default function LandingPage() {
           </div>
         </div>
         <div className="overflow-hidden">
-          <div className="flex w-max gap-8 animate-marquee items-start">
+          <div className="flex w-max gap-6 animate-marquee items-start">
             {[...MARQUEE_ITEMS, ...MARQUEE_ITEMS].map((item, i) =>
               item.type === 'chat' ? (
                 <img key={`${item.src}-${i}`} src={item.src} alt="Témoignage"
-                  className="w-80 h-auto rounded-xl flex-shrink-0 transition-transform duration-300 hover:scale-105" />
+                  className="w-72 h-auto max-h-[28rem] object-cover object-top rounded-lg border border-gray-200 flex-shrink-0" />
               ) : (
-                <div key={`${item.name}-${i}`} className="flex flex-col items-center text-center group cursor-pointer flex-shrink-0">
-                  <img src={item.img} alt={item.name} className="w-80 h-auto rounded-xl mb-4 transition-transform duration-300 group-hover:scale-105" />
-                  <p className="font-bold text-base text-gray-900 group-hover:text-violet-600 transition">{item.name}</p>
-                  <p className="text-xs text-gray-400 mt-0.5">{item.role}</p>
+                <div key={`${item.name}-${i}`} className="flex flex-col items-center text-center flex-shrink-0">
+                  <img src={item.img} alt={item.name} className="w-72 h-auto max-h-[28rem] object-cover object-top rounded-lg border border-gray-200 mb-3" />
+                  <p className="font-semibold text-sm text-gray-900">{item.name}</p>
+                  <p className="text-xs text-gray-500 mt-0.5">{item.role}</p>
                 </div>
               )
             )}
@@ -207,314 +295,124 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* ── Vidéo démo ── */}
-      <section className="py-20 px-6 lg:px-10 bg-white">
-        <div className="max-w-6xl mx-auto text-center">
-          <p className="text-violet-600 text-xs font-bold uppercase tracking-widest mb-3">
-            {lang === 'ar' ? 'اكتشف المنصة' : 'Découvrez la plateforme'}
+      {/* ── Tarifs ── */}
+      <section id="tarifs" className="py-16 md:py-20 px-4 sm:px-6 bg-slate-50 border-t border-gray-100 scroll-mt-16">
+        <div className="max-w-5xl mx-auto">
+          <SectionHead center kicker={t('landing.pricing.badge')} title={t('landing.pricing.h2')} />
+          <p className="-mt-4 mb-8 text-center text-sm text-gray-600">
+            {lang === 'ar' ? 'هذه العروض خاصة بالمسابقة الوطنية للصحة. ' : 'Formules du concours national de santé. '}
+            <Link href="/residanat#tarifs" className="font-semibold text-teal-700 hover:underline">
+              {lang === 'ar' ? 'عروض مسابقة الإقامة ←' : 'Tarifs du Résidanat →'}
+            </Link>
           </p>
-          <h2 className="text-3xl md:text-4xl font-extrabold text-gray-900 mb-4">
-            {lang === 'ar' ? 'شاهد كيف يعمل البورور' : 'Voyez Al Bourour en action'}
-          </h2>
-          <p className="text-gray-500 text-sm mb-10 max-w-lg mx-auto">
-            {lang === 'ar'
-              ? 'جولة سريعة في المنصة — من التدريب إلى نتائجك في دقائق'
-              : 'Tour rapide de la plateforme — de l\'entraînement à vos résultats en quelques minutes'}
-          </p>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div>
-              <p className="text-sm font-semibold text-gray-500 mb-3">🇫🇷 Français</p>
-              <div className="relative rounded-3xl overflow-hidden shadow-2xl shadow-violet-100 border border-gray-100">
-                <video src="/demo-fr.mp4" controls playsInline preload="metadata" className="w-full aspect-video bg-gray-900" />
-              </div>
-            </div>
-            <div>
-              <p className="text-sm font-semibold text-gray-500 mb-3">🇲🇷 العربية</p>
-              <div className="relative rounded-3xl overflow-hidden shadow-2xl shadow-violet-100 border border-gray-100">
-                <video src="/demo-ar.mp4" controls playsInline preload="metadata" className="w-full aspect-video bg-gray-900" />
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
 
-      {/* ── Essai gratuit ── */}
-      <section className="py-16 px-6 lg:px-10 bg-violet-50">
-        <div className="max-w-6xl mx-auto">
-          <div className="text-center mb-8">
-            <span className="inline-flex items-center gap-2 bg-violet-100 text-violet-700 text-xs font-bold px-3 py-1.5 rounded-full mb-3">
-              🎁 {lang === 'ar' ? 'تجربة مجانية' : 'Essai gratuit'}
-            </span>
-            <h2 className="text-2xl font-extrabold text-gray-900">
-              {lang === 'ar' ? 'ابدأ بهذه الفصول المجانية' : 'Commencez par ces chapitres offerts'}
-            </h2>
-            <p className="text-gray-500 text-sm mt-2">
-              {lang === 'ar' ? '300 سؤالاً مجانياً — بدون بطاقة بنكية' : '300 QCM gratuits — sans carte bancaire'}
-            </p>
-          </div>
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 max-w-2xl mx-auto">
-            {FREE_CHAPTERS.map((ch) => (
-              <Link key={ch.name} href={`/free-practice${lang === 'ar' ? '?lang=ar' : ''}`}
-                className="flex flex-col items-center gap-3 p-6 bg-white rounded-2xl border-2 border-violet-100 hover:border-violet-400 hover:shadow-lg transition-all group">
-                <p className="font-bold text-gray-900 text-sm text-center">{ch.name}</p>
-                <span className="text-xs font-semibold text-violet-600 bg-violet-50 px-2 py-0.5 rounded-full group-hover:bg-violet-100 transition">
-                  {lang === 'ar' ? 'مجاناً' : 'Gratuit'}
-                </span>
-              </Link>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* ── Chiffres clés ── */}
-      <section className="py-20 px-6 lg:px-10 bg-white">
-        <div className="max-w-6xl mx-auto">
-          <div className="text-center mb-12">
-            <p className="text-violet-600 text-xs font-bold uppercase tracking-widest mb-2">
-              {lang === 'ar' ? 'الأرقام الرئيسية' : 'Chiffres clés'}
-            </p>
-            <h2 className="text-3xl font-extrabold text-gray-900">
-              {lang === 'ar' ? 'لماذا البورور ؟' : 'Pourquoi Al Bourour ?'}
-            </h2>
-          </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            {/* 4500+ QCM */}
-            <div className="p-6 rounded-2xl border border-gray-100 bg-gray-50 flex flex-col gap-3">
-              <div className="w-10 h-10 rounded-xl bg-violet-100 flex items-center justify-center">
-                <BookOpen className="w-5 h-5 text-violet-600" />
-              </div>
-              <p className="text-3xl font-black text-gray-900">4500+</p>
-              <div>
-                <p className="font-bold text-gray-800 text-sm">
-                  {lang === 'ar' ? 'سؤال لا غنى عنه' : 'QCM Incontournables'}
+          <div className={`mb-8 rounded-lg border px-5 py-4 text-center ${promoActive || isNursesDay ? 'border-red-200 bg-red-50' : 'border-gray-200 bg-white'}`}>
+            {promoActive && (
+              <>
+                <p className="text-2xl md:text-3xl font-bold text-red-600">
+                  {prices.upTo
+                    ? (lang === 'ar' ? `خصم حتى ${prices.maxPct}% !` : `Jusqu'à -${prices.maxPct}% !`)
+                    : prices.onGroup
+                      ? (lang === 'ar' ? `-${prices.maxPct}% على جميع الخطط !` : `-${prices.maxPct}% sur tous les plans !`)
+                      : (lang === 'ar' ? `-${prices.soloPct}% على الخطة الفردية !` : `-${prices.soloPct}% sur l'offre Solo !`)}
                 </p>
-                <p className="text-xs text-gray-500 mt-1">
-                  {lang === 'ar' ? 'تغطي 100% من البرنامج الرسمي الموريتاني' : 'Couvrant 100% du programme officiel mauritanien'}
-                </p>
-              </div>
-            </div>
-            {/* FR + AR */}
-            <div className="p-6 rounded-2xl border border-gray-100 bg-gray-50 flex flex-col gap-3">
-              <div className="w-10 h-10 rounded-xl bg-blue-100 flex items-center justify-center text-xl">🌐</div>
-              <p className="text-3xl font-black text-gray-900">FR · AR</p>
-              <div>
-                <p className="font-bold text-gray-800 text-sm">
-                  {lang === 'ar' ? 'متاح بالعربية والفرنسية' : 'Disponible en Arabe et Français'}
-                </p>
-                <p className="text-xs text-gray-500 mt-1">
-                  {lang === 'ar' ? 'غيّر اللغة بنقرة واحدة للفهم الكامل' : 'Changez de langue en un clic pour une compréhension totale'}
-                </p>
-              </div>
-            </div>
-            {/* Explications */}
-            <div className="p-6 rounded-2xl border border-gray-100 bg-gray-50 flex flex-col gap-3">
-              <div className="w-10 h-10 rounded-xl bg-emerald-100 flex items-center justify-center">
-                <CheckCircle2 className="w-5 h-5 text-emerald-600" />
-              </div>
-              <p className="text-3xl font-black text-gray-900">100%</p>
-              <div>
-                <p className="font-bold text-gray-800 text-sm">
-                  {lang === 'ar' ? 'فهم المفاهيم' : 'Comprenez les concepts'}
-                </p>
-                <p className="text-xs text-gray-500 mt-1">
-                  {lang === 'ar' ? 'كل سؤال مرفق بشرح طبي مفصّل' : "Questions suivies d'explications médicales"}
-                </p>
-              </div>
-            </div>
-            {/* Activation */}
-            <div className="p-6 rounded-2xl border border-gray-100 bg-gray-50 flex flex-col gap-3">
-              <div className="w-10 h-10 rounded-xl bg-amber-100 flex items-center justify-center">
-                <Clock className="w-5 h-5 text-amber-600" />
-              </div>
-              <p className="text-3xl font-black text-gray-900">10 min</p>
-              <div>
-                <p className="font-bold text-gray-800 text-sm">
-                  {lang === 'ar' ? 'تفعيل سريع' : 'Activation Express'}
-                </p>
-                <p className="text-xs text-gray-500 mt-1">
-                  {lang === 'ar' ? 'حسابك جاهز في 10 دقائق بعد الدفع' : 'Votre compte prêt en 10 min après paiement'}
-                </p>
-                <div className="flex gap-1.5 mt-2">
-                  {['bankily', 'masrivi', 'sedad'].map((op) => (
-                    <img key={op} src={`/images/${op}.png`} alt={op} className="h-5 w-auto object-contain opacity-70" />
-                  ))}
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* ── Features ── */}
-      <section className="py-28 px-6 lg:px-10 bg-slate-50">
-        <div className="max-w-6xl mx-auto">
-          <div className="mb-16">
-            <p className="text-violet-600 text-xs font-bold uppercase tracking-widest mb-3">{t('landing.features.badge')}</p>
-            <h2 className="text-3xl md:text-5xl font-extrabold text-gray-900 leading-tight max-w-lg">
-              {t('landing.features.h2')}
-            </h2>
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {FEATURES.map((f) => (
-              <div key={f.title}
-                className="group relative p-7 rounded-3xl border border-gray-100 bg-white hover:border-transparent hover:shadow-xl transition-all duration-300 overflow-hidden">
-                <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-3xl"
-                  style={{ background: `linear-gradient(135deg,${f.color}08,${f.color}03)` }} />
-                <div className="relative">
-                  <div className="w-12 h-12 rounded-2xl flex items-center justify-center mb-5"
-                    style={{ background: `${f.color}15` }}>
-                    <f.icon className="w-6 h-6" style={{ color: f.color }} />
-                  </div>
-                  <p className="text-xs font-bold uppercase tracking-wider mb-1" style={{ color: f.color }}>{f.subtitle}</p>
-                  <h3 className="font-extrabold text-gray-900 text-xl mb-2">{f.title}</h3>
-                  <p className="text-sm text-gray-500 leading-relaxed">{f.desc}</p>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* ── Pricing ── */}
-      <section id="tarifs" className="py-28 px-6 lg:px-10 bg-slate-50 scroll-mt-16">
-        <div className="max-w-6xl mx-auto">
-          <div className="mb-12 text-center">
-            <p className="text-violet-600 text-xs font-bold uppercase tracking-widest mb-3">{t('landing.pricing.badge')}</p>
-            <h2 className="text-3xl md:text-5xl font-extrabold text-gray-900">{t('landing.pricing.h2')}</h2>
-            <p className="mt-4 text-sm text-gray-500">
-              {lang === 'ar' ? 'هذه العروض خاصة بالمسابقة الوطنية للصحة. ' : 'Formules du concours national de santé. '}
-              <Link href="/residanat#tarifs" className="font-semibold text-sky-700 hover:underline">
-                {lang === 'ar' ? 'عروض مسابقة الإقامة ←' : 'Tarifs du Résidanat →'}
-              </Link>
-            </p>
-          </div>
-
-          <div className="mb-12 relative overflow-hidden rounded-3xl text-white text-center shadow-2xl shadow-red-300"
-            style={{ background: 'linear-gradient(135deg,#b91c1c 0%,#dc2626 40%,#f97316 100%)' }}>
-            <div className="absolute inset-0 opacity-[0.07]"
-              style={{ backgroundImage: 'radial-gradient(circle at 1px 1px,white 1px,transparent 0)', backgroundSize: '24px 24px' }} />
-            <div className="absolute top-0 left-1/4 w-64 h-32 rounded-full blur-3xl opacity-20 pointer-events-none"
-              style={{ background: 'radial-gradient(circle,#fbbf24,transparent)' }} />
-            <div className="relative px-8 py-8">
-              {promoActive && (
-                <>
-                  <p className="text-3xl md:text-4xl font-black mb-2 tracking-tight">
-                    {prices.upTo
-                      ? (lang === 'ar' ? `خصم حتى ${prices.maxPct}% !` : `Jusqu'à -${prices.maxPct}% !`)
-                      : prices.onGroup
-                        ? (lang === 'ar' ? `-${prices.maxPct}% على جميع الخطط !` : `-${prices.maxPct}% sur tous les plans !`)
-                        : (lang === 'ar' ? `-${prices.soloPct}% على الخطة الفردية !` : `-${prices.soloPct}% sur l'offre Solo !`)}
+                {formattedEndDate && (
+                  <p className="text-sm text-red-700 mt-1 mb-2">
+                    {lang === 'ar' ? `صالح حتى ${formattedEndDate}` : `valable jusqu'au ${formattedEndDate}`}
                   </p>
-                  {formattedEndDate && (
-                    <p className="text-white/80 text-base mb-4">
-                      {lang === 'ar' ? `صالح حتى ${formattedEndDate}` : `valable jusqu'au ${formattedEndDate}`}
-                    </p>
-                  )}
-                </>
-              )}
-              {isNursesDay ? (
-                <>
-                  <p className="text-3xl md:text-4xl font-black mb-2 tracking-tight">
-                    {lang === 'ar' ? 'عيد الممرضين العالمي السعيد !' : 'Bonne Journée Internationale des Infirmiers !'}
-                  </p>
-                  <p className="text-white/90 text-base md:text-lg max-w-2xl mx-auto leading-relaxed">
-                    {lang === 'ar'
-                      ? 'احتفالاً بهذا اليوم، استفد من عرض خاص سارٍ اليوم فقط.'
-                      : "Pour célébrer cette journée, profitez d'une offre spéciale valable aujourd'hui seulement."}
-                  </p>
-                </>
-              ) : (
-                <p className="text-white/90 text-base md:text-lg max-w-2xl mx-auto leading-relaxed">
+                )}
+              </>
+            )}
+            {isNursesDay ? (
+              <>
+                <p className="text-xl md:text-2xl font-bold text-gray-900">
+                  {lang === 'ar' ? 'عيد الممرضين العالمي السعيد !' : 'Bonne Journée Internationale des Infirmiers !'}
+                </p>
+                <p className="text-gray-700 mt-1">
                   {lang === 'ar'
-                    ? 'سجّل مرة واحدة، وذاكر حتى النهاية. آل بورور يرافقكم حتى باب قاعة الامتحان'
-                    : "Inscrivez-vous une fois, révisez jusqu'au bout. Al Bourour vous accompagne jusqu'à la porte de la salle d'examen"}
+                    ? 'احتفالاً بهذا اليوم، استفد من عرض خاص سارٍ اليوم فقط.'
+                    : "Pour célébrer cette journée, profitez d'une offre spéciale valable aujourd'hui seulement."}
                 </p>
-              )}
-            </div>
+              </>
+            ) : (
+              <p className="text-gray-700">
+                {lang === 'ar'
+                  ? 'سجّل مرة واحدة، وذاكر حتى النهاية. آل بورور يرافقكم حتى باب قاعة الامتحان'
+                  : "Inscrivez-vous une fois, révisez jusqu'au bout. Al Bourour vous accompagne jusqu'à la porte de la salle d'examen."}
+              </p>
+            )}
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 items-start max-w-5xl mx-auto w-full">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 items-stretch">
 
             {/* Solo */}
-            <div className="bg-white rounded-3xl border border-gray-200 p-8 shadow-sm">
-              <div className="w-10 h-10 rounded-2xl bg-violet-50 flex items-center justify-center mb-5">
-                <Target className="w-5 h-5 text-violet-600" />
-              </div>
-              <h3 className="font-extrabold text-xl text-gray-900 mb-1">{t('landing.pricing.solo1.name')}</h3>
-              <p className="text-gray-400 text-sm mb-6">{t('landing.pricing.solo1.desc')}</p>
-              <div className="mb-6">
+            <div className="flex flex-col bg-white rounded-lg border border-gray-200 p-6">
+              <Target className="w-6 h-6 text-teal-700 mb-4" />
+              <h3 className="font-bold text-lg text-gray-900">{t('landing.pricing.solo1.name')}</h3>
+              <p className="text-gray-500 text-sm mb-5">{t('landing.pricing.solo1.desc')}</p>
+              <div className="mb-6 flex-1">
                 {/* Prix barré d'affichage uniquement (le prix de base en base reste inchangé) */}
-                {promoActive && <p className="text-2xl font-black text-red-400 line-through">1500 MRU {lang === 'ar' ? 'سنوياً' : 'par an'}</p>}
-                <p className="text-4xl font-black text-gray-900">
-                  {prices.solo}
-                  <span className="text-lg font-semibold text-gray-400 ml-1">MRU</span>
+                {promoActive && <p className="text-lg font-semibold text-gray-400 line-through">1500 MRU {lang === 'ar' ? 'سنوياً' : 'par an'}</p>}
+                <p className="text-3xl font-bold text-gray-900">
+                  {prices.solo}<span className="text-base font-medium text-gray-500 ms-1">MRU</span>
                 </p>
-                {promoActive && prices.soloPct > 0 && <span className="inline-flex items-center gap-1 mt-2 bg-red-500 text-white text-sm font-black px-3 py-1.5 rounded-full">-{prices.soloPct}%</span>}
+                {promoActive && prices.soloPct > 0 && <span className="inline-block mt-2 bg-red-600 text-white text-xs font-bold px-2 py-1 rounded">-{prices.soloPct}%</span>}
               </div>
               <Link href="/register?plan=SOLO_1M"
-                className="block w-full text-center py-3 rounded-2xl font-bold text-sm text-white transition hover:opacity-90 shadow-md shadow-violet-200"
-                style={{ background: 'linear-gradient(135deg,#7c3aed,#6366f1)' }}>
+                className="block w-full text-center py-2.5 rounded-md font-semibold text-sm text-teal-700 border border-teal-600 hover:bg-teal-50 transition">
                 {t('landing.pricing.start')}
               </Link>
             </div>
 
             {/* Pack spécial jusqu'au concours (recommandé) */}
-            <div className="relative bg-white rounded-3xl border-2 border-amber-500 p-8 shadow-xl shadow-amber-100">
-              <div className="absolute -top-3.5 left-1/2 -translate-x-1/2">
-                <span className="bg-amber-500 text-white text-xs font-bold px-4 py-1.5 rounded-full whitespace-nowrap">{lang === 'ar' ? '⭐ موصى به' : '⭐ Recommandé'}</span>
-              </div>
-              <div className="w-10 h-10 rounded-2xl bg-amber-50 flex items-center justify-center mb-5">
-                <Trophy className="w-5 h-5 text-amber-600" />
-              </div>
-              <h3 className="font-extrabold text-xl text-gray-900 mb-1">{lang === 'ar' ? 'باك خاص' : 'Pack spécial'}</h3>
-              <p className="text-gray-400 text-sm mb-6">{lang === 'ar' ? 'حتى المسابقة · سنة على الأقل' : "Jusqu'au concours · 1 an minimum"}</p>
-              <div className="mb-6">
+            <div className="relative flex flex-col bg-white rounded-lg border-2 border-teal-600 p-6">
+              <span className="absolute -top-3 start-6 bg-teal-600 text-white text-xs font-semibold px-2.5 py-1 rounded">
+                {lang === 'ar' ? 'موصى به' : 'Recommandé'}
+              </span>
+              <Trophy className="w-6 h-6 text-teal-700 mb-4" />
+              <h3 className="font-bold text-lg text-gray-900">{lang === 'ar' ? 'باك خاص' : 'Pack spécial'}</h3>
+              <p className="text-gray-500 text-sm mb-5">{lang === 'ar' ? 'حتى المسابقة · سنة على الأقل' : "Jusqu'au concours · 1 an minimum"}</p>
+              <div className="mb-6 flex-1">
                 {/* Prix barré d'affichage uniquement */}
-                <p className="text-2xl font-black text-red-400 line-through">1500 MRU</p>
-                <p className="text-4xl font-black text-gray-900">
-                  {pricing?.concours?.price ?? 1000}
-                  <span className="text-lg font-semibold text-gray-400 ml-1">MRU</span>
+                <p className="text-lg font-semibold text-gray-400 line-through">1500 MRU</p>
+                <p className="text-3xl font-bold text-gray-900">
+                  {pricing?.concours?.price ?? 1000}<span className="text-base font-medium text-gray-500 ms-1">MRU</span>
                 </p>
               </div>
               <Link href="/register?plan=CONCOURS"
-                className="block w-full text-center py-3 rounded-2xl font-bold text-sm text-white transition hover:opacity-90 shadow-md shadow-amber-200"
-                style={{ background: 'linear-gradient(135deg,#f59e0b,#d97706)' }}>
+                className="block w-full text-center py-2.5 rounded-md font-semibold text-sm text-white bg-teal-600 hover:bg-teal-700 transition">
                 {t('landing.pricing.start')}
               </Link>
             </div>
 
             {/* Pack Amis */}
-            <div className="relative bg-white rounded-3xl border-2 border-emerald-500 p-8 shadow-xl shadow-emerald-100">
-              <div className="w-10 h-10 rounded-2xl bg-emerald-50 flex items-center justify-center mb-5">
-                <Users className="w-5 h-5 text-emerald-600" />
-              </div>
-              <h3 className="font-extrabold text-xl text-gray-900 mb-1">{t('landing.pricing.group.name')}</h3>
-              <p className="text-gray-400 text-sm mb-1">{lang === 'ar' ? 'لمدة 6 أشهر' : 'Accès pendant 6 mois'}</p>
-              <p className="text-emerald-600 text-sm font-bold mb-4">
-                {lang === 'ar' ? '🎁 ادفع لـ 2، وتعالوا 3!' : '🎁 Payez pour 2, venez à 3 !'}
+            <div className="flex flex-col bg-white rounded-lg border border-gray-200 p-6">
+              <Users className="w-6 h-6 text-teal-700 mb-4" />
+              <h3 className="font-bold text-lg text-gray-900">{t('landing.pricing.group.name')}</h3>
+              <p className="text-gray-500 text-sm">{lang === 'ar' ? 'لمدة 6 أشهر' : 'Accès pendant 6 mois'}</p>
+              <p className="text-emerald-700 text-sm font-semibold mb-4 mt-1">
+                {lang === 'ar' ? 'ادفع لـ 2، وتعالوا 3!' : 'Payez pour 2, venez à 3 !'}
               </p>
-              <div className="mb-1">
+              <div className="mb-6 flex-1">
                 {promoActive && promoIncludesGroup && (
-                  <p className="text-2xl font-black text-red-400 line-through">
+                  <p className="text-lg font-semibold text-gray-400 line-through">
                     3000 MRU {lang === 'ar' ? 'سنوياً' : 'par an'}
                   </p>
                 )}
-                <p className="text-4xl font-black text-gray-900">
-                  {prices.group}
-                  <span className="text-lg font-semibold text-gray-400 ml-1">MRU</span>
+                <p className="text-3xl font-bold text-gray-900">
+                  {prices.group}<span className="text-base font-medium text-gray-500 ms-1">MRU</span>
                 </p>
                 {promoActive && promoIncludesGroup && (
-                  <span className="inline-flex items-center gap-1 mt-2 bg-red-500 text-white text-sm font-black px-3 py-1.5 rounded-full">-{prices.groupPct}%</span>
+                  <span className="inline-block mt-2 bg-red-600 text-white text-xs font-bold px-2 py-1 rounded">-{prices.groupPct}%</span>
                 )}
+                <p className="text-sm text-gray-600 mt-2">
+                  {lang === 'ar'
+                    ? `بطاقة بـ ${prices.groupPerPerson} MRU للشخص وأنتم مسجلون!`
+                    : `Un billet de ${prices.groupPerPerson} MRU chacun et vous êtes inscrits !`}
+                </p>
               </div>
-              <p className="text-sm text-emerald-600 font-semibold mb-6">
-                {lang === 'ar'
-                  ? `بطاقة بـ ${prices.groupPerPerson} MRU للشخص وأنتم مسجلون!`
-                  : `Un billet de ${prices.groupPerPerson} MRU chacun et vous êtes inscrits !`}
-              </p>
               <Link href="/register?plan=GROUP"
-                className="block w-full text-center py-3 rounded-2xl font-bold text-sm text-white transition hover:opacity-90 shadow-md shadow-emerald-200"
-                style={{ background: 'linear-gradient(135deg,#059669,#10b981)' }}>
+                className="block w-full text-center py-2.5 rounded-md font-semibold text-sm text-teal-700 border border-teal-600 hover:bg-teal-50 transition">
                 {t('landing.pricing.group.create')}
               </Link>
             </div>
@@ -522,95 +420,88 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* ── CTA final ── */}
-      <section className="px-6 lg:px-10 pb-28 pt-16">
-        <div className="max-w-6xl mx-auto">
-          <div className="relative rounded-3xl overflow-hidden px-10 py-16 text-center text-white"
-            style={{ background: 'linear-gradient(145deg,#0f0a2e,#1a1040,#0d1b3e)' }}>
-            <div className="absolute top-0 left-1/2 -translate-x-1/2 w-96 h-48 rounded-full blur-3xl opacity-25"
-              style={{ background: 'radial-gradient(circle,#7c3aed,transparent)' }} />
-            <div className="relative">
-              <p className="text-violet-400 text-xs font-bold uppercase tracking-widest mb-4">{t('landing.cta.badge')}</p>
-              <h2 className="text-3xl md:text-5xl font-extrabold mb-4 leading-tight">
-                {t('landing.cta.h2a')}<br />{t('landing.cta.h2b')}
-              </h2>
-              <p className="text-white/50 text-sm mb-8 max-w-md mx-auto leading-relaxed">
-                {t('landing.cta.desc')}
-              </p>
-              <Link href="/register"
-                className="inline-flex items-center gap-2 font-bold px-8 py-4 rounded-2xl text-sm transition hover:opacity-90 shadow-xl shadow-violet-900/50 text-white"
-                style={{ background: 'linear-gradient(135deg,#7c3aed,#6366f1)' }}>
-                {t('landing.cta.button')} <ArrowRight className="w-4 h-4" />
-              </Link>
-            </div>
-          </div>
-        </div>
-      </section>
-
       {/* ── Citations ── */}
-      <section className="py-20 px-6 lg:px-10 bg-slate-50">
-        <div className="max-w-4xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-6">
-
-          {/* Cheikh Ahmedou Bamba */}
-          <div className="bg-white rounded-3xl border border-gray-100 p-8 shadow-sm">
-            <p className="text-right text-gray-800 leading-loose text-base font-medium mb-4" dir="rtl">
-              ولا تكن في كل يوم تاركا <span className="text-violet-300 mx-2 select-none">‖</span> تعلما واعمل به مداركا<br />
-              فالعلم يحيي قلب من تعلما <span className="text-violet-300 mx-2 select-none">‖</span> ينوّر النفس يقيها الظّلما
+      <section className="py-16 px-4 sm:px-6 bg-white">
+        <div className="max-w-4xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-4">
+          <figure className="rounded-lg border border-gray-200 border-s-4 border-s-teal-600 p-6">
+            <p className="text-right text-gray-900 leading-loose text-base font-medium mb-4" dir="rtl">
+              ولا تكن في كل يوم تاركا <span className="text-gray-300 mx-2 select-none">‖</span> تعلما واعمل به مداركا<br />
+              فالعلم يحيي قلب من تعلما <span className="text-gray-300 mx-2 select-none">‖</span> ينوّر النفس يقيها الظّلما
             </p>
-            <p className="text-sm text-gray-500 italic leading-relaxed border-t border-gray-100 pt-4">
+            <p className="text-sm text-gray-600 italic leading-relaxed border-t border-gray-100 pt-4">
               Ne cesse chaque jour d'apprendre, puis de mettre en pratique ce que tu as appris.
               Le savoir ranime le cœur de qui l'étudie, éclaire l'âme et la protège des ténèbres.
             </p>
-            <p className="text-xs text-violet-600 font-bold mt-3">— الشيخ أحمد بمب امباكي · Cheikh Ahmedou Bamba Mbacke</p>
-          </div>
-
-          {/* William Osler */}
-          <div className="bg-white rounded-3xl border border-gray-100 p-8 shadow-sm">
-            <p className="text-gray-800 leading-relaxed text-base italic mb-4">
+            <figcaption className="text-xs text-teal-700 font-semibold mt-3">— الشيخ أحمد بمب امباكي · Cheikh Ahmedou Bamba Mbacke</figcaption>
+          </figure>
+          <figure className="rounded-lg border border-gray-200 border-s-4 border-s-teal-600 p-6">
+            <p className="text-gray-900 leading-relaxed text-base italic mb-4">
               "Celui qui étudie la médecine sans livres navigue sur une mer inexplorée, mais celui qui étudie la médecine sans patients ne prend pas du tout la mer."
             </p>
             <p className="text-right text-gray-600 text-sm leading-relaxed mb-4" dir="rtl">
               «من يدرس الطب بلا كتب يبحر في بحرٍ مجهولٍ، ومن يدرس الطب بلا مرضى فلا يبحر إطلاقًا»
             </p>
-            <p className="text-xs text-violet-600 font-bold">— Sir William Osler</p>
-          </div>
+            <figcaption className="text-xs text-teal-700 font-semibold">— Sir William Osler</figcaption>
+          </figure>
+        </div>
+      </section>
 
+      {/* ── Appel final ── */}
+      <section className="px-4 sm:px-6 pb-16">
+        <div className="max-w-5xl mx-auto rounded-lg bg-teal-700 px-6 py-12 md:px-12 text-center text-white">
+          <h2 className="text-2xl md:text-3xl font-bold">
+            {t('landing.cta.h2a')} {t('landing.cta.h2b')}
+          </h2>
+          <p className="text-teal-50 mt-3 max-w-xl mx-auto leading-relaxed">{t('landing.cta.desc')}</p>
+          <Link href="/register"
+            className="mt-6 inline-flex items-center gap-2 font-semibold px-6 py-3 rounded-md text-sm bg-white text-teal-800 hover:bg-teal-50 transition">
+            {t('landing.cta.button')} <ArrowRight className="w-4 h-4 rtl:rotate-180" />
+          </Link>
         </div>
       </section>
 
       {/* ── Footer ── */}
-      <footer className="border-t border-gray-100 py-10 px-6 lg:px-10">
+      <footer className="border-t border-gray-200 bg-slate-50 py-10 px-4 sm:px-6">
         <div className="max-w-6xl mx-auto">
-          <div className="flex flex-col sm:flex-row items-center justify-between gap-6 text-sm text-gray-400 mb-6">
-            <div className="flex items-center gap-2">
-              <div className="w-6 h-6 rounded-md flex items-center justify-center"
-                style={{ background: 'linear-gradient(135deg,#7c3aed,#6366f1)' }}>
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-6 text-sm text-gray-500 mb-6">
+            <div className="flex items-center gap-2 flex-wrap justify-center">
+              <span className="w-6 h-6 rounded-md bg-teal-600 flex items-center justify-center">
                 <BookOpen className="w-3 h-3 text-white" />
-              </div>
-              <span className="font-bold text-gray-600">{t('app.name')}</span>
+              </span>
+              <span className="font-bold text-gray-700">{t('app.name')}</span>
               <span className="text-gray-300">·</span>
               <span>{t('landing.footer.tagline')}</span>
             </div>
             <div className="flex items-center gap-5">
-              <Link href="/login" className="hover:text-gray-700 transition">{t('landing.footer.login')}</Link>
-              <Link href="/register" className="hover:text-gray-700 transition">{t('landing.footer.register')}</Link>
+              <Link href="/residanat" className="hover:text-gray-900 transition">Résidanat</Link>
+              <Link href="/login" className="hover:text-gray-900 transition">{t('landing.footer.login')}</Link>
+              <Link href="/register" className="hover:text-gray-900 transition">{t('landing.footer.register')}</Link>
             </div>
           </div>
-
-          {/* Logos de paiement */}
-          <div className="flex flex-col items-center gap-3 pt-4 border-t border-gray-100">
-            <p className="text-xs text-gray-400 font-semibold uppercase tracking-wider">
+          <div className="flex flex-col items-center gap-3 pt-6 border-t border-gray-200">
+            <p className="text-xs text-gray-500 font-semibold uppercase tracking-wider">
               {lang === 'ar' ? 'طرق الدفع المقبولة' : 'Paiement accepté via'}
             </p>
             <div className="flex items-center gap-6">
               {['bankily', 'masrivi', 'sedad'].map((op) => (
-                <img key={op} src={`/images/${op}.png`} alt={op} className="h-8 w-auto object-contain opacity-70 hover:opacity-100 transition" />
+                <img key={op} src={`/images/${op}.png`} alt={op} className="h-8 w-auto object-contain" />
               ))}
             </div>
           </div>
         </div>
       </footer>
 
+    </div>
+  );
+}
+
+/** Titre de section sobre, commun à toute la page d'accueil */
+function SectionHead({ kicker, title, desc, center }: { kicker?: string; title: string; desc?: string; center?: boolean }) {
+  return (
+    <div className={`mb-10 ${center ? 'text-center' : ''}`}>
+      {kicker && <p className="text-teal-700 text-sm font-semibold mb-2">{kicker}</p>}
+      <h2 className={`text-2xl md:text-3xl font-bold text-gray-900 ${center ? '' : 'max-w-2xl'}`}>{title}</h2>
+      {desc && <p className={`text-gray-600 mt-3 ${center ? 'max-w-xl mx-auto' : 'max-w-2xl'}`}>{desc}</p>}
     </div>
   );
 }
