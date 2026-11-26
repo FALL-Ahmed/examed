@@ -58,9 +58,13 @@ function RegisterContent() {
   const { t, lang } = useLang();
   const isAr = lang === 'ar';
 
-  // ?profil=resident (lien depuis la page /residanat) : profil Résident pré-sélectionné
+  // Rubrique choisie sur l'accueil : ?concours=residanat → seul le Résidanat ; ?concours=sante → infirmier, sage-femme, biologiste.
+  // (?profil=resident, ancien lien de la page /residanat, équivaut à ?concours=residanat)
+  // « Recrutement fonction publique » propose les mêmes profils que le concours de santé
+  const concoursParam = searchParams.get('concours') ?? (searchParams.get('profil') === 'resident' ? 'residanat' : null);
+  const concours = concoursParam === 'fonction-publique' ? 'sante' : concoursParam;
   const [form, setForm] = useState({
-    firstName: '', lastName: '', email: '', password: '', profession: searchParams.get('profil') === 'resident' ? 'resident' : '', phone: '',
+    firstName: '', lastName: '', email: '', password: '', profession: concours === 'residanat' ? 'resident' : '', phone: '',
   });
   const [showPwd, setShowPwd] = useState(false);
   const [formError, setFormError] = useState('');
@@ -285,7 +289,9 @@ function RegisterContent() {
         <div className="relative space-y-8">
           <div>
             <p className="text-indigo-300 text-xs font-bold uppercase tracking-widest mb-3">
-              {isAr ? 'مسابقة الصحة — موريتانيا' : 'Concours de santé — Mauritanie'}
+              {isResident
+                ? (isAr ? 'مسابقة الإقامة — موريتانيا' : 'Concours de Résidanat — Mauritanie')
+                : (isAr ? 'مسابقة الصحة — موريتانيا' : 'Concours de santé — Mauritanie')}
             </p>
             <h2 className="text-3xl font-extrabold text-white leading-tight">
               {isAr ? 'أنشئ حسابك' : 'Créez votre compte'}
@@ -300,9 +306,13 @@ function RegisterContent() {
           </div>
 
           <div className="space-y-2.5">
-            {(isAr
-              ? ['+600 سؤال طبي معتمد', 'للممرضين والأطباء والتقنيين', 'مكيّف مع المسابقات الموريتانية', 'وصول فوري بعد التحقق']
-              : ['600+ questions médicales validées', 'Pour infirmiers, médecins, techniciens', 'Adapté aux concours mauritaniens', 'Accès activé dès validation']
+            {(isResident
+              ? (isAr
+                ? ['+8000 سؤال مصحّح ومعلّق عليه', '3 وحدات: العلوم الأساسية، الأمراض الباطنية، الأمراض الجراحية', 'المحتوى بالفرنسية', 'وصول فوري بعد التحقق']
+                : ['8 000+ QCM corrigés et commentés', '3 modules : sciences fondamentales, pathologie médicale, pathologie chirurgicale', 'Contenu en français', 'Accès activé dès validation'])
+              : (isAr
+                ? ['+600 سؤال طبي معتمد', 'للممرضين والأطباء والتقنيين', 'مكيّف مع المسابقات الموريتانية', 'وصول فوري بعد التحقق']
+                : ['600+ questions médicales validées', 'Pour infirmiers, médecins, techniciens', 'Adapté aux concours mauritaniens', 'Accès activé dès validation'])
             ).map((item) => (
               <div key={item} className="flex items-center gap-2.5">
                 <div className="w-1.5 h-1.5 rounded-full bg-violet-400 flex-shrink-0" />
@@ -469,13 +479,13 @@ function RegisterContent() {
 
               <div id="field-profession">
                 <label className={labelClass}>{isAr ? 'المهنة' : 'Profession'} <span className="text-red-400">*</span></label>
-                <div className="grid grid-cols-2 gap-3 mt-1">
+                <div className={`grid ${concours === 'residanat' ? 'grid-cols-1' : concours === 'sante' ? 'grid-cols-3' : 'grid-cols-2'} gap-3 mt-1`}>
                   {[
                     { value: 'etudiant_infirmier', fr: 'Infirmier(e)', ar: 'ممرض / ممرضة', icon: '🏥', active: 'border-indigo-500 bg-indigo-50 text-indigo-700' },
                     { value: 'sage_femme',          fr: 'Sage-femme',  ar: 'قابلة',         icon: '👶', active: 'border-pink-500 bg-pink-50 text-pink-700' },
                     { value: 'biologiste',          fr: 'Biologiste',  ar: 'بيولوجي',       icon: '🔬', active: 'border-emerald-500 bg-emerald-50 text-emerald-700' },
-                    { value: 'resident',            fr: 'Résident(e)', ar: 'طبيب مقيم',     icon: '🩺', active: 'border-sky-500 bg-sky-50 text-sky-700' },
-                  ].map((p) => (
+                    { value: 'resident',            fr: 'Résidanat',   ar: 'الإقامة (Résidanat)', icon: '🩺', active: 'border-sky-500 bg-sky-50 text-sky-700' },
+                  ].filter((p) => concours === 'residanat' ? p.value === 'resident' : concours === 'sante' ? p.value !== 'resident' : true).map((p) => (
                     <button key={p.value} type="button" onClick={() => set('profession', p.value)}
                       className={`flex flex-col items-center gap-2 py-4 px-3 rounded-2xl border-2 font-semibold text-sm transition
                         ${form.profession === p.value ? p.active : 'border-gray-200 bg-white text-gray-500 hover:border-gray-300 hover:bg-gray-50'}`}>

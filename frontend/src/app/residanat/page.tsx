@@ -12,7 +12,7 @@ import { computePrices, type PromoSettings } from '@/lib/promo';
 
 // Page publique du Résidanat : bilingue (comme l'accueil), contenu des QCM en français uniquement.
 const MODULE_ICONS = [FlaskConical, HeartPulse, Scissors];
-const REGISTER = '/register?profil=resident';
+const REGISTER = '/register?concours=residanat';
 
 export default function ResidanatPage() {
   const { lang } = useLang();
@@ -151,11 +151,17 @@ export default function ResidanatPage() {
                     {subs.length > 0 && <ChevronDown className={`w-5 h-5 text-gray-400 transition-transform ${isOpen ? 'rotate-180' : ''}`} />}
                   </button>
                   {isOpen && (
-                    <div className="px-5 pb-5 flex flex-wrap gap-2" dir="ltr">
-                      {subs.map((s: any) => (
-                        <span key={s.id} className="text-xs px-2.5 py-1 rounded-full bg-slate-100 text-slate-700">{s.name}</span>
+                    <ol className="px-5 pb-5 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-6 gap-y-1 border-t border-gray-100 pt-4" dir="ltr">
+                      {subs.map((s: any, k: number) => (
+                        <li key={s.id} className="flex items-center gap-3 py-2 border-b border-gray-50">
+                          <span className="w-8 h-8 flex-shrink-0 rounded-lg bg-sky-50 text-sky-700 text-xs font-bold flex items-center justify-center tabular-nums">
+                            {String(k + 1).padStart(2, '0')}
+                          </span>
+                          <span className="flex-1 min-w-0 text-sm text-gray-800 leading-snug">{s.name}</span>
+                          <span className="flex-shrink-0 text-xs text-gray-400 tabular-nums">{s._count?.questions ?? 0} QCM</span>
+                        </li>
                       ))}
-                    </div>
+                    </ol>
                   )}
                 </div>
               );

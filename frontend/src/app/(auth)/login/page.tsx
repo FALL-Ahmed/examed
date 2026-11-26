@@ -378,7 +378,7 @@ export default function LoginPage() {
                       { value: 'etudiant_infirmier', label: 'Infirmier(e)', icon: '🏥', active: 'border-indigo-500 bg-indigo-50 text-indigo-700' },
                       { value: 'sage_femme',          label: 'Sage-femme',  icon: '👶', active: 'border-pink-500 bg-pink-50 text-pink-700' },
                       { value: 'biologiste',          label: 'Biologiste',  icon: '🔬', active: 'border-emerald-500 bg-emerald-50 text-emerald-700' },
-                      { value: 'resident',            label: 'Résident(e)', icon: '🩺', active: 'border-sky-500 bg-sky-50 text-sky-700' },
+                      { value: 'resident',            label: 'Résidanat', icon: '🩺', active: 'border-sky-500 bg-sky-50 text-sky-700' },
                     ].map((p) => (
                       <button key={p.value} type="button" onClick={() => setSetupProfession(p.value)}
                         className={`flex-1 flex flex-col items-center gap-1.5 py-3 rounded-xl border text-sm font-semibold transition ${
