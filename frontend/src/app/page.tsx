@@ -6,7 +6,7 @@ import { useAuthStore } from '@/lib/auth-store';
 import { useLang } from '@/components/LanguageProvider';
 import {
   BookOpen, Zap, TrendingUp, CheckCircle2,
-  GraduationCap, ArrowRight, Target, Users, Clock, FileText, ClipboardList, Trophy, Stethoscope,
+  GraduationCap, ArrowRight, Target, Users, Clock, FileText, ClipboardList, Trophy, Stethoscope, ChevronDown,
 } from 'lucide-react';
 import { settingsApi } from '@/lib/api';
 import { computePrices, type PromoSettings } from '@/lib/promo';
@@ -18,6 +18,7 @@ export default function LandingPage() {
   const { loadUser } = useAuthStore();
   const { t, lang } = useLang();
   const [pricing, setPricing] = useState<any>(null);
+  const [regOpen, setRegOpen] = useState(false);
   const [promoSettings, setPromoSettings] = useState<PromoSettings | null>(null);
   const promoActive = promoSettings?.active ?? false;
   const promoDiscount = promoSettings?.discount ?? 30;
@@ -74,7 +75,6 @@ export default function LandingPage() {
     });
   }, []);
 
-  const line2prefix = t('landing.hero.line2prefix');
 
   // Journée Internationale des Infirmiers — 12 mai uniquement
   const today = new Date();
@@ -101,7 +101,7 @@ export default function LandingPage() {
               {t('auth.register.submit')} →
             </Link>
             <Link href="/login"
-              className="text-sm font-semibold text-gray-500 hover:text-gray-900 px-3 py-2 rounded-lg hover:bg-gray-100 transition whitespace-nowrap flex-shrink-0">
+              className="hidden sm:inline-block text-sm font-semibold text-gray-500 hover:text-gray-900 px-3 py-2 rounded-lg hover:bg-gray-100 transition whitespace-nowrap flex-shrink-0">
               {t('auth.login.submit')}
             </Link>
           </div>
@@ -109,74 +109,62 @@ export default function LandingPage() {
       </nav>
 
       {/* ── Hero ── */}
-      <section className="relative overflow-hidden"
-        style={{ background: 'linear-gradient(160deg,#0f0a2e 0%,#1a1040 40%,#0d1b3e 100%)' }}>
+      {/* Hero simple (style PassMedicine) : fond médical discret + encadré centré */}
+      <section className="relative overflow-hidden bg-gradient-to-br from-sky-100 via-teal-50 to-emerald-100">
+        <svg className="absolute inset-0 w-full h-full pointer-events-none opacity-40" viewBox="0 0 1200 400" preserveAspectRatio="none" aria-hidden>
+          <defs>
+            <pattern id="hero-grid" width="24" height="24" patternUnits="userSpaceOnUse"><path d="M24 0H0V24" fill="none" stroke="#5eead4" strokeWidth="0.6" /></pattern>
+          </defs>
+          <rect width="1200" height="400" fill="url(#hero-grid)" />
+          <path d="M0,220 L180,220 L200,200 L215,220 L260,220 L272,240 L288,110 L304,300 L318,220 L380,220 L400,195 L425,220 L620,220 L640,200 L655,220 L700,220 L712,240 L728,110 L744,300 L758,220 L820,220 L840,195 L865,220 L1200,220"
+            fill="none" stroke="#0d9488" strokeWidth="2.5" strokeLinejoin="round" />
+        </svg>
 
-        <div className="absolute top-0 left-1/4 w-96 h-96 rounded-full blur-3xl opacity-20 pointer-events-none"
-          style={{ background: 'radial-gradient(circle,#7c3aed,transparent)' }} />
-        <div className="absolute bottom-0 right-1/4 w-72 h-72 rounded-full blur-3xl opacity-15 pointer-events-none"
-          style={{ background: 'radial-gradient(circle,#3b82f6,transparent)' }} />
-        <div className="absolute inset-0 opacity-[0.03] pointer-events-none"
-          style={{ backgroundImage: 'linear-gradient(rgba(255,255,255,.4) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.4) 1px,transparent 1px)', backgroundSize: '40px 40px' }} />
-
-        <div className="relative max-w-6xl mx-auto px-6 lg:px-10 pt-24 pb-32">
-          <div className="max-w-3xl">
-
-            <div className="inline-flex items-center gap-2 bg-white/10 border border-white/20 text-violet-300 text-xs font-semibold px-3 py-1.5 rounded-full mb-8 backdrop-blur-sm">
-              <GraduationCap className="w-3.5 h-3.5" />
-              {t('landing.hero.badge')}
-            </div>
-
-            <h1 className="text-4xl md:text-6xl font-extrabold leading-[1.1] tracking-tight text-white mb-6">
-              {t('landing.hero.line1')}<br />
-              {line2prefix && <>{line2prefix}{' '}</>}
-              <span className="text-transparent bg-clip-text"
-                style={{ backgroundImage: 'linear-gradient(90deg,#a78bfa,#60a5fa)' }}>
-                {t('landing.hero.accent')}
-              </span>
+        <div className="relative max-w-6xl mx-auto px-4 sm:px-6 py-16 md:py-24 flex justify-center">
+          <div className="w-full max-w-2xl bg-white/85 backdrop-blur-sm rounded-lg shadow-md border border-white px-6 py-8 md:px-10 md:py-10 text-center">
+            <h1 className="text-3xl md:text-4xl font-bold text-gray-900">
+              {lang === 'ar' ? 'منصّة التحضير للمسابقات الطبية' : 'Préparez vos concours médicaux'}
             </h1>
-
-            <p className="text-lg text-white/60 max-w-xl mb-10 leading-relaxed">
-              {t('landing.hero.desc')}
+            <p className="mt-3 text-gray-600 text-base md:text-lg">
+              {lang === 'ar'
+                ? 'بنوك أسئلة مصحّحة ومعلّق عليها للإقامة ومسابقات الصحة والوظيفة العمومية في موريتانيا.'
+                : 'Des banques de QCM corrigés et commentés pour le Résidanat, les concours de santé et la fonction publique en Mauritanie.'}
             </p>
-
-            <div className="flex flex-col sm:flex-row gap-3">
-              <Link href={`/free-practice${lang === 'ar' ? '?lang=ar' : ''}`}
-                className="inline-flex items-center justify-center gap-2 text-white font-bold px-7 py-4 rounded-2xl text-sm transition hover:opacity-90 shadow-xl shadow-violet-900/50"
-                style={{ background: 'linear-gradient(135deg,#7c3aed,#6366f1)' }}>
-                {t('landing.hero.start')} <ArrowRight className="w-4 h-4" />
-              </Link>
-              <Link href="/login"
-                className="inline-flex items-center justify-center gap-2 text-white/70 font-semibold px-7 py-4 rounded-2xl text-sm border border-white/15 hover:bg-white/10 transition">
-                {t('landing.hero.hasAccount')}
-              </Link>
-            </div>
-
-            {/* Stats bar */}
-            <div className="flex flex-wrap gap-8 mt-12 pt-10 border-t border-white/10">
-              <div>
-                <p className="text-2xl font-extrabold text-white">4500+</p>
-                <p className="text-xs text-white/40 mt-0.5">{t('landing.stat.q')}</p>
-              </div>
-              <div>
-                <p className="text-2xl font-extrabold text-white">FR · AR</p>
-                <p className="text-xs text-white/40 mt-0.5">{t('landing.stat.themes')}</p>
-              </div>
-              <div>
-                <p className="text-2xl font-extrabold text-white">100%</p>
-                <p className="text-xs text-white/40 mt-0.5">{t('landing.stat.adapted')}</p>
-              </div>
-              <div>
-                <p className="text-2xl font-extrabold text-white">24/7</p>
-                <p className="text-xs text-white/40 mt-0.5">{t('landing.stat.available')}</p>
+            <div className="mt-6 flex flex-wrap justify-center gap-3">
+              <a href="#rubriques"
+                className="inline-flex items-center px-5 py-2.5 rounded-md bg-teal-600 hover:bg-teal-700 text-white font-semibold text-sm transition">
+                {lang === 'ar' ? 'اعرف المزيد' : 'En savoir plus'}
+              </a>
+              <div className="relative">
+                <button type="button" onClick={() => setRegOpen((o) => !o)} aria-expanded={regOpen}
+                  className="inline-flex items-center gap-1.5 px-5 py-2.5 rounded-md bg-emerald-600 hover:bg-emerald-700 text-white font-semibold text-sm transition">
+                  {lang === 'ar' ? 'سجّل' : "S'inscrire"} <ChevronDown className="w-4 h-4" />
+                </button>
+                {regOpen && (
+                  <div className="absolute z-20 mt-1 end-0 sm:end-auto sm:start-0 min-w-[15rem] bg-white rounded-md shadow-lg border border-gray-200 py-1 text-start">
+                    {[
+                      { href: '/register?concours=residanat', label: lang === 'ar' ? 'مسابقة الإقامة (Résidanat)' : 'Concours de Résidanat' },
+                      { href: '/register?concours=sante', label: lang === 'ar' ? 'المسابقة الوطنية للصحة' : 'Concours de santé' },
+                      { href: '/register?concours=fonction-publique', label: lang === 'ar' ? 'الوظيفة العمومية' : 'Recrutement fonction publique' },
+                    ].map((o) => (
+                      <Link key={o.href} href={o.href} className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">{o.label}</Link>
+                    ))}
+                  </div>
+                )}
               </div>
             </div>
+            <p className="mt-5 text-sm text-gray-500">
+              {lang === 'ar' ? 'لديك حساب؟ ' : 'Déjà inscrit ? '}
+              <Link href="/login" className="text-teal-700 font-semibold hover:underline">{t('auth.login.submit')}</Link>
+            </p>
           </div>
         </div>
       </section>
 
       {/* ── Rubriques : Résidanat, Concours de santé, Fonction publique ── */}
-      <ConcoursCards lang={lang} />
+      <div id="rubriques" className="scroll-mt-16">
+        <ConcoursCards lang={lang} />
+      </div>
 
       {/* ── Testimonials ── */}
       <section className="py-20 px-6 lg:px-10 bg-slate-50">
